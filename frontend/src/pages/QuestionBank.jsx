@@ -54,7 +54,7 @@ export default function QuestionBank() {
         <FilterGroup label="Company">
           {COMPANIES.map(c => (
             <FilterPill key={c.id} active={filters.company === c.id} onClick={() => setF('company', c.id)} testid={`filter-company-${c.id}`}>
-              <CompanyBadge companyId={c.id} size="sm" /><span>{c.name}</span>
+              <CompanyBadge companyId={c.id} size="sm" testIdPrefix="filter-badge" /><span>{c.name}</span>
             </FilterPill>
           ))}
         </FilterGroup>
