@@ -1,0 +1,98 @@
+{
+  "theme": "DARK",
+  "archetype": "4 (Swiss & High-Contrast)",
+  "design_philosophy": {
+    "aesthetic": "Clean, dense, professional — like Linear or Raycast. No bootcamp tutorial vibes. Zero purple gradients.",
+    "tone": "Focused, no-fluff, tactical. Progress should feel earned.",
+    "audience": "Working software engineers, impatient, with high standards."
+  },
+  "typography": {
+    "headings": "IBM Plex Sans",
+    "body": "IBM Plex Sans",
+    "mono": "JetBrains Mono",
+    "rules": [
+      "Use tracking-tight for headings (>32px).",
+      "Uppercase, wide spacing (tracking-[0.2em]) for overlines/labels.",
+      "Line height: leading-none for headers, leading-relaxed for body.",
+      "Use Monospace (JetBrains Mono) for all code, JDs, question content, and technical data.",
+      "Hierarchy Gap Rule: Do not jump more than 2 tailwind sizes between heading and subheading."
+    ]
+  },
+  "colors": {
+    "background": "#09090b",
+    "surface": "#121214",
+    "surface_hover": "#18181b",
+    "border": "rgba(255, 255, 255, 0.08)",
+    "text_primary": "#fafafa",
+    "text_secondary": "#a1a1aa",
+    "text_muted": "#71717a",
+    "brand_accent": "#ffffff",
+    "brand_accent_fg": "#09090b",
+    "semantic": {
+      "success": "#10b981",
+      "warning": "#f59e0b",
+      "error": "#ef4444",
+      "info": "#3b82f6"
+    },
+    "tailwind_mapping": {
+      "bg_app": "bg-zinc-950",
+      "bg_surface": "bg-zinc-900",
+      "border_default": "border-white/10",
+      "text_main": "text-zinc-50",
+      "text_sub": "text-zinc-400"
+    }
+  },
+  "spacing_and_layout": {
+    "scale": "Use tight grids for data density, but generous paddings (p-6, p-8) for modal/card interiors.",
+    "bento_grid": "MODE B: THE CONTROL ROOM GRID. Use grid-cols-1 md:grid-cols-3 lg:grid-cols-4 with gap-4 or gap-6 for the dashboard.",
+    "borders": "Grid Borders (The 'Technical' Look). Expose the skeleton. 1px solid subtle borders.",
+    "radii": "Very subtle radii. Use rounded-md (6px) or rounded-lg (8px). Max rounded-xl for large modals."
+  },
+  "components": {
+    "strategy": "Use pure HTML + Tailwind for macro layouts. Heavily customize Shadcn components for interactivity (Forms, Modals, Tabs).",
+    "buttons": "Primary: bg-white text-zinc-950 rounded-md hover:bg-zinc-200 transition-colors. Secondary: bg-zinc-900 text-zinc-50 border border-white/10 hover:bg-zinc-800.",
+    "cards": "Flat background (bg-zinc-900), 1px subtle border (border-white/10), NO default shadow. Hover: slight lift, subtle shadow.",
+    "navigation": "Left sidebar (w-64). Fixed, z-50. Darker than main content (bg-black or bg-zinc-950) with subtle right border.",
+    "icons": "lucide-react",
+    "modals": "Use Glassmorphism (backdrop-blur-xl bg-black/60) for overlays, with a sharp solid surface for the modal content."
+  },
+  "media": {
+    "images": [
+      {
+        "category": "auth_background",
+        "url": "https://static.prod-images.emergentagent.com/jobs/6e0c1b0e-c9a7-49df-9644-8904e4e93206/images/4ff9432aa47a36bcc0feb0b76c6fa7b7cb9b21f93216690c53918b1c38062e86.png",
+        "description": "Minimalist dark gray abstract wireframe grid with subtle light bleed, highly technical."
+      },
+      {
+        "category": "google_logo",
+        "url": "https://images.unsplash.com/photo-1662947190722-5d272f82a526?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NDk1ODB8MHwxfHNlYXJjaHwxfHxnb29nbGUlMjBsb2dvfGVufDB8fHx8MTc4MDMyNDIyOXww&ixlib=rb-4.1.0&q=85",
+        "description": "Google authentication provider logo visual."
+      },
+      {
+        "category": "linkedin_logo",
+        "url": "https://images.unsplash.com/photo-1611944212129-29977ae1398c?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NDQ2Mzl8MHwxfHNlYXJjaHwxfHxsaW5rZWRpbiUyMGxvZ298ZW58MHx8fHwxNzgwMzI0MjI5fDA&ixlib=rb-4.1.0&q=85",
+        "description": "LinkedIn authentication provider logo visual."
+      },
+      {
+        "category": "tech_company_logo",
+        "url": "https://images.unsplash.com/photo-1661347998423-b15d37d6f61e?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTY2Nzh8MHwxfHNlYXJjaHwxfHx0ZWNoJTIwY29tcGFueSUyMGxvZ298ZW58MHx8fHwxNzgwMzI0MjI5fDA&ixlib=rb-4.1.0&q=85",
+        "description": "Generic tech company logo for Question Bank entries."
+      }
+    ]
+  },
+  "accessibility_and_testing": {
+    "testing_ids": "All interactive and key informational elements MUST include data-testid attribute (e.g., data-testid='question-bank-filter').",
+    "contrast": "Maintain strictly WCAG AA contrast ratio. Never use pure transparent backgrounds over content."
+  },
+  "instructions_to_main_agent": [
+    "You are building 'AskTaaza', a technical interview prep tool.",
+    "Implement the 5 MVP features EXACTLY as described: Question Bank Skill Tree, Spaced Repetition Review (SRS), JD Skill-Gap Analyzer, AI-Graded Answer Submission, Mastery-Weighted Streak + XP Dashboard.",
+    "Strictly adhere to the DARK theme. ZERO purple gradients. Rely heavily on Zinc (neutral) grays, Stark White for contrast, and specific semantic colors (Amber, Red, Green) for data visualization.",
+    "Emulate the 'Linear / Raycast' design aesthetic: dense, high-contrast, subtle 1px borders, muted surfaces, NO bloated shadows.",
+    "Use JetBrains Mono explicitly for JDs, code blocks, question text, and any technical tags.",
+    "Structure the layout with a persistent left sidebar navigation containing the 'AskTaaza' logo and primary routes.",
+    "Include hover states and focus states (high contrast) for all interactive elements.",
+    "Ensure the app is fully responsive down to 768px. Stack bento grid columns on smaller screens.",
+    "Implement 'data-testid' aggressively on buttons, links, form inputs, and key data points."
+  ]
+}
