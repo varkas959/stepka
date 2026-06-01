@@ -1,55 +1,73 @@
-import { useEffect } from "react";
-import "@/App.css";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import axios from "axios";
-import { HOME } from "@/constants/testIds";
+import { useEffect, useState } from 'react';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { Toaster } from 'sonner';
+import './App.css';
 
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
-const API = `${BACKEND_URL}/api`;
+import { AppStateProvider } from './lib/appState';
+import { getSession } from './lib/auth';
+import { AuthGate } from './components/AuthGate';
+import { Sidebar } from './components/Sidebar';
+import { ActivePlanBanner } from './components/ActivePlanBanner';
 
-const Home = () => {
-  const helloWorldApi = async () => {
-    try {
-      const response = await axios.get(`${API}/`);
-      console.log(response.data.message);
-    } catch (e) {
-      console.error(e, `errored out requesting / api`);
-    }
-  };
+import QuestionBank from './pages/QuestionBank';
+import DailyReview from './pages/DailyReview';
+import StudyPlan from './pages/StudyPlan';
+import Practice from './pages/Practice';
+import Progress from './pages/Progress';
 
-  useEffect(() => {
-    helloWorldApi();
-  }, []);
-
+function ProtectedShell({ session, onSignOut, children }) {
+  if (!session) return <Navigate to="/" replace />;
   return (
-    <div>
-      <header className="App-header">
-        <a
-          data-testid={HOME.emergentLink}
-          className="App-link"
-          href="https://emergent.sh"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <img src="https://avatars.githubusercontent.com/in/1201222?s=120&u=2686cf91179bbafbc7a71bfbc43004cf9ae1acea&v=4" />
-        </a>
-        <p className="mt-5">Building something incredible ~!</p>
-      </header>
+    <div className="min-h-screen bg-zinc-950 text-zinc-50">
+      <Sidebar user={session.user} onSignOut={onSignOut} />
+      <div className="md:pl-64 pt-14 md:pt-0">
+        <ActivePlanBanner />
+        <div className="pb-20">{children}</div>
+      </div>
     </div>
   );
-};
+}
 
 function App() {
+  const [session, setSession] = useState(null);
+  const [hydrated, setHydrated] = useState(false);
+
+  useEffect(() => {
+    setSession(getSession());
+    setHydrated(true);
+  }, []);
+
+  if (!hydrated) return null;
+
   return (
-    <div className="App">
+    <AppStateProvider>
+      <Toaster theme="dark" position="bottom-right" toastOptions={{
+        style: { background: '#09090b', border: '1px solid rgba(255,255,255,0.1)', color: '#fafafa', fontFamily: 'IBM Plex Sans' },
+      }} />
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<Home />}>
-            <Route index element={<Home />} />
-          </Route>
+          <Route path="/" element={
+            session ? <Navigate to="/app/questions" replace /> : <AuthGate onSignedIn={setSession} />
+          } />
+          <Route path="/app/questions" element={
+            <ProtectedShell session={session} onSignOut={() => setSession(null)}><QuestionBank /></ProtectedShell>
+          } />
+          <Route path="/app/review" element={
+            <ProtectedShell session={session} onSignOut={() => setSession(null)}><DailyReview /></ProtectedShell>
+          } />
+          <Route path="/app/plan" element={
+            <ProtectedShell session={session} onSignOut={() => setSession(null)}><StudyPlan /></ProtectedShell>
+          } />
+          <Route path="/app/practice" element={
+            <ProtectedShell session={session} onSignOut={() => setSession(null)}><Practice /></ProtectedShell>
+          } />
+          <Route path="/app/progress" element={
+            <ProtectedShell session={session} onSignOut={() => setSession(null)}><Progress /></ProtectedShell>
+          } />
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </BrowserRouter>
-    </div>
+    </AppStateProvider>
   );
 }
 
