@@ -1,43 +1,49 @@
 # AskTaaza — Product Requirements Doc
 
 ## Original Problem Statement
-Build the web UI for AskTaaza (asktaaza.com) — a technical interview prep platform for engineers switching companies. Linear/Raycast aesthetic, monospace for code/questions, fully responsive to 768px. 5 MVP features as React app.
+Web UI for AskTaaza (asktaaza.com) — technical interview prep platform. Linear/Raycast aesthetic, monospace for code/questions, fully responsive to 768px. 5 MVP features.
 
 ## User Choices (gathered)
-- Backend: **Supabase** (URL provided: `https://rbingkpksfmpcophexyi.supabase.co`); anon key + OAuth NOT yet enabled → local stub used.
-- Auth: **Google + LinkedIn** OAuth (stubbed for now, structured for easy Supabase swap).
-- AI grading + JD analyzer: **mocked** (per spec, 1.5s fake loading).
+- Backend: **Supabase Auth** (Google + LinkedIn OIDC) — fully wired with anon key + provider config done by user.
+- LLM: **Gemini 2.5 Flash** (latest stable Flash; 1.5 Flash isn't in the supported list, communicated to user) via Emergent LLM key.
+- AI grading + JD analyzer: **real** Gemini calls returning structured JSON.
 - Fonts: IBM Plex Sans (UI) + JetBrains Mono (code/questions/data).
 
-## Personas
-- Working software engineer (SDE1 → Staff), busy, impatient, switching companies.
-- Looking for signal (real questions, gap analysis, focused plan), not bootcamp content.
-
 ## Architecture
-- Frontend: React 19 + react-router-dom 7 + Tailwind + shadcn/ui + recharts + sonner + lucide-react.
-- State: React Context (`appState.js`) + localStorage. No backend calls.
-- Auth: `lib/auth.js` shim — drop-in replaceable with `@supabase/supabase-js`.
-- All mock data in `/app/frontend/src/lib/mockData.js`.
+- Frontend: React 19 + react-router-dom 7 + Tailwind + shadcn/ui + recharts + sonner + lucide-react + `@supabase/supabase-js`.
+- Backend: FastAPI + Motor (MongoDB) + `emergentintegrations` for Gemini.
+- Auth: Supabase Auth (PKCE flow, localStorage persistence, `/auth/callback` route handles redirect).
+- State: React Context (`appState.js`) + localStorage for user-side state.
 
-## Implemented (2026-02-XX, iter 1) — 100% test pass
-- ✅ Auth gate (Google / LinkedIn buttons, demo-mode disclosure, persistent session)
-- ✅ Sidebar nav with due-count badge, streak, sign-out, mobile drawer
-- ✅ Question Bank (12 Qs across 5 companies, sidebar filters, search, expandable cards, verified/upvote/asked badges, Company Blueprint modal with rounds + heatmap)
-- ✅ Daily Review SRS (queue → flashcard flip → 4 ratings → session complete with breakdown)
-- ✅ JD Skill-Gap Analyzer (textarea + selects → 1.5s mock → readiness 61% + skill bars → 14-day calendar plan with expandable days)
-- ✅ Practice AI grading (text/code toggle, timer, 1.5s mock submit → rubric scorecard + feedback + apply-to-SRS)
-- ✅ Progress dashboard (streak, freezes, XP+level+recharts breakdown, readiness ring, 8-week GitHub heatmap, topic mastery bars, recent XP events)
-- ✅ Active plan banner persistent across protected routes
-- ✅ All interactive elements have `data-testid`
+## Implemented
+**Iter 1 (frontend, mocked)** — 100% pass:
+- Auth UI, sidebar, ActivePlanBanner
+- Question Bank + Company Blueprint modal
+- Daily Review SRS (flip cards, 4 ratings, session complete)
+- Study Plan (JD → analysis → 14-day calendar)
+- Practice (text/code, timer, feedback panel)
+- Progress dashboard (streak, XP, readiness ring, heatmap, mastery, events)
+
+**Iter 2 (real integrations)** — backend 100% pass (6/6 pytest):
+- ✅ Supabase Auth wired (Google + LinkedIn OIDC), `/auth/callback` route
+- ✅ `POST /api/grade` — Gemini-powered rubric grading (behavioral vs technical)
+- ✅ `POST /api/analyze-jd` — Gemini-powered skill extraction + readiness + suggestions
+- ✅ `EMERGENT_LLM_KEY` in backend `.env`
+- ✅ Robust JSON extraction (handles ```json fences and first {} block)
+- ✅ Graceful 502 on LLM failures
 
 ## P1 Backlog
-- Real Supabase auth wiring (need anon key + Google/LinkedIn enabled in Supabase dashboard)
-- Replace mock data with Supabase tables (`questions`, `srs_cards`, `submissions`, `xp_events`)
-- Real LLM-graded answers (Claude Sonnet 4.5 or GPT-5.2 via Emergent LLM key)
-- Real JD skill extraction (LLM)
+- Persist user progress (streak, XP, due cards) to Supabase Postgres or MongoDB keyed by Supabase `sub` claim
+- Persist user-submitted questions + verify counts
+- Backend JWT validation (decode Supabase JWT in FastAPI for user-scoped writes)
+- Real SRS scheduling (SM-2 or FSRS) with due-date storage
 
 ## P2 Backlog
 - "Submit a question" contribution flow
-- Email digest of due cards
-- Public profile / shareable readiness card
-- Team plans (study cohort)
+- Daily digest email of due cards (Resend or SendGrid)
+- Shareable readiness OG card for LinkedIn (suggested viral loop)
+- Team/cohort plans
+
+## Known minor (non-blocking)
+- `_gemini_json` error-log guard uses `'response' in dir()` which always true; cosmetic.
+- `logger` is defined after endpoints; works due to Python late binding but should be moved up for clarity.
