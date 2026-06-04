@@ -1,0 +1,113 @@
+// Supabase-backed progress persistence.
+// Schema lives in /app/memory/supabase_migration.sql (user must run once).
+import { supabase } from './supabaseClient';
+
+const DEFAULTS = {
+  streak: 7,
+  longestStreak: 21,
+  streakFreezes: 2,
+  level: 12,
+  xp: 3240,
+  xpToNext: 3500,
+  dueToday: 12,
+  goalToday: 20,
+  reviewedToday: 8,
+  activePlan: { company: 'amazon', role: 'SDE2', currentDay: 4, totalDays: 14, dueQuestions: 3 },
+  readiness: 61,
+  lastReviewDate: null,
+};
+
+const camelFromRow = (row) => ({
+  streak: row.streak,
+  longestStreak: row.longest_streak,
+  streakFreezes: row.streak_freezes,
+  level: row.level,
+  xp: row.xp,
+  xpToNext: row.xp_to_next,
+  dueToday: row.due_today,
+  goalToday: row.goal_today,
+  reviewedToday: row.reviewed_today,
+  activePlan: row.active_plan,
+  readiness: row.readiness,
+  lastReviewDate: row.last_review_date,
+});
+
+const rowFromCamel = (s, userId) => ({
+  user_id: userId,
+  streak: s.streak,
+  longest_streak: s.longestStreak,
+  streak_freezes: s.streakFreezes,
+  level: s.level,
+  xp: s.xp,
+  xp_to_next: s.xpToNext,
+  due_today: s.dueToday,
+  goal_today: s.goalToday,
+  reviewed_today: s.reviewedToday,
+  active_plan: s.activePlan,
+  readiness: s.readiness,
+  last_review_date: s.lastReviewDate,
+  updated_at: new Date().toISOString(),
+});
+
+export async function loadProgress(userId) {
+  if (!userId) return DEFAULTS;
+  const { data, error } = await supabase
+    .from('user_progress')
+    .select('*')
+    .eq('user_id', userId)
+    .maybeSingle();
+  if (error) {
+    // eslint-disable-next-line no-console
+    console.error('[progress] load failed:', error.message);
+    return DEFAULTS;
+  }
+  if (!data) {
+    // First time: insert defaults
+    const row = rowFromCamel(DEFAULTS, userId);
+    const { error: insErr } = await supabase.from('user_progress').insert(row);
+    if (insErr) console.error('[progress] seed failed:', insErr.message);
+    return DEFAULTS;
+  }
+  return camelFromRow(data);
+}
+
+export async function saveProgress(userId, state) {
+  if (!userId) return;
+  const row = rowFromCamel(state, userId);
+  const { error } = await supabase.from('user_progress').upsert(row, { onConflict: 'user_id' });
+  if (error) console.error('[progress] save failed:', error.message);
+}
+
+// SRS scheduler — simple intervals keyed by rating
+const RATING_INTERVALS_DAYS = { 1: 1, 2: 3, 3: 7, 4: 14 };
+
+export async function recordReview(userId, cardId, rating) {
+  if (!userId) return;
+  const days = RATING_INTERVALS_DAYS[rating] ?? 1;
+  const nextDue = new Date(Date.now() + days * 86400 * 1000).toISOString();
+  const { error } = await supabase.from('srs_reviews').insert({
+    user_id: userId,
+    card_id: cardId,
+    rating,
+    next_due_at: nextDue,
+  });
+  if (error) console.error('[srs] insert failed:', error.message);
+  return { nextDue };
+}
+
+export async function getDueCount(userId) {
+  if (!userId) return null;
+  // count reviews where next_due_at <= now
+  const { count, error } = await supabase
+    .from('srs_reviews')
+    .select('*', { count: 'exact', head: true })
+    .eq('user_id', userId)
+    .lte('next_due_at', new Date().toISOString());
+  if (error) {
+    console.error('[srs] count failed:', error.message);
+    return null;
+  }
+  return count;
+}
+
+export { DEFAULTS as PROGRESS_DEFAULTS };

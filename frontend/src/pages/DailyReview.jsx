@@ -18,7 +18,7 @@ export default function DailyReview() {
   const [idx, setIdx] = useState(0);
   const [flipped, setFlipped] = useState(false);
   const [ratings, setRatings] = useState([]);
-  const { state, bumpReview, addXp } = useAppState();
+  const { state, bumpReview, addXp, recordRating } = useAppState();
   const navigate = useNavigate();
 
   const breakdown = SRS_CARDS.reduce((acc, c) => { acc[c.kind] = (acc[c.kind] || 0) + 1; return acc; }, {});
@@ -28,9 +28,12 @@ export default function DailyReview() {
   };
 
   const handleRate = (r) => {
-    setRatings(prev => [...prev, { cardId: SRS_CARDS[idx].id, rating: r }]);
+    const card = SRS_CARDS[idx];
+    setRatings(prev => [...prev, { cardId: card.id, rating: r }]);
     bumpReview();
     addXp(10 + r.key * 2);
+    // fire-and-forget remote write
+    recordRating(card.id, r.key);
 
     if (idx + 1 >= SRS_CARDS.length) {
       setPhase('done');

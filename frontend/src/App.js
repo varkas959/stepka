@@ -49,7 +49,7 @@ function App() {
   }
 
   return (
-    <AppStateProvider>
+    <AppStateProvider userId={session?.user?.id}>
       <Toaster theme="dark" position="bottom-right" toastOptions={{
         style: { background: '#09090b', border: '1px solid rgba(255,255,255,0.1)', color: '#fafafa', fontFamily: 'IBM Plex Sans' },
       }} />
