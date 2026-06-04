@@ -5,18 +5,17 @@ import { toast } from 'sonner';
 
 const AUTH_BG = 'https://static.prod-images.emergentagent.com/jobs/6e0c1b0e-c9a7-49df-9644-8904e4e93206/images/4ff9432aa47a36bcc0feb0b76c6fa7b7cb9b21f93216690c53918b1c38062e86.png';
 
-export const AuthGate = ({ onSignedIn }) => {
+export const AuthGate = () => {
   const [loading, setLoading] = useState(null);
 
   const handle = async (provider) => {
     setLoading(provider);
     try {
-      const session = await signInWithProvider(provider);
-      toast.success(`Signed in as ${session.user.name}`);
-      onSignedIn?.(session);
-    } catch {
-      toast.error('Sign-in failed. Please try again.');
-    } finally {
+      // signInWithProvider triggers a full browser redirect to the OAuth provider.
+      // The redirect lands on /auth/callback which finalizes the session.
+      await signInWithProvider(provider);
+    } catch (e) {
+      toast.error(e.message || 'Sign-in failed. Please try again.');
       setLoading(null);
     }
   };
@@ -97,13 +96,13 @@ export const AuthGate = ({ onSignedIn }) => {
 
           <div className="my-7 flex items-center gap-3">
             <div className="flex-1 h-px bg-white/10" />
-            <span className="text-[10px] uppercase tracking-[0.22em] text-zinc-600">demo mode</span>
+            <span className="text-[10px] uppercase tracking-[0.22em] text-zinc-600">supabase oauth</span>
             <div className="flex-1 h-px bg-white/10" />
           </div>
 
           <p className="text-xs text-zinc-500 leading-relaxed">
-            Supabase OAuth is wired up but not yet activated. Clicking either provider above will sign you in
-            with a demo account so you can explore. Drop in your Supabase keys later to flip on real auth.
+            Sign-in is powered by Supabase Auth with Google &amp; LinkedIn OIDC. You will be redirected
+            to the provider, then back here. We never see your password.
           </p>
 
           <p className="text-xs text-zinc-600 mt-10 font-mono">

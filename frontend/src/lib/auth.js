@@ -1,54 +1,63 @@
-// Supabase auth shim. Wraps localStorage so we can swap to real Supabase later
-// by replacing this file with @supabase/supabase-js calls.
-//
-// Real Supabase usage will look like:
-//   import { createClient } from '@supabase/supabase-js';
-//   const supabase = createClient(URL, ANON_KEY);
-//   supabase.auth.signInWithOAuth({ provider: 'google' })
-//
-// For now, simulate session locally so the UI works end-to-end.
+// Real Supabase auth. Replaces the prior local stub.
+import { supabase } from './supabaseClient';
 
-const STORAGE_KEY = 'asktaaza_session_v1';
+const SUPPORTED = new Set(['google', 'linkedin_oidc']);
 
-const FAKE_USERS = {
-  google: {
-    id: 'usr_g_001',
-    provider: 'google',
-    name: 'Aarav Mehta',
-    email: 'aarav.mehta@gmail.com',
-    avatarInitials: 'AM',
-  },
-  linkedin: {
-    id: 'usr_l_001',
-    provider: 'linkedin',
-    name: 'Priya Sharma',
-    email: 'priya.sharma@asktaaza.com',
-    avatarInitials: 'PS',
-  },
+// Map UI provider names to Supabase provider keys
+const PROVIDER_MAP = {
+  google: 'google',
+  linkedin: 'linkedin_oidc',
+  linkedin_oidc: 'linkedin_oidc',
 };
 
-export function getSession() {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return null;
-    return JSON.parse(raw);
-  } catch {
+export async function signInWithProvider(uiProvider) {
+  const provider = PROVIDER_MAP[uiProvider];
+  if (!SUPPORTED.has(provider)) {
+    throw new Error(`Unsupported provider: ${uiProvider}`);
+  }
+  const redirectTo = `${window.location.origin}/auth/callback`;
+  const options = { redirectTo };
+  if (provider === 'linkedin_oidc') options.scopes = 'openid profile email';
+
+  const { data, error } = await supabase.auth.signInWithOAuth({ provider, options });
+  if (error) throw error;
+  return data;
+}
+
+export async function getSession() {
+  const { data, error } = await supabase.auth.getSession();
+  if (error) {
+    // eslint-disable-next-line no-console
+    console.error('getSession error', error);
     return null;
   }
+  if (!data.session) return null;
+  const u = data.session.user;
+  const fullName = u.user_metadata?.full_name || u.user_metadata?.name || u.email || 'User';
+  const initials = (fullName.match(/\b\w/g) || ['U']).slice(0, 2).join('').toUpperCase();
+  return {
+    user: {
+      id: u.id,
+      provider: u.app_metadata?.provider || 'oauth',
+      name: fullName,
+      email: u.email,
+      avatarInitials: initials,
+      avatarUrl: u.user_metadata?.avatar_url || u.user_metadata?.picture,
+    },
+    accessToken: data.session.access_token,
+    signedInAt: new Date().toISOString(),
+  };
 }
 
-export function signInWithProvider(provider) {
-  return new Promise((resolve) => {
-    // simulate OAuth roundtrip latency
-    setTimeout(() => {
-      const user = FAKE_USERS[provider] || FAKE_USERS.google;
-      const session = { user, signedInAt: new Date().toISOString() };
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(session));
-      resolve(session);
-    }, 900);
+export async function signOut() {
+  const { error } = await supabase.auth.signOut({ scope: 'global' });
+  if (error) throw error;
+}
+
+export function onAuthStateChange(callback) {
+  const { data } = supabase.auth.onAuthStateChange((_event, _session) => {
+    // Re-derive the simplified session shape
+    getSession().then(callback);
   });
-}
-
-export function signOut() {
-  localStorage.removeItem(STORAGE_KEY);
+  return () => data.subscription?.unsubscribe();
 }

@@ -1,0 +1,31 @@
+{
+  "summary": "Backend-only testing of Gemini-backed endpoints (POST /api/grade behavioral+technical, POST /api/analyze-jd) plus GET /api/ and 422 validation. All 6 pytest cases passed against the public REACT_APP_BACKEND_URL. Real LLM calls (Gemini 2.5 Flash via emergentintegrations) returned schema-valid JSON in every run.",
+  "backend_issues": {
+    "critical": [],
+    "minor": [
+      {"endpoint": "/api/grade & /api/analyze-jd", "issue": "In _gemini_json, the except json.JSONDecodeError branch references `response[:500] if 'response' in dir() else 'N/A'` — 'response' is always in dir() inside the function scope (Python locals), so the guard never triggers; if exception occurs before assignment it will raise NameError instead of logging 'N/A'. Cosmetic/log-only, no user-visible effect."},
+      {"endpoint": "module", "issue": "`logger` is assigned AFTER `_gemini_json` is defined (line 213 vs use at lines 104/107). Works only because Python resolves the global at call time. Move logging.basicConfig + logger = logging.getLogger(__name__) above the endpoint definitions for clarity."}
+    ]
+  },
+  "frontend_issues": {"ui_bugs": [], "integration_issues": [], "design_issues": []},
+  "test_report_links": ["/app/backend/tests/test_llm_endpoints.py", "/app/test_reports/pytest/pytest_results.xml"],
+  "action_items": [
+    "Optional: move logger setup above endpoint definitions (cosmetic)",
+    "Optional: fix the `'response' in dir()` guard in JSONDecodeError handler — assign response to None before try, then check `response is not None`"
+  ],
+  "critical_code_review_comments": [
+    "EMERGENT_LLM_KEY is correctly loaded from .env and never logged.",
+    "JSON extraction (_extract_json) is robust: handles ```json fences and first { ... } block.",
+    "Gemini errors are wrapped to HTTP 502 with detail message — meets 'graceful, not silent 500' requirement.",
+    "Pydantic validation produces 422 on missing required fields (verified).",
+    "No MongoDB _id leakage (status endpoints already project {_id: 0})."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "100% (6/6)", "frontend": "not tested (per request)"},
+  "test_credentials": "n/a — endpoints are unauthenticated",
+  "seed_data_creation": "none",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Live LLM tests cost a Gemini call each (~25-30s total). Re-run: pytest /app/backend/tests/test_llm_endpoints.py -v. If a future run is flaky due to model JSON drift, check raw responses — _extract_json already strips fences and finds the first {...} block.",
+  "rca of the issue": "n/a — no failing tests"
+}

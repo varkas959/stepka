@@ -17,8 +17,8 @@ export const Sidebar = ({ user, onSignOut }) => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const navigate = useNavigate();
 
-  const handleSignOut = () => {
-    signOut();
+  const handleSignOut = async () => {
+    try { await signOut(); } catch (e) { /* ignore */ }
     onSignOut?.();
     navigate('/');
   };

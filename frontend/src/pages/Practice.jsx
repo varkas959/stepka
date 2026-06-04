@@ -4,6 +4,7 @@ import { CompanyBadge } from '../components/CompanyBadge';
 import { useAppState } from '../lib/appState';
 import { Loader2, Code2, FileText, Timer, RotateCw } from 'lucide-react';
 import { toast } from 'sonner';
+import { gradeAnswer } from '../lib/api';
 
 const BEHAVIORAL_TOPICS = ['behavioral'];
 const SAMPLE_CODE = `// Two-Sum O(n)
@@ -49,35 +50,23 @@ export default function Practice() {
       return;
     }
     setSubmitting(true);
-    setTimeout(() => {
-      const isBeh = isBehavioral;
-      const overall = (3.4 + Math.random() * 1.3).toFixed(1);
-      const dims = isBeh
-        ? [
-            { name: 'STAR structure', score: 78 },
-            { name: 'Relevance', score: 84 },
-            { name: 'Outcome clarity', score: 62 },
-            { name: 'Conciseness', score: 71 },
-          ]
-        : [
-            { name: 'Correctness', score: 82 },
-            { name: 'Depth', score: 68 },
-            { name: 'Examples', score: 74 },
-            { name: 'Edge cases', score: 55 },
-          ];
-      const fb = {
-        overall,
-        dims,
-        suggestedRating: 3,
-        suggestedLabel: 'Good',
-        text: isBeh
-          ? "Strong start with a clear Situation. Task framing is concise. Action gets technical enough to be credible but could highlight one concrete metric. Result section ends abruptly — quantify the outcome (latency reduction, retention lift, revenue) and tie it back to the original problem. Watch for over-explaining the technology choice; interviewer wants impact, not implementation tour."
-          : "Correctness is solid for the happy path. Time/space complexity is mentioned but not derived rigorously. Missing edge cases: empty input, single element, duplicates, overflow on large ints. Suggested next: walk through one degenerate case explicitly. Depth on the recursion-to-iteration transformation is shallow — explain why the stack frame mapping works."
-      };
-      setFeedback(fb);
-      addXp(80);
-      setSubmitting(false);
-    }, 1500);
+    (async () => {
+      try {
+        const fb = await gradeAnswer({
+          question: q.body,
+          answer,
+          mode,
+          isBehavioral,
+          topic: q.topicPath,
+        });
+        setFeedback(fb);
+        addXp(80);
+      } catch (e) {
+        toast.error(e?.response?.data?.detail || e.message || 'Grading failed. Try again.');
+      } finally {
+        setSubmitting(false);
+      }
+    })();
   };
 
   const reset = () => { setFeedback(null); setAnswer(''); setSeconds(0); };

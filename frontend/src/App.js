@@ -4,7 +4,7 @@ import { Toaster } from 'sonner';
 import './App.css';
 
 import { AppStateProvider } from './lib/appState';
-import { getSession } from './lib/auth';
+import { getSession, onAuthStateChange } from './lib/auth';
 import { AuthGate } from './components/AuthGate';
 import { Sidebar } from './components/Sidebar';
 import { ActivePlanBanner } from './components/ActivePlanBanner';
@@ -14,6 +14,7 @@ import DailyReview from './pages/DailyReview';
 import StudyPlan from './pages/StudyPlan';
 import Practice from './pages/Practice';
 import Progress from './pages/Progress';
+import AuthCallback from './pages/AuthCallback';
 
 function ProtectedShell({ session, onSignOut, children }) {
   if (!session) return <Navigate to="/" replace />;
@@ -33,11 +34,19 @@ function App() {
   const [hydrated, setHydrated] = useState(false);
 
   useEffect(() => {
-    setSession(getSession());
-    setHydrated(true);
+    let unsub = null;
+    (async () => {
+      const s = await getSession();
+      setSession(s);
+      setHydrated(true);
+      unsub = onAuthStateChange((next) => setSession(next));
+    })();
+    return () => { if (unsub) unsub(); };
   }, []);
 
-  if (!hydrated) return null;
+  if (!hydrated) {
+    return <div className="min-h-screen bg-zinc-950" />;
+  }
 
   return (
     <AppStateProvider>
@@ -47,8 +56,9 @@ function App() {
       <BrowserRouter>
         <Routes>
           <Route path="/" element={
-            session ? <Navigate to="/app/questions" replace /> : <AuthGate onSignedIn={setSession} />
+            session ? <Navigate to="/app/questions" replace /> : <AuthGate />
           } />
+          <Route path="/auth/callback" element={<AuthCallback />} />
           <Route path="/app/questions" element={
             <ProtectedShell session={session} onSignOut={() => setSession(null)}><QuestionBank /></ProtectedShell>
           } />

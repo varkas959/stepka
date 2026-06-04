@@ -1,8 +1,10 @@
 import { useMemo, useState } from 'react';
 import { Loader2, Sparkles, ChevronDown } from 'lucide-react';
-import { COMPANIES, ROLES, JD_MOCK_RESULT, STUDY_PLAN, QUESTIONS } from '../lib/mockData';
+import { COMPANIES, ROLES, STUDY_PLAN, QUESTIONS } from '../lib/mockData';
 import { useAppState } from '../lib/appState';
 import { CompanyBadge } from '../components/CompanyBadge';
+import { analyzeJD } from '../lib/api';
+import { toast } from 'sonner';
 
 export default function StudyPlan() {
   const [step, setStep] = useState('input'); // input | analyzing | result | plan
@@ -10,14 +12,20 @@ export default function StudyPlan() {
   const [company, setCompany] = useState('amazon');
   const [role, setRole] = useState('SDE2');
   const [expandedDay, setExpandedDay] = useState(4);
+  const [analysis, setAnalysis] = useState(null);
   const { state, setActivePlan, setReadiness } = useAppState();
 
-  const analyze = () => {
+  const analyze = async () => {
     setStep('analyzing');
-    setTimeout(() => {
+    try {
+      const data = await analyzeJD({ jd, targetCompany: company, targetRole: role });
+      setAnalysis(data);
+      setReadiness(data.readiness || 60);
       setStep('result');
-      setReadiness(JD_MOCK_RESULT.readiness);
-    }, 1500);
+    } catch (e) {
+      toast.error(e?.response?.data?.detail || e.message || 'Could not analyze JD.');
+      setStep('input');
+    }
   };
 
   const activatePlan = () => {
@@ -83,7 +91,7 @@ export default function StudyPlan() {
         </div>
       )}
 
-      {step === 'result' && <GapAnalysis onContinue={activatePlan} company={company} role={role} />}
+      {step === 'result' && analysis && <GapAnalysis analysis={analysis} onContinue={activatePlan} company={company} role={role} />}
     </div>
   );
 }
@@ -110,22 +118,24 @@ const Stepper = ({ step }) => {
   );
 };
 
-const GapAnalysis = ({ onContinue, company, role }) => {
+const GapAnalysis = ({ analysis, onContinue, company, role }) => {
   const c = COMPANIES.find(x => x.id === company);
+  const skills = analysis.extractedSkills || [];
+  const readiness = analysis.readiness ?? 60;
   return (
     <div className="mt-8 animate-fade-up" data-testid="gap-analysis">
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         <div className="lg:col-span-2 border border-white/10 rounded-lg bg-zinc-900/60 p-6">
           <div className="text-[10px] uppercase tracking-[0.22em] text-zinc-500 font-mono">Extracted Requirements</div>
           <div className="flex flex-wrap gap-1.5 mt-3">
-            {JD_MOCK_RESULT.extractedSkills.map(s => (
+            {skills.map(s => (
               <span key={s.name} className="font-mono text-xs px-2 py-1 rounded border border-white/10 bg-white/5 text-zinc-300">{s.name}</span>
             ))}
           </div>
 
           <div className="mt-6 space-y-3">
             <div className="text-[10px] uppercase tracking-[0.22em] text-zinc-500 font-mono">Your mastery per skill</div>
-            {JD_MOCK_RESULT.extractedSkills.map(s => {
+            {skills.map(s => {
               const gap = s.mastery < 50;
               const warn = s.mastery >= 50 && s.mastery < 70;
               const color = gap ? '#ef4444' : warn ? '#f59e0b' : '#10b981';
@@ -141,22 +151,36 @@ const GapAnalysis = ({ onContinue, company, role }) => {
               );
             })}
           </div>
+
+          {analysis.suggestions?.length > 0 && (
+            <div className="mt-6">
+              <div className="text-[10px] uppercase tracking-[0.22em] text-zinc-500 font-mono mb-2">Coach suggestions</div>
+              <ul className="space-y-1.5 text-sm text-zinc-300">
+                {analysis.suggestions.map((s, i) => (
+                  <li key={i} className="font-mono text-xs leading-relaxed flex gap-2">
+                    <span className="text-zinc-500">{(i + 1).toString().padStart(2, '0')}</span>
+                    <span>{s}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
         </div>
 
         <div className="border border-white/10 rounded-lg bg-zinc-900/60 p-6 flex flex-col">
           <div className="text-[10px] uppercase tracking-[0.22em] text-zinc-500 font-mono">Readiness</div>
           <div className="mt-3">
-            <div className="font-mono text-6xl font-semibold tracking-tight" style={{ color: JD_MOCK_RESULT.readiness < 70 ? '#f59e0b' : '#10b981' }}>
-              {JD_MOCK_RESULT.readiness}<span className="text-2xl text-zinc-500">%</span>
+            <div className="font-mono text-6xl font-semibold tracking-tight" style={{ color: readiness < 70 ? '#f59e0b' : '#10b981' }}>
+              {readiness}<span className="text-2xl text-zinc-500">%</span>
             </div>
             <div className="text-sm text-zinc-400 mt-2">for <span className="text-zinc-50">{c?.name} {role}</span></div>
           </div>
           <div className="h-2 bg-white/5 rounded-full overflow-hidden mt-6">
-            <div className="h-full bg-amber-500 transition-all" style={{ width: `${JD_MOCK_RESULT.readiness}%` }} />
+            <div className="h-full bg-amber-500 transition-all" style={{ width: `${readiness}%` }} />
           </div>
           <p className="text-xs text-zinc-500 mt-4 leading-relaxed flex-1">
-            You're <span className="font-mono text-amber-400">~39%</span> away. Biggest gaps: Kafka, LLD, System Design.
-            We'll bias your study plan toward these for the next 14 days.
+            You're <span className="font-mono text-amber-400">~{Math.max(0, 100 - readiness)}%</span> away.
+            We'll bias your 14-day plan toward your weakest skills.
           </p>
           <button data-testid="generate-plan" onClick={onContinue} className="mt-5 bg-white text-zinc-950 px-4 py-2.5 rounded-md text-sm font-medium hover:bg-zinc-200 transition-colors">
             Generate 14-day plan →
