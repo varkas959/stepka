@@ -116,24 +116,24 @@ export default function QuestionBank() {
             <p className="text-zinc-400 mt-2 text-sm max-w-lg">Browse {QUESTIONS.length} verified questions from engineers at top companies. Filter, tag what you've been asked, and we'll bias your study plan.</p>
           </div>
           <div className="flex items-center gap-2">
-            <div className="relative flex-1">
+            <div className="relative w-full max-w-[420px]">
               <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500" />
               <input
                 data-testid="question-search"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="Search questions…"
-                className="w-full bg-zinc-900 border border-white/10 rounded-md pl-9 pr-3 py-2 text-sm placeholder:text-zinc-600 focus:outline-none focus:border-white/30 transition-colors font-mono"
+                className="w-full bg-zinc-900 border border-white/10 rounded-md pl-9 pr-3 py-1.5 text-sm placeholder:text-zinc-600 focus:outline-none focus:border-white/30 transition-colors font-mono"
               />
             </div>
-            <button onClick={() => setSideOpen(true)} className="lg:hidden flex items-center gap-2 bg-zinc-900 border border-white/10 rounded-md px-3 py-2 text-sm" data-testid="open-filters">
+            <div className="hidden sm:flex items-center gap-1 text-xs text-zinc-500 font-mono">
+              <span className="text-zinc-300">{filtered.length}</span>
+              <span>/ {QUESTIONS.length}</span>
+            </div>
+            <span className="hidden lg:inline ml-auto text-[11px] text-zinc-600">Click a company badge to see its blueprint →</span>
+            <button onClick={() => setSideOpen(true)} className="lg:hidden ml-auto flex items-center gap-2 bg-zinc-900 border border-white/10 rounded-md px-3 py-1.5 text-sm" data-testid="open-filters">
               <Filter size={14} /> Filters
             </button>
-          </div>
-
-          <div className="flex items-center gap-2 text-xs text-zinc-500 font-mono">
-            <span>{filtered.length}</span><span>of {QUESTIONS.length} questions</span>
-            <span className="ml-auto">Click a company badge to see its blueprint →</span>
           </div>
         </div>
 
