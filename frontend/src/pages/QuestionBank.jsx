@@ -51,6 +51,8 @@ export default function QuestionBank() {
           <button onClick={() => setSideOpen(false)} className="text-zinc-400" data-testid="close-filters"><X size={18} /></button>
         </div>
 
+        <div className="lg:sticky lg:top-6 lg:rounded-lg lg:border lg:border-white/10 lg:bg-zinc-900/40 lg:p-3">
+
         <FilterGroup label="Company">
           {COMPANIES.map(c => (
             <FilterPill key={c.id} active={filters.company === c.id} onClick={() => setF('company', c.id)} testid={`filter-company-${c.id}`}>
@@ -101,7 +103,8 @@ export default function QuestionBank() {
           ))}
         </FilterGroup>
 
-        <button data-testid="clear-filters" onClick={clearAll} className="text-xs text-zinc-500 hover:text-zinc-50 transition-colors mt-3">Clear all filters</button>
+        <button data-testid="clear-filters" onClick={clearAll} className="text-xs text-zinc-500 hover:text-zinc-50 transition-colors mt-3 px-3 py-2">Clear all filters</button>
+        </div>
       </aside>
 
       {/* Main feed */}
@@ -145,7 +148,7 @@ export default function QuestionBank() {
             const upvoted = upvoteMap[q.id];
             const asked = askedMap[q.id];
             return (
-              <article key={q.id} data-testid={`question-card-${q.id}`} className="border border-white/10 rounded-lg bg-zinc-900/60 hover:bg-zinc-900 transition-colors animate-fade-up">
+              <article key={q.id} data-testid={`question-card-${q.id}`} className="border border-white/10 rounded-lg bg-zinc-900 hover:bg-zinc-900/80 hover:border-white/20 transition-colors animate-fade-up shadow-[0_1px_0_rgba(255,255,255,0.04)_inset,0_8px_24px_-12px_rgba(0,0,0,0.6)]">
                 <div className="p-5">
                   <div className="flex items-start gap-3">
                     <button onClick={() => setBlueprintCompany(q.company)} data-testid={`open-blueprint-${q.company}`}>
@@ -223,8 +226,8 @@ export default function QuestionBank() {
 }
 
 const FilterGroup = ({ label, children }) => (
-  <div className="mb-5">
-    <div className="text-[10px] uppercase tracking-[0.22em] text-zinc-500 font-mono mb-2 px-2">{label}</div>
+  <div className="mb-4">
+    <div className="text-[10px] uppercase tracking-[0.22em] text-zinc-500 font-mono mb-1.5 px-3 py-1">{label}</div>
     <div className="space-y-0.5">{children}</div>
   </div>
 );
@@ -233,8 +236,10 @@ const FilterPill = ({ active, onClick, children, testid }) => (
   <button
     data-testid={testid}
     onClick={onClick}
-    className={`w-full text-left flex items-center gap-2 px-2 py-1.5 rounded text-xs transition-colors ${
-      active ? 'bg-white text-zinc-950 font-medium' : 'text-zinc-400 hover:text-zinc-50 hover:bg-white/5'
+    className={`w-full text-left flex items-center gap-3 px-3 py-2 rounded-md text-sm transition-colors ${
+      active
+        ? 'bg-white/10 text-zinc-50 font-medium'
+        : 'text-zinc-400 hover:text-zinc-50 hover:bg-white/5'
     }`}
   >
     {children}
