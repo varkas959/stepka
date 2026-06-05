@@ -77,7 +77,7 @@ export default function QuestionBank() {
               )}
               {node.children && (
                 <>
-                  <div className="text-[10px] uppercase tracking-[0.18em] text-zinc-600 px-2 py-1 font-mono">{node.name}</div>
+                  <div className="text-[10px] tracking-[0.14em] text-zinc-700 px-3 py-1 mt-1">{node.name}</div>
                   <div className="ml-3 border-l border-white/10 pl-2 space-y-0.5">
                     {node.children.map(child => (
                       <FilterPill key={child.id} active={filters.topic === child.id} onClick={() => setF('topic', child.id)} testid={`filter-topic-${child.id}`}>
@@ -227,7 +227,7 @@ export default function QuestionBank() {
 
 const FilterGroup = ({ label, children }) => (
   <div className="mb-4">
-    <div className="text-[10px] uppercase tracking-[0.22em] text-zinc-500 font-mono mb-1.5 px-3 py-1">{label}</div>
+    <div className="text-[10px] uppercase font-medium tracking-[0.14em] text-zinc-600 mb-1.5 px-3 py-1">{label}</div>
     <div className="space-y-0.5">{children}</div>
   </div>
 );
@@ -236,13 +236,16 @@ const FilterPill = ({ active, onClick, children, testid }) => (
   <button
     data-testid={testid}
     onClick={onClick}
-    className={`w-full text-left flex items-center gap-3 px-3 py-2 rounded-md text-sm transition-colors ${
+    className={`relative w-full text-left flex items-center gap-3 pl-3 pr-3 py-2 rounded-md text-sm transition-colors border-l-2 ${
       active
-        ? 'bg-white/10 text-zinc-50 font-medium'
-        : 'text-zinc-400 hover:text-zinc-50 hover:bg-white/5'
+        ? 'bg-white/[0.07] text-zinc-50 font-medium border-l-zinc-50'
+        : 'border-l-transparent text-zinc-400 hover:text-zinc-50 hover:bg-white/5'
     }`}
   >
     {children}
+    {active && (
+      <span className="ml-auto inline-flex items-center justify-center w-1.5 h-1.5 rounded-full bg-emerald-400" aria-hidden />
+    )}
   </button>
 );
 
