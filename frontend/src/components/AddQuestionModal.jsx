@@ -1,12 +1,19 @@
 import { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from './ui/dialog';
 import { COMPANIES, ROLES, TOPIC_TREE, DIFFICULTIES, ROUND_TYPES } from '../lib/mockData';
-import { Plus, Loader2 } from 'lucide-react';
+import { Plus, Loader2, AlertTriangle } from 'lucide-react';
 import { toast } from 'sonner';
+import { moderateText } from '../lib/api';
+import { CreatableSelect } from './CreatableSelect';
 
 const TOPIC_FLAT = TOPIC_TREE.flatMap(n => n.children
   ? n.children.map(c => ({ id: c.id, label: `${n.name} / ${c.name}` }))
   : [{ id: n.id, label: n.name }]);
+
+const COMPANY_OPTS = COMPANIES.map(c => ({ id: c.id, label: c.name }));
+const ROLE_OPTS = ROLES.map(r => ({ id: r, label: r }));
+const DIFF_OPTS = DIFFICULTIES.map(d => ({ id: d, label: d }));
+const ROUND_OPTS = ROUND_TYPES.map(r => ({ id: r, label: r }));
 
 export const AddQuestionModal = ({ open, onOpenChange }) => {
   const [form, setForm] = useState({
@@ -14,22 +21,36 @@ export const AddQuestionModal = ({ open, onOpenChange }) => {
     difficulty: 'Medium', round: 'Technical', body: '',
   });
   const [submitting, setSubmitting] = useState(false);
+  const [violations, setViolations] = useState([]);
 
   const set = (k, v) => setForm(s => ({ ...s, [k]: v }));
 
-  const submit = (e) => {
+  const submit = async (e) => {
     e.preventDefault();
+    setViolations([]);
     if (form.body.trim().length < 30) {
       toast.error('Question needs at least 30 characters of detail.');
       return;
     }
     setSubmitting(true);
-    setTimeout(() => {
-      setSubmitting(false);
+    try {
+      // moderate the body + the custom fields
+      const blob = [form.body, form.company, form.role, form.topic, form.round].join(' \n ');
+      const { ok, flagged } = await moderateText(blob);
+      if (!ok) {
+        setViolations(flagged);
+        setSubmitting(false);
+        return;
+      }
+      await new Promise(r => setTimeout(r, 900));
       onOpenChange(false);
-      toast.success('Thanks! Your question is in review. You unlocked 10 new questions.', { duration: 4500 });
+      toast.success("Thanks! Your question is in review. You unlocked 10 new questions.", { duration: 4500 });
       setForm({ company: 'amazon', role: 'SDE2', topic: 'arrays', difficulty: 'Medium', round: 'Technical', body: '' });
-    }, 1100);
+    } catch (err) {
+      toast.error(err?.response?.data?.detail || err.message || 'Submission failed. Try again.');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -41,17 +62,17 @@ export const AddQuestionModal = ({ open, onOpenChange }) => {
             <DialogTitle className="text-xl font-semibold tracking-tight">Submit an interview question</DialogTitle>
           </div>
           <DialogDescription className="text-zinc-400 mt-1">
-            Help other engineers prep. Only submit questions you were actually asked. We'll review for quality before publishing.
+            Help other engineers prep. Only submit questions you were actually asked. Pick from suggestions or type a custom value.
           </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={submit} className="space-y-4 mt-3">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <Select label="company"   value={form.company}   onChange={(v) => set('company', v)}   options={COMPANIES.map(c => ({ id: c.id, label: c.name }))} testid="aq-company" />
-            <Select label="role"      value={form.role}      onChange={(v) => set('role', v)}      options={ROLES.map(r => ({ id: r, label: r }))} testid="aq-role" />
-            <Select label="topic"     value={form.topic}     onChange={(v) => set('topic', v)}     options={TOPIC_FLAT} testid="aq-topic" />
-            <Select label="round"     value={form.round}     onChange={(v) => set('round', v)}     options={ROUND_TYPES.map(r => ({ id: r, label: r }))} testid="aq-round" />
-            <Select label="difficulty" value={form.difficulty} onChange={(v) => set('difficulty', v)} options={DIFFICULTIES.map(d => ({ id: d, label: d }))} testid="aq-difficulty" />
+            <CreatableSelect label="company"   value={form.company}    options={COMPANY_OPTS} onChange={(v) => set('company', v)}    testid="aq-company" />
+            <CreatableSelect label="role"      value={form.role}       options={ROLE_OPTS}    onChange={(v) => set('role', v)}       testid="aq-role" />
+            <CreatableSelect label="topic"     value={form.topic}      options={TOPIC_FLAT}   onChange={(v) => set('topic', v)}      testid="aq-topic" />
+            <CreatableSelect label="round"     value={form.round}      options={ROUND_OPTS}   onChange={(v) => set('round', v)}      testid="aq-round" />
+            <CreatableSelect label="difficulty" value={form.difficulty} options={DIFF_OPTS}    onChange={(v) => set('difficulty', v)} testid="aq-difficulty" />
           </div>
 
           <div>
@@ -61,14 +82,33 @@ export const AddQuestionModal = ({ open, onOpenChange }) => {
               value={form.body}
               onChange={(e) => set('body', e.target.value)}
               rows={6}
-              placeholder="// Paste the question exactly as you were asked it. Include any context the interviewer gave you (constraints, follow-ups, hints)."
+              placeholder="// Paste the question exactly as you were asked it. Include any context the interviewer gave you."
               className="w-full bg-zinc-900 border border-white/10 rounded-md p-3 text-sm font-mono text-zinc-100 placeholder:text-zinc-600 focus:outline-none focus:border-white/30 transition-colors resize-y"
             />
             <div className="font-mono text-[11px] text-zinc-600 mt-1.5 flex justify-between">
-              <span>// min 30 chars · be specific</span>
+              <span>// min 30 chars · no URLs · keep it interview-relevant</span>
               <span className={form.body.length < 30 ? 'text-red-400' : 'text-emerald-400'}>{form.body.length} chars</span>
             </div>
           </div>
+
+          {violations.length > 0 && (
+            <div className="rounded-md border border-red-500/40 bg-red-500/[0.06] p-3 animate-fade-up" data-testid="moderation-warning">
+              <div className="flex items-center gap-2 mb-1.5">
+                <AlertTriangle size={13} className="text-red-400" />
+                <div className="font-mono text-[10px] uppercase tracking-[0.18em] text-red-400">Submission blocked by moderation</div>
+              </div>
+              <ul className="font-mono text-xs text-red-300 list-disc ml-5 space-y-0.5">
+                {violations.map((v, i) => (
+                  <li key={i}>
+                    {v.kind === 'profanity' && <>contains a flagged word: <span className="text-red-200">"{v.match}"</span></>}
+                    {v.kind === 'url' && <>links are not allowed: <span className="text-red-200">{v.match}</span></>}
+                    {v.kind === 'adult_domain' && <>adult / unsafe domain detected: <span className="text-red-200">{v.match}</span></>}
+                  </li>
+                ))}
+              </ul>
+              <div className="font-mono text-[11px] text-zinc-500 mt-2">Edit your submission and try again. We keep the bank professional.</div>
+            </div>
+          )}
 
           <div className="rounded-md border border-emerald-500/30 bg-emerald-500/[0.04] p-3 font-mono text-xs text-zinc-300">
             <span className="text-emerald-400">// reward</span> &nbsp;Submit one verified question → unlock 10 new questions and +40 XP.
@@ -89,13 +129,3 @@ export const AddQuestionModal = ({ open, onOpenChange }) => {
     </Dialog>
   );
 };
-
-const Select = ({ label, value, onChange, options, testid }) => (
-  <label className="block">
-    <div className="font-mono text-[10px] uppercase tracking-[0.18em] text-zinc-500 mb-1.5">{label}</div>
-    <select data-testid={testid} value={value} onChange={(e) => onChange(e.target.value)}
-      className="w-full appearance-none bg-zinc-900 border border-white/10 rounded-md px-3 py-2 text-sm font-mono text-zinc-100 focus:outline-none focus:border-white/30">
-      {options.map(o => <option key={o.id} value={o.id}>{o.label}</option>)}
-    </select>
-  </label>
-);

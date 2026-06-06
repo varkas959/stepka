@@ -73,6 +73,14 @@ class AnalyzeJDRequest(BaseModel):
     target_company: str
     target_role: str
 
+class ExtractSkillsRequest(BaseModel):
+    jd: str
+    target_company: str
+    target_role: str
+
+class ModerationRequest(BaseModel):
+    text: str
+
 
 def _extract_json(text: str) -> dict:
     """Pull the first JSON object from an LLM response, tolerating ```json fences."""
@@ -196,6 +204,62 @@ Return ONLY this JSON shape (no markdown, no extra text). Extract 6-10 skills.
 async def analyze_jd(req: AnalyzeJDRequest):
     prompt = JD_USER_TEMPLATE.format(jd=req.jd, company=req.target_company, role=req.target_role)
     return await _gemini_json(JD_SYSTEM, prompt, "jd")
+
+
+# ---------- Extract skills only (no mastery guess) ----------
+EXTRACT_SYSTEM = """You are an expert technical recruiter.
+Extract the most-relevant technical and behavioral skills from a job description and
+assign each an importance weight from 1 (nice-to-have) to 5 (must-have, central to the role).
+Respond with STRICT JSON only, no prose outside the object."""
+
+EXTRACT_USER_TEMPLATE = """Extract skills from this JD for a candidate targeting {company} ({role}).
+
+JOB DESCRIPTION:
+{jd}
+
+Return ONLY this JSON shape (no markdown, no extra text). Extract 6-10 skills.
+{{
+  "skills": [
+    {{"name": "<concise skill name, 1-3 words>", "weight": <1-5 int importance>}}
+  ]
+}}"""
+
+
+@api_router.post("/extract-skills")
+async def extract_skills(req: ExtractSkillsRequest):
+    prompt = EXTRACT_USER_TEMPLATE.format(jd=req.jd, company=req.target_company, role=req.target_role)
+    return await _gemini_json(EXTRACT_SYSTEM, prompt, "extract")
+
+
+# ---------- Lightweight content moderation ----------
+PROFANITY_WORDS = {
+    "fuck", "shit", "bitch", "asshole", "bastard", "cunt", "dick", "pussy",
+    "porn", "xxx", "nsfw", "nude", "naked", "sex", "erotic", "escort",
+    "rape", "kill yourself", "kys", "retard",
+}
+URL_RE = re.compile(r"\bhttps?://\S+|\bwww\.\S+", re.IGNORECASE)
+ADULT_DOMAINS = {"pornhub", "xvideos", "xhamster", "redtube", "onlyfans", "chaturbate", "youporn"}
+
+
+def _moderate_text(text: str):
+    lower = text.lower()
+    flagged = []
+    for word in PROFANITY_WORDS:
+        if word in lower:
+            flagged.append({"kind": "profanity", "match": word})
+    urls = URL_RE.findall(text)
+    if urls:
+        flagged.append({"kind": "url", "match": ", ".join(urls[:3])})
+        for d in ADULT_DOMAINS:
+            if any(d in u.lower() for u in urls):
+                flagged.append({"kind": "adult_domain", "match": d})
+                break
+    return {"ok": len(flagged) == 0, "flagged": flagged}
+
+
+@api_router.post("/moderate")
+async def moderate(req: ModerationRequest):
+    return _moderate_text(req.text)
 
 
 # Wire up router + middleware

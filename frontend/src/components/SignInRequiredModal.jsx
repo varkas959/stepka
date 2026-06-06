@@ -34,13 +34,13 @@ export const SignInRequiredModal = ({ open, onOpenChange, action = 'continue' })
 
         <div className="space-y-2 mt-4">
           <button data-testid="modal-signin-google" disabled={loading !== null} onClick={() => handle('google')}
-            className="w-full flex items-center justify-center gap-3 px-4 py-2.5 rounded-md bg-zinc-900 border border-white/10 text-zinc-50 hover:bg-zinc-800 transition-colors disabled:opacity-60">
-            {loading === 'google' ? <Loader2 size={15} className="animate-spin" /> : <GoogleIcon />}
+            className="w-full flex items-center justify-center gap-3 px-4 py-3 rounded-md bg-zinc-900 border border-white/10 text-zinc-50 hover:bg-zinc-800 transition-colors disabled:opacity-60">
+            {loading === 'google' ? <Loader2 size={18} className="animate-spin" /> : <GoogleIcon />}
             <span className="font-mono text-sm font-medium">Continue with Google</span>
           </button>
           <button data-testid="modal-signin-linkedin" disabled={loading !== null} onClick={() => handle('linkedin')}
-            className="w-full flex items-center justify-center gap-3 px-4 py-2.5 rounded-md bg-zinc-900 border border-white/10 text-zinc-50 hover:bg-zinc-800 transition-colors disabled:opacity-60">
-            {loading === 'linkedin' ? <Loader2 size={15} className="animate-spin" /> : <LinkedInIcon />}
+            className="w-full flex items-center justify-center gap-3 px-4 py-3 rounded-md bg-zinc-900 border border-white/10 text-zinc-50 hover:bg-zinc-800 transition-colors disabled:opacity-60">
+            {loading === 'linkedin' ? <Loader2 size={18} className="animate-spin" /> : <LinkedInIcon />}
             <span className="font-mono text-sm font-medium">Continue with LinkedIn</span>
           </button>
         </div>
@@ -59,8 +59,15 @@ export const SignInRequiredModal = ({ open, onOpenChange, action = 'continue' })
 };
 
 const GoogleIcon = () => (
-  <svg width="15" height="15" viewBox="0 0 24 24"><path fill="#EA4335" d="M12 10.2v3.92h5.45c-.24 1.36-1.66 4-5.45 4-3.28 0-5.95-2.71-5.95-6.05S8.72 5.95 12 5.95c1.86 0 3.11.79 3.83 1.47l2.61-2.52C16.84 3.42 14.62 2.5 12 2.5 6.97 2.5 2.9 6.57 2.9 11.6S6.97 20.7 12 20.7c6.92 0 9.6-4.85 9.6-7.34 0-.5-.05-.87-.12-1.16H12z"/></svg>
+  <svg width="18" height="18" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
+    <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
+    <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
+    <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
+  </svg>
 );
 const LinkedInIcon = () => (
-  <svg width="15" height="15" viewBox="0 0 24 24"><path fill="#0A66C2" d="M20.45 20.45h-3.55v-5.57c0-1.33-.03-3.04-1.85-3.04-1.85 0-2.13 1.45-2.13 2.95v5.66H9.36V9h3.42v1.56h.05c.48-.9 1.64-1.85 3.38-1.85 3.62 0 4.29 2.38 4.29 5.48v6.26zM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12zm1.78 13.02H3.55V9h3.57v11.45zM22.22 0H1.77C.79 0 0 .77 0 1.72v20.56C0 23.23.79 24 1.77 24h20.45c.98 0 1.78-.77 1.78-1.72V1.72C24 .77 23.2 0 22.22 0z"/></svg>
+  <svg width="18" height="18" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <path fill="#0A66C2" d="M20.45 20.45h-3.55v-5.57c0-1.33-.03-3.04-1.85-3.04-1.85 0-2.13 1.45-2.13 2.95v5.66H9.36V9h3.42v1.56h.05c.48-.9 1.64-1.85 3.38-1.85 3.62 0 4.29 2.38 4.29 5.48v6.26zM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12zm1.78 13.02H3.55V9h3.57v11.45zM22.22 0H1.77C.79 0 0 .77 0 1.72v20.56C0 23.23.79 24 1.77 24h20.45c.98 0 1.78-.77 1.78-1.72V1.72C24 .77 23.2 0 22.22 0z"/>
+  </svg>
 );
