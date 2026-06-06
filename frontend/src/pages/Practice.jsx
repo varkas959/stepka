@@ -1,13 +1,13 @@
 import { useEffect, useState } from 'react';
-import { QUESTIONS } from '../lib/mockData';
-import { CompanyBadge } from '../components/CompanyBadge';
+import { QUESTIONS, COMPANIES } from '../lib/mockData';
 import { useAppState } from '../lib/appState';
-import { Loader2, Code2, FileText, Timer, RotateCw } from 'lucide-react';
+import { Loader2, Code2, FileText, Timer, RotateCw, ArrowRight } from 'lucide-react';
 import { toast } from 'sonner';
 import { gradeAnswer } from '../lib/api';
+import { PixelBar } from '../components/PixelBar';
 
 const BEHAVIORAL_TOPICS = ['behavioral'];
-const SAMPLE_CODE = `// Two-Sum O(n)
+const SAMPLE_CODE = `// two-sum O(n)
 function twoSum(nums, target) {
   const seen = new Map();
   for (let i = 0; i < nums.length; i++) {
@@ -28,12 +28,11 @@ export default function Practice() {
   const [submitting, setSubmitting] = useState(false);
   const [feedback, setFeedback] = useState(null);
   const { addXp } = useAppState();
+  const company = COMPANIES.find(c => c.id === q.company);
 
   useEffect(() => {
     setMode(isBehavioral ? 'text' : 'code');
-    setAnswer('');
-    setSeconds(0);
-    setFeedback(null);
+    setAnswer(''); setSeconds(0); setFeedback(null);
   }, [qIdx, isBehavioral]);
 
   useEffect(() => {
@@ -45,100 +44,100 @@ export default function Practice() {
   const formatTime = (s) => `${Math.floor(s / 60).toString().padStart(2, '0')}:${(s % 60).toString().padStart(2, '0')}`;
 
   const submit = () => {
-    if (!answer.trim()) {
-      toast.error('Write something before submitting.');
-      return;
-    }
+    if (!answer.trim()) { toast.error('Write something before submitting.'); return; }
     setSubmitting(true);
     (async () => {
       try {
-        const fb = await gradeAnswer({
-          question: q.body,
-          answer,
-          mode,
-          isBehavioral,
-          topic: q.topicPath,
-        });
+        const fb = await gradeAnswer({ question: q.body, answer, mode, isBehavioral, topic: q.topicPath });
         setFeedback(fb);
         addXp(80);
       } catch (e) {
         toast.error(e?.response?.data?.detail || e.message || 'Grading failed. Try again.');
-      } finally {
-        setSubmitting(false);
-      }
+      } finally { setSubmitting(false); }
     })();
   };
 
   const reset = () => { setFeedback(null); setAnswer(''); setSeconds(0); };
 
   return (
-    <div className="px-4 md:px-8 py-6 md:py-10 max-w-7xl mx-auto" data-testid="practice-page">
-      <div className="flex items-start justify-between mb-6 flex-wrap gap-3">
+    <div className="px-4 md:px-10 py-6 md:py-10 max-w-7xl mx-auto" data-testid="practice-page">
+      <Breadcrumb segments={['practice', `${q.company}-${q.role.toLowerCase()}`, `q-${qIdx + 1}`]} />
+
+      <div className="flex items-start justify-between gap-4 flex-wrap mb-6 mt-1">
         <div>
-          <div className="text-[10px] uppercase tracking-[0.22em] text-zinc-500 font-mono">Practice · AI Graded</div>
-          <h1 className="text-2xl md:text-3xl font-semibold tracking-tight mt-1">Submit. Get scored.</h1>
+          <h1 className="text-3xl md:text-4xl font-semibold tracking-tight text-zinc-50">
+            <span className="text-zinc-500">$</span> practice · ai graded
+          </h1>
+          <p className="font-mono text-sm text-zinc-400 mt-2">Submit → 1.5s grade → rubric. Honest, specific, no fluff.</p>
         </div>
-        <div className="flex items-center gap-2 text-xs">
-          <button onClick={() => setQIdx(i => (i - 1 + QUESTIONS.length) % QUESTIONS.length)} className="border border-white/10 rounded-md px-2.5 py-1.5 text-zinc-300 hover:bg-white/5" data-testid="prev-question">← Prev</button>
-          <span className="font-mono text-zinc-500">{qIdx + 1} / {QUESTIONS.length}</span>
-          <button onClick={() => setQIdx(i => (i + 1) % QUESTIONS.length)} className="border border-white/10 rounded-md px-2.5 py-1.5 text-zinc-300 hover:bg-white/5" data-testid="next-question">Next →</button>
+        <div className="flex items-center gap-2 font-mono text-xs">
+          <button onClick={() => setQIdx(i => (i - 1 + QUESTIONS.length) % QUESTIONS.length)}
+            className="border border-white/10 rounded-md px-2.5 py-1.5 text-zinc-300 hover:bg-white/5" data-testid="prev-question">← prev</button>
+          <span className="text-zinc-500">{qIdx + 1} / {QUESTIONS.length}</span>
+          <button onClick={() => setQIdx(i => (i + 1) % QUESTIONS.length)}
+            className="border border-white/10 rounded-md px-2.5 py-1.5 text-zinc-300 hover:bg-white/5" data-testid="next-question">next →</button>
         </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        {/* Question panel */}
-        <section className="border border-white/10 rounded-lg bg-zinc-900/60 p-6">
-          <div className="flex items-center gap-3 mb-4">
-            <CompanyBadge companyId={q.company} size="md" />
-            <div className="text-xs text-zinc-400">
-              <div className="text-zinc-50 font-medium">{q.topicPath}</div>
-              <div className="font-mono">{q.role} · {q.round} · {q.difficulty}</div>
-            </div>
-            <div className="ml-auto inline-flex items-center gap-1.5 text-xs font-mono text-zinc-400">
-              <Timer size={14} /> {formatTime(seconds)}
-            </div>
+        {/* Question */}
+        <section className="rounded-lg border border-white/10 bg-zinc-950 overflow-hidden">
+          <div className="px-5 py-3 border-b border-white/5 flex items-center gap-3 font-mono text-xs">
+            <span className="font-mono text-[11px] px-2 py-0.5 rounded-[4px] border border-amber-500/35 bg-amber-500/[0.07] text-amber-400">{company?.name}</span>
+            <span className="font-mono text-[11px] px-2 py-0.5 rounded-[4px] border border-white/10 bg-white/[0.03] text-zinc-300">{q.role}</span>
+            <span className="font-mono text-[11px] px-2 py-0.5 rounded-[4px] border border-white/10 bg-white/[0.03] text-zinc-300">{q.difficulty}</span>
+            <span className="ml-auto inline-flex items-center gap-1.5 text-zinc-400">
+              <Timer size={13} /> <span>{formatTime(seconds)}</span>
+            </span>
           </div>
-          <div className="font-mono text-sm md:text-base leading-relaxed text-zinc-100">{q.body}</div>
+          <div className="p-5">
+            <div className="text-zinc-100 text-base md:text-lg leading-relaxed" style={{ fontFamily: 'IBM Plex Sans, sans-serif' }}>
+              {q.body}
+            </div>
+            <div className="mt-4 font-mono text-xs text-zinc-500">{q.topicPath} · {q.round} round</div>
+          </div>
         </section>
 
-        {/* Answer panel */}
-        <section className="border border-white/10 rounded-lg bg-zinc-900/60 p-6 flex flex-col">
-          <div className="flex items-center justify-between mb-3">
-            <div className="text-[10px] uppercase tracking-[0.22em] text-zinc-500 font-mono">Your answer</div>
-            <div className="flex items-center gap-1 border border-white/10 rounded-md p-0.5">
-              <button data-testid="mode-text" onClick={() => setMode('text')} className={`px-2.5 py-1 rounded text-xs flex items-center gap-1.5 ${mode === 'text' ? 'bg-white text-zinc-950' : 'text-zinc-400'}`}>
-                <FileText size={12} /> Text
+        {/* Answer */}
+        <section className="rounded-lg border border-white/10 bg-zinc-950 overflow-hidden flex flex-col">
+          <div className="px-5 py-3 border-b border-white/5 flex items-center gap-2 font-mono text-xs">
+            <span className="text-emerald-400">&gt;</span>
+            <span className="text-zinc-500">your-answer</span>
+            <div className="ml-auto inline-flex items-center gap-0.5 border border-white/10 rounded-md p-0.5">
+              <button data-testid="mode-text" onClick={() => setMode('text')}
+                className={`px-2 py-1 rounded-sm text-[11px] inline-flex items-center gap-1 ${mode === 'text' ? 'bg-amber-500 text-zinc-950 font-semibold' : 'text-zinc-400'}`}>
+                <FileText size={11} /> text
               </button>
-              <button data-testid="mode-code" onClick={() => setMode('code')} className={`px-2.5 py-1 rounded text-xs flex items-center gap-1.5 ${mode === 'code' ? 'bg-white text-zinc-950' : 'text-zinc-400'}`}>
-                <Code2 size={12} /> Code
+              <button data-testid="mode-code" onClick={() => setMode('code')}
+                className={`px-2 py-1 rounded-sm text-[11px] inline-flex items-center gap-1 ${mode === 'code' ? 'bg-amber-500 text-zinc-950 font-semibold' : 'text-zinc-400'}`}>
+                <Code2 size={11} /> code
               </button>
             </div>
           </div>
-
           <textarea
             data-testid="answer-input"
             value={answer}
             onChange={(e) => setAnswer(e.target.value)}
-            placeholder={mode === 'code' ? SAMPLE_CODE : 'Type your answer. Be specific. Numbers and structure beat adjectives.'}
+            placeholder={mode === 'code' ? SAMPLE_CODE : '// type your answer. numbers and structure beat adjectives.'}
             rows={12}
             disabled={!!feedback}
-            className={`w-full bg-zinc-950 border border-white/10 rounded-md p-3 text-sm focus:outline-none focus:border-white/30 transition-colors resize-y ${mode === 'code' ? 'font-mono' : ''} disabled:opacity-60`}
+            className={`flex-1 w-full bg-transparent border-0 p-5 text-sm focus:outline-none resize-y ${mode === 'code' ? 'font-mono' : 'font-mono'} text-zinc-100 placeholder:text-zinc-700 disabled:opacity-60`}
           />
-
-          <div className="flex items-center gap-2 mt-4">
+          <div className="border-t border-white/5 p-4 flex items-center gap-3">
             {!feedback ? (
-              <button data-testid="submit-answer" onClick={submit} disabled={submitting} className="inline-flex items-center gap-2 bg-white text-zinc-950 px-4 py-2 rounded-md text-sm font-medium hover:bg-zinc-200 transition-colors disabled:opacity-50">
-                {submitting ? <Loader2 size={14} className="animate-spin" /> : null}
-                {submitting ? 'Grading…' : 'Submit for AI grading'}
+              <button data-testid="submit-answer" onClick={submit} disabled={submitting}
+                className="inline-flex items-center gap-2 font-mono text-sm font-semibold uppercase tracking-[0.14em] px-4 py-2 rounded-md text-zinc-950 hover:brightness-110 transition-all disabled:opacity-50"
+                style={{ background: '#f59e0b', boxShadow: '0 0 0 1px rgba(245,158,11,0.4), 0 0 24px -8px rgba(245,158,11,0.6)' }}>
+                {submitting && <Loader2 size={14} className="animate-spin" />}
+                {submitting ? 'Grading…' : <>Submit <ArrowRight size={14} strokeWidth={2.5} /></>}
               </button>
             ) : (
-              <button data-testid="try-again" onClick={reset} className="inline-flex items-center gap-2 bg-zinc-900 border border-white/10 px-4 py-2 rounded-md text-sm hover:bg-zinc-800 transition-colors">
-                <RotateCw size={14} /> Try again
+              <button data-testid="try-again" onClick={reset}
+                className="inline-flex items-center gap-2 font-mono text-sm px-3.5 py-2 rounded-md border border-white/10 bg-zinc-900 hover:bg-zinc-800 text-zinc-100">
+                <RotateCw size={13} /> Try again
               </button>
             )}
-            <div className="text-xs text-zinc-500 ml-auto font-mono">
-              {answer.length} chars
-            </div>
+            <div className="ml-auto font-mono text-xs text-zinc-500">{answer.length} chars</div>
           </div>
         </section>
       </div>
@@ -149,43 +148,63 @@ export default function Practice() {
 }
 
 const FeedbackPanel = ({ feedback }) => {
-  const applyToSrs = () => toast.success(`Applied "${feedback.suggestedLabel}" to SRS. Next review in 7 days.`);
+  const applyToSrs = () => toast.success(`Applied "${feedback.suggestedLabel}" to SRS. Next review in 7d.`);
+  const overall = parseFloat(feedback.overall);
+  const overallColor = overall < 2.5 ? '#ef4444' : overall < 3.8 ? '#f59e0b' : '#22c55e';
   return (
-    <section className="mt-4 border border-white/10 rounded-lg bg-zinc-900/60 p-6 animate-fade-up" data-testid="feedback-panel">
+    <section className="mt-4 rounded-lg border border-white/10 bg-zinc-950 p-6 animate-fade-up" data-testid="feedback-panel">
+      <div className="font-mono text-[10px] uppercase tracking-[0.22em] text-zinc-600 mb-4">Ai feedback</div>
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div>
-          <div className="text-[10px] uppercase tracking-[0.22em] text-zinc-500 font-mono">Overall</div>
+          <div className="font-mono text-[10px] uppercase tracking-[0.22em] text-zinc-600">Overall</div>
           <div className="mt-2 flex items-baseline gap-2">
-            <div className="font-mono text-5xl font-semibold tracking-tight text-zinc-50">{feedback.overall}</div>
-            <div className="text-zinc-500 font-mono">/ 5</div>
+            <div className="font-mono text-5xl font-semibold" style={{ color: overallColor }}>{feedback.overall}</div>
+            <div className="font-mono text-zinc-600">/ 5</div>
           </div>
-          <div className="mt-4 space-y-2">
-            {feedback.dims.map(d => (
-              <div key={d.name} className="text-xs">
-                <div className="flex justify-between mb-1">
-                  <span className="text-zinc-300 font-mono">{d.name}</span>
-                  <span className="font-mono text-zinc-400">{d.score}</span>
+          <div className="mt-5 space-y-2.5">
+            {feedback.dims.map(d => {
+              const color = d.score >= 75 ? '#22c55e' : d.score >= 60 ? '#f59e0b' : '#ef4444';
+              return (
+                <div key={d.name} className="font-mono text-xs">
+                  <div className="flex justify-between mb-1">
+                    <span className="text-zinc-300">{d.name}</span>
+                    <span className="text-zinc-400">{d.score}</span>
+                  </div>
+                  <PixelBar value={d.score} width={260} height={9} color={color} dotColor={color} />
                 </div>
-                <div className="h-1.5 bg-white/5 rounded-full overflow-hidden">
-                  <div className="h-full rounded-full" style={{ width: `${d.score}%`, background: d.score >= 75 ? '#10b981' : d.score >= 60 ? '#f59e0b' : '#ef4444' }} />
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
 
         <div className="lg:col-span-2">
-          <div className="text-[10px] uppercase tracking-[0.22em] text-zinc-500 font-mono">Feedback</div>
-          <p className="mt-2 text-sm leading-relaxed text-zinc-200 font-mono">{feedback.text}</p>
+          <div className="font-mono text-[10px] uppercase tracking-[0.22em] text-zinc-600">Notes</div>
+          <p className="mt-2 text-zinc-100 leading-relaxed" style={{ fontFamily: 'IBM Plex Sans, sans-serif' }}>{feedback.text}</p>
 
-          <div className="mt-5 border border-amber-500/30 bg-amber-500/5 rounded-md p-4 flex items-center gap-4">
-            <div className="text-xs text-zinc-300">
-              We suggest rating this <span className="font-mono text-amber-400">"{feedback.suggestedLabel} ({feedback.suggestedRating})"</span> in SRS.
+          <div className="mt-5 border border-amber-500/30 bg-amber-500/[0.04] rounded-md p-4 flex items-center gap-4">
+            <div className="font-mono text-xs text-zinc-300">
+              Suggested SRS rating: <span className="text-amber-400">"{feedback.suggestedLabel} ({feedback.suggestedRating})"</span>
             </div>
-            <button data-testid="apply-srs" onClick={applyToSrs} className="ml-auto bg-white text-zinc-950 px-3 py-1.5 rounded-md text-xs font-medium hover:bg-zinc-200 transition-colors">Apply to SRS</button>
+            <button data-testid="apply-srs" onClick={applyToSrs}
+              className="ml-auto inline-flex items-center gap-1.5 font-mono text-xs font-semibold uppercase tracking-[0.14em] px-3 py-1.5 rounded-md text-zinc-950 hover:brightness-110 transition-all"
+              style={{ background: '#f59e0b' }}>
+              Apply to SRS
+            </button>
           </div>
         </div>
       </div>
     </section>
   );
 };
+
+const Breadcrumb = ({ segments }) => (
+  <div className="font-mono text-sm text-zinc-600 mb-4">
+    <span className="text-emerald-400">~</span>
+    {segments.map((s, i) => (
+      <span key={i}>
+        <span className="mx-1.5">/</span>
+        <span className={i === segments.length - 1 ? 'text-zinc-200' : 'text-zinc-400'}>{s}</span>
+      </span>
+    ))}
+  </div>
+);

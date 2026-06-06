@@ -32,9 +32,9 @@ export const Sidebar = ({ user, onSignOut }) => {
       <div className="flex items-center justify-between px-5 py-5 border-b border-white/5">
         <div className="flex items-center gap-2.5" data-testid="sidebar-logo">
           <div className="w-9 h-9 rounded-md flex items-center justify-center font-mono font-bold text-zinc-950"
-               style={{ background: '#f59e0b' }}>at</div>
+               style={{ background: '#f59e0b' }}>sk</div>
           <div>
-            <div className="font-mono text-base font-semibold tracking-tight text-zinc-50">AskTaaza</div>
+            <div className="font-mono text-base font-semibold tracking-tight text-zinc-50">Stepkai</div>
             <div className="text-[9px] uppercase tracking-[0.22em] text-zinc-600 font-mono">interview prep</div>
           </div>
         </div>
@@ -123,7 +123,7 @@ export const Sidebar = ({ user, onSignOut }) => {
       <div className="md:hidden fixed top-0 left-0 right-0 z-40 bg-zinc-950/95 backdrop-blur border-b border-white/5 h-14 flex items-center justify-between px-4">
         <div className="flex items-center gap-2">
           <button onClick={() => setMobileOpen(true)} data-testid="mobile-menu" className="text-zinc-300"><Menu size={20} /></button>
-          <div className="font-mono font-semibold">AskTaaza</div>
+          <div className="font-mono font-semibold">Stepkai</div>
         </div>
         <div className="flex items-center gap-1.5 text-xs text-zinc-400">
           <Flame size={12} className="text-amber-500" fill="currentColor" />

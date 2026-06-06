@@ -1,20 +1,29 @@
 import { useState } from 'react';
 import { SRS_CARDS } from '../lib/mockData';
 import { useAppState } from '../lib/appState';
-import { ProgressRing } from '../components/ProgressRing';
-import { CompanyBadge } from '../components/CompanyBadge';
-import { ChevronLeft, RotateCw, Trophy, Zap } from 'lucide-react';
+import { PixelBar } from '../components/PixelBar';
+import { ChevronLeft, RotateCw, Trophy, Zap, ArrowRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 const RATING_OPTIONS = [
-  { key: 1, label: 'Forgot', shortcut: '1', nextDays: 1, color: 'border-red-500/40 text-red-400 hover:bg-red-500/10', dot: 'bg-red-500' },
-  { key: 2, label: 'Hard', shortcut: '2', nextDays: 3, color: 'border-amber-500/40 text-amber-400 hover:bg-amber-500/10', dot: 'bg-amber-500' },
-  { key: 3, label: 'Good', shortcut: '3', nextDays: 7, color: 'border-emerald-500/40 text-emerald-400 hover:bg-emerald-500/10', dot: 'bg-emerald-500' },
-  { key: 4, label: 'Easy', shortcut: '4', nextDays: 14, color: 'border-blue-500/40 text-blue-400 hover:bg-blue-500/10', dot: 'bg-blue-500' },
+  { key: 1, label: 'forgot', shortcut: '1', nextDays: 1, color: '#ef4444', tone: 'red' },
+  { key: 2, label: 'hard',   shortcut: '2', nextDays: 3, color: '#f59e0b', tone: 'amber' },
+  { key: 3, label: 'good',   shortcut: '3', nextDays: 7, color: '#22c55e', tone: 'green' },
+  { key: 4, label: 'easy',   shortcut: '4', nextDays: 14, color: '#3b82f6', tone: 'blue' },
 ];
 
+const toneClass = (tone, active) => {
+  const map = {
+    red:   active ? 'border-red-500/50 bg-red-500/[0.08] text-red-300'       : 'border-red-500/30 text-red-400 hover:bg-red-500/[0.06]',
+    amber: active ? 'border-amber-500/50 bg-amber-500/[0.08] text-amber-300' : 'border-amber-500/30 text-amber-400 hover:bg-amber-500/[0.06]',
+    green: active ? 'border-emerald-500/50 bg-emerald-500/[0.08] text-emerald-300' : 'border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/[0.06]',
+    blue:  active ? 'border-blue-500/50 bg-blue-500/[0.08] text-blue-300'    : 'border-blue-500/30 text-blue-400 hover:bg-blue-500/[0.06]',
+  };
+  return map[tone];
+};
+
 export default function DailyReview() {
-  const [phase, setPhase] = useState('queue'); // queue | session | done
+  const [phase, setPhase] = useState('queue');
   const [idx, setIdx] = useState(0);
   const [flipped, setFlipped] = useState(false);
   const [ratings, setRatings] = useState([]);
@@ -22,158 +31,171 @@ export default function DailyReview() {
   const navigate = useNavigate();
 
   const breakdown = SRS_CARDS.reduce((acc, c) => { acc[c.kind] = (acc[c.kind] || 0) + 1; return acc; }, {});
-
-  const startSession = () => {
-    setPhase('session'); setIdx(0); setFlipped(false); setRatings([]);
-  };
+  const startSession = () => { setPhase('session'); setIdx(0); setFlipped(false); setRatings([]); };
 
   const handleRate = (r) => {
     const card = SRS_CARDS[idx];
     setRatings(prev => [...prev, { cardId: card.id, rating: r }]);
     bumpReview();
     addXp(10 + r.key * 2);
-    // fire-and-forget remote write
     recordRating(card.id, r.key);
-
-    if (idx + 1 >= SRS_CARDS.length) {
-      setPhase('done');
-    } else {
-      setIdx(i => i + 1);
-      setFlipped(false);
-    }
+    if (idx + 1 >= SRS_CARDS.length) setPhase('done');
+    else { setIdx(i => i + 1); setFlipped(false); }
   };
 
-  if (phase === 'queue') {
-    return (
-      <div className="px-4 md:px-8 py-6 md:py-12 max-w-3xl mx-auto">
-        <div className="text-[10px] uppercase tracking-[0.22em] text-zinc-500 font-mono">Daily Review</div>
-        <h1 className="text-3xl md:text-4xl font-semibold tracking-tight mt-1">You have <span className="font-mono">{SRS_CARDS.length}</span> cards due today</h1>
-        <p className="text-zinc-400 mt-2 text-sm">Spaced repetition. Rate each card honestly. The algorithm will rebuild your queue for tomorrow.</p>
+  if (phase === 'queue') return <QueueView state={state} breakdown={breakdown} total={SRS_CARDS.length} onStart={startSession} />;
+  if (phase === 'session') return <SessionView idx={idx} flipped={flipped} setFlipped={setFlipped} onRate={handleRate} onExit={() => setPhase('queue')} />;
+  return <DoneView ratings={ratings} state={state} onContinue={() => navigate('/app/progress')} onAgain={() => setPhase('queue')} />;
+}
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-8">
-          <StatCard label="Concept" value={breakdown.concept || 0} />
-          <StatCard label="Coding" value={breakdown.coding || 0} />
-          <StatCard label="STAR / Behavioral" value={breakdown.star || 0} />
+// ───────────── Queue ─────────────
+const QueueView = ({ state, breakdown, total, onStart }) => {
+  const goalPct = Math.round((state.reviewedToday / state.goalToday) * 100);
+  return (
+    <div className="px-4 md:px-10 py-6 md:py-10 max-w-3xl mx-auto">
+      <Breadcrumb segments={['daily-review', 'queue']} />
+      <h1 className="text-4xl md:text-5xl font-semibold tracking-tight mt-1 text-zinc-50">
+        <span className="text-zinc-500">$</span> {total} cards due
+        <span className="text-zinc-500"> · today</span>
+      </h1>
+      <p className="text-zinc-400 mt-3 text-base max-w-xl leading-relaxed">
+        Spaced repetition. Rate each card honestly — the algorithm rebuilds tomorrow's queue from your signal.
+      </p>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-8">
+        <KindCard kind="concept" value={breakdown.concept || 0} />
+        <KindCard kind="coding" value={breakdown.coding || 0} />
+        <KindCard kind="star" value={breakdown.star || 0} />
+      </div>
+
+      <div className="mt-6 rounded-lg border border-white/10 bg-zinc-950 p-6">
+        <div className="flex items-center justify-between mb-3 font-mono text-xs">
+          <span className="uppercase tracking-[0.18em] text-zinc-500">Daily goal</span>
+          <span className="text-zinc-300">{state.reviewedToday}<span className="text-zinc-600"> / {state.goalToday}</span></span>
         </div>
+        <PixelBar value={goalPct} width={800} height={14} color="#22c55e" />
+        <div className="mt-5 flex items-center justify-between">
+          <p className="font-mono text-sm text-zinc-400">Hit <span className="text-zinc-100">{state.goalToday}</span> cards to keep the streak alive.</p>
+          <button data-testid="start-review" onClick={onStart}
+            className="inline-flex items-center gap-2 font-mono text-sm font-semibold uppercase tracking-[0.14em] px-4 py-2.5 rounded-md text-zinc-950 hover:brightness-110 transition-all"
+            style={{ background: '#f59e0b', boxShadow: '0 0 0 1px rgba(245,158,11,0.4), 0 0 24px -8px rgba(245,158,11,0.6)' }}>
+            Start review <ArrowRight size={14} strokeWidth={2.5} />
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
 
-        <div className="mt-8 flex items-center gap-6 border border-white/10 bg-zinc-900/60 rounded-lg p-6">
-          <ProgressRing value={state.reviewedToday} max={state.goalToday} size={92} stroke={7} label={`${state.reviewedToday}/${state.goalToday}`} sublabel="goal" />
-          <div className="flex-1">
-            <div className="text-sm font-medium">Daily goal</div>
-            <div className="text-xs text-zinc-400 mt-1">Hit <span className="font-mono text-zinc-50">{state.goalToday}</span> cards to keep the streak alive.</div>
-            <button data-testid="start-review" onClick={startSession} className="mt-4 inline-flex items-center gap-2 bg-white text-zinc-950 px-4 py-2 rounded-md text-sm font-medium hover:bg-zinc-200 transition-colors">
-              Start Review →
+const KindLabels = { concept: 'concept', coding: 'coding', star: 'star · behavioral' };
+const KindCard = ({ kind, value }) => (
+  <div className="rounded-md border border-white/10 bg-zinc-950 px-4 py-3">
+    <div className="font-mono text-[10px] uppercase tracking-[0.18em] text-zinc-600">{KindLabels[kind]}</div>
+    <div className="font-mono text-2xl font-semibold text-zinc-50 mt-1">{value}</div>
+  </div>
+);
+
+// ───────────── Session ─────────────
+const SessionView = ({ idx, flipped, setFlipped, onRate, onExit }) => {
+  const card = SRS_CARDS[idx];
+  return (
+    <div className="px-4 md:px-10 py-6 md:py-10 max-w-3xl mx-auto" data-testid="srs-session">
+      <Breadcrumb segments={['daily-review', `card-${idx + 1}-of-${SRS_CARDS.length}`]} />
+
+      <div className="flex items-center justify-between mb-4 mt-2 text-xs font-mono">
+        <button data-testid="exit-session" onClick={onExit} className="inline-flex items-center gap-1.5 text-zinc-500 hover:text-zinc-50">
+          <ChevronLeft size={14} /> exit
+        </button>
+        <span className="text-zinc-500"><span className="text-zinc-100 font-semibold">{idx + 1}</span> / {SRS_CARDS.length}</span>
+      </div>
+
+      <PixelBar value={(idx / SRS_CARDS.length) * 100} width="100%" height={10} color="#22c55e" />
+
+      <div className="flip-card mt-8" style={{ height: '340px' }}>
+        <div className={`flip-card-inner ${flipped ? 'is-flipped' : ''}`}>
+          <div className="flip-card-face">
+            <button onClick={() => setFlipped(true)} data-testid="flip-card"
+              className="relative w-full h-full p-8 text-left rounded-lg border border-white/10 bg-zinc-950 hover:border-white/20 transition-colors flex flex-col overflow-hidden">
+              <div className="absolute left-0 top-0 bottom-0 w-[3px]" style={{ background: '#f59e0b', opacity: 0.85 }} />
+              <div className="flex items-center gap-2 mb-4">
+                <span className="font-mono text-[10px] uppercase tracking-[0.18em] text-zinc-500">{card.topic}</span>
+                <span className="text-zinc-700">·</span>
+                <span className="font-mono text-[10px] uppercase tracking-[0.18em] text-zinc-500">{card.kind}</span>
+                <span className="text-zinc-700">·</span>
+                <span className="font-mono text-[10px] uppercase tracking-[0.18em] text-zinc-500">{card.company}</span>
+              </div>
+              <div className="flex-1 flex items-center">
+                <div className="text-zinc-50 text-xl md:text-2xl leading-relaxed" style={{ fontFamily: 'IBM Plex Sans, sans-serif' }}>
+                  {card.front}
+                </div>
+              </div>
+              <div className="font-mono text-xs text-zinc-600 mt-4">// click to reveal · then rate your recall</div>
             </button>
           </div>
-        </div>
-      </div>
-    );
-  }
-
-  if (phase === 'session') {
-    const card = SRS_CARDS[idx];
-    return (
-      <div className="px-4 md:px-8 py-6 md:py-10 max-w-3xl mx-auto" data-testid="srs-session">
-        <div className="flex items-center justify-between mb-6 text-xs">
-          <button data-testid="exit-session" onClick={() => setPhase('queue')} className="flex items-center gap-1.5 text-zinc-400 hover:text-zinc-50">
-            <ChevronLeft size={14} /> Exit
-          </button>
-          <div className="font-mono text-zinc-400">
-            <span className="text-zinc-50">{idx + 1}</span> / {SRS_CARDS.length}
-          </div>
-        </div>
-
-        <div className="h-1 bg-white/5 rounded-full overflow-hidden mb-8">
-          <div className="h-full bg-white transition-all duration-500" style={{ width: `${((idx) / SRS_CARDS.length) * 100}%` }} />
-        </div>
-
-        <div className="flip-card" style={{ height: '320px' }}>
-          <div className={`flip-card-inner ${flipped ? 'is-flipped' : ''}`}>
-            <div className="flip-card-face">
-              <button
-                onClick={() => setFlipped(true)}
-                data-testid="flip-card"
-                className="w-full h-full p-8 text-left rounded-xl border border-white/10 bg-zinc-900 hover:bg-zinc-900/80 transition-colors flex flex-col"
-              >
-                <div className="flex items-center gap-3 mb-4">
-                  <CompanyBadge companyId={card.company} size="sm" />
-                  <span className="font-mono text-[10px] uppercase tracking-[0.18em] text-zinc-500">{card.topic} · {card.kind}</span>
-                </div>
-                <div className="flex-1 flex items-center">
-                  <div className="font-mono text-xl md:text-2xl leading-relaxed text-zinc-50">{card.front}</div>
-                </div>
-                <div className="text-xs text-zinc-500 mt-4">Click card to reveal · then rate your recall</div>
-              </button>
-            </div>
-            <div className="flip-card-face flip-card-back">
-              <div className="w-full h-full p-8 rounded-xl border border-emerald-500/20 bg-emerald-500/5 flex flex-col">
-                <div className="text-[10px] uppercase tracking-[0.22em] text-emerald-400 font-mono mb-3">Answer hint</div>
-                <div className="font-mono text-sm md:text-base leading-relaxed text-zinc-100 flex-1">{card.back}</div>
-                <button onClick={() => setFlipped(false)} className="text-xs text-zinc-400 hover:text-zinc-50 inline-flex items-center gap-1 self-start mt-2" data-testid="flip-back">
-                  <RotateCw size={12} /> Flip back
-                </button>
+          <div className="flip-card-face flip-card-back">
+            <div className="relative w-full h-full p-8 rounded-lg border border-emerald-500/30 bg-emerald-500/[0.04] flex flex-col overflow-hidden">
+              <div className="absolute left-0 top-0 bottom-0 w-[3px]" style={{ background: '#22c55e' }} />
+              <div className="font-mono text-[10px] uppercase tracking-[0.22em] text-emerald-400 mb-3">Answer hint</div>
+              <div className="text-zinc-50 text-base md:text-lg leading-relaxed flex-1" style={{ fontFamily: 'IBM Plex Sans, sans-serif' }}>
+                {card.back}
               </div>
+              <button onClick={() => setFlipped(false)} className="font-mono text-xs text-zinc-500 hover:text-zinc-50 inline-flex items-center gap-1 self-start mt-2" data-testid="flip-back">
+                <RotateCw size={12} /> flip back
+              </button>
             </div>
           </div>
         </div>
-
-        {flipped && (
-          <div className="mt-8 grid grid-cols-2 md:grid-cols-4 gap-2 animate-fade-up">
-            {RATING_OPTIONS.map(r => (
-              <button
-                key={r.key}
-                data-testid={`rate-${r.label.toLowerCase()}`}
-                onClick={() => handleRate(r)}
-                className={`group p-4 rounded-md border bg-zinc-900/60 transition-colors text-left ${r.color}`}
-              >
-                <div className="flex items-center gap-2">
-                  <div className={`w-2 h-2 rounded-full ${r.dot}`} />
-                  <div className="font-medium text-zinc-50">{r.label}</div>
-                  <div className="ml-auto font-mono text-[10px] text-zinc-500">{r.shortcut}</div>
-                </div>
-                <div className="font-mono text-[10px] text-zinc-500 mt-1.5">See again in {r.nextDays}d</div>
-              </button>
-            ))}
-          </div>
-        )}
       </div>
-    );
-  }
 
-  // done
-  const xpEarned = ratings.reduce((acc, r) => acc + 10 + r.rating.key * 2, 0);
-  const ratingBreakdown = ratings.reduce((acc, r) => { acc[r.rating.label] = (acc[r.rating.label] || 0) + 1; return acc; }, {});
-
-  return (
-    <div className="px-4 md:px-8 py-6 md:py-12 max-w-2xl mx-auto" data-testid="session-complete">
-      <div className="text-center">
-        <div className="inline-flex items-center justify-center w-14 h-14 rounded-xl bg-emerald-500/15 border border-emerald-500/30 mb-5">
-          <Trophy size={26} className="text-emerald-400" />
+      {flipped && (
+        <div className="mt-8 grid grid-cols-2 md:grid-cols-4 gap-2 animate-fade-up">
+          {RATING_OPTIONS.map(r => (
+            <button key={r.key} data-testid={`rate-${r.label}`} onClick={() => onRate(r)}
+              className={`group p-4 rounded-md border bg-zinc-950 transition-colors text-left font-mono ${toneClass(r.tone, false)}`}>
+              <div className="flex items-center gap-2">
+                <span className="text-base font-medium">{r.label}</span>
+                <span className="ml-auto text-[10px] text-zinc-600 border border-white/10 rounded px-1.5 py-0.5">{r.shortcut}</span>
+              </div>
+              <div className="text-[10px] text-zinc-500 mt-2">see again in {r.nextDays}d</div>
+            </button>
+          ))}
         </div>
-        <div className="text-[10px] uppercase tracking-[0.22em] text-zinc-500 font-mono">session complete</div>
-        <h1 className="text-3xl md:text-4xl font-semibold tracking-tight mt-2">Done. <span className="text-zinc-500">Streak intact.</span></h1>
+      )}
+    </div>
+  );
+};
+
+// ───────────── Done ─────────────
+const DoneView = ({ ratings, state, onContinue, onAgain }) => {
+  const xpEarned = ratings.reduce((acc, r) => acc + 10 + r.rating.key * 2, 0);
+  const breakdown = ratings.reduce((acc, r) => { acc[r.rating.label] = (acc[r.rating.label] || 0) + 1; return acc; }, {});
+  return (
+    <div className="px-4 md:px-10 py-6 md:py-12 max-w-2xl mx-auto" data-testid="session-complete">
+      <Breadcrumb segments={['daily-review', 'session-complete']} />
+      <div className="text-center mt-2">
+        <div className="inline-flex items-center justify-center w-14 h-14 rounded-md bg-emerald-500/[0.08] border border-emerald-500/30 mb-5">
+          <Trophy size={24} className="text-emerald-400" />
+        </div>
+        <h1 className="text-4xl md:text-5xl font-semibold tracking-tight text-zinc-50">Done. <span className="text-zinc-600">Streak intact.</span></h1>
       </div>
 
-      <div className="grid grid-cols-3 gap-4 mt-8">
-        <StatCard label="Reviewed" value={ratings.length} />
-        <StatCard label="XP Earned" value={`+${xpEarned}`} accent />
-        <StatCard label="Streak" value={`${state.streak}d`} />
+      <div className="grid grid-cols-3 gap-3 mt-8">
+        <StatBox label="reviewed" value={ratings.length} />
+        <StatBox label="xp earned" value={`+${xpEarned}`} accent />
+        <StatBox label="streak" value={`${state.streak}d`} />
       </div>
 
-      <div className="mt-6 border border-white/10 bg-zinc-900/60 rounded-lg p-6">
-        <div className="text-[10px] uppercase tracking-[0.22em] text-zinc-500 font-mono mb-4">Rating breakdown</div>
-        <div className="space-y-2">
+      <div className="mt-6 rounded-lg border border-white/10 bg-zinc-950 p-6">
+        <div className="font-mono text-[10px] uppercase tracking-[0.22em] text-zinc-600 mb-4">Rating breakdown</div>
+        <div className="space-y-3">
           {RATING_OPTIONS.map(r => {
-            const count = ratingBreakdown[r.label] || 0;
+            const count = breakdown[r.label] || 0;
             const pct = ratings.length ? (count / ratings.length) * 100 : 0;
             return (
-              <div key={r.key} className="flex items-center gap-3 text-xs">
-                <div className={`w-2 h-2 rounded-full ${r.dot}`} />
+              <div key={r.key} className="flex items-center gap-3 font-mono text-xs">
                 <div className="w-16 text-zinc-300">{r.label}</div>
-                <div className="flex-1 h-1.5 bg-white/5 rounded-full overflow-hidden">
-                  <div className={`h-full ${r.dot}`} style={{ width: `${pct}%` }} />
-                </div>
-                <div className="w-8 text-right font-mono text-zinc-400">{count}</div>
+                <PixelBar value={pct} width={300} height={10} color={r.color} dotColor={r.color} />
+                <div className="w-8 text-right text-zinc-400">{count}</div>
               </div>
             );
           })}
@@ -181,20 +203,34 @@ export default function DailyReview() {
       </div>
 
       <div className="flex gap-2 mt-6">
-        <button data-testid="back-to-dashboard" onClick={() => navigate('/app/progress')} className="flex-1 bg-white text-zinc-950 rounded-md py-2.5 text-sm font-medium hover:bg-zinc-200 transition-colors inline-flex items-center justify-center gap-2">
-          <Zap size={14} /> See progress
+        <button data-testid="back-to-dashboard" onClick={onContinue}
+          className="flex-1 inline-flex items-center justify-center gap-2 font-mono text-sm font-semibold uppercase tracking-[0.14em] px-4 py-2.5 rounded-md text-zinc-950 hover:brightness-110 transition-all"
+          style={{ background: '#f59e0b' }}>
+          <Zap size={14} strokeWidth={2.5} /> See progress
         </button>
-        <button onClick={() => { setPhase('queue'); }} className="flex-1 bg-zinc-900 border border-white/10 rounded-md py-2.5 text-sm hover:bg-zinc-800 transition-colors">
-          Review more
+        <button onClick={onAgain} className="flex-1 font-mono text-sm bg-zinc-900 border border-white/10 rounded-md py-2.5 hover:bg-zinc-800 transition-colors">
+          review more
         </button>
       </div>
     </div>
   );
-}
+};
 
-const StatCard = ({ label, value, accent }) => (
-  <div className={`border rounded-lg p-4 ${accent ? 'border-emerald-500/30 bg-emerald-500/5' : 'border-white/10 bg-zinc-900/60'}`}>
-    <div className="text-[10px] uppercase tracking-[0.22em] text-zinc-500 font-mono">{label}</div>
-    <div className={`text-2xl font-mono font-semibold mt-1 ${accent ? 'text-emerald-400' : 'text-zinc-50'}`}>{value}</div>
+const StatBox = ({ label, value, accent }) => (
+  <div className={`rounded-md border p-4 ${accent ? 'border-emerald-500/30 bg-emerald-500/[0.04]' : 'border-white/10 bg-zinc-950'}`}>
+    <div className="font-mono text-[10px] uppercase tracking-[0.22em] text-zinc-600">{label}</div>
+    <div className={`font-mono text-2xl font-semibold mt-1 ${accent ? 'text-emerald-300' : 'text-zinc-50'}`}>{value}</div>
+  </div>
+);
+
+const Breadcrumb = ({ segments }) => (
+  <div className="font-mono text-sm text-zinc-600 mb-4">
+    <span className="text-emerald-400">~</span>
+    {segments.map((s, i) => (
+      <span key={i}>
+        <span className="mx-1.5">/</span>
+        <span className={i === segments.length - 1 ? 'text-zinc-200' : 'text-zinc-400'}>{s}</span>
+      </span>
+    ))}
   </div>
 );

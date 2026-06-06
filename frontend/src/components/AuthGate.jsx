@@ -36,7 +36,7 @@ export const AuthGate = () => {
             <span className="text-zinc-500">From real loops.</span>
           </h1>
           <p className="mt-6 text-zinc-400 leading-relaxed max-w-sm">
-            AskTaaza is the question bank, study plan, and rep system for engineers preparing to switch companies.
+            Stepkai is the question bank, study plan, and rep system for engineers preparing to switch companies.
             No fluff, no filler — just signal.
           </p>
           <div className="mt-10 flex gap-8 font-mono text-xs">
@@ -56,9 +56,9 @@ export const AuthGate = () => {
       <div className="w-full md:w-1/2 flex items-center justify-center p-6 md:p-12">
         <div className="w-full max-w-sm">
           <div className="flex items-center gap-2.5 mb-10">
-            <div className="w-9 h-9 rounded-md bg-white text-zinc-950 flex items-center justify-center font-mono font-bold">at</div>
+            <div className="w-9 h-9 rounded-md flex items-center justify-center font-mono font-bold text-zinc-950" style={{ background: '#f59e0b' }}>sk</div>
             <div>
-              <div className="font-mono text-lg font-semibold tracking-tight">AskTaaza</div>
+              <div className="font-mono text-lg font-semibold tracking-tight">Stepkai</div>
               <div className="text-[10px] uppercase tracking-[0.22em] text-zinc-500">interview prep</div>
             </div>
           </div>
@@ -106,7 +106,7 @@ export const AuthGate = () => {
           </p>
 
           <p className="text-xs text-zinc-600 mt-10 font-mono">
-            asktaaza.com · v1.0
+            stepkai.com · v1.0
           </p>
         </div>
       </div>
