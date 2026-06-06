@@ -1,14 +1,13 @@
 from fastapi import FastAPI, APIRouter, HTTPException
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
-from motor.motor_asyncio import AsyncIOMotorClient
 import os
 import json
 import logging
 import re
 import uuid
 from pathlib import Path
-from pydantic import BaseModel, Field, ConfigDict
+from pydantic import BaseModel, ConfigDict
 from typing import List, Optional
 from datetime import datetime, timezone
 
@@ -18,21 +17,11 @@ from emergentintegrations.llm.chat import LlmChat, UserMessage
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
 
-# MongoDB connection
-mongo_url = os.environ['MONGO_URL']
-client = AsyncIOMotorClient(mongo_url)
-db = client[os.environ['DB_NAME']]
-
 EMERGENT_LLM_KEY = os.environ.get('EMERGENT_LLM_KEY')
 
-# ── Input hardening helpers ─────────────────────────────────────────────────
-# Defense-in-depth. Mongo (motor) and Supabase JS already parameterize all
-# values, so classic SQL injection is structurally impossible. These guards
-# additionally cap size, strip control bytes, and reject Mongo operator keys
-# from any dict that might ever be forwarded to a query filter.
 _CONTROL_RE = re.compile(r"[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]")
-MAX_TEXT_LEN = 8000        # JD, question, answer
-MAX_SHORT_LEN = 120        # company, role, topic, etc.
+MAX_TEXT_LEN = 8000
+MAX_SHORT_LEN = 120
 
 def _sanitize(text: str, max_len: int = MAX_TEXT_LEN) -> str:
     if text is None:
@@ -42,56 +31,24 @@ def _sanitize(text: str, max_len: int = MAX_TEXT_LEN) -> str:
         s = s[:max_len]
     return s
 
-def _scrub_mongo(value):
-    """Recursively strip Mongo operator keys ($gt, $where, …) from user input
-    before it ever lands in a query filter. Currently unused — kept ready."""
-    if isinstance(value, dict):
-        return {k: _scrub_mongo(v) for k, v in value.items() if not (isinstance(k, str) and k.startswith("$"))}
-    if isinstance(value, list):
-        return [_scrub_mongo(v) for v in value]
-    return value
-
 
 app = FastAPI()
 api_router = APIRouter(prefix="/api")
 
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
 
-# ---------- Status (existing) ----------
-class StatusCheck(BaseModel):
-    model_config = ConfigDict(extra="ignore")
-    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
-    client_name: str
-    timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
-
-class StatusCheckCreate(BaseModel):
-    client_name: str
 
 @api_router.get("/")
 async def root():
     return {"message": "AskTaaza API"}
-
-@api_router.post("/status", response_model=StatusCheck)
-async def create_status_check(input: StatusCheckCreate):
-    status_obj = StatusCheck(**input.model_dump())
-    doc = status_obj.model_dump()
-    doc['timestamp'] = doc['timestamp'].isoformat()
-    await db.status_checks.insert_one(doc)
-    return status_obj
-
-@api_router.get("/status", response_model=List[StatusCheck])
-async def get_status_checks():
-    status_checks = await db.status_checks.find({}, {"_id": 0}).to_list(1000)
-    for check in status_checks:
-        if isinstance(check.get('timestamp'), str):
-            check['timestamp'] = datetime.fromisoformat(check['timestamp'])
-    return status_checks
 
 
 # ---------- Gemini-powered endpoints ----------
 class GradeRequest(BaseModel):
     question: str
     answer: str
-    mode: str = 'text'         # 'text' | 'code'
+    mode: str = 'text'
     is_behavioral: bool = False
     topic: Optional[str] = None
 
@@ -110,13 +67,10 @@ class ModerationRequest(BaseModel):
 
 
 def _extract_json(text: str) -> dict:
-    """Pull the first JSON object from an LLM response, tolerating ```json fences."""
     text = text.strip()
-    # Strip fenced blocks
     fence = re.search(r"```(?:json)?\s*(\{.*?\})\s*```", text, re.DOTALL)
     if fence:
         text = fence.group(1)
-    # Otherwise find first { ... } block
     if not text.startswith("{"):
         m = re.search(r"\{.*\}", text, re.DOTALL)
         if m:
@@ -194,8 +148,8 @@ Return ONLY this JSON shape (no markdown fences, no extra text):
 
 @api_router.post("/grade")
 async def grade_answer(req: GradeRequest):
-    q  = _sanitize(req.question)
-    a  = _sanitize(req.answer)
+    q = _sanitize(req.question)
+    a = _sanitize(req.answer)
     if req.is_behavioral:
         prompt = GRADE_USER_TEMPLATE_BEHAVIORAL.format(question=q, answer=a)
     else:
@@ -237,7 +191,6 @@ async def analyze_jd(req: AnalyzeJDRequest):
     return await _gemini_json(JD_SYSTEM, prompt, "jd")
 
 
-# ---------- Extract skills only (no mastery guess) ----------
 EXTRACT_SYSTEM = """You are an expert technical recruiter.
 Extract the most-relevant technical and behavioral skills from a job description and
 assign each an importance weight from 1 (nice-to-have) to 5 (must-have, central to the role).
@@ -266,7 +219,6 @@ async def extract_skills(req: ExtractSkillsRequest):
     return await _gemini_json(EXTRACT_SYSTEM, prompt, "extract")
 
 
-# ---------- Lightweight content moderation ----------
 PROFANITY_WORDS = {
     "fuck", "shit", "bitch", "asshole", "bastard", "cunt", "dick", "pussy",
     "porn", "xxx", "nsfw", "nude", "naked", "sex", "erotic", "escort",
@@ -297,7 +249,6 @@ async def moderate(req: ModerationRequest):
     return _moderate_text(_sanitize(req.text))
 
 
-# Wire up router + middleware
 app.include_router(api_router)
 
 app.add_middleware(
@@ -307,10 +258,3 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-logger = logging.getLogger(__name__)
-
-@app.on_event("shutdown")
-async def shutdown_db_client():
-    client.close()
