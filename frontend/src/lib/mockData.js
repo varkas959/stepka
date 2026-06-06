@@ -27,9 +27,10 @@ export const TECH_STACK = [
   'Java', 'Python', 'JavaScript', 'TypeScript', 'Go', 'Rust', 'C++', 'C#', 'Kotlin', 'Swift', 'Ruby', 'Scala',
   'React', 'Next.js', 'Node.js', 'Vue', 'Angular', 'Svelte', 'React Native', 'iOS', 'Android',
   'Spring Boot', 'Django', 'FastAPI', 'Express', 'Rails', '.NET',
+  'Selenium', 'Cypress', 'Playwright', 'Jest', 'JUnit', 'PyTest', 'Appium', 'Postman',
   'Kafka', 'RabbitMQ', 'gRPC', 'GraphQL', 'REST',
   'PostgreSQL', 'MySQL', 'MongoDB', 'Redis', 'DynamoDB', 'Cassandra', 'Elasticsearch',
-  'AWS', 'GCP', 'Azure', 'Kubernetes', 'Docker', 'Terraform',
+  'AWS', 'GCP', 'Azure', 'Kubernetes', 'Docker', 'Terraform', 'Jenkins', 'GitHub Actions',
   'Distributed Systems', 'Microservices', 'System Design', 'LLD', 'OOD',
   'ML/AI', 'TensorFlow', 'PyTorch', 'LLM', 'RAG',
 ];

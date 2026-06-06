@@ -25,6 +25,33 @@ db = client[os.environ['DB_NAME']]
 
 EMERGENT_LLM_KEY = os.environ.get('EMERGENT_LLM_KEY')
 
+# ── Input hardening helpers ─────────────────────────────────────────────────
+# Defense-in-depth. Mongo (motor) and Supabase JS already parameterize all
+# values, so classic SQL injection is structurally impossible. These guards
+# additionally cap size, strip control bytes, and reject Mongo operator keys
+# from any dict that might ever be forwarded to a query filter.
+_CONTROL_RE = re.compile(r"[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]")
+MAX_TEXT_LEN = 8000        # JD, question, answer
+MAX_SHORT_LEN = 120        # company, role, topic, etc.
+
+def _sanitize(text: str, max_len: int = MAX_TEXT_LEN) -> str:
+    if text is None:
+        return ""
+    s = _CONTROL_RE.sub("", str(text)).strip()
+    if len(s) > max_len:
+        s = s[:max_len]
+    return s
+
+def _scrub_mongo(value):
+    """Recursively strip Mongo operator keys ($gt, $where, …) from user input
+    before it ever lands in a query filter. Currently unused — kept ready."""
+    if isinstance(value, dict):
+        return {k: _scrub_mongo(v) for k, v in value.items() if not (isinstance(k, str) and k.startswith("$"))}
+    if isinstance(value, list):
+        return [_scrub_mongo(v) for v in value]
+    return value
+
+
 app = FastAPI()
 api_router = APIRouter(prefix="/api")
 
@@ -167,12 +194,12 @@ Return ONLY this JSON shape (no markdown fences, no extra text):
 
 @api_router.post("/grade")
 async def grade_answer(req: GradeRequest):
+    q  = _sanitize(req.question)
+    a  = _sanitize(req.answer)
     if req.is_behavioral:
-        prompt = GRADE_USER_TEMPLATE_BEHAVIORAL.format(question=req.question, answer=req.answer)
+        prompt = GRADE_USER_TEMPLATE_BEHAVIORAL.format(question=q, answer=a)
     else:
-        prompt = GRADE_USER_TEMPLATE_TECHNICAL.format(
-            question=req.question, answer=req.answer, mode=req.mode
-        )
+        prompt = GRADE_USER_TEMPLATE_TECHNICAL.format(question=q, answer=a, mode=req.mode)
     return await _gemini_json(GRADE_SYSTEM, prompt, "grade")
 
 
@@ -202,7 +229,11 @@ Return ONLY this JSON shape (no markdown, no extra text). Extract 6-10 skills.
 
 @api_router.post("/analyze-jd")
 async def analyze_jd(req: AnalyzeJDRequest):
-    prompt = JD_USER_TEMPLATE.format(jd=req.jd, company=req.target_company, role=req.target_role)
+    prompt = JD_USER_TEMPLATE.format(
+        jd=_sanitize(req.jd),
+        company=_sanitize(req.target_company, MAX_SHORT_LEN),
+        role=_sanitize(req.target_role, MAX_SHORT_LEN),
+    )
     return await _gemini_json(JD_SYSTEM, prompt, "jd")
 
 
@@ -227,7 +258,11 @@ Return ONLY this JSON shape (no markdown, no extra text). Extract 6-10 skills.
 
 @api_router.post("/extract-skills")
 async def extract_skills(req: ExtractSkillsRequest):
-    prompt = EXTRACT_USER_TEMPLATE.format(jd=req.jd, company=req.target_company, role=req.target_role)
+    prompt = EXTRACT_USER_TEMPLATE.format(
+        jd=_sanitize(req.jd),
+        company=_sanitize(req.target_company, MAX_SHORT_LEN),
+        role=_sanitize(req.target_role, MAX_SHORT_LEN),
+    )
     return await _gemini_json(EXTRACT_SYSTEM, prompt, "extract")
 
 
@@ -259,7 +294,7 @@ def _moderate_text(text: str):
 
 @api_router.post("/moderate")
 async def moderate(req: ModerationRequest):
-    return _moderate_text(req.text)
+    return _moderate_text(_sanitize(req.text))
 
 
 # Wire up router + middleware

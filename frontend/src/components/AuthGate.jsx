@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { signInWithProvider } from '../lib/auth';
 import { Loader2, Sparkles } from 'lucide-react';
 import { toast } from 'sonner';
@@ -41,11 +42,11 @@ export const AuthGate = () => {
           </p>
           <div className="mt-10 flex gap-8 font-mono text-xs">
             <div>
-              <div className="text-zinc-50 text-2xl font-semibold">12,800+</div>
+              <div className="text-zinc-50 text-2xl font-semibold">60+</div>
               <div className="text-zinc-500 uppercase tracking-[0.18em] mt-1 text-[10px]">verified questions</div>
             </div>
             <div>
-              <div className="text-zinc-50 text-2xl font-semibold">47</div>
+              <div className="text-zinc-50 text-2xl font-semibold">20</div>
               <div className="text-zinc-500 uppercase tracking-[0.18em] mt-1 text-[10px]">companies tracked</div>
             </div>
           </div>
@@ -96,13 +97,12 @@ export const AuthGate = () => {
 
           <div className="my-7 flex items-center gap-3">
             <div className="flex-1 h-px bg-white/10" />
-            <span className="text-[10px] uppercase tracking-[0.22em] text-zinc-600">supabase oauth</span>
+            <span className="text-[10px] uppercase tracking-[0.22em] text-zinc-600">single sign-on</span>
             <div className="flex-1 h-px bg-white/10" />
           </div>
 
           <p className="text-xs text-zinc-500 leading-relaxed">
-            Sign-in is powered by Supabase Auth with Google &amp; LinkedIn OIDC. You will be redirected
-            to the provider, then back here. We never see your password.
+            By signing in you agree to our <Link to="/terms" className="text-zinc-200 hover:underline">Terms of Service</Link> and <Link to="/privacy" className="text-zinc-200 hover:underline">Privacy Policy</Link>.
           </p>
 
           <p className="text-xs text-zinc-600 mt-10 font-mono">

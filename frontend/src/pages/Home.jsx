@@ -79,8 +79,8 @@ const Hero = ({ session }) => (
         </Link>
       </div>
       <div className="mt-12 flex items-center gap-8 sm:gap-12 font-mono text-xs flex-wrap">
-        <Stat value="12,800+" label="verified questions" />
-        <Stat value="47" label="companies tracked" />
+        <Stat value="60+" label="verified questions" />
+        <Stat value="20" label="companies tracked" />
         <Stat value="4.6/5" label="rep system rating" />
       </div>
     </div>

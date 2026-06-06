@@ -159,7 +159,10 @@ export default function QuestionBank({ isGuest = false }) {
       {/* Cards */}
       <div className="space-y-4" data-testid="question-feed">
         {filtered.length === 0 && (
-          <div className="border border-white/10 rounded-md p-10 text-center text-zinc-400 font-mono text-sm">// no questions match your filters</div>
+          <div className="border border-white/10 rounded-md p-10 text-center font-mono text-sm" data-testid="empty-state">
+            <div className="text-zinc-400">// no questions match your filters yet</div>
+            <div className="text-zinc-600 text-xs mt-2">Try removing a filter, or be the first to <button onClick={handleAddQuestion} className="underline text-emerald-400 hover:text-emerald-300">submit a question</button> for this combination.</div>
+          </div>
         )}
         {filtered.map(q => (
           <QuestionCard
