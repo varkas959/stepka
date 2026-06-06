@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Loader2, Sparkles, ChevronDown, ArrowRight } from 'lucide-react';
+import { Loader2, Sparkles, ChevronDown, ArrowRight, Info } from 'lucide-react';
 import { toast } from 'sonner';
 import { COMPANIES, ROLES, STUDY_PLAN, QUESTIONS } from '../lib/mockData';
 import { useAppState } from '../lib/appState';
@@ -188,9 +188,36 @@ const GapAnalysis = ({ analysis, onContinue, company, role }) => {
           </button>
         </div>
       </div>
+
+      {/* How we measure gap */}
+      <div className="mt-4 rounded-lg border border-white/10 bg-zinc-950 p-5" data-testid="gap-criteria">
+        <div className="flex items-center gap-2 mb-3">
+          <Info size={14} className="text-emerald-400" />
+          <div className="font-mono text-[10px] uppercase tracking-[0.22em] text-zinc-500">How we measure the gap</div>
+        </div>
+        <p className="font-mono text-xs text-zinc-400 leading-relaxed">
+          Stepkai extracts the technical &amp; behavioral skills explicitly required by the JD, then estimates your mastery on each from two signals: your SRS rating history per topic and your AI-graded practice scores on related questions. The combined skill-weighted score becomes your readiness.
+        </p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 mt-4">
+          <Criterion color="#22c55e" label="≥ 70% — strong" desc="Recall &amp; depth both solid. Skill counts toward readiness." />
+          <Criterion color="#f59e0b" label="50–69% — warn"   desc="Inconsistent. Plan adds spaced reps in this topic." />
+          <Criterion color="#ef4444" label="&lt; 50% — gap"   desc="Weak signal or no data. Plan front-loads questions here." />
+          <Criterion color="#a1a1aa" label="readiness"        desc="Σ(skill mastery × JD weight) ÷ Σ(JD weight) · clamped 0-100" />
+        </div>
+      </div>
     </div>
   );
 };
+
+const Criterion = ({ color, label, desc }) => (
+  <div className="rounded-md border border-white/5 bg-white/[0.02] p-3">
+    <div className="flex items-center gap-2 font-mono text-[11px]">
+      <span className="w-2 h-2 rounded-full" style={{ background: color }} />
+      <span style={{ color }}>{label}</span>
+    </div>
+    <p className="font-mono text-[11px] text-zinc-500 mt-1 leading-relaxed" dangerouslySetInnerHTML={{ __html: desc }} />
+  </div>
+);
 
 const PlanCalendar = ({ expandedDay, setExpandedDay, onReset, state }) => {
   const company = COMPANIES.find(c => c.id === state.activePlan?.company) || COMPANIES[0];

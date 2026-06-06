@@ -1,8 +1,7 @@
 import { NavLink, useNavigate, Link } from 'react-router-dom';
-import { Diamond, Target, Grid3x3, Terminal, CircleDashed, Flame, Check, LogOut, Menu, X, User } from 'lucide-react';
+import { Diamond, Target, Grid3x3, Terminal, CircleDashed, Flame, Check, Menu, X } from 'lucide-react';
 import { useState } from 'react';
 import { useAppState } from '../lib/appState';
-import { signOut } from '../lib/auth';
 import { PixelBar } from './PixelBar';
 
 const navItems = [
@@ -13,16 +12,12 @@ const navItems = [
   { to: '/app/progress',  label: 'Progress',      icon: CircleDashed, key: 'progress' },
 ];
 
-export const Sidebar = ({ user, onSignOut }) => {
+export const Sidebar = ({ user }) => {
   const { state } = useAppState();
   const [mobileOpen, setMobileOpen] = useState(false);
+  // navigate kept reserved for future use
+  // eslint-disable-next-line no-unused-vars
   const navigate = useNavigate();
-
-  const handleSignOut = async () => {
-    try { await signOut(); } catch (e) { /* ignore */ }
-    onSignOut?.();
-    navigate('/');
-  };
 
   const progressPct = Math.min(100, Math.round((state.xp / state.xpToNext) * 100));
 
@@ -77,20 +72,17 @@ export const Sidebar = ({ user, onSignOut }) => {
 
       {/* User card */}
       <div className="px-3 pb-4 pt-4 border-t border-white/5">
-        <div className="flex items-start gap-3 p-2.5 rounded-md hover:bg-white/[0.03] transition-colors" data-testid="sidebar-user">
-          <Link to="/app/profile" onClick={() => setMobileOpen(false)} data-testid="profile-link"
-            className="w-10 h-10 rounded-md flex items-center justify-center font-mono text-sm font-semibold shrink-0 hover:brightness-110 transition-all"
+        <Link to="/app/profile" onClick={() => setMobileOpen(false)} data-testid="sidebar-user"
+          className="flex items-start gap-3 p-2.5 rounded-md hover:bg-white/[0.03] transition-colors">
+          <div className="w-10 h-10 rounded-md flex items-center justify-center font-mono text-sm font-semibold shrink-0"
             style={{ background: 'rgba(245,158,11,0.12)', color: '#f59e0b', border: '1px solid rgba(245,158,11,0.25)' }}>
             {user?.avatarInitials || 'U'}
-          </Link>
-          <Link to="/app/profile" onClick={() => setMobileOpen(false)} className="flex-1 min-w-0 hover:text-zinc-50">
+          </div>
+          <div className="flex-1 min-w-0">
             <div className="text-sm font-medium truncate text-zinc-50">{user?.name?.split(' ')[0] || 'Guest'}</div>
             <div className="text-[9px] uppercase tracking-[0.18em] text-zinc-600 font-mono mt-0.5">Level {state.level} candidate</div>
-          </Link>
-          <button data-testid="sign-out" onClick={handleSignOut} className="text-zinc-600 hover:text-zinc-50 transition-colors p-1" aria-label="sign out">
-            <LogOut size={14} />
-          </button>
-        </div>
+          </div>
+        </Link>
 
         {/* progress */}
         <div className="mt-3 px-1">

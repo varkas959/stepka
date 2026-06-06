@@ -1,11 +1,37 @@
 // All mock data for AskTaaza. Replace with Supabase queries later.
 
 export const COMPANIES = [
-  { id: 'amazon', name: 'Amazon', color: '#FF9900', initials: 'AM' },
-  { id: 'google', name: 'Google', color: '#4285F4', initials: 'GO' },
+  { id: 'amazon',    name: 'Amazon',    color: '#FF9900', initials: 'AM' },
+  { id: 'google',    name: 'Google',    color: '#4285F4', initials: 'GO' },
   { id: 'microsoft', name: 'Microsoft', color: '#00A4EF', initials: 'MS' },
-  { id: 'flipkart', name: 'Flipkart', color: '#2874F0', initials: 'FK' },
-  { id: 'swiggy', name: 'Swiggy', color: '#FC8019', initials: 'SW' },
+  { id: 'flipkart',  name: 'Flipkart',  color: '#2874F0', initials: 'FK' },
+  { id: 'swiggy',    name: 'Swiggy',    color: '#FC8019', initials: 'SW' },
+  { id: 'meta',      name: 'Meta',      color: '#1877F2', initials: 'ME' },
+  { id: 'apple',     name: 'Apple',     color: '#A2AAAD', initials: 'AP' },
+  { id: 'netflix',   name: 'Netflix',   color: '#E50914', initials: 'NF' },
+  { id: 'uber',      name: 'Uber',      color: '#000000', initials: 'UB' },
+  { id: 'airbnb',    name: 'Airbnb',    color: '#FF5A5F', initials: 'AB' },
+  { id: 'stripe',    name: 'Stripe',    color: '#635BFF', initials: 'ST' },
+  { id: 'razorpay',  name: 'Razorpay',  color: '#3395FF', initials: 'RP' },
+  { id: 'phonepe',   name: 'PhonePe',   color: '#5F259F', initials: 'PP' },
+  { id: 'paytm',     name: 'Paytm',     color: '#00BAF2', initials: 'PT' },
+  { id: 'zomato',    name: 'Zomato',    color: '#CB202D', initials: 'ZO' },
+  { id: 'salesforce', name: 'Salesforce', color: '#00A1E0', initials: 'SF' },
+  { id: 'oracle',    name: 'Oracle',    color: '#F80000', initials: 'OR' },
+  { id: 'adobe',     name: 'Adobe',     color: '#FA0F00', initials: 'AD' },
+  { id: 'linkedin',  name: 'LinkedIn',  color: '#0A66C2', initials: 'LI' },
+  { id: 'atlassian', name: 'Atlassian', color: '#0052CC', initials: 'AT' },
+];
+
+export const TECH_STACK = [
+  'Java', 'Python', 'JavaScript', 'TypeScript', 'Go', 'Rust', 'C++', 'C#', 'Kotlin', 'Swift', 'Ruby', 'Scala',
+  'React', 'Next.js', 'Node.js', 'Vue', 'Angular', 'Svelte', 'React Native', 'iOS', 'Android',
+  'Spring Boot', 'Django', 'FastAPI', 'Express', 'Rails', '.NET',
+  'Kafka', 'RabbitMQ', 'gRPC', 'GraphQL', 'REST',
+  'PostgreSQL', 'MySQL', 'MongoDB', 'Redis', 'DynamoDB', 'Cassandra', 'Elasticsearch',
+  'AWS', 'GCP', 'Azure', 'Kubernetes', 'Docker', 'Terraform',
+  'Distributed Systems', 'Microservices', 'System Design', 'LLD', 'OOD',
+  'ML/AI', 'TensorFlow', 'PyTorch', 'LLM', 'RAG',
 ];
 
 export const ROLES = ['SDE1', 'SDE2', 'Staff', 'DS', 'PM'];
@@ -33,18 +59,21 @@ export const QUESTIONS = [
     difficulty: 'Medium', round: 'Technical',
     body: 'Given an array of integers and a target sum, return all unique triplets that sum to the target. Discuss time and space complexity. Then extend the problem to k-sum and analyze how recursion depth changes performance for large k.',
     verifyCount: 8, upvotes: 142, daysAgo: 3, asked: 47,
+    tech: ['Java', 'Python', 'JavaScript'],
   },
   {
     id: 'q2', company: 'amazon', role: 'SDE2', topic: 'system-design', topicPath: 'System Design',
     difficulty: 'Hard', round: 'System Design',
     body: 'Design a distributed rate limiter that can handle 10M requests per second across multiple data centers. Discuss consistency tradeoffs, the choice between token bucket vs leaky bucket, and how you would handle clock skew across regions.',
     verifyCount: 12, upvotes: 287, daysAgo: 1, asked: 89,
+    tech: ['Distributed Systems', 'System Design', 'AWS', 'Java'],
   },
   {
     id: 'q3', company: 'google', role: 'SDE2', topic: 'trees', topicPath: 'DSA / Trees',
     difficulty: 'Medium', round: 'Technical',
     body: 'Given a binary tree, return the boundary of the tree in anti-clockwise direction starting from the root. The boundary consists of the left boundary, leaves, and the right boundary in reverse.',
     verifyCount: 5, upvotes: 96, daysAgo: 6, asked: 31,
+    tech: ['Java', 'C++', 'Python'],
   },
   {
     id: 'q4', company: 'google', role: 'Staff', topic: 'graphs', topicPath: 'DSA / Graphs',
@@ -99,6 +128,7 @@ export const QUESTIONS = [
     difficulty: 'Hard', round: 'Technical',
     body: 'Given a directed graph representing service dependencies, detect all strongly connected components and explain how this maps to identifying circular dependencies in a microservices architecture.',
     verifyCount: 5, upvotes: 102, daysAgo: 1, asked: 33,
+    tech: ['System Design', 'Microservices', 'Java', 'Go'],
   },
 ];
 

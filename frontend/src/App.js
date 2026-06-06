@@ -11,6 +11,7 @@ import { ActivePlanBanner } from './components/ActivePlanBanner';
 
 import Home from './pages/Home';
 import QuestionBank from './pages/QuestionBank';
+import PublicQuestions from './pages/PublicQuestions';
 import DailyReview from './pages/DailyReview';
 import StudyPlan from './pages/StudyPlan';
 import Practice from './pages/Practice';
@@ -64,6 +65,7 @@ function App() {
           <Route path="/auth/callback" element={<AuthCallback />} />
           <Route path="/privacy" element={<LegalPage kind="privacy" />} />
           <Route path="/terms" element={<LegalPage kind="terms" />} />
+          <Route path="/questions" element={<PublicQuestions />} />
 
           {/* Protected */}
           <Route path="/app/questions" element={

@@ -1,12 +1,16 @@
 import { useMemo, useState } from 'react';
-import { Plus, X, ChevronDown, ArrowUp, DollarSign, Check, ArrowUpRight } from 'lucide-react';
+import { Plus, X, ArrowUp, DollarSign, ArrowUpRight, Info } from 'lucide-react';
 import { toast } from 'sonner';
-import { QUESTIONS, COMPANIES, ROLES, TOPIC_TREE, DIFFICULTIES, ROUND_TYPES, COMPANY_BLUEPRINTS } from '../lib/mockData';
+import { QUESTIONS, COMPANIES, ROLES, TOPIC_TREE, DIFFICULTIES, ROUND_TYPES, COMPANY_BLUEPRINTS, TECH_STACK } from '../lib/mockData';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '../components/ui/dialog';
 import {
-  DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator,
+  DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem,
 } from '../components/ui/dropdown-menu';
 import { PixelBar } from '../components/PixelBar';
+import { SearchableFilterChip } from '../components/SearchableFilterChip';
+import { SignInRequiredModal } from '../components/SignInRequiredModal';
+import { AddQuestionModal } from '../components/AddQuestionModal';
+import { Check, ChevronDown } from 'lucide-react';
 
 const ALL = '__all';
 const SORTS = [
@@ -20,11 +24,12 @@ const TOPIC_OPTIONS = TOPIC_TREE.flatMap(n => n.children
   : [{ id: n.id, label: n.name }]);
 
 const FILTER_DEFS = [
-  { key: 'company',    label: 'company',    options: COMPANIES.map(c => ({ id: c.id, label: c.name.toLowerCase() })) },
-  { key: 'role',       label: 'role',       options: ROLES.map(r => ({ id: r, label: r.toLowerCase() })) },
-  { key: 'topic',      label: 'topic',      options: TOPIC_OPTIONS, grouped: true },
-  { key: 'difficulty', label: 'difficulty', options: DIFFICULTIES.map(d => ({ id: d, label: d.toLowerCase() })) },
-  { key: 'round',      label: 'round',      options: ROUND_TYPES.map(r => ({ id: r, label: r.toLowerCase() })) },
+  { key: 'company',    label: 'company',    options: COMPANIES.map(c => ({ id: c.id, label: c.name })) },
+  { key: 'role',       label: 'role',       options: ROLES.map(r => ({ id: r, label: r })) },
+  { key: 'topic',      label: 'topic',      options: TOPIC_OPTIONS },
+  { key: 'tech',       label: 'technology', options: TECH_STACK.map(t => ({ id: t, label: t })) },
+  { key: 'difficulty', label: 'difficulty', options: DIFFICULTIES.map(d => ({ id: d, label: d })) },
+  { key: 'round',      label: 'round',      options: ROUND_TYPES.map(r => ({ id: r, label: r })) },
 ];
 
 // Accent color per question (left edge)
@@ -34,20 +39,26 @@ const accentForQ = (q) => {
   return '#f59e0b';
 };
 
-export default function QuestionBank() {
-  const [filters, setFilters] = useState({ company: ALL, role: ALL, topic: ALL, difficulty: ALL, round: ALL });
+export default function QuestionBank({ isGuest = false }) {
+  const [filters, setFilters] = useState({ company: ALL, role: ALL, topic: ALL, tech: ALL, difficulty: ALL, round: ALL });
   const [sortBy, setSortBy] = useState('recent');
   const [search, setSearch] = useState('');
   const [expandedId, setExpandedId] = useState(null);
   const [askedMap, setAskedMap] = useState({});
   const [upvoteMap, setUpvoteMap] = useState({});
   const [blueprintCompany, setBlueprintCompany] = useState(null);
+  const [signInOpen, setSignInOpen] = useState(false);
+  const [signInAction, setSignInAction] = useState('continue');
+  const [addOpen, setAddOpen] = useState(false);
+
+  const promptSignIn = (action) => { setSignInAction(action); setSignInOpen(true); };
 
   const filtered = useMemo(() => {
     let list = QUESTIONS.filter(q => {
       if (filters.company !== ALL && q.company !== filters.company) return false;
       if (filters.role !== ALL && q.role !== filters.role) return false;
       if (filters.topic !== ALL && q.topic !== filters.topic) return false;
+      if (filters.tech !== ALL && !(q.tech || []).includes(filters.tech)) return false;
       if (filters.difficulty !== ALL && q.difficulty !== filters.difficulty) return false;
       if (filters.round !== ALL && q.round !== filters.round) return false;
       if (search && !q.body.toLowerCase().includes(search.toLowerCase())) return false;
@@ -63,10 +74,18 @@ export default function QuestionBank() {
   const clearOne = (k) => setFilters(s => ({ ...s, [k]: ALL }));
 
   const handleAsked = (q) => {
+    if (isGuest) return promptSignIn('mark "I was asked this"');
     setAskedMap(m => ({ ...m, [q.id]: true }));
     toast.success(`Thanks! You've unlocked 10 new questions`);
   };
-  const handleUpvote = (q) => setUpvoteMap(m => ({ ...m, [q.id]: !m[q.id] }));
+  const handleUpvote = (q) => {
+    if (isGuest) return promptSignIn('upvote');
+    setUpvoteMap(m => ({ ...m, [q.id]: !m[q.id] }));
+  };
+  const handleAddQuestion = () => {
+    if (isGuest) return promptSignIn('submit a question');
+    setAddOpen(true);
+  };
 
   const breadcrumbParts = [
     filters.company !== ALL ? filters.company : null,
@@ -95,7 +114,7 @@ export default function QuestionBank() {
         </div>
         <button
           data-testid="add-question"
-          onClick={() => toast('Submission flow coming soon — drop us a note in the meantime.')}
+          onClick={handleAddQuestion}
           className="shrink-0 inline-flex items-center gap-2 text-sm font-medium px-4 py-2.5 rounded-md border border-white/10 bg-zinc-900 hover:bg-zinc-800 hover:border-white/20 text-zinc-100 transition-colors"
         >
           <Plus size={14} strokeWidth={2.25} /> Add Question
@@ -118,7 +137,15 @@ export default function QuestionBank() {
       {/* CLI-style filter chip row */}
       <div className="flex items-center gap-2 flex-wrap mb-6" data-testid="filter-row">
         {FILTER_DEFS.map(def => (
-          <FilterChip key={def.key} def={def} value={filters[def.key]} onChange={(v) => setF(def.key, v)} onClear={() => clearOne(def.key)} />
+          <SearchableFilterChip
+            key={def.key}
+            label={def.label}
+            value={filters[def.key] === ALL ? null : filters[def.key]}
+            options={def.options}
+            onChange={(v) => setF(def.key, v)}
+            onClear={() => clearOne(def.key)}
+            testid={def.key}
+          />
         ))}
         <SortChip value={sortBy} onChange={setSortBy} />
       </div>
@@ -152,7 +179,7 @@ export default function QuestionBank() {
       {/* Submit CTA */}
       <button
         data-testid="submit-unlock"
-        onClick={() => toast('Submission flow coming soon.')}
+        onClick={handleAddQuestion}
         className="w-full text-left mt-6 border border-white/10 hover:border-emerald-500/30 hover:bg-emerald-500/[0.03] bg-zinc-950 rounded-md p-5 flex items-center gap-4 transition-colors group"
       >
         <Plus size={18} className="text-emerald-400 shrink-0" strokeWidth={2.25} />
@@ -166,78 +193,13 @@ export default function QuestionBank() {
       </button>
 
       <BlueprintModal companyId={blueprintCompany} onClose={() => setBlueprintCompany(null)} />
+      <SignInRequiredModal open={signInOpen} onOpenChange={setSignInOpen} action={signInAction} />
+      <AddQuestionModal open={addOpen} onOpenChange={setAddOpen} />
     </div>
   );
 }
 
-// ───────────────────── Filter chips ─────────────────────
-const FilterChip = ({ def, value, onChange, onClear }) => {
-  const active = value !== ALL;
-  const opt = def.options.find(o => o.id === value);
-  const label = opt ? opt.label : def.label;
-  const grouped = def.grouped
-    ? def.options.reduce((acc, o) => { (acc[o.group || 'Other'] ||= []).push(o); return acc; }, {})
-    : null;
-
-  return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <button
-          data-testid={`filter-chip-${def.key}`}
-          className={`group inline-flex items-center gap-1.5 font-mono text-sm px-3 py-1.5 rounded-md border transition-colors ${
-            active
-              ? 'border-emerald-500/40 bg-emerald-500/[0.06] text-emerald-400'
-              : 'border-white/10 bg-transparent text-zinc-500 hover:border-white/25 hover:text-zinc-300'
-          }`}
-        >
-          {!active && <span className="opacity-80">+</span>}
-          <span className={active ? '' : 'lowercase'}>{label}</span>
-          {active ? (
-            <span
-              role="button"
-              tabIndex={0}
-              onClick={(e) => { e.stopPropagation(); e.preventDefault(); onClear(); }}
-              onKeyDown={(e) => { if (e.key === 'Enter') { e.stopPropagation(); e.preventDefault(); onClear(); } }}
-              className="ml-0.5 -mr-0.5 p-0.5 rounded hover:bg-emerald-500/15 cursor-pointer"
-              data-testid={`chip-clear-${def.key}`}
-              aria-label={`Remove ${label}`}
-            >
-              <X size={12} strokeWidth={2.5} />
-            </span>
-          ) : (
-            <ChevronDown size={12} className="text-zinc-600" />
-          )}
-        </button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="start" className="min-w-[200px] max-h-[60vh] overflow-y-auto bg-zinc-950 border border-white/10 text-zinc-50">
-        <DropdownMenuLabel className="text-[10px] uppercase tracking-[0.14em] text-zinc-600 font-medium font-mono">{def.label}</DropdownMenuLabel>
-        <DropdownMenuSeparator className="bg-white/5" />
-        {!grouped && def.options.map(o => (
-          <DropdownMenuItem key={o.id} data-testid={`filter-option-${def.key}-${o.id}`}
-            onSelect={() => onChange(o.id)}
-            className={`cursor-pointer font-mono text-sm ${value === o.id ? 'bg-emerald-500/[0.08] text-emerald-400' : 'text-zinc-300'}`}>
-            <span className="flex-1">{o.label}</span>
-            {value === o.id && <Check size={14} className="text-emerald-400" />}
-          </DropdownMenuItem>
-        ))}
-        {grouped && Object.entries(grouped).map(([g, items]) => (
-          <div key={g}>
-            <div className="px-2 py-1 text-[10px] uppercase tracking-[0.14em] text-zinc-600 font-mono">{g}</div>
-            {items.map(o => (
-              <DropdownMenuItem key={o.id} data-testid={`filter-option-${def.key}-${o.id}`}
-                onSelect={() => onChange(o.id)}
-                className={`cursor-pointer font-mono text-sm ${value === o.id ? 'bg-emerald-500/[0.08] text-emerald-400' : 'text-zinc-300'}`}>
-                <span className="flex-1">{o.label}</span>
-                {value === o.id && <Check size={14} className="text-emerald-400" />}
-              </DropdownMenuItem>
-            ))}
-          </div>
-        ))}
-      </DropdownMenuContent>
-    </DropdownMenu>
-  );
-};
-
+// ───────────────────── Sort chip ─────────────────────
 const SortChip = ({ value, onChange }) => {
   const opt = SORTS.find(s => s.id === value);
   return (

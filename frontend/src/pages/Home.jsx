@@ -59,7 +59,7 @@ const Hero = () => (
           style={{ background: '#f59e0b', boxShadow: '0 0 0 1px rgba(245,158,11,0.4), 0 0 32px -8px rgba(245,158,11,0.6)' }}>
           Start prepping <ArrowRight size={14} strokeWidth={2.5} />
         </Link>
-        <Link to="/signin" data-testid="hero-secondary"
+        <Link to="/questions" data-testid="hero-secondary"
           className="font-mono text-sm text-zinc-300 hover:text-zinc-50 border border-white/10 hover:border-white/25 rounded-md px-4 py-3">
           Browse demo →
         </Link>
