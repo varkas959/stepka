@@ -170,7 +170,7 @@ const FeedbackPanel = ({ feedback }) => {
                     <span className="text-zinc-300">{d.name}</span>
                     <span className="text-zinc-400">{d.score}</span>
                   </div>
-                  <PixelBar value={d.score} width={260} height={9} color={color} dotColor={color} />
+                  <PixelBar value={d.score} height={9} color={color} dotColor={color} />
                 </div>
               );
             })}

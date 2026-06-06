@@ -69,7 +69,7 @@ export default function Progress() {
             <Zap size={20} className="text-amber-500" />
           </div>
           <div className="mt-4">
-            <PixelBar value={xpPct} width={520} height={12} color="#f59e0b" />
+            <PixelBar value={xpPct} height={12} color="#f59e0b" />
           </div>
           <div className="mt-5">
             <div className="font-mono text-[10px] uppercase tracking-[0.18em] text-zinc-600 mb-2">XP by source · last 30 days</div>
@@ -102,7 +102,7 @@ export default function Progress() {
             <div className="font-mono text-[10px] uppercase tracking-[0.18em] text-zinc-600 mt-1">target loop</div>
           </div>
           <div className="mt-5">
-            <PixelBar value={state.readiness} width={220} height={14} color={readinessColor} dotColor={readinessColor} />
+            <PixelBar value={state.readiness} height={14} color={readinessColor} dotColor={readinessColor} />
           </div>
         </Card>
 
@@ -127,9 +127,9 @@ export default function Progress() {
               const color = t.level >= 4 ? '#22c55e' : t.level === 3 ? '#f59e0b' : '#ef4444';
               return (
                 <div key={t.topic} className="flex items-center gap-3 font-mono">
-                  <div className="w-32 text-sm text-zinc-200 truncate">{t.topic}</div>
-                  <PixelBar value={(t.level / 5) * 100} width={260} height={10} color={color} dotColor={color} />
-                  <div className="w-12 text-right text-xs" style={{ color }}>{t.level}/5</div>
+                  <div className="w-24 sm:w-32 text-sm text-zinc-200 truncate shrink-0">{t.topic}</div>
+                  <div className="flex-1 min-w-0"><PixelBar value={(t.level / 5) * 100} height={10} color={color} dotColor={color} /></div>
+                  <div className="w-12 text-right text-xs shrink-0" style={{ color }}>{t.level}/5</div>
                 </div>
               );
             })}

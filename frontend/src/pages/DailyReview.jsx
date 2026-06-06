@@ -68,13 +68,13 @@ const QueueView = ({ state, breakdown, total, onStart }) => {
         <KindCard kind="star" value={breakdown.star || 0} />
       </div>
 
-      <div className="mt-6 rounded-lg border border-white/10 bg-zinc-950 p-6">
+      <div className="mt-6 rounded-lg border border-white/10 bg-zinc-950 p-5 sm:p-6">
         <div className="flex items-center justify-between mb-3 font-mono text-xs">
           <span className="uppercase tracking-[0.18em] text-zinc-500">Daily goal</span>
           <span className="text-zinc-300">{state.reviewedToday}<span className="text-zinc-600"> / {state.goalToday}</span></span>
         </div>
-        <PixelBar value={goalPct} width={800} height={14} color="#22c55e" />
-        <div className="mt-5 flex items-center justify-between">
+        <PixelBar value={goalPct} height={14} color="#22c55e" />
+        <div className="mt-5 flex items-center justify-between gap-3 flex-wrap">
           <p className="font-mono text-sm text-zinc-400">Hit <span className="text-zinc-100">{state.goalToday}</span> cards to keep the streak alive.</p>
           <button data-testid="start-review" onClick={onStart}
             className="inline-flex items-center gap-2 font-mono text-sm font-semibold uppercase tracking-[0.14em] px-4 py-2.5 rounded-md text-zinc-950 hover:brightness-110 transition-all"
@@ -109,7 +109,7 @@ const SessionView = ({ idx, flipped, setFlipped, onRate, onExit }) => {
         <span className="text-zinc-500"><span className="text-zinc-100 font-semibold">{idx + 1}</span> / {SRS_CARDS.length}</span>
       </div>
 
-      <PixelBar value={(idx / SRS_CARDS.length) * 100} width="100%" height={10} color="#22c55e" />
+      <PixelBar value={(idx / SRS_CARDS.length) * 100} height={10} color="#22c55e" />
 
       <div className="flip-card mt-8" style={{ height: '340px' }}>
         <div className={`flip-card-inner ${flipped ? 'is-flipped' : ''}`}>
@@ -193,9 +193,9 @@ const DoneView = ({ ratings, state, onContinue, onAgain }) => {
             const pct = ratings.length ? (count / ratings.length) * 100 : 0;
             return (
               <div key={r.key} className="flex items-center gap-3 font-mono text-xs">
-                <div className="w-16 text-zinc-300">{r.label}</div>
-                <PixelBar value={pct} width={300} height={10} color={r.color} dotColor={r.color} />
-                <div className="w-8 text-right text-zinc-400">{count}</div>
+                <div className="w-16 text-zinc-300 shrink-0">{r.label}</div>
+                <div className="flex-1 min-w-0"><PixelBar value={pct} height={10} color={r.color} dotColor={r.color} /></div>
+                <div className="w-8 text-right text-zinc-400 shrink-0">{count}</div>
               </div>
             );
           })}

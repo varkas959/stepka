@@ -1,5 +1,5 @@
-import { NavLink, useNavigate } from 'react-router-dom';
-import { Diamond, Target, Grid3x3, Terminal, CircleDashed, Flame, Check, LogOut, Menu, X } from 'lucide-react';
+import { NavLink, useNavigate, Link } from 'react-router-dom';
+import { Diamond, Target, Grid3x3, Terminal, CircleDashed, Flame, Check, LogOut, Menu, X, User } from 'lucide-react';
 import { useState } from 'react';
 import { useAppState } from '../lib/appState';
 import { signOut } from '../lib/auth';
@@ -78,15 +78,16 @@ export const Sidebar = ({ user, onSignOut }) => {
       {/* User card */}
       <div className="px-3 pb-4 pt-4 border-t border-white/5">
         <div className="flex items-start gap-3 p-2.5 rounded-md hover:bg-white/[0.03] transition-colors" data-testid="sidebar-user">
-          <div className="w-10 h-10 rounded-md flex items-center justify-center font-mono text-sm font-semibold shrink-0"
-               style={{ background: 'rgba(245,158,11,0.12)', color: '#f59e0b', border: '1px solid rgba(245,158,11,0.25)' }}>
+          <Link to="/app/profile" onClick={() => setMobileOpen(false)} data-testid="profile-link"
+            className="w-10 h-10 rounded-md flex items-center justify-center font-mono text-sm font-semibold shrink-0 hover:brightness-110 transition-all"
+            style={{ background: 'rgba(245,158,11,0.12)', color: '#f59e0b', border: '1px solid rgba(245,158,11,0.25)' }}>
             {user?.avatarInitials || 'U'}
-          </div>
-          <div className="flex-1 min-w-0">
+          </Link>
+          <Link to="/app/profile" onClick={() => setMobileOpen(false)} className="flex-1 min-w-0 hover:text-zinc-50">
             <div className="text-sm font-medium truncate text-zinc-50">{user?.name?.split(' ')[0] || 'Guest'}</div>
             <div className="text-[9px] uppercase tracking-[0.18em] text-zinc-600 font-mono mt-0.5">Level {state.level} candidate</div>
-          </div>
-          <button data-testid="sign-out" onClick={handleSignOut} className="text-zinc-600 hover:text-zinc-50 transition-colors p-1">
+          </Link>
+          <button data-testid="sign-out" onClick={handleSignOut} className="text-zinc-600 hover:text-zinc-50 transition-colors p-1" aria-label="sign out">
             <LogOut size={14} />
           </button>
         </div>
@@ -97,7 +98,7 @@ export const Sidebar = ({ user, onSignOut }) => {
             <span className="text-zinc-600 uppercase tracking-[0.18em]">Progress</span>
             <span className="text-amber-500 font-medium">{progressPct}%</span>
           </div>
-          <PixelBar value={progressPct} width={208} height={10} color="#f59e0b" />
+          <PixelBar value={progressPct} height={10} color="#f59e0b" />
         </div>
 
         {/* streak + completed */}

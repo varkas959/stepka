@@ -143,10 +143,10 @@ const GapAnalysis = ({ analysis, onContinue, company, role }) => {
                 const color = s.mastery < 50 ? '#ef4444' : s.mastery < 70 ? '#f59e0b' : '#22c55e';
                 return (
                   <div key={s.name} className="flex items-center gap-3 font-mono text-xs">
-                    <div className="w-36 truncate text-zinc-300">{s.name}</div>
-                    <PixelBar value={s.mastery} width={300} height={10} color={color} dotColor={color} />
-                    <div className="w-10 text-right" style={{ color }}>{s.mastery}%</div>
-                    {s.mastery < 50 && <span className="font-mono text-[10px] px-1.5 py-0.5 rounded border border-red-500/40 text-red-400 bg-red-500/[0.06]">gap</span>}
+                    <div className="w-28 sm:w-36 truncate text-zinc-300 shrink-0">{s.name}</div>
+                    <div className="flex-1 min-w-0"><PixelBar value={s.mastery} height={10} color={color} dotColor={color} /></div>
+                    <div className="w-10 text-right shrink-0" style={{ color }}>{s.mastery}%</div>
+                    {s.mastery < 50 && <span className="font-mono text-[10px] px-1.5 py-0.5 rounded border border-red-500/40 text-red-400 bg-red-500/[0.06] shrink-0">gap</span>}
                   </div>
                 );
               })}
@@ -176,7 +176,7 @@ const GapAnalysis = ({ analysis, onContinue, company, role }) => {
             <div className="font-mono text-sm text-zinc-400 mt-2">for <span className="text-zinc-100">{c?.name} {role}</span></div>
           </div>
           <div className="mt-5">
-            <PixelBar value={readiness} width={250} height={14} color={readinessColor} dotColor={readinessColor} />
+            <PixelBar value={readiness} height={14} color={readinessColor} dotColor={readinessColor} />
           </div>
           <p className="font-mono text-xs text-zinc-500 mt-4 leading-relaxed flex-1">
             You're <span className="text-amber-400">~{Math.max(0, 100 - readiness)}%</span> away. Plan biases toward your weakest skills.

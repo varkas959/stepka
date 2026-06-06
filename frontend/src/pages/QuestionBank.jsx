@@ -410,7 +410,7 @@ const BlueprintModal = ({ companyId, onClose }) => {
               {bp.heatmap.map(h => (
                 <div key={h.topic} className="flex items-center gap-3 text-xs">
                   <div className="w-32 text-zinc-300 font-mono truncate">{h.topic}</div>
-                  <PixelBar value={(h.count / maxCount) * 100} width={260} height={10} color={company.color} dotColor={company.color} />
+                  <PixelBar value={(h.count / maxCount) * 100} height={10} color={company.color} dotColor={company.color} />
                   <div className="w-8 text-right font-mono text-zinc-400">{h.count}</div>
                 </div>
               ))}
