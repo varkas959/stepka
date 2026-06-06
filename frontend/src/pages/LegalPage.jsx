@@ -30,7 +30,7 @@ export default function LegalPage({ kind = 'privacy' }) {
           {config.sections.map((s, i) => (
             <section key={i} data-testid={`legal-section-${i}`}>
               <h2 className="text-lg sm:text-xl font-semibold text-zinc-100 mb-3">{s.h}</h2>
-              {s.p.map((para, j) => (
+              {(s.p || []).map((para, j) => (
                 <p key={j} className="text-zinc-300 leading-relaxed mb-3 text-sm sm:text-base">{para}</p>
               ))}
               {s.list && (

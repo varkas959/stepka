@@ -1,23 +1,13 @@
-import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from './ui/dialog';
-import { signInWithProvider } from '../lib/auth';
-import { Loader2, Sparkles } from 'lucide-react';
-import { toast } from 'sonner';
+import { Sparkles } from 'lucide-react';
 
 // Shown when an anonymous visitor tries to do something that needs an account.
+// Routes to /signin (top-level page) where the real OAuth handshake happens —
+// avoids iframe / preview-pane redirect issues.
 export const SignInRequiredModal = ({ open, onOpenChange, action = 'continue' }) => {
-  const [loading, setLoading] = useState(null);
   const navigate = useNavigate();
-
-  const handle = async (provider) => {
-    setLoading(provider);
-    try { await signInWithProvider(provider); }
-    catch (e) {
-      toast.error(e.message || 'Sign-in failed. Please try again.');
-      setLoading(null);
-    }
-  };
+  const go = () => { onOpenChange(false); navigate('/signin'); };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -28,19 +18,19 @@ export const SignInRequiredModal = ({ open, onOpenChange, action = 'continue' })
             <DialogTitle className="text-lg font-semibold tracking-tight">Sign in to {action}</DialogTitle>
           </div>
           <DialogDescription className="text-zinc-400 mt-1">
-            Pick a provider — Stepkai uses Supabase Auth, we never see your password. Takes 5 seconds.
+            Sign in with Google or LinkedIn — Stepkai uses Supabase Auth, we never see your password.
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-2 mt-4">
-          <button data-testid="modal-signin-google" disabled={loading !== null} onClick={() => handle('google')}
-            className="w-full flex items-center justify-center gap-3 px-4 py-3 rounded-md bg-zinc-900 border border-white/10 text-zinc-50 hover:bg-zinc-800 transition-colors disabled:opacity-60">
-            {loading === 'google' ? <Loader2 size={18} className="animate-spin" /> : <GoogleIcon />}
+          <button data-testid="modal-signin-google" onClick={go}
+            className="w-full flex items-center justify-center gap-3 px-4 py-3 rounded-md bg-zinc-900 border border-white/10 text-zinc-50 hover:bg-zinc-800 transition-colors">
+            <GoogleIcon />
             <span className="font-mono text-sm font-medium">Continue with Google</span>
           </button>
-          <button data-testid="modal-signin-linkedin" disabled={loading !== null} onClick={() => handle('linkedin')}
-            className="w-full flex items-center justify-center gap-3 px-4 py-3 rounded-md bg-zinc-900 border border-white/10 text-zinc-50 hover:bg-zinc-800 transition-colors disabled:opacity-60">
-            {loading === 'linkedin' ? <Loader2 size={18} className="animate-spin" /> : <LinkedInIcon />}
+          <button data-testid="modal-signin-linkedin" onClick={go}
+            className="w-full flex items-center justify-center gap-3 px-4 py-3 rounded-md bg-zinc-900 border border-white/10 text-zinc-50 hover:bg-zinc-800 transition-colors">
+            <LinkedInIcon />
             <span className="font-mono text-sm font-medium">Continue with LinkedIn</span>
           </button>
         </div>
@@ -49,10 +39,6 @@ export const SignInRequiredModal = ({ open, onOpenChange, action = 'continue' })
           <Sparkles size={11} className="inline -mt-0.5 text-amber-400 mr-1" />
           You'll get: progress saved across devices, AI-graded practice, JD-driven study plans, and the SRS rep queue.
         </div>
-
-        <button onClick={() => { onOpenChange(false); navigate('/signin'); }} className="mt-3 font-mono text-xs text-zinc-500 hover:text-zinc-300 underline-offset-2 hover:underline">
-          See full sign-in page →
-        </button>
       </DialogContent>
     </Dialog>
   );

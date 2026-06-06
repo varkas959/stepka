@@ -1,21 +1,25 @@
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Database, Brain, Calendar, BarChart3, Sparkles, Check } from 'lucide-react';
 import { COMPANIES } from '../lib/mockData';
+import { getSession } from '../lib/auth';
 
 export default function Home() {
+  const [session, setSession] = useState(null);
+  useEffect(() => { getSession().then(setSession); }, []);
   return (
     <div className="min-h-screen bg-zinc-950 text-zinc-50 flex flex-col">
-      <HomeNav />
-      <Hero />
+      <HomeNav session={session} />
+      <Hero session={session} />
       <Features />
       <CompaniesStrip />
-      <FinalCTA />
+      <FinalCTA session={session} />
       <Footer />
     </div>
   );
 }
 
-const HomeNav = () => (
+const HomeNav = ({ session }) => (
   <header className="border-b border-white/5 sticky top-0 z-30 bg-zinc-950/90 backdrop-blur">
     <div className="max-w-6xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
       <Link to="/" className="flex items-center gap-2.5" data-testid="home-logo">
@@ -28,18 +32,28 @@ const HomeNav = () => (
         <Link to="/terms" className="hover:text-zinc-50 transition-colors">Terms</Link>
       </nav>
       <div className="flex items-center gap-2">
-        <Link to="/signin" data-testid="nav-signin" className="font-mono text-sm text-zinc-300 hover:text-zinc-50 px-3 py-1.5">Sign in</Link>
-        <Link to="/signin" data-testid="nav-cta"
-          className="font-mono text-xs sm:text-sm font-semibold uppercase tracking-[0.14em] px-3 sm:px-4 py-2 rounded-md text-zinc-950 hover:brightness-110 transition-all"
-          style={{ background: '#f59e0b' }}>
-          Get started
-        </Link>
+        {session ? (
+          <Link to="/app/questions" data-testid="nav-open-app"
+            className="inline-flex items-center gap-2 font-mono text-xs sm:text-sm font-semibold uppercase tracking-[0.14em] px-3 sm:px-4 py-2 rounded-md text-zinc-950 hover:brightness-110 transition-all"
+            style={{ background: '#f59e0b' }}>
+            Open app <ArrowRight size={12} strokeWidth={2.5} />
+          </Link>
+        ) : (
+          <>
+            <Link to="/signin" data-testid="nav-signin" className="font-mono text-sm text-zinc-300 hover:text-zinc-50 px-3 py-1.5">Sign in</Link>
+            <Link to="/signin" data-testid="nav-cta"
+              className="font-mono text-xs sm:text-sm font-semibold uppercase tracking-[0.14em] px-3 sm:px-4 py-2 rounded-md text-zinc-950 hover:brightness-110 transition-all"
+              style={{ background: '#f59e0b' }}>
+              Get started
+            </Link>
+          </>
+        )}
       </div>
     </div>
   </header>
 );
 
-const Hero = () => (
+const Hero = ({ session }) => (
   <section className="px-4 sm:px-6 pt-14 sm:pt-20 pb-14 sm:pb-20">
     <div className="max-w-5xl mx-auto">
       <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded border border-emerald-500/30 bg-emerald-500/[0.06] mb-6 font-mono text-[10px] uppercase tracking-[0.18em] text-emerald-400">
@@ -54,10 +68,10 @@ const Hero = () => (
         No fluff, no filler — just signal from candidates who actually sat in the room.
       </p>
       <div className="mt-9 flex items-center gap-3 flex-wrap">
-        <Link to="/signin" data-testid="hero-cta"
+        <Link to={session ? '/app/questions' : '/signin'} data-testid="hero-cta"
           className="inline-flex items-center gap-2 font-mono text-sm font-semibold uppercase tracking-[0.14em] px-5 py-3 rounded-md text-zinc-950 hover:brightness-110 transition-all"
           style={{ background: '#f59e0b', boxShadow: '0 0 0 1px rgba(245,158,11,0.4), 0 0 32px -8px rgba(245,158,11,0.6)' }}>
-          Start prepping <ArrowRight size={14} strokeWidth={2.5} />
+          {session ? 'Open app' : 'Start prepping'} <ArrowRight size={14} strokeWidth={2.5} />
         </Link>
         <Link to="/questions" data-testid="hero-secondary"
           className="font-mono text-sm text-zinc-300 hover:text-zinc-50 border border-white/10 hover:border-white/25 rounded-md px-4 py-3">
@@ -128,7 +142,7 @@ const CompaniesStrip = () => (
   </section>
 );
 
-const FinalCTA = () => (
+const FinalCTA = ({ session }) => (
   <section className="px-4 sm:px-6 py-14 sm:py-20 border-t border-white/5">
     <div className="max-w-3xl mx-auto text-center">
       <h2 className="text-3xl sm:text-5xl font-semibold tracking-tight">Switch companies. Don't guess.</h2>
@@ -139,10 +153,10 @@ const FinalCTA = () => (
         <li className="flex items-center gap-2"><Check size={14} className="text-emerald-400" /> No spam, no recruiter calls, no ads</li>
       </ul>
       <div className="mt-9">
-        <Link to="/signin" data-testid="final-cta"
+        <Link to={session ? '/app/questions' : '/signin'} data-testid="final-cta"
           className="inline-flex items-center gap-2 font-mono text-sm font-semibold uppercase tracking-[0.14em] px-5 py-3 rounded-md text-zinc-950 hover:brightness-110 transition-all"
           style={{ background: '#f59e0b', boxShadow: '0 0 0 1px rgba(245,158,11,0.4), 0 0 32px -8px rgba(245,158,11,0.6)' }}>
-          Get started — it's free <ArrowRight size={14} strokeWidth={2.5} />
+          {session ? 'Open app' : "Get started — it's free"} <ArrowRight size={14} strokeWidth={2.5} />
         </Link>
       </div>
     </div>
