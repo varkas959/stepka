@@ -58,7 +58,8 @@ function App() {
       <BrowserRouter>
         <Routes>
           {/* Public */}
-          <Route path="/" element={<Home />} />
+          <Route path="/" element={<Navigate to="/app/questions" replace />} />
+          <Route path="/home" element={<Home />} />
           <Route path="/signin" element={
             session ? <Navigate to="/app/questions" replace /> : <AuthGate />
           } />
@@ -69,7 +70,9 @@ function App() {
 
           {/* Protected */}
           <Route path="/app/questions" element={
-            <ProtectedShell session={session} onSignOut={() => setSession(null)}><QuestionBank /></ProtectedShell>
+            session
+              ? <ProtectedShell session={session} onSignOut={() => setSession(null)}><QuestionBank /></ProtectedShell>
+              : <QuestionBank isGuest />
           } />
           <Route path="/app/review" element={
             <ProtectedShell session={session} onSignOut={() => setSession(null)}><DailyReview /></ProtectedShell>

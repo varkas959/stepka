@@ -3,7 +3,7 @@
 import { createContext, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { loadProgress, saveProgress, recordReview, PROGRESS_DEFAULTS } from './progress';
 
-const LS_KEY = 'asktaaza_state_v1';
+const LS_KEY = 'asktaaza_state_v2'; // bumped to reset old fake defaults
 const AppStateContext = createContext(null);
 
 function todayISO() { return new Date().toISOString().slice(0, 10); }

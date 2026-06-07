@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Plus, X, ArrowUp, DollarSign, ArrowUpRight, Info } from 'lucide-react';
 import { toast } from 'sonner';
 import { QUESTIONS, COMPANIES, ROLES, TOPIC_TREE, DIFFICULTIES, ROUND_TYPES, COMPANY_BLUEPRINTS, TECH_STACK } from '../lib/mockData';
@@ -38,6 +39,21 @@ const accentForQ = (q) => {
   if (q.difficulty === 'Easy') return '#22c55e';
   return '#f59e0b';
 };
+
+function GuestNav() {
+  const navigate = useNavigate();
+  return (
+    <nav className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 h-14 border-b border-white/10 bg-zinc-950/90 backdrop-blur">
+      <span className="font-semibold text-zinc-50 tracking-tight">Stepkai</span>
+      <button
+        onClick={() => navigate('/signin')}
+        className="text-sm font-medium px-4 py-2 rounded-md bg-amber-400 text-zinc-900 hover:bg-amber-300 transition-colors"
+      >
+        Sign in
+      </button>
+    </nav>
+  );
+}
 
 export default function QuestionBank({ isGuest = false }) {
   const [filters, setFilters] = useState({ company: ALL, role: ALL, topic: ALL, tech: ALL, difficulty: ALL, round: ALL });
@@ -94,7 +110,8 @@ export default function QuestionBank({ isGuest = false }) {
   const breadcrumbPath = breadcrumbParts.length ? breadcrumbParts.join('-') : 'all';
 
   return (
-    <div className="px-4 md:px-10 py-6 md:py-10 max-w-[1200px] mx-auto">
+    <div className={`px-4 md:px-10 max-w-[1200px] mx-auto ${isGuest ? 'pt-20 pb-10' : 'py-6 md:py-10'}`}>
+      {isGuest && <GuestNav />}
       {/* Breadcrumb */}
       <div className="font-mono text-sm text-zinc-600 mb-4" data-testid="breadcrumb">
         <span className="text-emerald-400">~</span>

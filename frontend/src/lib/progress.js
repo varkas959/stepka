@@ -3,17 +3,17 @@
 import { supabase } from './supabaseClient';
 
 const DEFAULTS = {
-  streak: 7,
-  longestStreak: 21,
-  streakFreezes: 2,
-  level: 12,
-  xp: 3240,
-  xpToNext: 3500,
-  dueToday: 12,
-  goalToday: 20,
-  reviewedToday: 8,
-  activePlan: { company: 'amazon', role: 'SDE2', currentDay: 4, totalDays: 14, dueQuestions: 3 },
-  readiness: 61,
+  streak: 0,
+  longestStreak: 0,
+  streakFreezes: 1,
+  level: 1,
+  xp: 0,
+  xpToNext: 500,
+  dueToday: 0,
+  goalToday: 10,
+  reviewedToday: 0,
+  activePlan: null,
+  readiness: 0,
   lastReviewDate: null,
 };
 
