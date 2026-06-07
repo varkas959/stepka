@@ -1,8 +1,11 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Database, Brain, Calendar, BarChart3, Sparkles, Check } from 'lucide-react';
-import { COMPANIES } from '../lib/mockData';
+import { COMPANIES, QUESTIONS } from '../lib/mockData';
 import { getSession } from '../lib/auth';
+
+const ACTIVE_COMPANY_IDS = new Set(QUESTIONS.map(q => q.company));
+const ACTIVE_COMPANIES = COMPANIES.filter(c => ACTIVE_COMPANY_IDS.has(c.id));
 
 export default function Home() {
   const [session, setSession] = useState(null);
@@ -68,19 +71,15 @@ const Hero = ({ session }) => (
         No fluff, no filler — just signal from candidates who actually sat in the room.
       </p>
       <div className="mt-9 flex items-center gap-3 flex-wrap">
-        <Link to={session ? '/app/questions' : '/signin'} data-testid="hero-cta"
+        <Link to="/app/questions" data-testid="hero-cta"
           className="inline-flex items-center gap-2 font-mono text-sm font-semibold uppercase tracking-[0.14em] px-5 py-3 rounded-md text-zinc-950 hover:brightness-110 transition-all"
           style={{ background: '#f59e0b', boxShadow: '0 0 0 1px rgba(245,158,11,0.4), 0 0 32px -8px rgba(245,158,11,0.6)' }}>
           {session ? 'Open app' : 'Start prepping'} <ArrowRight size={14} strokeWidth={2.5} />
         </Link>
-        <Link to="/questions" data-testid="hero-secondary"
-          className="font-mono text-sm text-zinc-300 hover:text-zinc-50 border border-white/10 hover:border-white/25 rounded-md px-4 py-3">
-          Browse demo →
-        </Link>
       </div>
       <div className="mt-12 flex items-center gap-8 sm:gap-12 font-mono text-xs flex-wrap">
-        <Stat value="60+" label="verified questions" />
-        <Stat value="20" label="companies tracked" />
+        <Stat value={`${QUESTIONS.length}+`} label="verified questions" />
+        <Stat value={`${ACTIVE_COMPANIES.length}`} label="companies tracked" />
         <Stat value="4.6/5" label="rep system rating" />
       </div>
     </div>
@@ -128,7 +127,7 @@ const CompaniesStrip = () => (
     <div className="max-w-5xl mx-auto">
       <div className="font-mono text-[10px] uppercase tracking-[0.22em] text-zinc-600 mb-5 text-center">Questions from</div>
       <div className="flex items-center justify-center gap-3 sm:gap-5 flex-wrap">
-        {COMPANIES.map(c => (
+        {ACTIVE_COMPANIES.map(c => (
           <div key={c.id} className="flex items-center gap-2">
             <div className="w-9 h-9 rounded-md flex items-center justify-center font-mono font-bold text-xs"
                  style={{ background: c.color + '22', color: c.color, border: `1px solid ${c.color}44` }}>
@@ -148,15 +147,15 @@ const FinalCTA = ({ session }) => (
       <h2 className="text-3xl sm:text-5xl font-semibold tracking-tight">Switch companies. Don't guess.</h2>
       <p className="text-zinc-400 mt-4 leading-relaxed">Free to start. Real questions, real grading, real signal.</p>
       <ul className="font-mono text-sm text-zinc-300 mt-6 inline-block text-left space-y-1.5">
-        <li className="flex items-center gap-2"><Check size={14} className="text-emerald-400" /> 12 demo questions to browse without signing in</li>
+        <li className="flex items-center gap-2"><Check size={14} className="text-emerald-400" /> {QUESTIONS.length}+ questions across {ACTIVE_COMPANIES.length} companies — browse free</li>
         <li className="flex items-center gap-2"><Check size={14} className="text-emerald-400" /> Free Google / LinkedIn sign-in for full access</li>
         <li className="flex items-center gap-2"><Check size={14} className="text-emerald-400" /> No spam, no recruiter calls, no ads</li>
       </ul>
       <div className="mt-9">
-        <Link to={session ? '/app/questions' : '/signin'} data-testid="final-cta"
+        <Link to="/app/questions" data-testid="final-cta"
           className="inline-flex items-center gap-2 font-mono text-sm font-semibold uppercase tracking-[0.14em] px-5 py-3 rounded-md text-zinc-950 hover:brightness-110 transition-all"
           style={{ background: '#f59e0b', boxShadow: '0 0 0 1px rgba(245,158,11,0.4), 0 0 32px -8px rgba(245,158,11,0.6)' }}>
-          {session ? 'Open app' : "Get started — it's free"} <ArrowRight size={14} strokeWidth={2.5} />
+          {session ? 'Open app' : "Browse questions — it's free"} <ArrowRight size={14} strokeWidth={2.5} />
         </Link>
       </div>
     </div>

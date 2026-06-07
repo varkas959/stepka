@@ -228,6 +228,62 @@ export const QUESTIONS = [
     verifyCount: 4, upvotes: 62, daysAgo: 4, asked: 24,
     tech: ['GitHub Actions'],
   },
+  {
+    id: 'q24b', company: 'deloitte', role: 'DevOps', topic: 'devops', topicPath: 'DevOps',
+    difficulty: 'Medium', round: 'Technical',
+    body: 'What stages do you generally include in a Jenkins pipeline to ensure code quality? Walk through each stage: checkout, static analysis (SonarQube/ESLint), unit tests with coverage thresholds, security scanning, build, and artifact publishing.',
+    verifyCount: 5, upvotes: 74, daysAgo: 3, asked: 29,
+    tech: ['Jenkins', 'Docker'],
+  },
+  {
+    id: 'q24c', company: 'deloitte', role: 'DevOps', topic: 'devops', topicPath: 'DevOps',
+    difficulty: 'Medium', round: 'Technical',
+    body: 'What is a webhook and how is it used in CI/CD automation? Explain how a GitHub webhook triggers a Jenkins job, the payload structure, how to secure it with a secret token, and how to debug failed webhook deliveries.',
+    verifyCount: 4, upvotes: 55, daysAgo: 5, asked: 20,
+    tech: ['Jenkins', 'GitHub Actions'],
+  },
+  {
+    id: 'q24d', company: 'deloitte', role: 'DevOps', topic: 'devops', topicPath: 'DevOps',
+    difficulty: 'Medium', round: 'Technical',
+    body: 'How do you prevent breaking the release branch during development? Discuss branch protection rules, required PR reviews, mandatory status checks, feature flags, and how to use a staging environment as a gate before merging to release.',
+    verifyCount: 3, upvotes: 48, daysAgo: 6, asked: 17,
+    tech: ['GitHub Actions', 'Jenkins'],
+  },
+  {
+    id: 'q24e', company: 'deloitte', role: 'DevOps', topic: 'devops', topicPath: 'DevOps',
+    difficulty: 'Medium', round: 'Technical',
+    body: 'If a critical issue is found in production, what steps would you take to resolve it quickly? Walk through: immediate triage, deciding between hotfix vs rollback, creating a hotfix branch, fast-track CI pipeline, communication protocol, and post-mortem.',
+    verifyCount: 6, upvotes: 91, daysAgo: 1, asked: 38,
+    tech: ['Jenkins', 'Docker', 'Kubernetes'],
+  },
+  {
+    id: 'q24f', company: 'deloitte', role: 'DevOps', topic: 'devops', topicPath: 'DevOps',
+    difficulty: 'Medium', round: 'Technical',
+    body: 'Explain your deployment workflow starting from code commit until production release. Cover feature branch → PR → CI → merge → staging deploy → smoke tests → canary/blue-green production deploy → monitoring and rollback plan.',
+    verifyCount: 7, upvotes: 103, daysAgo: 2, asked: 41,
+    tech: ['Jenkins', 'Docker', 'Kubernetes', 'AWS'],
+  },
+  {
+    id: 'q24g', company: 'deloitte', role: 'DevOps', topic: 'devops', topicPath: 'DevOps',
+    difficulty: 'Medium', round: 'Technical',
+    body: 'What are the key steps involved in building a Docker image? Explain each Dockerfile instruction (FROM, RUN, COPY, WORKDIR, EXPOSE, CMD), multi-stage builds for smaller images, layer caching best practices, and how to scan images for vulnerabilities.',
+    verifyCount: 5, upvotes: 76, daysAgo: 3, asked: 30,
+    tech: ['Docker'],
+  },
+  {
+    id: 'q24h', company: 'deloitte', role: 'DevOps', topic: 'devops', topicPath: 'DevOps',
+    difficulty: 'Medium', round: 'Technical',
+    body: 'How do you pass environment variables during Docker build and runtime? Compare ARG (build-time) vs ENV (runtime), how to use --build-arg and --env-file, the security implications of baking secrets into layers, and safer alternatives like Docker secrets.',
+    verifyCount: 4, upvotes: 61, daysAgo: 4, asked: 23,
+    tech: ['Docker'],
+  },
+  {
+    id: 'q24i', company: 'deloitte', role: 'DevOps', topic: 'devops', topicPath: 'DevOps',
+    difficulty: 'Medium', round: 'Technical',
+    body: 'How can Jenkins pipelines be created and triggered automatically? Explain pipeline-as-code with Jenkinsfile in SCM, multibranch pipelines that auto-discover branches, Organization Folders for GitHub orgs, and automatic triggering via webhooks vs SCM polling.',
+    verifyCount: 3, upvotes: 52, daysAgo: 5, asked: 19,
+    tech: ['Jenkins', 'GitHub Actions'],
+  },
 
   // ── Wipro · Tester · Selenium · 3-4 yrs ───────────────────────────────────
   {

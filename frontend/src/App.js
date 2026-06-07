@@ -58,8 +58,7 @@ function App() {
       <BrowserRouter>
         <Routes>
           {/* Public */}
-          <Route path="/" element={<Navigate to="/app/questions" replace />} />
-          <Route path="/home" element={<Home />} />
+          <Route path="/" element={<Home />} />
           <Route path="/signin" element={
             session ? <Navigate to="/app/questions" replace /> : <AuthGate />
           } />
