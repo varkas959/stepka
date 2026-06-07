@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Loader2, Sparkles, ChevronDown, ArrowRight, Info, ArrowLeft } from 'lucide-react';
 import { toast } from 'sonner';
 import { COMPANIES, ROLES, STUDY_PLAN, QUESTIONS } from '../lib/mockData';
@@ -285,18 +285,56 @@ const Criterion = ({ color, label, desc }) => (
   </div>
 );
 
-const Select = ({ label, value, onChange, options, testid }) => (
-  <label className="block">
-    <div className="font-mono text-[10px] uppercase tracking-[0.18em] text-zinc-600 mb-1.5">{label}</div>
-    <div className="relative">
-      <select data-testid={testid} value={value} onChange={(e) => onChange(e.target.value)}
-        className="w-full appearance-none bg-zinc-900 border border-white/10 rounded-md p-2.5 pr-8 text-sm font-mono text-zinc-100 focus:outline-none focus:border-white/30">
-        {options.map(o => <option key={o.id} value={o.id}>{o.label}</option>)}
-      </select>
-      <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 pointer-events-none" />
+const Select = ({ label, value, onChange, options, testid }) => {
+  const [open, setOpen] = React.useState(false);
+  const [search, setSearch] = React.useState('');
+  const ref = React.useRef(null);
+  const displayLabel = options.find(o => o.id === value)?.label || value || '';
+  const filtered = search
+    ? options.filter(o => o.label.toLowerCase().includes(search.toLowerCase()))
+    : options;
+
+  React.useEffect(() => {
+    const handler = (e) => { if (ref.current && !ref.current.contains(e.target)) setOpen(false); };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, []);
+
+  return (
+    <div className="block" ref={ref}>
+      <div className="font-mono text-[10px] uppercase tracking-[0.18em] text-zinc-600 mb-1.5">{label}</div>
+      <div className="relative">
+        <input
+          data-testid={testid}
+          value={open ? search : displayLabel}
+          onChange={e => { setSearch(e.target.value); onChange(e.target.value); setOpen(true); }}
+          onFocus={() => { setOpen(true); setSearch(''); }}
+          placeholder={`Type or select…`}
+          className="w-full bg-zinc-900 border border-white/10 rounded-md p-2.5 pr-8 text-sm font-mono text-zinc-100 focus:outline-none focus:border-white/30 placeholder:text-zinc-600"
+        />
+        <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 pointer-events-none" />
+        {open && (
+          <div className="absolute z-50 mt-1 w-full max-h-52 overflow-y-auto rounded-md border border-white/10 bg-zinc-900 shadow-xl">
+            {filtered.map(o => (
+              <button key={o.id} type="button"
+                onMouseDown={() => { onChange(o.id); setSearch(''); setOpen(false); }}
+                className={`w-full text-left px-3 py-2 font-mono text-sm hover:bg-white/5 transition-colors ${value === o.id ? 'text-amber-400' : 'text-zinc-200'}`}>
+                {o.label}
+              </button>
+            ))}
+            {filtered.length === 0 && search && (
+              <button type="button"
+                onMouseDown={() => { onChange(search); setSearch(''); setOpen(false); }}
+                className="w-full text-left px-3 py-2 font-mono text-sm text-emerald-400 hover:bg-white/5">
+                Use "{search}"
+              </button>
+            )}
+          </div>
+        )}
+      </div>
     </div>
-  </label>
-);
+  );
+};
 
 const Stepper = ({ step }) => {
   const steps = [

@@ -6,7 +6,7 @@ const supabaseAnonKey = process.env.REACT_APP_SUPABASE_ANON_KEY;
 
 if (!supabaseUrl || !supabaseAnonKey) {
   // eslint-disable-next-line no-console
-  console.warn('[AskTaaza] Supabase env vars missing — auth will not work.');
+  console.warn('[Stepkai] Supabase env vars missing — auth will not work.');
 }
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {

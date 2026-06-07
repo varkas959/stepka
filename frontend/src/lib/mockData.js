@@ -1,4 +1,4 @@
-// All mock data for AskTaaza. Replace with Supabase queries later.
+// All mock data for Stepkai. Replace with Supabase queries later.
 
 export const COMPANIES = [
   { id: 'amazon',     name: 'Amazon',     color: '#FF9900', initials: 'AM' },
