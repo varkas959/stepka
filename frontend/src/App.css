@@ -1,2 +1,68 @@
-/* Reserved for component-specific styles */
-.App { min-height: 100vh; background: #09090b; color: #fafafa; }
+/* ── Base ───────────────────────────────────────────────────── */
+.App { min-height: 100vh; }
+
+/* ── Light theme overrides ──────────────────────────────────── */
+/* Remaps the dark zinc scale to light equivalents */
+
+html.light {
+  color-scheme: light;
+}
+
+/* Backgrounds */
+html.light .bg-zinc-950  { background-color: #f8fafc !important; }
+html.light .bg-zinc-900  { background-color: #f1f5f9 !important; }
+html.light .bg-zinc-800  { background-color: #e2e8f0 !important; }
+html.light .bg-black     { background-color: #ffffff !important; }
+
+/* Sidebar specifically */
+html.light aside.bg-black,
+html.light aside         { background-color: #1e293b !important; border-color: #334155 !important; }
+
+/* Text */
+html.light .text-zinc-50  { color: #0f172a !important; }
+html.light .text-zinc-100 { color: #1e293b !important; }
+html.light .text-zinc-200 { color: #334155 !important; }
+html.light .text-zinc-300 { color: #475569 !important; }
+html.light .text-zinc-400 { color: #64748b !important; }
+html.light .text-zinc-500 { color: #64748b !important; }
+html.light .text-zinc-600 { color: #94a3b8 !important; }
+
+/* Borders */
+html.light .border-white\/5  { border-color: #e2e8f0 !important; }
+html.light .border-white\/10 { border-color: #cbd5e1 !important; }
+html.light .border-white\/20 { border-color: #94a3b8 !important; }
+html.light .border-white\/25 { border-color: #94a3b8 !important; }
+
+/* Cards & inputs */
+html.light .bg-zinc-950.rounded-lg,
+html.light .bg-zinc-950.rounded-md { background-color: #ffffff !important; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+html.light input, html.light textarea, html.light select {
+  background-color: #ffffff !important;
+  color: #1e293b !important;
+  border-color: #cbd5e1 !important;
+}
+
+/* Nav backdrop */
+html.light .bg-zinc-950\/90 { background-color: rgba(248,250,252,0.92) !important; }
+html.light .bg-zinc-950\/95 { background-color: rgba(248,250,252,0.96) !important; }
+
+/* Hover states */
+html.light .hover\:bg-white\/5:hover { background-color: rgba(0,0,0,0.04) !important; }
+html.light .hover\:bg-white\/\[0\.03\]:hover { background-color: rgba(0,0,0,0.03) !important; }
+
+/* Toaster in light mode */
+html.light [data-sonner-toaster] [data-type] {
+  background: #ffffff !important;
+  border-color: #e2e8f0 !important;
+  color: #0f172a !important;
+}
+
+/* Keep amber accent always visible */
+html.light .text-amber-400,
+html.light .text-amber-500 { color: #d97706 !important; }
+html.light .text-emerald-400 { color: #059669 !important; }
+html.light .text-emerald-500 { color: #10b981 !important; }
+
+/* Scrollbar in light mode */
+html.light ::-webkit-scrollbar-track { background: #f1f5f9; }
+html.light ::-webkit-scrollbar-thumb { background: #cbd5e1; }

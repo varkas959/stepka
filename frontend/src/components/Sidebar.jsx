@@ -1,6 +1,7 @@
 import { NavLink, useNavigate, Link, useLocation } from 'react-router-dom';
-import { Diamond, Target, Grid3x3, Terminal, CircleDashed, Flame, Check, Menu, X, MessageSquare } from 'lucide-react';
+import { Diamond, Target, Grid3x3, Terminal, CircleDashed, Flame, Check, Menu, X, MessageSquare, Sun, Moon } from 'lucide-react';
 import { useState } from 'react';
+import { useTheme } from 'next-themes';
 import { useAppState } from '../lib/appState';
 import { PixelBar } from './PixelBar';
 
@@ -15,6 +16,7 @@ const navItems = [
 export const Sidebar = ({ user, isGuest }) => {
   const { state } = useAppState();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const { theme, setTheme } = useTheme();
   // navigate kept reserved for future use
   // eslint-disable-next-line no-unused-vars
   const navigate = useNavigate();
@@ -68,6 +70,23 @@ export const Sidebar = ({ user, isGuest }) => {
             );
           })}
         </nav>
+      </div>
+
+      {/* Theme toggle */}
+      <div className="px-4 pb-2">
+        <button
+          onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+          className="w-full flex items-center justify-between px-3 py-2 rounded-md border border-white/10 hover:bg-white/5 transition-colors"
+        >
+          <span className="font-mono text-xs text-zinc-500 uppercase tracking-[0.18em]">Appearance</span>
+          <div className="flex items-center gap-1.5">
+            <span className="font-mono text-xs text-zinc-400">{theme === 'dark' ? 'Dark' : 'Light'}</span>
+            {theme === 'dark'
+              ? <Moon size={13} className="text-zinc-400" />
+              : <Sun size={13} className="text-amber-500" />
+            }
+          </div>
+        </button>
       </div>
 
       {/* Feedback link */}
@@ -137,9 +156,14 @@ export const Sidebar = ({ user, isGuest }) => {
           <button onClick={() => setMobileOpen(true)} data-testid="mobile-menu" className="text-zinc-300"><Menu size={20} /></button>
           <div className="font-mono font-semibold">Stepkai</div>
         </div>
-        <div className="flex items-center gap-1.5 text-xs text-zinc-400">
-          <Flame size={12} className="text-amber-500" fill="currentColor" />
-          <span className="font-mono">{state.streak}</span>
+        <div className="flex items-center gap-3">
+          <button onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')} className="text-zinc-400 hover:text-zinc-200">
+            {theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
+          </button>
+          <div className="flex items-center gap-1.5 text-xs text-zinc-400">
+            <Flame size={12} className="text-amber-500" fill="currentColor" />
+            <span className="font-mono">{state.streak}</span>
+          </div>
         </div>
       </div>
 

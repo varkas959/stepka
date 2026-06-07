@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from 'sonner';
 import { HelmetProvider } from 'react-helmet-async';
+import { ThemeProvider } from 'next-themes';
 import './App.css';
 
 import { AppStateProvider } from './lib/appState';
@@ -70,6 +71,7 @@ function App() {
 
   return (
     <HelmetProvider>
+    <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
     <AppStateProvider userId={session?.user?.id}>
       <Toaster theme="dark" position="bottom-right" toastOptions={{
         style: { background: '#09090b', border: '1px solid rgba(255,255,255,0.1)', color: '#fafafa', fontFamily: 'IBM Plex Sans' },
@@ -126,6 +128,7 @@ function App() {
         </Routes>
       </BrowserRouter>
     </AppStateProvider>
+    </ThemeProvider>
     </HelmetProvider>
   );
 }
