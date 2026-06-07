@@ -35,22 +35,11 @@ const HomeNav = ({ session }) => (
         <Link to="/terms" className="hover:text-zinc-50 transition-colors">Terms</Link>
       </nav>
       <div className="flex items-center gap-2">
-        {session ? (
-          <Link to="/app/questions" data-testid="nav-open-app"
-            className="inline-flex items-center gap-2 font-mono text-xs sm:text-sm font-semibold uppercase tracking-[0.14em] px-3 sm:px-4 py-2 rounded-md text-zinc-950 hover:brightness-110 transition-all"
-            style={{ background: '#f59e0b' }}>
-            Open app <ArrowRight size={12} strokeWidth={2.5} />
-          </Link>
-        ) : (
-          <>
-            <Link to="/signin" data-testid="nav-signin" className="font-mono text-sm text-zinc-300 hover:text-zinc-50 px-3 py-1.5">Sign in</Link>
-            <Link to="/signin" data-testid="nav-cta"
-              className="font-mono text-xs sm:text-sm font-semibold uppercase tracking-[0.14em] px-3 sm:px-4 py-2 rounded-md text-zinc-950 hover:brightness-110 transition-all"
-              style={{ background: '#f59e0b' }}>
-              Get started
-            </Link>
-          </>
-        )}
+        <Link to="/app/questions" data-testid="nav-open-app"
+          className="inline-flex items-center gap-2 font-mono text-xs sm:text-sm font-semibold uppercase tracking-[0.14em] px-3 sm:px-4 py-2 rounded-md text-zinc-950 hover:brightness-110 transition-all"
+          style={{ background: '#f59e0b' }}>
+          {session ? 'Open app' : 'Browse questions'} <ArrowRight size={12} strokeWidth={2.5} />
+        </Link>
       </div>
     </div>
   </header>
