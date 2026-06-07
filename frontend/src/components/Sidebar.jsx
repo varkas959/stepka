@@ -1,4 +1,4 @@
-import { NavLink, useNavigate, Link } from 'react-router-dom';
+import { NavLink, useNavigate, Link, useLocation } from 'react-router-dom';
 import { Diamond, Target, Grid3x3, Terminal, CircleDashed, Flame, Check, Menu, X } from 'lucide-react';
 import { useState } from 'react';
 import { useAppState } from '../lib/appState';
@@ -12,7 +12,7 @@ const navItems = [
   { to: '/app/progress',  label: 'Progress',      icon: CircleDashed, key: 'progress' },
 ];
 
-export const Sidebar = ({ user }) => {
+export const Sidebar = ({ user, isGuest }) => {
   const { state } = useAppState();
   const [mobileOpen, setMobileOpen] = useState(false);
   // navigate kept reserved for future use
@@ -70,42 +70,48 @@ export const Sidebar = ({ user }) => {
         </nav>
       </div>
 
-      {/* User card */}
+      {/* User card / Sign in */}
       <div className="px-3 pb-4 pt-4 border-t border-white/5">
-        <Link to="/app/profile" onClick={() => setMobileOpen(false)} data-testid="sidebar-user"
-          className="flex items-start gap-3 p-2.5 rounded-md hover:bg-white/[0.03] transition-colors">
-          <div className="w-10 h-10 rounded-md flex items-center justify-center font-mono text-sm font-semibold shrink-0"
-            style={{ background: 'rgba(245,158,11,0.12)', color: '#f59e0b', border: '1px solid rgba(245,158,11,0.25)' }}>
-            {user?.avatarInitials || 'U'}
-          </div>
-          <div className="flex-1 min-w-0">
-            <div className="text-sm font-medium truncate text-zinc-50">{user?.name?.split(' ')[0] || 'Guest'}</div>
-            <div className="text-[9px] uppercase tracking-[0.18em] text-zinc-600 font-mono mt-0.5">Level {state.level} candidate</div>
-          </div>
-        </Link>
-
-        {/* progress */}
-        <div className="mt-3 px-1">
-          <div className="flex items-center justify-between text-[10px] font-mono mb-1.5">
-            <span className="text-zinc-600 uppercase tracking-[0.18em]">Progress</span>
-            <span className="text-amber-500 font-medium">{progressPct}%</span>
-          </div>
-          <PixelBar value={progressPct} height={10} color="#f59e0b" />
-        </div>
-
-        {/* streak + completed */}
-        <div className="mt-4 px-1 flex items-center gap-3 text-xs font-mono">
-          <span className="inline-flex items-center gap-1.5 text-zinc-300">
-            <Flame size={12} className="text-amber-500" fill="currentColor" />
-            <span className="text-zinc-50">{state.streak}</span>
-            <span className="text-zinc-600">day streak</span>
-          </span>
-          <span className="inline-flex items-center gap-1.5 text-zinc-300">
-            <Check size={12} className="text-emerald-400" strokeWidth={2.5} />
-            <span className="text-zinc-50">{state.reviewedToday}</span>
-            <span className="text-zinc-600">completed</span>
-          </span>
-        </div>
+        {isGuest ? (
+          <Link to="/signin" onClick={() => setMobileOpen(false)}
+            className="flex items-center justify-center gap-2 w-full py-2.5 rounded-md font-mono text-sm font-semibold text-zinc-950 hover:brightness-110 transition-all"
+            style={{ background: '#f59e0b' }}>
+            Sign in to track progress
+          </Link>
+        ) : (
+          <>
+            <Link to="/app/profile" onClick={() => setMobileOpen(false)} data-testid="sidebar-user"
+              className="flex items-start gap-3 p-2.5 rounded-md hover:bg-white/[0.03] transition-colors">
+              <div className="w-10 h-10 rounded-md flex items-center justify-center font-mono text-sm font-semibold shrink-0"
+                style={{ background: 'rgba(245,158,11,0.12)', color: '#f59e0b', border: '1px solid rgba(245,158,11,0.25)' }}>
+                {user?.avatarInitials || 'U'}
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="text-sm font-medium truncate text-zinc-50">{user?.name?.split(' ')[0] || 'User'}</div>
+                <div className="text-[9px] uppercase tracking-[0.18em] text-zinc-600 font-mono mt-0.5">Level {state.level} candidate</div>
+              </div>
+            </Link>
+            <div className="mt-3 px-1">
+              <div className="flex items-center justify-between text-[10px] font-mono mb-1.5">
+                <span className="text-zinc-600 uppercase tracking-[0.18em]">Progress</span>
+                <span className="text-amber-500 font-medium">{progressPct}%</span>
+              </div>
+              <PixelBar value={progressPct} height={10} color="#f59e0b" />
+            </div>
+            <div className="mt-4 px-1 flex items-center gap-3 text-xs font-mono">
+              <span className="inline-flex items-center gap-1.5 text-zinc-300">
+                <Flame size={12} className="text-amber-500" fill="currentColor" />
+                <span className="text-zinc-50">{state.streak}</span>
+                <span className="text-zinc-600">day streak</span>
+              </span>
+              <span className="inline-flex items-center gap-1.5 text-zinc-300">
+                <Check size={12} className="text-emerald-400" strokeWidth={2.5} />
+                <span className="text-zinc-50">{state.reviewedToday}</span>
+                <span className="text-zinc-600">completed</span>
+              </span>
+            </div>
+          </>
+        )}
       </div>
     </>
   );

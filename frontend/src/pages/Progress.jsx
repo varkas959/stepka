@@ -6,7 +6,7 @@ import { XP_EVENTS, XP_BREAKDOWN, TOPIC_MASTERY, COMPANIES } from '../lib/mockDa
 import { toast } from 'sonner';
 import { ResponsiveContainer, BarChart, Bar, XAxis, Tooltip, Cell } from 'recharts';
 
-export default function Progress() {
+export default function Progress({ isGuest = false }) {
   const { state, consumeFreeze } = useAppState();
   const company = COMPANIES.find(c => c.id === state.activePlan?.company);
   const xpPct = Math.round((state.xp / state.xpToNext) * 100);
@@ -20,6 +20,12 @@ export default function Progress() {
 
   return (
     <div className="px-4 md:px-10 py-6 md:py-10 max-w-7xl mx-auto" data-testid="progress-page">
+      {isGuest && (
+        <div className="mb-6 rounded-lg border border-amber-500/30 bg-amber-500/[0.06] p-4 flex items-center justify-between gap-3">
+          <span className="font-mono text-sm text-amber-300">Sign in to track your real progress, streaks, and XP</span>
+          <a href="/signin" className="shrink-0 font-mono text-xs font-semibold uppercase tracking-[0.14em] px-3 py-1.5 rounded-md text-zinc-950 hover:brightness-110" style={{ background: '#f59e0b' }}>Sign in</a>
+        </div>
+      )}
       <Breadcrumb segments={['progress', 'dashboard']} />
       <div className="mt-1 mb-7">
         <h1 className="text-4xl md:text-5xl font-semibold tracking-tight text-zinc-50">Where you stand</h1>

@@ -18,7 +18,16 @@ function twoSum(nums, target) {
   return null;
 }`;
 
-export default function Practice() {
+function SignInPrompt() {
+  return (
+    <div className="mb-6 rounded-lg border border-amber-500/30 bg-amber-500/[0.06] p-4 flex items-center justify-between gap-3">
+      <span className="font-mono text-sm text-amber-300">Sign in to submit answers and get AI grading</span>
+      <a href="/signin" className="shrink-0 font-mono text-xs font-semibold uppercase tracking-[0.14em] px-3 py-1.5 rounded-md text-zinc-950 hover:brightness-110" style={{ background: '#f59e0b' }}>Sign in</a>
+    </div>
+  );
+}
+
+export default function Practice({ isGuest = false }) {
   const [qIdx, setQIdx] = useState(0);
   const q = QUESTIONS[qIdx];
   const isBehavioral = BEHAVIORAL_TOPICS.includes(q.topic);
@@ -44,6 +53,7 @@ export default function Practice() {
   const formatTime = (s) => `${Math.floor(s / 60).toString().padStart(2, '0')}:${(s % 60).toString().padStart(2, '0')}`;
 
   const submit = () => {
+    if (isGuest) { window.location.href = '/signin'; return; }
     if (!answer.trim()) { toast.error('Write something before submitting.'); return; }
     setSubmitting(true);
     (async () => {
@@ -61,6 +71,7 @@ export default function Practice() {
 
   return (
     <div className="px-4 md:px-10 py-6 md:py-10 max-w-7xl mx-auto" data-testid="practice-page">
+      {isGuest && <SignInPrompt />}
       <Breadcrumb segments={['practice', `${q.company}-${q.role.toLowerCase()}`, `q-${qIdx + 1}`]} />
 
       <div className="flex items-start justify-between gap-4 flex-wrap mb-6 mt-1">

@@ -20,15 +20,30 @@ import Profile from './pages/Profile';
 import AuthCallback from './pages/AuthCallback';
 import LegalPage from './pages/LegalPage';
 
-function ProtectedShell({ session, onSignOut, children }) {
-  if (!session) return <Navigate to="/signin" replace />;
+function AppShell({ session, onSignOut, children }) {
   return (
     <div className="min-h-screen bg-zinc-950 text-zinc-50">
-      <Sidebar user={session.user} onSignOut={onSignOut} />
+      <Sidebar user={session?.user} onSignOut={onSignOut} isGuest={!session} />
       <div className="md:pl-64 pt-14 md:pt-0">
-        <ActivePlanBanner />
+        {session && <ActivePlanBanner />}
+        {!session && <GuestBanner />}
         <div className="pb-20">{children}</div>
       </div>
+    </div>
+  );
+}
+
+function GuestBanner() {
+  return (
+    <div className="border-b border-amber-500/20 bg-amber-500/[0.05] px-4 sm:px-6 py-2.5 flex items-center justify-between gap-3">
+      <span className="font-mono text-xs text-amber-300">
+        👋 Browsing as guest — sign in to track progress, upvote, and use Study Plan &amp; Practice
+      </span>
+      <a href="/signin"
+        className="shrink-0 font-mono text-xs font-semibold uppercase tracking-[0.14em] px-3 py-1.5 rounded-md text-zinc-950 hover:brightness-110 transition-all"
+        style={{ background: '#f59e0b' }}>
+        Sign in
+      </a>
     </div>
   );
 }
@@ -67,28 +82,36 @@ function App() {
           <Route path="/terms" element={<LegalPage kind="terms" />} />
           <Route path="/questions" element={<PublicQuestions />} />
 
-          {/* Protected */}
+          {/* App shell — visible to all, actions gated by sign-in */}
           <Route path="/app/questions" element={
-            session
-              ? <ProtectedShell session={session} onSignOut={() => setSession(null)}><QuestionBank /></ProtectedShell>
-              : <QuestionBank isGuest />
+            <AppShell session={session} onSignOut={() => setSession(null)}>
+              <QuestionBank isGuest={!session} />
+            </AppShell>
           } />
           <Route path="/app/review" element={
-            <ProtectedShell session={session} onSignOut={() => setSession(null)}><DailyReview /></ProtectedShell>
+            <AppShell session={session} onSignOut={() => setSession(null)}>
+              <DailyReview isGuest={!session} />
+            </AppShell>
           } />
           <Route path="/app/plan" element={
-            <ProtectedShell session={session} onSignOut={() => setSession(null)}><StudyPlan /></ProtectedShell>
+            <AppShell session={session} onSignOut={() => setSession(null)}>
+              <StudyPlan isGuest={!session} />
+            </AppShell>
           } />
           <Route path="/app/practice" element={
-            <ProtectedShell session={session} onSignOut={() => setSession(null)}><Practice /></ProtectedShell>
+            <AppShell session={session} onSignOut={() => setSession(null)}>
+              <Practice isGuest={!session} />
+            </AppShell>
           } />
           <Route path="/app/progress" element={
-            <ProtectedShell session={session} onSignOut={() => setSession(null)}><Progress /></ProtectedShell>
+            <AppShell session={session} onSignOut={() => setSession(null)}>
+              <Progress isGuest={!session} />
+            </AppShell>
           } />
           <Route path="/app/profile" element={
-            <ProtectedShell session={session} onSignOut={() => setSession(null)}>
-              <Profile session={session} onSignOut={() => setSession(null)} />
-            </ProtectedShell>
+            <AppShell session={session} onSignOut={() => setSession(null)}>
+              <Profile session={session} onSignOut={() => setSession(null)} isGuest={!session} />
+            </AppShell>
           } />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>

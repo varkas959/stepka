@@ -22,7 +22,7 @@ const toneClass = (tone, active) => {
   return map[tone];
 };
 
-export default function DailyReview() {
+export default function DailyReview({ isGuest = false }) {
   const [phase, setPhase] = useState('queue');
   const [idx, setIdx] = useState(0);
   const [flipped, setFlipped] = useState(false);
@@ -53,6 +53,12 @@ const QueueView = ({ state, breakdown, total, onStart }) => {
   const goalPct = Math.round((state.reviewedToday / state.goalToday) * 100);
   return (
     <div className="px-4 md:px-10 py-6 md:py-10 max-w-3xl mx-auto">
+      {isGuest && (
+        <div className="mb-6 rounded-lg border border-amber-500/30 bg-amber-500/[0.06] p-4 flex items-center justify-between gap-3">
+          <span className="font-mono text-sm text-amber-300">Sign in to save your review progress and build a streak</span>
+          <a href="/signin" className="shrink-0 font-mono text-xs font-semibold uppercase tracking-[0.14em] px-3 py-1.5 rounded-md text-zinc-950 hover:brightness-110" style={{ background: '#f59e0b' }}>Sign in</a>
+        </div>
+      )}
       <Breadcrumb segments={['daily-review', 'queue']} />
       <h1 className="text-4xl md:text-5xl font-semibold tracking-tight mt-1 text-zinc-50">
         <span className="text-zinc-500">$</span> {total} cards due

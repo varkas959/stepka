@@ -20,7 +20,7 @@ const MASTERY = [
   { v: 95, label: 'expert',       pct: 95,  color: '#22c55e' },
 ];
 
-export default function StudyPlan() {
+export default function StudyPlan({ isGuest = false }) {
   const [step, setStep] = useState('input'); // input | extracting | assess | result | plan
   const [jd, setJd] = useState('We are hiring a Senior Software Engineer (SDE2) for our Payments team.\nResponsibilities: design distributed payment processing pipelines, own Kafka topics, partner with infra on latency.\nMust have: 4+ years Java, distributed systems, system design, LLD, microservices on AWS.');
   const [company, setCompany] = useState('amazon');
@@ -42,6 +42,7 @@ export default function StudyPlan() {
   }, [skills, ratings]);
 
   const extract = async () => {
+    if (isGuest) { window.location.href = '/signin'; return; }
     setStep('extracting');
     try {
       const data = await extractSkills({ jd, targetCompany: company, targetRole: role });
