@@ -31,15 +31,15 @@ const HomeNav = ({ session }) => (
       </Link>
       <nav className="hidden sm:flex items-center gap-6 font-mono text-sm text-zinc-400">
         <a href="#features" className="hover:text-zinc-50 transition-colors">Features</a>
-        <Link to="/privacy" className="hover:text-zinc-50 transition-colors">Privacy</Link>
-        <Link to="/terms" className="hover:text-zinc-50 transition-colors">Terms</Link>
       </nav>
       <div className="flex items-center gap-2">
-        <Link to="/app/questions" data-testid="nav-open-app"
-          className="inline-flex items-center gap-2 font-mono text-xs sm:text-sm font-semibold uppercase tracking-[0.14em] px-3 sm:px-4 py-2 rounded-md text-zinc-950 hover:brightness-110 transition-all"
-          style={{ background: '#f59e0b' }}>
-          {session ? 'Open app' : 'Browse questions'} <ArrowRight size={12} strokeWidth={2.5} />
-        </Link>
+        {session && (
+          <Link to="/app/questions" data-testid="nav-open-app"
+            className="inline-flex items-center gap-2 font-mono text-xs sm:text-sm font-semibold uppercase tracking-[0.14em] px-3 sm:px-4 py-2 rounded-md text-zinc-950 hover:brightness-110 transition-all"
+            style={{ background: '#f59e0b' }}>
+            Open app <ArrowRight size={12} strokeWidth={2.5} />
+          </Link>
+        )}
       </div>
     </div>
   </header>
@@ -63,7 +63,7 @@ const Hero = ({ session }) => (
         <Link to="/app/questions" data-testid="hero-cta"
           className="inline-flex items-center gap-2 font-mono text-sm font-semibold uppercase tracking-[0.14em] px-5 py-3 rounded-md text-zinc-950 hover:brightness-110 transition-all"
           style={{ background: '#f59e0b', boxShadow: '0 0 0 1px rgba(245,158,11,0.4), 0 0 32px -8px rgba(245,158,11,0.6)' }}>
-          {session ? 'Open app' : 'Start prepping'} <ArrowRight size={14} strokeWidth={2.5} />
+          Start prepping <ArrowRight size={14} strokeWidth={2.5} />
         </Link>
       </div>
       <div className="mt-12 flex items-center gap-8 sm:gap-12 font-mono text-xs flex-wrap">
@@ -144,7 +144,7 @@ const FinalCTA = ({ session }) => (
         <Link to="/app/questions" data-testid="final-cta"
           className="inline-flex items-center gap-2 font-mono text-sm font-semibold uppercase tracking-[0.14em] px-5 py-3 rounded-md text-zinc-950 hover:brightness-110 transition-all"
           style={{ background: '#f59e0b', boxShadow: '0 0 0 1px rgba(245,158,11,0.4), 0 0 32px -8px rgba(245,158,11,0.6)' }}>
-          {session ? 'Open app' : "Browse questions — it's free"} <ArrowRight size={14} strokeWidth={2.5} />
+          Start prepping — it's free <ArrowRight size={14} strokeWidth={2.5} />
         </Link>
       </div>
     </div>
