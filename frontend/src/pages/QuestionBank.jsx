@@ -1,7 +1,15 @@
 import { useMemo, useState } from 'react';
 import { Plus, X, ArrowUp, DollarSign, ArrowUpRight, Info } from 'lucide-react';
 import { toast } from 'sonner';
+import { Link } from 'react-router-dom';
 import { QUESTIONS, COMPANIES, ROLES, TOPIC_TREE, DIFFICULTIES, ROUND_TYPES, COMPANY_BLUEPRINTS, TECH_STACK } from '../lib/mockData';
+
+const slugify = (s) => s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+const ACTIVE_COMPANIES = COMPANIES.filter(c => QUESTIONS.some(q => q.company === c.id));
+const TOPIC_LABELS = TOPIC_TREE.flatMap(n => n.children ? n.children : [n]);
+const ACTIVE_TOPICS = TOPIC_LABELS.filter(t => QUESTIONS.some(q => q.topic === t.id));
+const ACTIVE_TECHS = ['Selenium', 'Playwright', 'Java', 'Python', 'Docker', 'Jenkins', 'System Design', 'Spring Boot']
+  .filter(t => QUESTIONS.some(q => (q.tech || []).includes(t)));
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '../components/ui/dialog';
 import {
   DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem,
@@ -149,6 +157,32 @@ export default function QuestionBank({ isGuest = false }) {
           />
         ))}
         <SortChip value={sortBy} onChange={setSortBy} />
+      </div>
+
+      {/* Browse by — SEO links */}
+      <div className="mb-5 p-4 rounded-lg border border-white/5 bg-zinc-900/40">
+        <div className="font-mono text-[10px] uppercase tracking-[0.22em] text-zinc-600 mb-3">Browse by</div>
+        <div className="flex flex-wrap gap-1.5">
+          <Link to="/questions/trending" className="font-mono text-xs px-2.5 py-1 rounded border border-amber-500/30 text-amber-400 hover:bg-amber-500/[0.06] transition-colors">🔥 Trending</Link>
+          {ACTIVE_COMPANIES.map(c => (
+            <Link key={c.id} to={`/questions/company/${slugify(c.name)}`}
+              className="font-mono text-xs px-2.5 py-1 rounded border border-white/10 text-zinc-400 hover:text-zinc-50 hover:border-white/25 transition-colors">
+              {c.name}
+            </Link>
+          ))}
+          {ACTIVE_TOPICS.map(t => (
+            <Link key={t.id} to={`/questions/topic/${slugify(t.name)}`}
+              className="font-mono text-xs px-2.5 py-1 rounded border border-emerald-500/20 text-emerald-500 hover:bg-emerald-500/[0.06] transition-colors">
+              {t.name}
+            </Link>
+          ))}
+          {ACTIVE_TECHS.map(t => (
+            <Link key={t} to={`/questions/tech/${slugify(t)}`}
+              className="font-mono text-xs px-2.5 py-1 rounded border border-blue-500/20 text-blue-400 hover:bg-blue-500/[0.06] transition-colors">
+              {t}
+            </Link>
+          ))}
+        </div>
       </div>
 
       {/* Count */}

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from 'sonner';
+import { HelmetProvider } from 'react-helmet-async';
 import './App.css';
 
 import { AppStateProvider } from './lib/appState';
@@ -19,6 +20,8 @@ import Progress from './pages/Progress';
 import Profile from './pages/Profile';
 import AuthCallback from './pages/AuthCallback';
 import LegalPage from './pages/LegalPage';
+import FeedbackPage from './pages/FeedbackPage';
+import SEOPage from './pages/SEOPage';
 
 function AppShell({ session, onSignOut, children }) {
   return (
@@ -66,6 +69,7 @@ function App() {
   if (!hydrated) return <div className="min-h-screen bg-zinc-950" />;
 
   return (
+    <HelmetProvider>
     <AppStateProvider userId={session?.user?.id}>
       <Toaster theme="dark" position="bottom-right" toastOptions={{
         style: { background: '#09090b', border: '1px solid rgba(255,255,255,0.1)', color: '#fafafa', fontFamily: 'IBM Plex Sans' },
@@ -81,6 +85,11 @@ function App() {
           <Route path="/privacy" element={<LegalPage kind="privacy" />} />
           <Route path="/terms" element={<LegalPage kind="terms" />} />
           <Route path="/questions" element={<PublicQuestions />} />
+          <Route path="/feedback" element={<FeedbackPage />} />
+          <Route path="/questions/trending" element={<SEOPage kind="trending" />} />
+          <Route path="/questions/company/:slug" element={<SEOPage kind="company" />} />
+          <Route path="/questions/topic/:slug" element={<SEOPage kind="topic" />} />
+          <Route path="/questions/tech/:slug" element={<SEOPage kind="tech" />} />
 
           {/* App shell — visible to all, actions gated by sign-in */}
           <Route path="/app/questions" element={
@@ -117,6 +126,7 @@ function App() {
         </Routes>
       </BrowserRouter>
     </AppStateProvider>
+    </HelmetProvider>
   );
 }
 

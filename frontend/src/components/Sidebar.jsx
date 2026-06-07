@@ -1,5 +1,5 @@
 import { NavLink, useNavigate, Link, useLocation } from 'react-router-dom';
-import { Diamond, Target, Grid3x3, Terminal, CircleDashed, Flame, Check, Menu, X } from 'lucide-react';
+import { Diamond, Target, Grid3x3, Terminal, CircleDashed, Flame, Check, Menu, X, MessageSquare } from 'lucide-react';
 import { useState } from 'react';
 import { useAppState } from '../lib/appState';
 import { PixelBar } from './PixelBar';
@@ -68,6 +68,19 @@ export const Sidebar = ({ user, isGuest }) => {
             );
           })}
         </nav>
+      </div>
+
+      {/* Feedback link */}
+      <div className="px-3 pb-2">
+        <NavLink to="/feedback" onClick={() => setMobileOpen(false)}
+          className={({ isActive }) =>
+            `flex items-center gap-3 px-3 py-2 rounded-md text-sm transition-colors border-l-2 ${
+              isActive ? 'bg-amber-500/[0.06] text-zinc-50 font-medium border-l-amber-500' : 'border-l-transparent text-zinc-500 hover:text-zinc-300 hover:bg-white/5'
+            }`
+          }>
+          <MessageSquare size={15} strokeWidth={1.75} />
+          <span>Feedback</span>
+        </NavLink>
       </div>
 
       {/* User card / Sign in */}

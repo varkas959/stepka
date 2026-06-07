@@ -159,6 +159,7 @@ const Footer = () => (
         <span>stepkai.com · v1.0 · © 2026</span>
       </div>
       <div className="flex items-center gap-5">
+        <Link to="/feedback" className="hover:text-zinc-100">Feedback</Link>
         <Link to="/privacy" className="hover:text-zinc-100" data-testid="footer-privacy">Privacy</Link>
         <Link to="/terms" className="hover:text-zinc-100" data-testid="footer-terms">Terms</Link>
         <a href="mailto:hi@stepkai.com" className="hover:text-zinc-100">Contact</a>
