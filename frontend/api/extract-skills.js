@@ -1,7 +1,3 @@
-import { GoogleGenAI } from '@google/genai';
-
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
-
 const MAX_TEXT_LEN = 8000;
 const MAX_SHORT_LEN = 120;
 const CONTROL_RE = /[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]/g;
@@ -20,6 +16,26 @@ function extractJson(text) {
     if (m) text = m[0];
   }
   return JSON.parse(text);
+}
+
+async function callGemini(apiKey, systemPrompt, userPrompt) {
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+  const body = {
+    system_instruction: { parts: [{ text: systemPrompt }] },
+    contents: [{ role: 'user', parts: [{ text: userPrompt }] }],
+    generationConfig: { temperature: 0.3 },
+  };
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  });
+  if (!res.ok) {
+    const err = await res.text();
+    throw new Error(`Gemini API error ${res.status}: ${err}`);
+  }
+  const data = await res.json();
+  return data.candidates?.[0]?.content?.parts?.[0]?.text || '';
 }
 
 const SYSTEM = `You are an expert technical recruiter.
@@ -41,21 +57,24 @@ Return ONLY this JSON shape (no markdown, no extra text). Extract 6-10 skills.
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).end();
-  if (!process.env.GEMINI_API_KEY) {
-    return res.status(503).json({ error: 'GEMINI_API_KEY is not configured. Add it in Vercel → Settings → Environment Variables.' });
+
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) {
+    return res.status(503).json({ error: 'GEMINI_API_KEY is not configured in Vercel environment variables.' });
   }
 
-  const { jd, target_company, target_role } = req.body;
+  const { jd, target_company, target_role } = req.body || {};
+  if (!jd) return res.status(400).json({ error: 'jd is required' });
 
   try {
-    const response = await ai.models.generateContent({
-      model: 'gemini-2.5-flash',
-      contents: TEMPLATE(sanitize(jd), sanitize(target_company, MAX_SHORT_LEN), sanitize(target_role, MAX_SHORT_LEN)),
-      config: { systemInstruction: SYSTEM },
-    });
-    res.status(200).json(extractJson(response.text));
+    const text = await callGemini(
+      apiKey,
+      SYSTEM,
+      TEMPLATE(sanitize(jd), sanitize(target_company, MAX_SHORT_LEN), sanitize(target_role, MAX_SHORT_LEN))
+    );
+    res.status(200).json(extractJson(text));
   } catch (e) {
-    console.error('extract-skills error:', e);
+    console.error('extract-skills error:', e.message);
     res.status(502).json({ error: e.message });
   }
 }

@@ -1,7 +1,3 @@
-import { GoogleGenAI } from '@google/genai';
-
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
-
 const MAX_TEXT_LEN = 8000;
 const CONTROL_RE = /[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]/g;
 
@@ -19,6 +15,26 @@ function extractJson(text) {
     if (m) text = m[0];
   }
   return JSON.parse(text);
+}
+
+async function callGemini(apiKey, systemPrompt, userPrompt) {
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+  const body = {
+    system_instruction: { parts: [{ text: systemPrompt }] },
+    contents: [{ role: 'user', parts: [{ text: userPrompt }] }],
+    generationConfig: { temperature: 0.4 },
+  };
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  });
+  if (!res.ok) {
+    const err = await res.text();
+    throw new Error(`Gemini API error ${res.status}: ${err}`);
+  }
+  const data = await res.json();
+  return data.candidates?.[0]?.content?.parts?.[0]?.text || '';
 }
 
 const GRADE_SYSTEM = `You are a senior staff engineer grading interview answers at top tech companies.
@@ -71,28 +87,26 @@ Return ONLY this JSON shape (no markdown fences, no extra text):
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).end();
-  if (!process.env.GEMINI_API_KEY) {
-    return res.status(503).json({ error: 'GEMINI_API_KEY is not configured. Add it in Vercel → Settings → Environment Variables.' });
+
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) {
+    return res.status(503).json({ error: 'GEMINI_API_KEY is not configured in Vercel environment variables.' });
   }
 
-  const { question, answer, mode = 'text', is_behavioral = false } = req.body;
+  const { question, answer, mode = 'text', is_behavioral = false } = req.body || {};
+  if (!question || !answer) return res.status(400).json({ error: 'question and answer are required' });
+
   const q = sanitize(question);
   const a = sanitize(answer);
-
   const prompt = is_behavioral
     ? BEHAVIORAL_TEMPLATE(q, a)
     : TECHNICAL_TEMPLATE(q, a, mode);
 
   try {
-    const response = await ai.models.generateContent({
-      model: 'gemini-2.5-flash',
-      contents: prompt,
-      config: { systemInstruction: GRADE_SYSTEM },
-    });
-    const text = response.text;
+    const text = await callGemini(apiKey, GRADE_SYSTEM, prompt);
     res.status(200).json(extractJson(text));
   } catch (e) {
-    console.error('grade error:', e);
+    console.error('grade error:', e.message);
     res.status(502).json({ error: e.message });
   }
 }
