@@ -185,6 +185,28 @@ export const QUESTIONS = [
     tech: ['Java'],
   },
 
+  {
+    id: 'q18b', company: 'accenture', role: 'Developer', topic: 'devops', topicPath: 'DevOps',
+    difficulty: 'Medium', round: 'Technical',
+    body: 'When two developers push changes to the same file in Git simultaneously, how would you resolve the merge conflict?\nWalk through: pulling latest, identifying conflict markers (<<<, ===, >>>), choosing which changes to keep, testing after resolution, and committing the merge.',
+    verifyCount: 4, upvotes: 53, daysAgo: 5, asked: 20,
+    tech: ['Java', 'JavaScript'],
+  },
+  {
+    id: 'q18c', company: 'accenture', role: 'Developer', topic: 'devops', topicPath: 'DevOps',
+    difficulty: 'Medium', round: 'Technical',
+    body: 'Have you worked with CI/CD pipelines, and how were they used in your project?\nDescribe the tools used (Jenkins, GitHub Actions, GitLab CI), the stages in your pipeline, how tests were triggered, and how deployments were automated.',
+    verifyCount: 3, upvotes: 41, daysAgo: 6, asked: 15,
+    tech: ['Jenkins', 'GitHub Actions', 'Docker'],
+  },
+  {
+    id: 'q18d', company: 'accenture', role: 'Developer', topic: 'domain', topicPath: 'Domain',
+    difficulty: 'Medium', round: 'Technical',
+    body: 'How does adding + "" help convert a char value into a String in Java?\nExplain Java\'s string concatenation rules, why char + "" produces a String while char + char produces an int, and alternative approaches like String.valueOf(char) or Character.toString(char).',
+    verifyCount: 2, upvotes: 31, daysAgo: 7, asked: 11,
+    tech: ['Java'],
+  },
+
   // ── Deloitte · DevOps Engineer · 3-4 yrs ──────────────────────────────────
   {
     id: 'q19', company: 'deloitte', role: 'DevOps', topic: 'devops', topicPath: 'DevOps',
@@ -327,6 +349,91 @@ export const QUESTIONS = [
     body: 'Provide an XPath expression to fetch values from the second column of a web table. Explain absolute vs relative XPath, axes like following-sibling and child, and how to handle tables with dynamic row counts.',
     verifyCount: 3, upvotes: 47, daysAgo: 7, asked: 16,
     tech: ['Selenium', 'Java'],
+  },
+
+  {
+    id: 'q30b', company: 'wipro', role: 'Tester', topic: 'testing', topicPath: 'Testing',
+    difficulty: 'Hard', round: 'Technical',
+    body: 'Describe the role of a Step Definition file in Cucumber BDD.\nHow does Cucumber link a Gherkin step to a Java method using annotations like @Given, @When, @Then? Show a complete example with a feature file and its corresponding step definition.',
+    verifyCount: 4, upvotes: 58, daysAgo: 3, asked: 21,
+    tech: ['Selenium', 'Java'],
+  },
+  {
+    id: 'q30c', company: 'wipro', role: 'Tester', topic: 'testing', topicPath: 'Testing',
+    difficulty: 'Hard', round: 'Technical',
+    body: 'How are Tags used to organise or control test execution in Cucumber?\nExplain how to tag scenarios with @smoke, @regression, @wip, how to run only specific tagged tests from the command line, and how tags can be combined with AND/OR/NOT logic.',
+    verifyCount: 3, upvotes: 46, daysAgo: 4, asked: 17,
+    tech: ['Selenium', 'Java'],
+  },
+  {
+    id: 'q30d', company: 'wipro', role: 'Tester', topic: 'testing', topicPath: 'Testing',
+    difficulty: 'Hard', round: 'Technical',
+    body: 'Explain the purpose of Data Tables in Cucumber scenarios.\nHow do they differ from Scenario Outline? Show an example where a Data Table passes multiple fields to a single step (e.g., a registration form), and how to read it using DataTable or a list of maps in the step definition.',
+    verifyCount: 4, upvotes: 54, daysAgo: 5, asked: 19,
+    tech: ['Selenium', 'Java'],
+  },
+  {
+    id: 'q30e', company: 'wipro', role: 'Tester', topic: 'testing', topicPath: 'Testing',
+    difficulty: 'Hard', round: 'Technical',
+    body: 'Explain different ways to perform page scrolling during Selenium automation.\nCover: JavascriptExecutor (scrollBy, scrollIntoView), Actions class for keyboard scroll, scrolling to a specific element, and infinite scroll testing strategies.',
+    verifyCount: 3, upvotes: 43, daysAgo: 6, asked: 15,
+    tech: ['Selenium', 'Java'],
+  },
+  {
+    id: 'q30f', company: 'wipro', role: 'Tester', topic: 'testing', topicPath: 'Testing',
+    difficulty: 'Hard', round: 'Technical',
+    body: 'Explain the purpose of the pom.xml file in a Maven project.\nDescribe the key sections: groupId/artifactId/version, dependencies, plugins, build lifecycle phases (compile, test, package, install), and how to add a Selenium + TestNG dependency with the correct scope.',
+    verifyCount: 5, upvotes: 67, daysAgo: 3, asked: 24,
+    tech: ['Java', 'Selenium'],
+  },
+  {
+    id: 'q30g', company: 'wipro', role: 'Tester', topic: 'api-testing', topicPath: 'API Testing',
+    difficulty: 'Hard', round: 'Technical',
+    body: 'Describe JSON Schema Validation and its importance in API testing.\nWhat is a JSON schema? How do you validate that an API response conforms to the expected schema using Rest Assured or Postman? Give an example schema for a user object with required fields and type constraints.',
+    verifyCount: 4, upvotes: 61, daysAgo: 4, asked: 22,
+    tech: ['Postman', 'REST', 'Java'],
+  },
+  {
+    id: 'q30h', company: 'wipro', role: 'Tester', topic: 'testing', topicPath: 'Testing',
+    difficulty: 'Hard', round: 'Technical',
+    body: 'Write a program to remove duplicate elements from an array and calculate the frequency of each character in a string.\nFor the array: use a LinkedHashSet or a frequency map. For character frequency: use a HashMap<Character, Integer>. Analyse time and space complexity of each approach.',
+    verifyCount: 3, upvotes: 49, daysAgo: 5, asked: 18,
+    tech: ['Java'],
+  },
+  {
+    id: 'q30i', company: 'wipro', role: 'Tester', topic: 'api-testing', topicPath: 'API Testing',
+    difficulty: 'Hard', round: 'Technical',
+    body: 'Differentiate between Path Parameters and Query Parameters in REST APIs.\nGive examples: /users/{id} vs /users?role=admin. When should each be used? How do you pass and validate them in automated API tests using Rest Assured or Postman?',
+    verifyCount: 4, upvotes: 57, daysAgo: 3, asked: 21,
+    tech: ['Postman', 'REST'],
+  },
+  {
+    id: 'q30j', company: 'wipro', role: 'Tester', topic: 'api-testing', topicPath: 'API Testing',
+    difficulty: 'Hard', round: 'Technical',
+    body: 'How can nested JSON responses be handled in API testing?\nShow how to extract a deeply nested value (e.g., response.data.user.address.city) using Rest Assured\'s JsonPath, and how to validate arrays of objects within the response.',
+    verifyCount: 3, upvotes: 44, daysAgo: 6, asked: 16,
+    tech: ['Java', 'REST', 'Postman'],
+  },
+  {
+    id: 'q30k', company: 'wipro', role: 'Tester', topic: 'testing', topicPath: 'Testing',
+    difficulty: 'Hard', round: 'Technical',
+    body: 'What is an Automation Framework? Explain its structure.\nDescribe the layers: test data, page objects, utilities, test runner, reporters. Why is a framework needed vs raw Selenium scripts? Compare Data-Driven, Keyword-Driven, and Hybrid frameworks.',
+    verifyCount: 5, upvotes: 72, daysAgo: 2, asked: 26,
+    tech: ['Selenium', 'Java'],
+  },
+  {
+    id: 'q30l', company: 'wipro', role: 'Tester', topic: 'testing', topicPath: 'Testing',
+    difficulty: 'Hard', round: 'Technical',
+    body: 'Describe OOP concepts and how they are applied in automation frameworks.\nGive concrete examples: Encapsulation in Page Objects (private WebElements), Inheritance for BaseTest/BasePage, Polymorphism for multi-browser driver factories, and Abstraction via interfaces for reporting.',
+    verifyCount: 4, upvotes: 63, daysAgo: 4, asked: 23,
+    tech: ['Java', 'Selenium'],
+  },
+  {
+    id: 'q30m', company: 'wipro', role: 'Tester', topic: 'testing', topicPath: 'Testing',
+    difficulty: 'Hard', round: 'Technical',
+    body: 'Explain the usage of Java collections in automation frameworks.\nWhen would you use a List vs Set vs Map in a test framework? Give real examples: storing test data in a List, deduplicating locators in a Set, mapping test case names to results in a LinkedHashMap.',
+    verifyCount: 3, upvotes: 51, daysAgo: 5, asked: 19,
+    tech: ['Java'],
   },
 
   // ── Infosys · Java Developer · 3-5 yrs ────────────────────────────────────

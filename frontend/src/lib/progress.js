@@ -49,6 +49,15 @@ const rowFromCamel = (s, userId) => ({
   updated_at: new Date().toISOString(),
 });
 
+// Detect the old fake-seeded plan and wipe it
+function sanitizeLoaded(p) {
+  const plan = p.activePlan;
+  if (plan && plan.company === 'amazon' && plan.currentDay === 4 && plan.dueQuestions === 3) {
+    return { ...p, activePlan: null, streak: 0, longestStreak: 0, level: 1, xp: 0, xpToNext: 500, dueToday: 0, reviewedToday: 0 };
+  }
+  return p;
+}
+
 export async function loadProgress(userId) {
   if (!userId) return DEFAULTS;
   const { data, error } = await supabase
@@ -57,18 +66,16 @@ export async function loadProgress(userId) {
     .eq('user_id', userId)
     .maybeSingle();
   if (error) {
-    // eslint-disable-next-line no-console
     console.error('[progress] load failed:', error.message);
     return DEFAULTS;
   }
   if (!data) {
-    // First time: insert defaults
     const row = rowFromCamel(DEFAULTS, userId);
     const { error: insErr } = await supabase.from('user_progress').insert(row);
     if (insErr) console.error('[progress] seed failed:', insErr.message);
     return DEFAULTS;
   }
-  return camelFromRow(data);
+  return sanitizeLoaded(camelFromRow(data));
 }
 
 export async function saveProgress(userId, state) {
