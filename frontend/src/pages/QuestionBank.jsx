@@ -295,12 +295,17 @@ const QuestionCard = ({ q, expanded, onToggleExpand, upvoted, asked, onUpvote, o
         </div>
 
         {/* Body */}
-        <div className={`text-zinc-100 text-base leading-relaxed ${expanded ? '' : 'line-clamp-3'}`}
-           style={{ fontFamily: 'IBM Plex Sans, sans-serif' }}>
-          {q.body.split('\n').map((line, i) => (
-            <p key={i} className={i > 0 ? 'mt-2' : ''}>{line}</p>
-          ))}
-        </div>
+        {expanded ? (
+          <div className="text-zinc-100 text-base leading-relaxed space-y-2"
+               style={{ fontFamily: 'IBM Plex Sans, sans-serif' }}>
+            {q.body.split('\n').map((line, i) => <p key={i}>{line}</p>)}
+          </div>
+        ) : (
+          <p className="text-zinc-100 text-base leading-relaxed line-clamp-3"
+             style={{ fontFamily: 'IBM Plex Sans, sans-serif' }}>
+            {q.body.replace(/\n/g, ' ')}
+          </p>
+        )}
         {q.body.length > 180 && (
           <button onClick={onToggleExpand} className="font-mono text-sm text-emerald-400 hover:text-emerald-300 mt-3" data-testid={`expand-${q.id}`}>
             {expanded ? '− show less' : '+ show more'}
