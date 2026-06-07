@@ -1,26 +1,32 @@
 // All mock data for AskTaaza. Replace with Supabase queries later.
 
 export const COMPANIES = [
-  { id: 'amazon',    name: 'Amazon',    color: '#FF9900', initials: 'AM' },
-  { id: 'google',    name: 'Google',    color: '#4285F4', initials: 'GO' },
-  { id: 'microsoft', name: 'Microsoft', color: '#00A4EF', initials: 'MS' },
-  { id: 'flipkart',  name: 'Flipkart',  color: '#2874F0', initials: 'FK' },
-  { id: 'swiggy',    name: 'Swiggy',    color: '#FC8019', initials: 'SW' },
-  { id: 'meta',      name: 'Meta',      color: '#1877F2', initials: 'ME' },
-  { id: 'apple',     name: 'Apple',     color: '#A2AAAD', initials: 'AP' },
-  { id: 'netflix',   name: 'Netflix',   color: '#E50914', initials: 'NF' },
-  { id: 'uber',      name: 'Uber',      color: '#000000', initials: 'UB' },
-  { id: 'airbnb',    name: 'Airbnb',    color: '#FF5A5F', initials: 'AB' },
-  { id: 'stripe',    name: 'Stripe',    color: '#635BFF', initials: 'ST' },
-  { id: 'razorpay',  name: 'Razorpay',  color: '#3395FF', initials: 'RP' },
-  { id: 'phonepe',   name: 'PhonePe',   color: '#5F259F', initials: 'PP' },
-  { id: 'paytm',     name: 'Paytm',     color: '#00BAF2', initials: 'PT' },
-  { id: 'zomato',    name: 'Zomato',    color: '#CB202D', initials: 'ZO' },
+  { id: 'amazon',     name: 'Amazon',     color: '#FF9900', initials: 'AM' },
+  { id: 'google',     name: 'Google',     color: '#4285F4', initials: 'GO' },
+  { id: 'microsoft',  name: 'Microsoft',  color: '#00A4EF', initials: 'MS' },
+  { id: 'flipkart',   name: 'Flipkart',   color: '#2874F0', initials: 'FK' },
+  { id: 'swiggy',     name: 'Swiggy',     color: '#FC8019', initials: 'SW' },
+  { id: 'meta',       name: 'Meta',       color: '#1877F2', initials: 'ME' },
+  { id: 'apple',      name: 'Apple',      color: '#A2AAAD', initials: 'AP' },
+  { id: 'netflix',    name: 'Netflix',    color: '#E50914', initials: 'NF' },
+  { id: 'uber',       name: 'Uber',       color: '#000000', initials: 'UB' },
+  { id: 'airbnb',     name: 'Airbnb',     color: '#FF5A5F', initials: 'AB' },
+  { id: 'stripe',     name: 'Stripe',     color: '#635BFF', initials: 'ST' },
+  { id: 'razorpay',   name: 'Razorpay',   color: '#3395FF', initials: 'RP' },
+  { id: 'phonepe',    name: 'PhonePe',    color: '#5F259F', initials: 'PP' },
+  { id: 'paytm',      name: 'Paytm',      color: '#00BAF2', initials: 'PT' },
+  { id: 'zomato',     name: 'Zomato',     color: '#CB202D', initials: 'ZO' },
   { id: 'salesforce', name: 'Salesforce', color: '#00A1E0', initials: 'SF' },
-  { id: 'oracle',    name: 'Oracle',    color: '#F80000', initials: 'OR' },
-  { id: 'adobe',     name: 'Adobe',     color: '#FA0F00', initials: 'AD' },
-  { id: 'linkedin',  name: 'LinkedIn',  color: '#0A66C2', initials: 'LI' },
-  { id: 'atlassian', name: 'Atlassian', color: '#0052CC', initials: 'AT' },
+  { id: 'oracle',     name: 'Oracle',     color: '#F80000', initials: 'OR' },
+  { id: 'adobe',      name: 'Adobe',      color: '#FA0F00', initials: 'AD' },
+  { id: 'linkedin',   name: 'LinkedIn',   color: '#0A66C2', initials: 'LI' },
+  { id: 'atlassian',  name: 'Atlassian',  color: '#0052CC', initials: 'AT' },
+  { id: 'accenture',  name: 'Accenture',  color: '#A100FF', initials: 'AC' },
+  { id: 'deloitte',   name: 'Deloitte',   color: '#86BC25', initials: 'DL' },
+  { id: 'wipro',      name: 'Wipro',      color: '#341C68', initials: 'WI' },
+  { id: 'infosys',    name: 'Infosys',    color: '#007CC3', initials: 'IN' },
+  { id: 'tcs',        name: 'TCS',        color: '#002E6E', initials: 'TC' },
+  { id: 'capgemini',  name: 'Capgemini',  color: '#0070AD', initials: 'CG' },
 ];
 
 export const TECH_STACK = [
@@ -35,7 +41,7 @@ export const TECH_STACK = [
   'ML/AI', 'TensorFlow', 'PyTorch', 'LLM', 'RAG',
 ];
 
-export const ROLES = ['SDE1', 'SDE2', 'Staff', 'DS', 'PM'];
+export const ROLES = ['SDE1', 'SDE2', 'Staff', 'DS', 'PM', 'Tester', 'DevOps', 'Developer'];
 
 export const TOPIC_TREE = [
   {
@@ -49,6 +55,9 @@ export const TOPIC_TREE = [
   { id: 'system-design', name: 'System Design' },
   { id: 'behavioral', name: 'Behavioral' },
   { id: 'domain', name: 'Domain' },
+  { id: 'testing', name: 'Testing' },
+  { id: 'devops', name: 'DevOps' },
+  { id: 'api-testing', name: 'API Testing' },
 ];
 
 export const DIFFICULTIES = ['Easy', 'Medium', 'Hard'];
@@ -130,6 +139,256 @@ export const QUESTIONS = [
     body: 'Given a directed graph representing service dependencies, detect all strongly connected components and explain how this maps to identifying circular dependencies in a microservices architecture.',
     verifyCount: 5, upvotes: 102, daysAgo: 1, asked: 33,
     tech: ['System Design', 'Microservices', 'Java', 'Go'],
+  },
+
+  // ── Accenture · Selenium Developer · 0-2 yrs ──────────────────────────────
+  {
+    id: 'q13', company: 'accenture', role: 'Developer', topic: 'testing', topicPath: 'Testing',
+    difficulty: 'Medium', round: 'Technical',
+    body: 'What differences do you see between Selenium and Playwright in automation testing? Cover architecture, browser support, speed, built-in waiting mechanisms, and cross-language support.',
+    verifyCount: 4, upvotes: 61, daysAgo: 5, asked: 22,
+    tech: ['Selenium', 'Playwright', 'JavaScript', 'Java'],
+  },
+  {
+    id: 'q14', company: 'accenture', role: 'Developer', topic: 'testing', topicPath: 'Testing',
+    difficulty: 'Medium', round: 'Technical',
+    body: 'How can you retrieve all the options available in a dropdown using Selenium? Explain the Select class, how to handle both static and dynamic dropdowns, and edge cases like dropdowns built with div/ul instead of the native select element.',
+    verifyCount: 3, upvotes: 44, daysAgo: 6, asked: 18,
+    tech: ['Selenium', 'Java'],
+  },
+  {
+    id: 'q15', company: 'accenture', role: 'Developer', topic: 'testing', topicPath: 'Testing',
+    difficulty: 'Medium', round: 'Technical',
+    body: 'What are the different wait mechanisms in Selenium (Implicit, Explicit, Fluent Wait), and when should each be used? Explain the downsides of Thread.sleep() and how WebDriverWait improves reliability.',
+    verifyCount: 6, upvotes: 78, daysAgo: 4, asked: 31,
+    tech: ['Selenium', 'Java'],
+  },
+  {
+    id: 'q16', company: 'accenture', role: 'Developer', topic: 'testing', topicPath: 'Testing',
+    difficulty: 'Medium', round: 'Technical',
+    body: 'How do you handle dynamic elements or changing locators in Selenium automation? Discuss strategies like relative locators, XPath axes, CSS attribute wildcards, and Page Object Model to insulate tests from DOM changes.',
+    verifyCount: 5, upvotes: 67, daysAgo: 3, asked: 26,
+    tech: ['Selenium', 'Java'],
+  },
+  {
+    id: 'q17', company: 'accenture', role: 'Developer', topic: 'testing', topicPath: 'Testing',
+    difficulty: 'Medium', round: 'Technical',
+    body: 'If a team currently using Selenium plans to migrate to Playwright, how would you help them adopt the new framework? Cover project structure, locator migration, parallel execution setup, and CI integration.',
+    verifyCount: 3, upvotes: 52, daysAgo: 7, asked: 15,
+    tech: ['Selenium', 'Playwright', 'JavaScript', 'TypeScript'],
+  },
+  {
+    id: 'q18', company: 'accenture', role: 'Developer', topic: 'domain', topicPath: 'Domain',
+    difficulty: 'Medium', round: 'Technical',
+    body: 'What is the purpose of the indexOf() method and how can it be used when removing duplicate characters from a string in Java? Walk through an O(n) solution using a LinkedHashSet or boolean array.',
+    verifyCount: 2, upvotes: 29, daysAgo: 8, asked: 11,
+    tech: ['Java'],
+  },
+
+  // ── Deloitte · DevOps Engineer · 3-4 yrs ──────────────────────────────────
+  {
+    id: 'q19', company: 'deloitte', role: 'DevOps', topic: 'devops', topicPath: 'DevOps',
+    difficulty: 'Medium', round: 'Technical',
+    body: 'Describe the complete CI/CD pipeline you have implemented in your projects. Walk through every stage from code commit to production deployment, including linting, unit tests, build, artifact storage, staging deploy, integration tests, and release gates.',
+    verifyCount: 7, upvotes: 94, daysAgo: 2, asked: 38,
+    tech: ['Jenkins', 'GitHub Actions', 'Docker', 'Kubernetes'],
+  },
+  {
+    id: 'q20', company: 'deloitte', role: 'DevOps', topic: 'devops', topicPath: 'DevOps',
+    difficulty: 'Medium', round: 'Technical',
+    body: 'Explain the difference between Declarative and Scripted pipelines in Jenkins. When would you choose one over the other? Show a code snippet illustrating the structural difference.',
+    verifyCount: 5, upvotes: 71, daysAgo: 3, asked: 27,
+    tech: ['Jenkins'],
+  },
+  {
+    id: 'q21', company: 'deloitte', role: 'DevOps', topic: 'devops', topicPath: 'DevOps',
+    difficulty: 'Medium', round: 'Technical',
+    body: 'What are Jenkins Shared Libraries and how are they used in Jenkinsfiles? Explain the directory structure, how to import them, and how they help enforce consistency across multiple pipelines in a large organisation.',
+    verifyCount: 4, upvotes: 58, daysAgo: 5, asked: 21,
+    tech: ['Jenkins'],
+  },
+  {
+    id: 'q22', company: 'deloitte', role: 'DevOps', topic: 'devops', topicPath: 'DevOps',
+    difficulty: 'Medium', round: 'Technical',
+    body: 'If a Jenkins job runs but the build does not trigger, what could be the possible reasons? Systematically diagnose: webhook misconfiguration, SCM polling, branch filter mismatch, credential errors, and agent availability.',
+    verifyCount: 3, upvotes: 46, daysAgo: 6, asked: 17,
+    tech: ['Jenkins', 'GitHub Actions'],
+  },
+  {
+    id: 'q23', company: 'deloitte', role: 'DevOps', topic: 'devops', topicPath: 'DevOps',
+    difficulty: 'Medium', round: 'Technical',
+    body: 'What is the difference between ENTRYPOINT and CMD in Docker? Explain with examples how they interact when both are specified, and how CMD can be overridden at runtime while ENTRYPOINT cannot easily be replaced.',
+    verifyCount: 6, upvotes: 83, daysAgo: 1, asked: 34,
+    tech: ['Docker'],
+  },
+  {
+    id: 'q24', company: 'deloitte', role: 'DevOps', topic: 'devops', topicPath: 'DevOps',
+    difficulty: 'Medium', round: 'Technical',
+    body: 'Which Git branching strategy do you follow — GitFlow or trunk-based development — and why? Compare release cadence, merge complexity, hotfix handling, and suitability for CI/CD pipelines.',
+    verifyCount: 4, upvotes: 62, daysAgo: 4, asked: 24,
+    tech: ['GitHub Actions'],
+  },
+
+  // ── Wipro · Tester · Selenium · 3-4 yrs ───────────────────────────────────
+  {
+    id: 'q25', company: 'wipro', role: 'Tester', topic: 'testing', topicPath: 'Testing',
+    difficulty: 'Hard', round: 'Technical',
+    body: 'Explain the difference between a Scenario and a Scenario Outline in Cucumber BDD. When would you use a Scenario Outline, and how do you supply multiple data rows using the Examples table? Show a real-world login test example.',
+    verifyCount: 5, upvotes: 72, daysAgo: 3, asked: 28,
+    tech: ['Selenium', 'Java'],
+  },
+  {
+    id: 'q26', company: 'wipro', role: 'Tester', topic: 'testing', topicPath: 'Testing',
+    difficulty: 'Hard', round: 'Technical',
+    body: 'Describe how pop-ups can be handled using Selenium. Cover alert/confirm/prompt dialogs (driver.switchTo().alert()), browser-native file upload dialogs, and custom modal pop-ups built with HTML/CSS.',
+    verifyCount: 4, upvotes: 65, daysAgo: 4, asked: 23,
+    tech: ['Selenium', 'Java'],
+  },
+  {
+    id: 'q27', company: 'wipro', role: 'Tester', topic: 'testing', topicPath: 'Testing',
+    difficulty: 'Hard', round: 'Technical',
+    body: 'What is Fluent Wait in Selenium and when is it used? Compare it with WebDriverWait, explain how to configure polling interval and ignored exceptions, and give a scenario where Fluent Wait is the only viable option.',
+    verifyCount: 6, upvotes: 88, daysAgo: 2, asked: 35,
+    tech: ['Selenium', 'Java'],
+  },
+  {
+    id: 'q28', company: 'wipro', role: 'Tester', topic: 'testing', topicPath: 'Testing',
+    difficulty: 'Hard', round: 'Technical',
+    body: 'What is Parallel Testing and why is it useful in automation? Explain how to configure parallel execution in TestNG using the suite XML, the thread-safety concerns with WebDriver instances, and how to manage them with ThreadLocal.',
+    verifyCount: 5, upvotes: 79, daysAgo: 5, asked: 29,
+    tech: ['Selenium', 'Java', 'Jest'],
+  },
+  {
+    id: 'q29', company: 'wipro', role: 'Tester', topic: 'api-testing', topicPath: 'API Testing',
+    difficulty: 'Hard', round: 'Technical',
+    body: 'Explain common HTTP status codes returned by APIs (2xx, 3xx, 4xx, 5xx). Differentiate between 401 vs 403, 404 vs 400, and 502 vs 503. How do you validate these in automated API tests?',
+    verifyCount: 4, upvotes: 58, daysAgo: 6, asked: 21,
+    tech: ['Postman', 'REST'],
+  },
+  {
+    id: 'q30', company: 'wipro', role: 'Tester', topic: 'testing', topicPath: 'Testing',
+    difficulty: 'Hard', round: 'Technical',
+    body: 'Provide an XPath expression to fetch values from the second column of a web table. Explain absolute vs relative XPath, axes like following-sibling and child, and how to handle tables with dynamic row counts.',
+    verifyCount: 3, upvotes: 47, daysAgo: 7, asked: 16,
+    tech: ['Selenium', 'Java'],
+  },
+
+  // ── Infosys · Java Developer · 3-5 yrs ────────────────────────────────────
+  {
+    id: 'q31', company: 'infosys', role: 'SDE2', topic: 'domain', topicPath: 'Domain',
+    difficulty: 'Medium', round: 'Technical',
+    body: 'Explain the difference between JDK, JRE, and JVM. How are they related? Describe the JVM internals: class loader, bytecode verifier, interpreter, JIT compiler, garbage collector, and how they work together to run a Java program.',
+    verifyCount: 8, upvotes: 112, daysAgo: 2, asked: 45,
+    tech: ['Java'],
+  },
+  {
+    id: 'q32', company: 'infosys', role: 'SDE2', topic: 'domain', topicPath: 'Domain',
+    difficulty: 'Medium', round: 'Technical',
+    body: 'What is the difference between String, StringBuilder, and StringBuffer in Java? When would you use each? Explain immutability, thread safety, performance implications, and give an example where using String in a loop causes excessive object creation.',
+    verifyCount: 7, upvotes: 98, daysAgo: 3, asked: 39,
+    tech: ['Java'],
+  },
+  {
+    id: 'q33', company: 'infosys', role: 'SDE2', topic: 'domain', topicPath: 'Domain',
+    difficulty: 'Medium', round: 'Technical',
+    body: 'How do you implement custom validation in Spring Boot? Explain the approach using @Constraint and ConstraintValidator, where to place the annotation, and how to return meaningful error messages through BindingResult.',
+    verifyCount: 5, upvotes: 74, daysAgo: 4, asked: 28,
+    tech: ['Java', 'Spring Boot'],
+  },
+  {
+    id: 'q34', company: 'infosys', role: 'SDE2', topic: 'domain', topicPath: 'Domain',
+    difficulty: 'Medium', round: 'Technical',
+    body: 'Explain the Java Memory Model. What are heap and stack? How does garbage collection work? Describe generational GC (Young, Old, Metaspace), GC roots, mark-and-sweep, and how to diagnose memory leaks with tools like VisualVM or jmap.',
+    verifyCount: 6, upvotes: 89, daysAgo: 5, asked: 34,
+    tech: ['Java'],
+  },
+  {
+    id: 'q35', company: 'infosys', role: 'SDE2', topic: 'system-design', topicPath: 'System Design',
+    difficulty: 'Medium', round: 'System Design',
+    body: 'Design a library management system. Include entities (Book, Member, Loan), relationships, and key operations: borrow, return, search, fine calculation. Discuss how to handle concurrent borrows of the last copy of a book.',
+    verifyCount: 4, upvotes: 61, daysAgo: 6, asked: 22,
+    tech: ['Java', 'Spring Boot', 'MySQL'],
+  },
+
+  // ── TCS · Java Developer · 4-6 yrs ────────────────────────────────────────
+  {
+    id: 'q36', company: 'tcs', role: 'SDE2', topic: 'domain', topicPath: 'Domain',
+    difficulty: 'Medium', round: 'Technical',
+    body: 'Explain the difference between HashMap and ConcurrentHashMap in Java. When would you use each? Describe segment locking in Java 7 vs the CAS-based approach in Java 8+, and why you should never use HashMap in a multi-threaded context.',
+    verifyCount: 9, upvotes: 134, daysAgo: 1, asked: 52,
+    tech: ['Java'],
+  },
+  {
+    id: 'q37', company: 'tcs', role: 'SDE2', topic: 'domain', topicPath: 'Domain',
+    difficulty: 'Medium', round: 'Technical',
+    body: 'How do you handle transactions in Spring Boot? Explain the @Transactional annotation, propagation levels (REQUIRED, REQUIRES_NEW, NESTED), isolation levels, and how Spring proxies intercept methods — including why self-invocation bypasses the proxy.',
+    verifyCount: 7, upvotes: 108, daysAgo: 2, asked: 43,
+    tech: ['Java', 'Spring Boot'],
+  },
+  {
+    id: 'q38', company: 'tcs', role: 'SDE2', topic: 'system-design', topicPath: 'System Design',
+    difficulty: 'Medium', round: 'System Design',
+    body: 'Design a REST API for an e-commerce cart system. Define the endpoints (add item, remove item, get cart, checkout), explain authentication with JWT, handle race conditions on inventory, and discuss idempotency for the checkout endpoint.',
+    verifyCount: 8, upvotes: 121, daysAgo: 3, asked: 47,
+    tech: ['Java', 'Spring Boot', 'REST', 'PostgreSQL'],
+  },
+  {
+    id: 'q39', company: 'tcs', role: 'SDE2', topic: 'domain', topicPath: 'Domain',
+    difficulty: 'Medium', round: 'Technical',
+    body: 'What is the difference between fail-fast and fail-safe iterators in Java Collections? Give examples of collections that use each, explain the ConcurrentModificationException, and show how to safely remove elements during iteration.',
+    verifyCount: 5, upvotes: 76, daysAgo: 4, asked: 29,
+    tech: ['Java'],
+  },
+  {
+    id: 'q40', company: 'tcs', role: 'SDE2', topic: 'domain', topicPath: 'Domain',
+    difficulty: 'Medium', round: 'Technical',
+    body: 'Write a SQL query to find the second highest salary from an Employee table. Show at least two approaches: using LIMIT/OFFSET, using a subquery with MAX, and using DENSE_RANK(). Discuss which is most efficient and why.',
+    verifyCount: 10, upvotes: 145, daysAgo: 1, asked: 58,
+    tech: ['MySQL', 'PostgreSQL'],
+  },
+  {
+    id: 'q41', company: 'tcs', role: 'SDE2', topic: 'domain', topicPath: 'Domain',
+    difficulty: 'Medium', round: 'Technical',
+    body: 'What are the SOLID principles? Explain each with a real-world Java example. Then describe a scenario where rigidly following SOLID leads to over-engineering, and how you balance pragmatism with good design.',
+    verifyCount: 6, upvotes: 93, daysAgo: 5, asked: 36,
+    tech: ['Java', 'Spring Boot'],
+  },
+
+  // ── Capgemini · Playwright Tester · 4 yrs ─────────────────────────────────
+  {
+    id: 'q42', company: 'capgemini', role: 'Tester', topic: 'testing', topicPath: 'Testing',
+    difficulty: 'Medium', round: 'Technical',
+    body: 'Write Playwright code to handle multiple windows (browser contexts/tabs) and perform actions on a new page. Explain the difference between new page events and popup events, and how to wait for a page load before interacting.',
+    verifyCount: 5, upvotes: 68, daysAgo: 3, asked: 24,
+    tech: ['Playwright', 'TypeScript', 'JavaScript'],
+  },
+  {
+    id: 'q43', company: 'capgemini', role: 'Tester', topic: 'testing', topicPath: 'Testing',
+    difficulty: 'Medium', round: 'Technical',
+    body: 'Explain the different types of locators available in Playwright (CSS, XPath, text, role, test-id). Which are most resilient and why? Explain why role-based locators are preferred over XPath for accessibility and test stability.',
+    verifyCount: 4, upvotes: 55, daysAgo: 4, asked: 19,
+    tech: ['Playwright', 'TypeScript'],
+  },
+  {
+    id: 'q44', company: 'capgemini', role: 'Tester', topic: 'testing', topicPath: 'Testing',
+    difficulty: 'Medium', round: 'Technical',
+    body: 'Explain the debug process in Playwright. Cover Playwright Inspector (PWDEBUG=1), trace viewer (playwright show-trace), headed mode, slow-motion, and how to capture video/screenshots on test failure for CI debugging.',
+    verifyCount: 3, upvotes: 42, daysAgo: 5, asked: 15,
+    tech: ['Playwright', 'TypeScript'],
+  },
+  {
+    id: 'q45', company: 'capgemini', role: 'Tester', topic: 'api-testing', topicPath: 'API Testing',
+    difficulty: 'Medium', round: 'Technical',
+    body: 'Explain the difference between PUT and PATCH in REST APIs. When is each appropriate? Show how you would test both verbs using Playwright\'s APIRequestContext, and explain how to validate partial vs full resource updates.',
+    verifyCount: 4, upvotes: 59, daysAgo: 2, asked: 22,
+    tech: ['Playwright', 'REST', 'TypeScript'],
+  },
+  {
+    id: 'q46', company: 'capgemini', role: 'Tester', topic: 'testing', topicPath: 'Testing',
+    difficulty: 'Medium', round: 'Technical',
+    body: 'Explain the filter(), map(), and reduce() array methods in JavaScript with examples. Then show how you would use them together to process a list of test results — filtering failures, mapping to error messages, and reducing to a summary count.',
+    verifyCount: 3, upvotes: 47, daysAgo: 6, asked: 17,
+    tech: ['JavaScript', 'TypeScript', 'Playwright'],
   },
 ];
 

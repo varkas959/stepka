@@ -41,6 +41,9 @@ Return ONLY this JSON shape (no markdown, no extra text). Extract 6-10 skills.
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).end();
+  if (!process.env.GEMINI_API_KEY) {
+    return res.status(503).json({ error: 'GEMINI_API_KEY is not configured. Add it in Vercel → Settings → Environment Variables.' });
+  }
 
   const { jd, target_company, target_role } = req.body;
 

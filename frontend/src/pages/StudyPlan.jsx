@@ -2,6 +2,11 @@ import { useMemo, useState } from 'react';
 import { Loader2, Sparkles, ChevronDown, ArrowRight, Info, ArrowLeft } from 'lucide-react';
 import { toast } from 'sonner';
 import { COMPANIES, ROLES, STUDY_PLAN, QUESTIONS } from '../lib/mockData';
+
+// Derive only companies and roles that actually have questions
+const ACTIVE_COMPANY_IDS = [...new Set(QUESTIONS.map(q => q.company))];
+const ACTIVE_COMPANIES = COMPANIES.filter(c => ACTIVE_COMPANY_IDS.includes(c.id));
+const ACTIVE_ROLES = [...new Set(QUESTIONS.map(q => q.role))];
 import { useAppState } from '../lib/appState';
 import { extractSkills } from '../lib/api';
 import { PixelBar } from '../components/PixelBar';
@@ -47,7 +52,7 @@ export default function StudyPlan() {
       setRatings(r);
       setStep('assess');
     } catch (e) {
-      toast.error(e?.response?.data?.detail || e.message || 'Could not extract skills.');
+      toast.error(e?.response?.data?.error || e?.response?.data?.detail || e.message || 'Could not extract skills.');
       setStep('input');
     }
   };
@@ -85,8 +90,8 @@ export default function StudyPlan() {
             className="w-full bg-transparent border-0 p-5 text-sm font-mono text-zinc-100 placeholder:text-zinc-700 focus:outline-none resize-y"
             placeholder="// paste the JD here…" />
           <div className="border-t border-white/5 p-5 grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <Select label="target company" value={company} onChange={setCompany} testid="jd-company" options={COMPANIES.map(c => ({ id: c.id, label: c.name }))} />
-            <Select label="target role"    value={role}    onChange={setRole}    testid="jd-role"    options={ROLES.map(r => ({ id: r, label: r }))} />
+            <Select label="target company" value={company} onChange={setCompany} testid="jd-company" options={ACTIVE_COMPANIES.map(c => ({ id: c.id, label: c.name }))} />
+            <Select label="target role"    value={role}    onChange={setRole}    testid="jd-role"    options={ACTIVE_ROLES.map(r => ({ id: r, label: r }))} />
           </div>
           <div className="border-t border-white/5 p-5 flex items-center justify-between">
             <div className="font-mono text-xs text-zinc-500">{jd.length} chars</div>

@@ -71,6 +71,9 @@ Return ONLY this JSON shape (no markdown fences, no extra text):
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).end();
+  if (!process.env.GEMINI_API_KEY) {
+    return res.status(503).json({ error: 'GEMINI_API_KEY is not configured. Add it in Vercel → Settings → Environment Variables.' });
+  }
 
   const { question, answer, mode = 'text', is_behavioral = false } = req.body;
   const q = sanitize(question);
