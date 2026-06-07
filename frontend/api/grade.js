@@ -89,7 +89,7 @@ export default async function handler(req, res) {
       contents: prompt,
       config: { systemInstruction: GRADE_SYSTEM },
     });
-    const text = response.text();
+    const text = response.text;
     res.status(200).json(extractJson(text));
   } catch (e) {
     console.error('grade error:', e);

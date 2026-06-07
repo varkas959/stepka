@@ -59,7 +59,7 @@ export default async function handler(req, res) {
       contents: TEMPLATE(sanitize(jd), sanitize(target_company, MAX_SHORT_LEN), sanitize(target_role, MAX_SHORT_LEN)),
       config: { systemInstruction: SYSTEM },
     });
-    res.status(200).json(extractJson(response.text()));
+    res.status(200).json(extractJson(response.text));
   } catch (e) {
     console.error('analyze-jd error:', e);
     res.status(502).json({ error: e.message });
