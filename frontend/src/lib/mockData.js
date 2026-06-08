@@ -1,4 +1,4 @@
-// All mock data for Stepkai. Replace with Supabase queries later.
+﻿// All mock data for Stepkai. Replace with Supabase queries later.
 
 export const COMPANIES = [
   { id: 'amazon',     name: 'Amazon',     color: '#FF9900', initials: 'AM' },
@@ -68,14 +68,14 @@ export const QUESTIONS = [
     id: 'q1', company: 'amazon', role: 'SDE2', topic: 'arrays', topicPath: 'DSA / Arrays',
     difficulty: 'Medium', round: 'Technical',
     body: 'Given an array of integers and a target sum, return all unique triplets that sum to the target. Discuss time and space complexity. Then extend the problem to k-sum and analyze how recursion depth changes performance for large k.',
-    verifyCount: 8, upvotes: 142, daysAgo: 3, asked: 47,
+    verifyCount: 8, upvotes: 54, daysAgo: 3, asked: 47,
     tech: ['Java', 'Python', 'JavaScript'],
   },
   {
     id: 'q2', company: 'amazon', role: 'SDE2', topic: 'system-design', topicPath: 'System Design',
     difficulty: 'Hard', round: 'System Design',
     body: 'Design a distributed rate limiter that can handle 10M requests per second across multiple data centers. Discuss consistency tradeoffs, the choice between token bucket vs leaky bucket, and how you would handle clock skew across regions.',
-    verifyCount: 12, upvotes: 287, daysAgo: 1, asked: 89,
+    verifyCount: 12, upvotes: 99, daysAgo: 1, asked: 89,
     tech: ['Distributed Systems', 'System Design', 'AWS', 'Java'],
   },
   {
@@ -100,8 +100,8 @@ export const QUESTIONS = [
   {
     id: 'q6', company: 'microsoft', role: 'SDE2', topic: 'arrays', topicPath: 'DSA / Arrays',
     difficulty: 'Medium', round: 'Technical',
-    body: 'Given a matrix of 0s and 1s, find the largest rectangle containing only 1s and return its area. Walk through the histogram-based O(n*m) solution and discuss why the naive O(n²m²) approach is unacceptable at scale.',
-    verifyCount: 7, upvotes: 113, daysAgo: 4, asked: 38,
+    body: 'Given a matrix of 0s and 1s, find the largest rectangle containing only 1s and return its area. Walk through the histogram-based O(n*m) solution and discuss why the naive O(nÂ²mÂ²) approach is unacceptable at scale.',
+    verifyCount: 7, upvotes: 43, daysAgo: 4, asked: 38,
   },
   {
     id: 'q7', company: 'microsoft', role: 'SDE2', topic: 'system-design', topicPath: 'System Design',
@@ -119,7 +119,7 @@ export const QUESTIONS = [
     id: 'q9', company: 'flipkart', role: 'SDE2', topic: 'system-design', topicPath: 'System Design',
     difficulty: 'Hard', round: 'System Design',
     body: 'Design Flipkart\'s flash sale system. The system must handle 1M concurrent users trying to buy a limited inventory of 10K items without overselling. Walk through the inventory locking, queueing, and database isolation strategy.',
-    verifyCount: 11, upvotes: 198, daysAgo: 2, asked: 64,
+    verifyCount: 11, upvotes: 75, daysAgo: 2, asked: 64,
   },
   {
     id: 'q10', company: 'flipkart', role: 'SDE1', topic: 'arrays', topicPath: 'DSA / Arrays',
@@ -137,11 +137,11 @@ export const QUESTIONS = [
     id: 'q12', company: 'amazon', role: 'Staff', topic: 'graphs', topicPath: 'DSA / Graphs',
     difficulty: 'Hard', round: 'Technical',
     body: 'Given a directed graph representing service dependencies, detect all strongly connected components and explain how this maps to identifying circular dependencies in a microservices architecture.',
-    verifyCount: 5, upvotes: 102, daysAgo: 1, asked: 33,
+    verifyCount: 5, upvotes: 39, daysAgo: 1, asked: 33,
     tech: ['System Design', 'Microservices', 'Java', 'Go'],
   },
 
-  // ── Accenture · Selenium Developer · 0-2 yrs ──────────────────────────────
+  // â”€â”€ Accenture Â· Selenium Developer Â· 0-2 yrs â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   {
     id: 'q13', company: 'accenture', role: 'Developer', topic: 'testing', topicPath: 'Testing',
     difficulty: 'Medium', round: 'Technical',
@@ -207,7 +207,7 @@ export const QUESTIONS = [
     tech: ['Java'],
   },
 
-  // ── Deloitte · DevOps Engineer · 3-4 yrs ──────────────────────────────────
+  // â”€â”€ Deloitte Â· DevOps Engineer Â· 3-4 yrs â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   {
     id: 'q19', company: 'deloitte', role: 'DevOps', topic: 'devops', topicPath: 'DevOps',
     difficulty: 'Medium', round: 'Technical',
@@ -246,7 +246,7 @@ export const QUESTIONS = [
   {
     id: 'q24', company: 'deloitte', role: 'DevOps', topic: 'devops', topicPath: 'DevOps',
     difficulty: 'Medium', round: 'Technical',
-    body: 'Which Git branching strategy do you follow — GitFlow or trunk-based development — and why? Compare release cadence, merge complexity, hotfix handling, and suitability for CI/CD pipelines.',
+    body: 'Which Git branching strategy do you follow â€” GitFlow or trunk-based development â€” and why? Compare release cadence, merge complexity, hotfix handling, and suitability for CI/CD pipelines.',
     verifyCount: 4, upvotes: 62, daysAgo: 4, asked: 24,
     tech: ['GitHub Actions'],
   },
@@ -281,8 +281,8 @@ export const QUESTIONS = [
   {
     id: 'q24f', company: 'deloitte', role: 'DevOps', topic: 'devops', topicPath: 'DevOps',
     difficulty: 'Medium', round: 'Technical',
-    body: 'Explain your deployment workflow starting from code commit until production release. Cover feature branch → PR → CI → merge → staging deploy → smoke tests → canary/blue-green production deploy → monitoring and rollback plan.',
-    verifyCount: 7, upvotes: 103, daysAgo: 2, asked: 41,
+    body: 'Explain your deployment workflow starting from code commit until production release. Cover feature branch â†’ PR â†’ CI â†’ merge â†’ staging deploy â†’ smoke tests â†’ canary/blue-green production deploy â†’ monitoring and rollback plan.',
+    verifyCount: 7, upvotes: 39, daysAgo: 2, asked: 41,
     tech: ['Jenkins', 'Docker', 'Kubernetes', 'AWS'],
   },
   {
@@ -307,7 +307,7 @@ export const QUESTIONS = [
     tech: ['Jenkins', 'GitHub Actions'],
   },
 
-  // ── Wipro · Tester · Selenium · 3-4 yrs ───────────────────────────────────
+  // â”€â”€ Wipro Â· Tester Â· Selenium Â· 3-4 yrs â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   {
     id: 'q25', company: 'wipro', role: 'Tester', topic: 'testing', topicPath: 'Testing',
     difficulty: 'Hard', round: 'Technical',
@@ -436,12 +436,12 @@ export const QUESTIONS = [
     tech: ['Java'],
   },
 
-  // ── Infosys · Java Developer · 3-5 yrs ────────────────────────────────────
+  // â”€â”€ Infosys Â· Java Developer Â· 3-5 yrs â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   {
     id: 'q31', company: 'infosys', role: 'SDE2', topic: 'domain', topicPath: 'Domain',
     difficulty: 'Medium', round: 'Technical',
     body: 'Explain the difference between JDK, JRE, and JVM. How are they related? Describe the JVM internals: class loader, bytecode verifier, interpreter, JIT compiler, garbage collector, and how they work together to run a Java program.',
-    verifyCount: 8, upvotes: 112, daysAgo: 2, asked: 45,
+    verifyCount: 8, upvotes: 43, daysAgo: 2, asked: 45,
     tech: ['Java'],
   },
   {
@@ -473,26 +473,26 @@ export const QUESTIONS = [
     tech: ['Java', 'Spring Boot', 'MySQL'],
   },
 
-  // ── TCS · Java Developer · 4-6 yrs ────────────────────────────────────────
+  // â”€â”€ TCS Â· Java Developer Â· 4-6 yrs â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   {
     id: 'q36', company: 'tcs', role: 'SDE2', topic: 'domain', topicPath: 'Domain',
     difficulty: 'Medium', round: 'Technical',
     body: 'Explain the difference between HashMap and ConcurrentHashMap in Java. When would you use each? Describe segment locking in Java 7 vs the CAS-based approach in Java 8+, and why you should never use HashMap in a multi-threaded context.',
-    verifyCount: 9, upvotes: 134, daysAgo: 1, asked: 52,
+    verifyCount: 9, upvotes: 51, daysAgo: 1, asked: 52,
     tech: ['Java'],
   },
   {
     id: 'q37', company: 'tcs', role: 'SDE2', topic: 'domain', topicPath: 'Domain',
     difficulty: 'Medium', round: 'Technical',
-    body: 'How do you handle transactions in Spring Boot? Explain the @Transactional annotation, propagation levels (REQUIRED, REQUIRES_NEW, NESTED), isolation levels, and how Spring proxies intercept methods — including why self-invocation bypasses the proxy.',
-    verifyCount: 7, upvotes: 108, daysAgo: 2, asked: 43,
+    body: 'How do you handle transactions in Spring Boot? Explain the @Transactional annotation, propagation levels (REQUIRED, REQUIRES_NEW, NESTED), isolation levels, and how Spring proxies intercept methods â€” including why self-invocation bypasses the proxy.',
+    verifyCount: 7, upvotes: 41, daysAgo: 2, asked: 43,
     tech: ['Java', 'Spring Boot'],
   },
   {
     id: 'q38', company: 'tcs', role: 'SDE2', topic: 'system-design', topicPath: 'System Design',
     difficulty: 'Medium', round: 'System Design',
     body: 'Design a REST API for an e-commerce cart system. Define the endpoints (add item, remove item, get cart, checkout), explain authentication with JWT, handle race conditions on inventory, and discuss idempotency for the checkout endpoint.',
-    verifyCount: 8, upvotes: 121, daysAgo: 3, asked: 47,
+    verifyCount: 8, upvotes: 46, daysAgo: 3, asked: 47,
     tech: ['Java', 'Spring Boot', 'REST', 'PostgreSQL'],
   },
   {
@@ -506,7 +506,7 @@ export const QUESTIONS = [
     id: 'q40', company: 'tcs', role: 'SDE2', topic: 'domain', topicPath: 'Domain',
     difficulty: 'Medium', round: 'Technical',
     body: 'Write a SQL query to find the second highest salary from an Employee table. Show at least two approaches: using LIMIT/OFFSET, using a subquery with MAX, and using DENSE_RANK(). Discuss which is most efficient and why.',
-    verifyCount: 10, upvotes: 145, daysAgo: 1, asked: 58,
+    verifyCount: 10, upvotes: 55, daysAgo: 1, asked: 58,
     tech: ['MySQL', 'PostgreSQL'],
   },
   {
@@ -517,7 +517,7 @@ export const QUESTIONS = [
     tech: ['Java', 'Spring Boot'],
   },
 
-  // ── Capgemini · Playwright Tester · 4 yrs ─────────────────────────────────
+  // â”€â”€ Capgemini Â· Playwright Tester Â· 4 yrs â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   {
     id: 'q42', company: 'capgemini', role: 'Tester', topic: 'testing', topicPath: 'Testing',
     difficulty: 'Medium', round: 'Technical',
@@ -554,19 +554,19 @@ export const QUESTIONS = [
     tech: ['JavaScript', 'TypeScript', 'Playwright'],
   },
 
-  // ── Swiggy ────────────────────────────────────────────────────────────────
+  // â”€â”€ Swiggy â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   {
     id: 'q47', company: 'swiggy', role: 'SDE2', topic: 'system-design', topicPath: 'System Design',
     difficulty: 'Hard', round: 'System Design',
     body: 'Design Swiggy\'s real-time order tracking system. A customer should see their delivery agent\'s location update every 5 seconds on a map.\nCover: location ingestion from agents, WebSocket vs SSE for pushing updates to clients, data store choices, and how you scale to 100k concurrent orders during peak hours.',
-    verifyCount: 9, upvotes: 167, daysAgo: 1, asked: 62,
+    verifyCount: 9, upvotes: 63, daysAgo: 1, asked: 62,
     tech: ['Kafka', 'Redis', 'AWS', 'Distributed Systems'],
   },
   {
     id: 'q48', company: 'swiggy', role: 'SDE2', topic: 'system-design', topicPath: 'System Design',
     difficulty: 'Hard', round: 'System Design',
     body: 'Design Swiggy\'s restaurant search and ranking system.\nHow do you index 200k restaurants? Discuss full-text search (Elasticsearch), geospatial filtering, personalised ranking signals (past orders, ratings, delivery time), and how to refresh the index when a restaurant updates its menu.',
-    verifyCount: 7, upvotes: 134, daysAgo: 3, asked: 48,
+    verifyCount: 7, upvotes: 51, daysAgo: 3, asked: 48,
     tech: ['Elasticsearch', 'Redis', 'Distributed Systems'],
   },
   {
@@ -577,34 +577,34 @@ export const QUESTIONS = [
     tech: ['Java', 'Python'],
   },
 
-  // ── Meta ──────────────────────────────────────────────────────────────────
+  // â”€â”€ Meta â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   {
     id: 'q50', company: 'meta', role: 'SDE2', topic: 'system-design', topicPath: 'System Design',
     difficulty: 'Hard', round: 'System Design',
     body: 'Design Facebook\'s News Feed ranking system.\nHow do you score posts from thousands of friends and pages? Cover: candidate generation, feature extraction, ML ranking model, how you handle near-real-time freshness, and edge vs server-side ranking for mobile clients.',
-    verifyCount: 11, upvotes: 218, daysAgo: 2, asked: 81,
+    verifyCount: 11, upvotes: 83, daysAgo: 2, asked: 81,
     tech: ['Distributed Systems', 'Kafka', 'Microservices'],
   },
   {
     id: 'q51', company: 'meta', role: 'SDE2', topic: 'graphs', topicPath: 'DSA / Graphs',
     difficulty: 'Hard', round: 'Technical',
     body: 'Given Meta\'s social graph, find all friend-of-friend recommendations for a user that are not already friends.\nDiscuss BFS at scale, how to prune the search space, and how to rank recommendations by mutual friend count efficiently.',
-    verifyCount: 8, upvotes: 143, daysAgo: 3, asked: 54,
+    verifyCount: 8, upvotes: 54, daysAgo: 3, asked: 54,
     tech: ['Java', 'Python', 'Distributed Systems'],
   },
   {
     id: 'q52', company: 'meta', role: 'SDE1', topic: 'behavioral', topicPath: 'Behavioral',
     difficulty: 'Medium', round: 'HR',
-    body: 'Tell me about a time you had to make a decision with incomplete data.\nMeta values moving fast — how did you balance the need for speed against the risk of being wrong? What would you do differently today?',
+    body: 'Tell me about a time you had to make a decision with incomplete data.\nMeta values moving fast â€” how did you balance the need for speed against the risk of being wrong? What would you do differently today?',
     verifyCount: 6, upvotes: 87, daysAgo: 5, asked: 33,
   },
 
-  // ── Zomato ────────────────────────────────────────────────────────────────
+  // â”€â”€ Zomato â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   {
     id: 'q53', company: 'zomato', role: 'SDE2', topic: 'system-design', topicPath: 'System Design',
     difficulty: 'Hard', round: 'System Design',
     body: 'Design Zomato\'s surge pricing engine.\nWhen demand spikes (rain, IPL final), delivery fees increase automatically.\nCover: demand signals, pricing formula, fairness constraints, A/B testing pricing strategies, and how to avoid customer backlash.',
-    verifyCount: 7, upvotes: 128, daysAgo: 2, asked: 47,
+    verifyCount: 7, upvotes: 49, daysAgo: 2, asked: 47,
     tech: ['Kafka', 'Redis', 'AWS'],
   },
   {
@@ -615,28 +615,28 @@ export const QUESTIONS = [
     tech: ['Java', 'Python'],
   },
 
-  // ── Razorpay ──────────────────────────────────────────────────────────────
+  // â”€â”€ Razorpay â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   {
     id: 'q55', company: 'razorpay', role: 'SDE2', topic: 'system-design', topicPath: 'System Design',
     difficulty: 'Hard', round: 'System Design',
     body: 'Design Razorpay\'s payment retry system.\nWhen a payment fails due to a transient error (bank timeout, network blip), how do you retry safely without double-charging the customer?\nCover: idempotency keys, exponential backoff with jitter, dead-letter queues, and reconciliation with bank statements.',
-    verifyCount: 10, upvotes: 189, daysAgo: 1, asked: 71,
+    verifyCount: 10, upvotes: 72, daysAgo: 1, asked: 71,
     tech: ['Kafka', 'Redis', 'PostgreSQL', 'Distributed Systems'],
   },
   {
     id: 'q56', company: 'razorpay', role: 'SDE2', topic: 'domain', topicPath: 'Domain',
     difficulty: 'Medium', round: 'Technical',
     body: 'Explain the difference between a payment gateway, payment processor, and acquiring bank.\nHow does money actually move when a customer pays with a credit card on a Razorpay-powered checkout? Walk through each hop end to end.',
-    verifyCount: 6, upvotes: 102, daysAgo: 4, asked: 38,
+    verifyCount: 6, upvotes: 39, daysAgo: 4, asked: 38,
     tech: ['REST', 'Distributed Systems'],
   },
 
-  // ── PhonePe ───────────────────────────────────────────────────────────────
+  // â”€â”€ PhonePe â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   {
     id: 'q57', company: 'phonepe', role: 'SDE2', topic: 'system-design', topicPath: 'System Design',
     difficulty: 'Hard', round: 'System Design',
     body: 'Design PhonePe\'s UPI transaction system to handle 1 billion transactions per day.\nCover: request routing to the correct bank, NPCI integration, handling duplicate transactions, consistency vs availability trade-offs, and how you build a reliable audit trail for regulatory compliance.',
-    verifyCount: 12, upvotes: 234, daysAgo: 1, asked: 89,
+    verifyCount: 12, upvotes: 89, daysAgo: 1, asked: 89,
     tech: ['Kafka', 'Distributed Systems', 'PostgreSQL', 'Redis'],
   },
   {
@@ -646,37 +646,37 @@ export const QUESTIONS = [
     verifyCount: 3, upvotes: 44, daysAgo: 7, asked: 16,
   },
 
-  // ── Paytm ─────────────────────────────────────────────────────────────────
+  // â”€â”€ Paytm â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   {
     id: 'q59', company: 'paytm', role: 'SDE2', topic: 'system-design', topicPath: 'System Design',
     difficulty: 'Hard', round: 'System Design',
     body: 'Design Paytm\'s wallet system that supports deposits, withdrawals, peer-to-peer transfers, and merchant payments.\nEnsure ACID properties for all transfers, discuss optimistic vs pessimistic locking, and explain how you handle a split-brain scenario where two nodes disagree on a wallet balance.',
-    verifyCount: 8, upvotes: 152, daysAgo: 2, asked: 57,
+    verifyCount: 8, upvotes: 58, daysAgo: 2, asked: 57,
     tech: ['MySQL', 'Redis', 'Distributed Systems'],
   },
 
-  // ── LinkedIn ──────────────────────────────────────────────────────────────
+  // â”€â”€ LinkedIn â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   {
     id: 'q60', company: 'linkedin', role: 'SDE2', topic: 'system-design', topicPath: 'System Design',
     difficulty: 'Hard', round: 'System Design',
     body: 'Design LinkedIn\'s "People You May Know" feature.\nHow do you compute second and third-degree connections for 900 million users efficiently?\nDiscuss graph storage (adjacency list vs matrix), batch vs real-time computation, and how to refresh recommendations when someone adds a new connection.',
-    verifyCount: 9, upvotes: 171, daysAgo: 2, asked: 63,
+    verifyCount: 9, upvotes: 65, daysAgo: 2, asked: 63,
     tech: ['Distributed Systems', 'Kafka', 'Elasticsearch'],
   },
   {
     id: 'q61', company: 'linkedin', role: 'SDE2', topic: 'system-design', topicPath: 'System Design',
     difficulty: 'Hard', round: 'System Design',
     body: 'Design LinkedIn\'s job recommendation engine.\nGiven a user\'s profile, skills, and activity, rank the most relevant open positions.\nCover candidate retrieval, feature engineering (skills overlap, company affinity, recency), and how you A/B test ranking changes at scale.',
-    verifyCount: 7, upvotes: 138, daysAgo: 4, asked: 52,
+    verifyCount: 7, upvotes: 52, daysAgo: 4, asked: 52,
     tech: ['Distributed Systems', 'Elasticsearch', 'Kafka'],
   },
 
-  // ── Atlassian ─────────────────────────────────────────────────────────────
+  // â”€â”€ Atlassian â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   {
     id: 'q62', company: 'atlassian', role: 'SDE2', topic: 'system-design', topicPath: 'System Design',
     difficulty: 'Hard', round: 'System Design',
     body: 'Design Jira\'s real-time collaborative issue editor (multiple teammates editing the same ticket simultaneously).\nCover: Operational Transformation vs CRDTs, conflict resolution, last-write-wins vs merge, and how you persist the final state while keeping latency low for users on slow connections.',
-    verifyCount: 6, upvotes: 119, daysAgo: 3, asked: 44,
+    verifyCount: 6, upvotes: 45, daysAgo: 3, asked: 44,
     tech: ['Distributed Systems', 'WebSockets'],
   },
   {
@@ -686,48 +686,48 @@ export const QUESTIONS = [
     verifyCount: 4, upvotes: 63, daysAgo: 6, asked: 24,
   },
 
-  // ── Uber ──────────────────────────────────────────────────────────────────
+  // â”€â”€ Uber â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   {
     id: 'q64', company: 'uber', role: 'SDE2', topic: 'system-design', topicPath: 'System Design',
     difficulty: 'Hard', round: 'System Design',
     body: 'Design Uber\'s driver-rider matching system.\nHow do you match the nearest available driver to a rider within 200ms at global scale?\nCover: geospatial indexing (H3/S2), the dispatch algorithm, how you handle supply-demand imbalances, and what happens when a matched driver rejects the trip.',
-    verifyCount: 14, upvotes: 267, daysAgo: 1, asked: 98,
+    verifyCount: 12, upvotes: 99, daysAgo: 1, asked: 98,
     tech: ['Distributed Systems', 'Redis', 'Kafka', 'AWS'],
   },
   {
     id: 'q65', company: 'uber', role: 'SDE2', topic: 'system-design', topicPath: 'System Design',
     difficulty: 'Hard', round: 'System Design',
-    body: 'Design Uber\'s dynamic pricing (surge) system.\nWhen supply is low and demand is high in a geofenced zone, prices increase automatically.\nExplain the data pipeline, the pricing model, how you prevent oscillations (price going up → drivers rush in → price drops → drivers leave), and regulatory constraints.',
-    verifyCount: 10, upvotes: 198, daysAgo: 2, asked: 74,
+    body: 'Design Uber\'s dynamic pricing (surge) system.\nWhen supply is low and demand is high in a geofenced zone, prices increase automatically.\nExplain the data pipeline, the pricing model, how you prevent oscillations (price going up â†’ drivers rush in â†’ price drops â†’ drivers leave), and regulatory constraints.',
+    verifyCount: 10, upvotes: 75, daysAgo: 2, asked: 74,
     tech: ['Kafka', 'Redis', 'Distributed Systems'],
   },
 
-  // ── Stripe ────────────────────────────────────────────────────────────────
+  // â”€â”€ Stripe â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   {
     id: 'q66', company: 'stripe', role: 'SDE2', topic: 'system-design', topicPath: 'System Design',
     difficulty: 'Hard', round: 'System Design',
     body: 'Design Stripe\'s webhook delivery system.\nStripe sends millions of webhooks per day to customer endpoints that can be slow, down, or buggy.\nCover: at-least-once delivery guarantees, retry with exponential backoff, ordering guarantees (or lack thereof), how to handle a customer endpoint that is down for 24h, and the dead-letter strategy.',
-    verifyCount: 11, upvotes: 209, daysAgo: 1, asked: 77,
+    verifyCount: 11, upvotes: 79, daysAgo: 1, asked: 77,
     tech: ['Kafka', 'PostgreSQL', 'Distributed Systems', 'AWS'],
   },
   {
     id: 'q67', company: 'stripe', role: 'SDE2', topic: 'domain', topicPath: 'Domain',
     difficulty: 'Hard', round: 'Technical',
     body: 'Explain how Stripe handles exactly-once payment processing.\nA customer clicks "Pay" twice in quick succession. How does Stripe prevent double-charging?\nWalk through idempotency keys in the API, database-level constraints, and how the client should handle the case where the first request times out.',
-    verifyCount: 9, upvotes: 176, daysAgo: 3, asked: 65,
+    verifyCount: 9, upvotes: 67, daysAgo: 3, asked: 65,
     tech: ['PostgreSQL', 'REST', 'Distributed Systems'],
   },
 
-  // ── Salesforce ────────────────────────────────────────────────────────────
+  // â”€â”€ Salesforce â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   {
     id: 'q68', company: 'salesforce', role: 'SDE2', topic: 'system-design', topicPath: 'System Design',
     difficulty: 'Hard', round: 'System Design',
     body: 'Design a multi-tenant SaaS database architecture like Salesforce\'s.\nThousands of enterprise customers share the same infrastructure but must never see each other\'s data.\nCompare silo (one DB per tenant), pool (shared DB, tenant_id column), and bridge models. Discuss query performance, schema customisation, and compliance isolation.',
-    verifyCount: 7, upvotes: 124, daysAgo: 3, asked: 46,
+    verifyCount: 7, upvotes: 47, daysAgo: 3, asked: 46,
     tech: ['PostgreSQL', 'Distributed Systems', 'AWS'],
   },
 
-  // ── Oracle ────────────────────────────────────────────────────────────────
+  // â”€â”€ Oracle â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   {
     id: 'q69', company: 'oracle', role: 'SDE2', topic: 'domain', topicPath: 'Domain',
     difficulty: 'Medium', round: 'Technical',
@@ -739,16 +739,16 @@ export const QUESTIONS = [
     id: 'q70', company: 'oracle', role: 'SDE2', topic: 'system-design', topicPath: 'System Design',
     difficulty: 'Hard', round: 'System Design',
     body: 'Design a distributed SQL database that supports ACID transactions across shards.\nExplain two-phase commit (2PC), its failure modes, and how Google Spanner uses TrueTime to replace 2PC with a more scalable approach.',
-    verifyCount: 6, upvotes: 107, daysAgo: 5, asked: 39,
+    verifyCount: 6, upvotes: 41, daysAgo: 5, asked: 39,
     tech: ['Distributed Systems', 'PostgreSQL'],
   },
 
-  // ── Adobe ─────────────────────────────────────────────────────────────────
+  // â”€â”€ Adobe â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   {
     id: 'q71', company: 'adobe', role: 'SDE2', topic: 'system-design', topicPath: 'System Design',
     difficulty: 'Hard', round: 'System Design',
     body: 'Design Adobe\'s document collaboration system (similar to Google Docs for PDFs).\nMultiple users can annotate and comment on a PDF simultaneously.\nCover: conflict-free annotation merging, storing annotation deltas vs full snapshots, real-time sync via WebSockets, and how you export the final annotated PDF.',
-    verifyCount: 6, upvotes: 112, daysAgo: 3, asked: 41,
+    verifyCount: 6, upvotes: 43, daysAgo: 3, asked: 41,
     tech: ['Distributed Systems', 'WebSockets', 'AWS'],
   },
   {
@@ -759,12 +759,12 @@ export const QUESTIONS = [
     tech: ['Java', 'C++'],
   },
 
-  // ── Apple ─────────────────────────────────────────────────────────────────
+  // â”€â”€ Apple â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   {
     id: 'q73', company: 'apple', role: 'SDE2', topic: 'system-design', topicPath: 'System Design',
     difficulty: 'Hard', round: 'System Design',
-    body: 'Design iCloud Photo Library — 2 billion photos synced across iPhone, iPad, and Mac.\nCover: deduplication (perceptual hashing), delta sync (only changed chunks), offline-first with conflict resolution, and privacy — how Apple performs server-side processing without seeing unencrypted photos.',
-    verifyCount: 8, upvotes: 154, daysAgo: 2, asked: 57,
+    body: 'Design iCloud Photo Library â€” 2 billion photos synced across iPhone, iPad, and Mac.\nCover: deduplication (perceptual hashing), delta sync (only changed chunks), offline-first with conflict resolution, and privacy â€” how Apple performs server-side processing without seeing unencrypted photos.',
+    verifyCount: 8, upvotes: 59, daysAgo: 2, asked: 57,
     tech: ['Distributed Systems', 'AWS', 'Kafka'],
   },
   {
@@ -775,28 +775,28 @@ export const QUESTIONS = [
     tech: ['Swift', 'iOS'],
   },
 
-  // ── Netflix ───────────────────────────────────────────────────────────────
+  // â”€â”€ Netflix â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   {
     id: 'q75', company: 'netflix', role: 'SDE2', topic: 'system-design', topicPath: 'System Design',
     difficulty: 'Hard', round: 'System Design',
     body: 'Design Netflix\'s video recommendation system.\nNetflix serves 250 million subscribers. How do you generate personalised top-10 rows for each user in real time?\nCover: collaborative filtering, content-based signals, contextual signals (time of day, device), and how you handle the cold-start problem for new users.',
-    verifyCount: 13, upvotes: 251, daysAgo: 1, asked: 93,
+    verifyCount: 12, upvotes: 95, daysAgo: 1, asked: 93,
     tech: ['Distributed Systems', 'Kafka', 'AWS'],
   },
   {
     id: 'q76', company: 'netflix', role: 'SDE2', topic: 'system-design', topicPath: 'System Design',
     difficulty: 'Hard', round: 'System Design',
     body: 'Design Netflix\'s adaptive bitrate streaming (ABR) system.\nHow does the client decide which video quality to stream second by second based on available bandwidth?\nExplain DASH vs HLS, the segment request pipeline, buffer-based rate adaptation algorithms, and CDN architecture.',
-    verifyCount: 10, upvotes: 196, daysAgo: 2, asked: 73,
+    verifyCount: 10, upvotes: 74, daysAgo: 2, asked: 73,
     tech: ['Distributed Systems', 'AWS'],
   },
 
-  // ── Airbnb ────────────────────────────────────────────────────────────────
+  // â”€â”€ Airbnb â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   {
     id: 'q77', company: 'airbnb', role: 'SDE2', topic: 'system-design', topicPath: 'System Design',
     difficulty: 'Hard', round: 'System Design',
     body: 'Design Airbnb\'s search and availability system.\nA guest searches for "Paris, 3 nights, 2 guests" and sees ranked listings.\nCover: availability calendar storage, real-time inventory updates (when host blocks dates), geospatial search, ranking signals (price, reviews, Superhost status), and how you handle the thundering herd on popular dates.',
-    verifyCount: 9, upvotes: 168, daysAgo: 2, asked: 62,
+    verifyCount: 9, upvotes: 64, daysAgo: 2, asked: 62,
     tech: ['Elasticsearch', 'Redis', 'Distributed Systems', 'PostgreSQL'],
   },
 ];
@@ -892,10 +892,10 @@ export const SRS_CARDS = [
 // XP & dashboard data
 export const XP_EVENTS = [
   { id: 'e1', source: 'review', amount: 120, label: 'Reviewed 12 cards', ago: '2h ago' },
-  { id: 'e2', source: 'submission', amount: 80, label: 'Graded answer · Amazon q', ago: '5h ago' },
+  { id: 'e2', source: 'submission', amount: 80, label: 'Graded answer Â· Amazon q', ago: '5h ago' },
   { id: 'e3', source: 'review', amount: 60, label: 'Reviewed 6 cards', ago: 'yesterday' },
-  { id: 'e4', source: 'contribution', amount: 40, label: 'Submitted question · Google', ago: '2d ago' },
-  { id: 'e5', source: 'submission', amount: 100, label: 'Graded answer · System Design', ago: '3d ago' },
+  { id: 'e4', source: 'contribution', amount: 40, label: 'Submitted question Â· Google', ago: '2d ago' },
+  { id: 'e5', source: 'submission', amount: 100, label: 'Graded answer Â· System Design', ago: '3d ago' },
 ];
 
 export const XP_BREAKDOWN = [
@@ -974,3 +974,4 @@ export const STUDY_PLAN = (() => {
     return { day: i + 1, topics, questions: dayQs.map(q => q.id) };
   });
 })();
+
