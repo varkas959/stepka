@@ -14,9 +14,14 @@ html.light .bg-zinc-900  { background-color: #f1f5f9 !important; }
 html.light .bg-zinc-800  { background-color: #e2e8f0 !important; }
 html.light .bg-black     { background-color: #ffffff !important; }
 
-/* Sidebar specifically */
-html.light aside.bg-black,
-html.light aside         { background-color: #1e293b !important; border-color: #334155 !important; }
+/* Sidebar */
+html.light aside         { background-color: #f8fafc !important; border-color: #e2e8f0 !important; }
+html.light aside .text-zinc-50  { color: #0f172a !important; }
+html.light aside .text-zinc-400 { color: #64748b !important; }
+html.light aside .text-zinc-600 { color: #94a3b8 !important; }
+html.light aside .border-white\/5 { border-color: #e2e8f0 !important; }
+html.light aside .hover\:bg-white\/5:hover { background-color: rgba(0,0,0,0.04) !important; }
+html.light aside .bg-amber-500\/\[0\.06\] { background-color: rgba(245,158,11,0.08) !important; }
 
 /* Text */
 html.light .text-zinc-50  { color: #0f172a !important; }

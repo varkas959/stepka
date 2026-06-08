@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect, useRef } from 'react';
 import { Plus, X, ArrowUp, DollarSign, ArrowUpRight, Info } from 'lucide-react';
 import { toast } from 'sonner';
 import { Link } from 'react-router-dom';
@@ -59,6 +59,13 @@ export default function QuestionBank({ isGuest = false }) {
   const [signInOpen, setSignInOpen] = useState(false);
   const [signInAction, setSignInAction] = useState('continue');
   const [addOpen, setAddOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 200);
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
 
   const promptSignIn = (action) => { setSignInAction(action); setSignInOpen(true); };
 
@@ -113,38 +120,44 @@ export default function QuestionBank({ isGuest = false }) {
         <span className="text-zinc-200">question-bank</span>
       </div>
 
-      {/* Heading + Add Question */}
-      <div className="flex items-start justify-between gap-4 mb-7">
+      {/* Heading + Add Question (desktop only) */}
+      <div className="flex items-start justify-between gap-4 mb-5">
         <div>
-          <h1 className="text-4xl md:text-5xl font-semibold tracking-tight text-zinc-50">Real interview questions</h1>
-          <p className="text-zinc-400 mt-3 text-base max-w-xl leading-relaxed">
-            Browse <span className="text-zinc-200 font-medium">{QUESTIONS.length} verified questions</span> from engineers at top companies. Tag what you've been asked.
+          <h1 className="text-3xl md:text-4xl font-semibold tracking-tight text-zinc-50">Real interview questions</h1>
+          <p className="text-zinc-400 mt-1.5 text-sm max-w-xl">
+            <span className="text-zinc-200 font-medium">{QUESTIONS.length} verified questions</span> from engineers at top companies.
           </p>
         </div>
+        {/* Desktop Add button */}
         <button
           data-testid="add-question"
           onClick={handleAddQuestion}
-          className="shrink-0 inline-flex items-center gap-2 text-sm font-medium px-4 py-2.5 rounded-md border border-white/10 bg-zinc-900 hover:bg-zinc-800 hover:border-white/20 text-zinc-100 transition-colors"
+          className="hidden md:inline-flex shrink-0 items-center gap-2 text-sm font-medium px-4 py-2.5 rounded-md border border-white/10 bg-zinc-900 hover:bg-zinc-800 hover:border-white/20 text-zinc-100 transition-colors"
         >
           <Plus size={14} strokeWidth={2.25} /> Add Question
         </button>
       </div>
 
-      {/* CLI search */}
-      <div className="mb-3 border border-white/10 bg-zinc-950 rounded-md px-4 py-3.5 flex items-center gap-2 focus-within:border-emerald-500/40 transition-colors">
-        <span className="font-mono text-emerald-400 text-base select-none">&gt;</span>
-        <input
-          data-testid="question-search"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          placeholder={`search ${filters.company !== ALL ? filters.company : 'amazon'} questions_`}
-          className="flex-1 bg-transparent border-0 outline-none font-mono text-sm text-zinc-100 placeholder:text-zinc-600"
-        />
-        {!search && <span className="font-mono text-emerald-400 animate-pulse-soft text-base hidden">_</span>}
-      </div>
+      {/* Inline filter bar — search + chips on one row */}
+      <div className="mb-5 flex flex-wrap items-center gap-1.5" data-testid="filter-row">
+        {/* Search */}
+        <div className="flex items-center gap-1.5 border border-white/10 bg-zinc-950 rounded-md px-3 py-1.5 focus-within:border-emerald-500/40 transition-colors min-w-[160px] flex-1 md:flex-none md:w-56">
+          <span className="font-mono text-emerald-400 text-sm select-none">&gt;</span>
+          <input
+            data-testid="question-search"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="search…"
+            className="flex-1 bg-transparent border-0 outline-none font-mono text-sm text-zinc-100 placeholder:text-zinc-600 w-full"
+          />
+          {search && (
+            <button onClick={() => setSearch('')} className="text-zinc-600 hover:text-zinc-300">
+              <X size={12} />
+            </button>
+          )}
+        </div>
 
-      {/* CLI-style filter chip row */}
-      <div className="flex items-center gap-2 flex-wrap mb-6" data-testid="filter-row">
+        {/* Filter chips — selected show value + ×, unselected show + label */}
         {FILTER_DEFS.map(def => (
           <SearchableFilterChip
             key={def.key}
@@ -157,7 +170,30 @@ export default function QuestionBank({ isGuest = false }) {
           />
         ))}
         <SortChip value={sortBy} onChange={setSortBy} />
+
+        {/* Clear all — only shown when any filter is active */}
+        {(search || Object.values(filters).some(v => v !== ALL)) && (
+          <button
+            onClick={() => { setSearch(''); setFilters({ company: ALL, role: ALL, topic: ALL, tech: ALL, difficulty: ALL, round: ALL }); }}
+            className="font-mono text-xs text-zinc-600 hover:text-zinc-300 px-2 py-1.5 transition-colors"
+          >
+            clear all
+          </button>
+        )}
       </div>
+
+      {/* Mobile FAB — appears when scrolled */}
+      <button
+        data-testid="add-question-fab"
+        onClick={handleAddQuestion}
+        className={`md:hidden fixed bottom-6 right-5 z-50 inline-flex items-center gap-2 font-mono text-sm font-semibold px-4 py-3 rounded-full text-zinc-950 shadow-lg transition-all duration-200 ${
+          scrolled ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'
+        }`}
+        style={{ background: '#f59e0b', boxShadow: '0 4px 20px rgba(245,158,11,0.4)' }}
+      >
+        <Plus size={16} strokeWidth={2.5} />
+        <span>Add Question</span>
+      </button>
 
       {/* Browse by — SEO links */}
       <div className="mb-5 p-4 rounded-lg border border-white/5 bg-zinc-900/40">
