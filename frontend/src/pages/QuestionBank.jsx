@@ -58,6 +58,14 @@ export default function QuestionBank({ isGuest = false }) {
   const [blueprintCompany, setBlueprintCompany] = useState(null);
   const [signInOpen, setSignInOpen] = useState(false);
   const [signInAction, setSignInAction] = useState('continue');
+  const [userQuestions, setUserQuestions] = useState([]);
+
+  const allQuestions = useMemo(() => [...userQuestions, ...QUESTIONS], [userQuestions]);
+
+  const handleQuestionAdded = (newQ) => {
+    setUserQuestions(prev => [newQ, ...prev]);
+    setExpandedId(newQ.id);
+  };
   const [addOpen, setAddOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
@@ -70,7 +78,7 @@ export default function QuestionBank({ isGuest = false }) {
   const promptSignIn = (action) => { setSignInAction(action); setSignInOpen(true); };
 
   const filtered = useMemo(() => {
-    let list = QUESTIONS.filter(q => {
+    let list = allQuestions.filter(q => {
       if (filters.company !== ALL && q.company !== filters.company) return false;
       if (filters.role !== ALL && q.role !== filters.role) return false;
       if (filters.topic !== ALL && q.topic !== filters.topic) return false;
@@ -84,7 +92,7 @@ export default function QuestionBank({ isGuest = false }) {
     if (sortBy === 'asked')   list = [...list].sort((a, b) => b.asked - a.asked);
     if (sortBy === 'recent')  list = [...list].sort((a, b) => a.daysAgo - b.daysAgo);
     return list;
-  }, [filters, search, sortBy]);
+  }, [filters, search, sortBy, allQuestions]);
 
   const setF = (k, v) => setFilters(s => ({ ...s, [k]: v }));
   const clearOne = (k) => setFilters(s => ({ ...s, [k]: ALL }));
@@ -125,7 +133,7 @@ export default function QuestionBank({ isGuest = false }) {
         <div>
           <h1 className="text-3xl md:text-4xl font-semibold tracking-tight text-zinc-50">Real interview questions</h1>
           <p className="text-zinc-400 mt-1.5 text-sm max-w-xl">
-            <span className="text-zinc-200 font-medium">{QUESTIONS.length} verified questions</span> from engineers at top companies.
+            <span className="text-zinc-200 font-medium">{allQuestions.length} verified questions</span> from engineers at top companies.
           </p>
         </div>
         {/* Desktop Add button */}
@@ -268,7 +276,7 @@ export default function QuestionBank({ isGuest = false }) {
 
       <BlueprintModal companyId={blueprintCompany} onClose={() => setBlueprintCompany(null)} />
       <SignInRequiredModal open={signInOpen} onOpenChange={setSignInOpen} action={signInAction} />
-      <AddQuestionModal open={addOpen} onOpenChange={setAddOpen} />
+      <AddQuestionModal open={addOpen} onOpenChange={setAddOpen} onAdded={handleQuestionAdded} />
     </div>
   );
 }

@@ -15,7 +15,7 @@ const ROLE_OPTS = ROLES.map(r => ({ id: r, label: r }));
 const DIFF_OPTS = DIFFICULTIES.map(d => ({ id: d, label: d }));
 const ROUND_OPTS = ROUND_TYPES.map(r => ({ id: r, label: r }));
 
-export const AddQuestionModal = ({ open, onOpenChange }) => {
+export const AddQuestionModal = ({ open, onOpenChange, onAdded }) => {
   const [form, setForm] = useState({
     company: 'amazon', role: 'SDE2', topic: 'arrays',
     difficulty: 'Medium', round: 'Technical', body: '',
@@ -42,9 +42,27 @@ export const AddQuestionModal = ({ open, onOpenChange }) => {
         setSubmitting(false);
         return;
       }
-      await new Promise(r => setTimeout(r, 900));
+      // Build the new question object and add it live to the page
+      const topicLabel = TOPIC_FLAT.find(t => t.id === form.topic)?.label || form.topic;
+      const newQuestion = {
+        id: `user-${Date.now()}`,
+        company: form.company,
+        role: form.role,
+        topic: form.topic,
+        topicPath: topicLabel,
+        difficulty: form.difficulty,
+        round: form.round,
+        body: form.body.trim(),
+        verifyCount: 1,
+        upvotes: 0,
+        daysAgo: 0,
+        asked: 1,
+        tech: [],
+        isUserSubmitted: true,
+      };
+      onAdded?.(newQuestion);
       onOpenChange(false);
-      toast.success("Thanks! Your question is in review. You unlocked 10 new questions.", { duration: 4500 });
+      toast.success('Question added! It\'s now live in the question bank. +40 XP', { duration: 4000 });
       setForm({ company: 'amazon', role: 'SDE2', topic: 'arrays', difficulty: 'Medium', round: 'Technical', body: '' });
     } catch (err) {
       toast.error(err?.response?.data?.detail || err.message || 'Submission failed. Try again.');
@@ -111,7 +129,7 @@ export const AddQuestionModal = ({ open, onOpenChange }) => {
           )}
 
           <div className="rounded-md border border-emerald-500/30 bg-emerald-500/[0.04] p-3 font-mono text-xs text-zinc-300">
-            <span className="text-emerald-400">// reward</span> &nbsp;Submit one verified question → unlock 10 new questions and +40 XP.
+            <span className="text-emerald-400">// reward</span> &nbsp;Your question goes live immediately → earn +40 XP.
           </div>
 
           <div className="flex items-center gap-2 pt-1">
@@ -119,7 +137,7 @@ export const AddQuestionModal = ({ open, onOpenChange }) => {
               className="inline-flex items-center gap-2 font-mono text-sm font-semibold uppercase tracking-[0.14em] px-4 py-2 rounded-md text-zinc-950 hover:brightness-110 transition-all disabled:opacity-50"
               style={{ background: '#f59e0b', boxShadow: '0 0 0 1px rgba(245,158,11,0.4), 0 0 24px -8px rgba(245,158,11,0.6)' }}>
               {submitting && <Loader2 size={14} className="animate-spin" />}
-              {submitting ? 'Submitting…' : 'Submit for review'}
+              {submitting ? 'Adding…' : 'Add question'}
             </button>
             <button type="button" onClick={() => onOpenChange(false)}
               className="font-mono text-sm px-3 py-2 rounded-md border border-white/10 bg-zinc-900 hover:bg-zinc-800 text-zinc-100">Cancel</button>
