@@ -1,4 +1,4 @@
-import { useMemo, useState, useEffect, useRef } from 'react';
+﻿import { useMemo, useState, useEffect, useRef } from 'react';
 import { Plus, X, ArrowUp, DollarSign, ArrowUpRight, Info } from 'lucide-react';
 import { toast } from 'sonner';
 import { Link } from 'react-router-dom';
@@ -155,7 +155,7 @@ export default function QuestionBank({ isGuest = false, userId }) {
         </button>
       </div>
 
-      {/* Inline filter bar — search + chips on one row */}
+      {/* Inline filter bar â€” search + chips on one row */}
       <div className="mb-5 flex flex-wrap items-center gap-1.5" data-testid="filter-row">
         {/* Search */}
         <div className="flex items-center gap-1.5 border border-white/10 bg-zinc-950 rounded-md px-3 py-1.5 focus-within:border-emerald-500/40 transition-colors min-w-[160px] flex-1 md:flex-none md:w-56">
@@ -164,7 +164,7 @@ export default function QuestionBank({ isGuest = false, userId }) {
             data-testid="question-search"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="search…"
+            placeholder="searchâ€¦"
             className="flex-1 bg-transparent border-0 outline-none font-mono text-sm text-zinc-100 placeholder:text-zinc-600 w-full"
           />
           {search && (
@@ -174,7 +174,7 @@ export default function QuestionBank({ isGuest = false, userId }) {
           )}
         </div>
 
-        {/* Filter chips — selected show value + ×, unselected show + label */}
+        {/* Filter chips â€” selected show value + Ã—, unselected show + label */}
         {FILTER_DEFS.map(def => (
           <SearchableFilterChip
             key={def.key}
@@ -188,7 +188,7 @@ export default function QuestionBank({ isGuest = false, userId }) {
         ))}
         <SortChip value={sortBy} onChange={setSortBy} />
 
-        {/* Clear all — only shown when any filter is active */}
+        {/* Clear all â€” only shown when any filter is active */}
         {(search || Object.values(filters).some(v => v !== ALL)) && (
           <button
             onClick={() => { setSearch(''); setFilters({ company: ALL, role: ALL, topic: ALL, tech: ALL, difficulty: ALL, round: ALL }); }}
@@ -199,7 +199,7 @@ export default function QuestionBank({ isGuest = false, userId }) {
         )}
       </div>
 
-      {/* Mobile FAB — appears when scrolled */}
+      {/* Mobile FAB â€” appears when scrolled */}
       <button
         data-testid="add-question-fab"
         onClick={handleAddQuestion}
@@ -212,11 +212,11 @@ export default function QuestionBank({ isGuest = false, userId }) {
         <span>Add Question</span>
       </button>
 
-      {/* Browse by — SEO links */}
+      {/* Browse by â€” SEO links */}
       <div className="mb-5 p-4 rounded-lg border border-white/5 bg-zinc-900/40">
         <div className="font-mono text-[10px] uppercase tracking-[0.22em] text-zinc-600 mb-3">Browse by</div>
         <div className="flex flex-wrap gap-1.5">
-          <Link to="/questions/trending" className="font-mono text-xs px-2.5 py-1 rounded border border-amber-500/30 text-amber-400 hover:bg-amber-500/[0.06] transition-colors">🔥 Trending</Link>
+          <Link to="/questions/trending" className="font-mono text-xs px-2.5 py-1 rounded border border-amber-500/30 text-amber-400 hover:bg-amber-500/[0.06] transition-colors">ðŸ”¥ Trending</Link>
           {ACTIVE_COMPANIES.map(c => (
             <Link key={c.id} to={`/questions/company/${slugify(c.name)}`}
               className="font-mono text-xs px-2.5 py-1 rounded border border-white/10 text-zinc-400 hover:text-zinc-50 hover:border-white/25 transition-colors">
@@ -279,7 +279,7 @@ export default function QuestionBank({ isGuest = false, userId }) {
         </div>
         <span className="font-mono text-xs uppercase tracking-[0.18em] text-emerald-400 inline-flex items-center gap-1 shrink-0">
           submit <ArrowUpRight size={14} strokeWidth={2.25} />
-          <span className="hidden sm:inline">· unlock</span>
+          <span className="hidden sm:inline">Â· unlock</span>
         </span>
       </button>
 
@@ -290,7 +290,7 @@ export default function QuestionBank({ isGuest = false, userId }) {
   );
 }
 
-// ───────────────────── Sort chip ─────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ Sort chip â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 const SortChip = ({ value, onChange }) => {
   const opt = SORTS.find(s => s.id === value);
   return (
@@ -317,7 +317,7 @@ const SortChip = ({ value, onChange }) => {
   );
 };
 
-// ───────────────────── Card ─────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ Card â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 const TAG_PALETTE = {
   company: { border: 'rgba(245,158,11,0.35)', bg: 'rgba(245,158,11,0.07)', text: '#fbbf24' },
   default: { border: 'rgba(255,255,255,0.12)', bg: 'rgba(255,255,255,0.03)', text: '#a1a1aa' },
@@ -343,7 +343,10 @@ const QuestionCard = ({ q, expanded, onToggleExpand, upvoted, asked, onUpvote, o
   const accent = accentForQ(q);
   const isVerified = q.verifyCount >= 3;
   const company = COMPANIES.find(c => c.id === q.company);
-  const topicLabels = q.topicPath.split(' / ');
+  // For user-submitted companies not in our list, show the raw value with a neutral style
+  const companyName = company?.name || q.company;
+  const companyColor = company?.color || '#94a3b8';
+  const topicLabels = q.topicPath?.split(' / ') || [q.topic];
   const popularity = Math.min(100, q.asked * 2); // 0-100 visual scale
 
   return (
@@ -357,12 +360,15 @@ const QuestionCard = ({ q, expanded, onToggleExpand, upvoted, asked, onUpvote, o
         {/* tags row */}
         <div className="flex items-center flex-wrap gap-1.5 mb-4">
           <button onClick={onCompanyClick} data-testid={`open-blueprint-${q.company}`}>
-            <TagPill kind="company">{company?.name}</TagPill>
+            <span className="inline-flex items-center gap-1 font-mono text-[11px] px-2 py-0.5 rounded-[4px] whitespace-nowrap"
+              style={{ border: `1px solid ${companyColor}44`, background: `${companyColor}18`, color: companyColor }}>
+              {companyName}
+            </span>
           </button>
           <TagPill>{q.role}</TagPill>
           {topicLabels.map(t => <TagPill key={t}>{t}</TagPill>)}
           <TagPill kind={q.difficulty}>{q.difficulty}</TagPill>
-          {isVerified && <TagPill kind="verified">✓ Verified</TagPill>}
+          {isVerified && <TagPill kind="verified">âœ“ Verified</TagPill>}
         </div>
 
         {/* Body */}
@@ -379,7 +385,7 @@ const QuestionCard = ({ q, expanded, onToggleExpand, upvoted, asked, onUpvote, o
         )}
         {q.body.length > 180 && (
           <button onClick={onToggleExpand} className="font-mono text-sm text-emerald-400 hover:text-emerald-300 mt-3" data-testid={`expand-${q.id}`}>
-            {expanded ? '− show less' : '+ show more'}
+            {expanded ? 'âˆ’ show less' : '+ show more'}
           </button>
         )}
 
@@ -428,7 +434,7 @@ const QuestionCard = ({ q, expanded, onToggleExpand, upvoted, asked, onUpvote, o
   );
 };
 
-// ───────────────────── Blueprint modal ─────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ Blueprint modal â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 const BlueprintModal = ({ companyId, onClose }) => {
   if (!companyId) return null;
   const bp = COMPANY_BLUEPRINTS[companyId];
@@ -447,7 +453,7 @@ const BlueprintModal = ({ companyId, onClose }) => {
             </div>
             <div>
               <DialogTitle className="text-2xl font-semibold tracking-tight">{company.name} interview blueprint</DialogTitle>
-              <DialogDescription className="text-zinc-400 mt-1 font-mono text-xs">rounds · topic frequency · question types</DialogDescription>
+              <DialogDescription className="text-zinc-400 mt-1 font-mono text-xs">rounds Â· topic frequency Â· question types</DialogDescription>
             </div>
           </div>
         </DialogHeader>
@@ -487,3 +493,4 @@ const BlueprintModal = ({ companyId, onClose }) => {
     </Dialog>
   );
 };
+
