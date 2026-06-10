@@ -1,4 +1,4 @@
-﻿import { useMemo, useState, useEffect, useRef } from 'react';
+﻿﻿import { useMemo, useState, useEffect, useRef } from 'react';
 import { Plus, X, ArrowUp, DollarSign, ArrowUpRight, Info } from 'lucide-react';
 import { toast } from 'sonner';
 import { Link } from 'react-router-dom';
@@ -264,7 +264,7 @@ export default function QuestionBank({ isGuest = false, userId }) {
   );
 }
 
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ Sort chip â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€ Sort chip â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€
 const SortChip = ({ value, onChange }) => {
   const opt = SORTS.find(s => s.id === value);
   return (
@@ -291,7 +291,7 @@ const SortChip = ({ value, onChange }) => {
   );
 };
 
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ Card â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€ Card â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€
 const TAG_PALETTE = {
   company: { border: 'rgba(245,158,11,0.35)', bg: 'rgba(245,158,11,0.07)', text: '#fbbf24' },
   default: { border: 'rgba(255,255,255,0.12)', bg: 'rgba(255,255,255,0.03)', text: '#a1a1aa' },
@@ -359,7 +359,7 @@ const QuestionCard = ({ q, expanded, onToggleExpand, upvoted, asked, onUpvote, o
         )}
         {q.body.length > 180 && (
           <button onClick={onToggleExpand} className="font-mono text-sm text-emerald-400 hover:text-emerald-300 mt-3" data-testid={`expand-${q.id}`}>
-            {expanded ? 'âˆ’ show less' : '+ show more'}
+            {expanded ? '- show less' : '+ show more'}
           </button>
         )}
 
@@ -408,7 +408,7 @@ const QuestionCard = ({ q, expanded, onToggleExpand, upvoted, asked, onUpvote, o
   );
 };
 
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ Blueprint modal â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€ Blueprint modal â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€
 const BlueprintModal = ({ companyId, onClose }) => {
   if (!companyId) return null;
   const bp = COMPANY_BLUEPRINTS[companyId];
