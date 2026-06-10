@@ -3,6 +3,7 @@ import { Plus, X, ArrowUp, DollarSign, ArrowUpRight, Info } from 'lucide-react';
 import { toast } from 'sonner';
 import { Link } from 'react-router-dom';
 import { QUESTIONS, COMPANIES, ROLES, TOPIC_TREE, DIFFICULTIES, ROUND_TYPES, COMPANY_BLUEPRINTS, TECH_STACK } from '../lib/mockData';
+import { loadUserQuestions } from '../lib/questions';
 
 const slugify = (s) => s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
 const ACTIVE_COMPANIES = COMPANIES.filter(c => QUESTIONS.some(q => q.company === c.id));
@@ -48,7 +49,7 @@ const accentForQ = (q) => {
 };
 
 
-export default function QuestionBank({ isGuest = false }) {
+export default function QuestionBank({ isGuest = false, userId }) {
   const [filters, setFilters] = useState({ company: ALL, role: ALL, topic: ALL, tech: ALL, difficulty: ALL, round: ALL });
   const [sortBy, setSortBy] = useState('recent');
   const [search, setSearch] = useState('');
@@ -59,6 +60,14 @@ export default function QuestionBank({ isGuest = false }) {
   const [signInOpen, setSignInOpen] = useState(false);
   const [signInAction, setSignInAction] = useState('continue');
   const [userQuestions, setUserQuestions] = useState([]);
+  const [loadingQ, setLoadingQ] = useState(true);
+
+  // Load persisted user-submitted questions from Supabase on mount
+  useEffect(() => {
+    loadUserQuestions()
+      .then(qs => setUserQuestions(qs))
+      .finally(() => setLoadingQ(false));
+  }, []);
 
   const allQuestions = useMemo(() => [...userQuestions, ...QUESTIONS], [userQuestions]);
 
@@ -276,7 +285,7 @@ export default function QuestionBank({ isGuest = false }) {
 
       <BlueprintModal companyId={blueprintCompany} onClose={() => setBlueprintCompany(null)} />
       <SignInRequiredModal open={signInOpen} onOpenChange={setSignInOpen} action={signInAction} />
-      <AddQuestionModal open={addOpen} onOpenChange={setAddOpen} onAdded={handleQuestionAdded} />
+      <AddQuestionModal open={addOpen} onOpenChange={setAddOpen} onAdded={handleQuestionAdded} userId={userId} />
     </div>
   );
 }

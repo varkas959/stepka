@@ -4,6 +4,7 @@ import { COMPANIES, ROLES, TOPIC_TREE, DIFFICULTIES, ROUND_TYPES } from '../lib/
 import { Plus, Loader2, AlertTriangle } from 'lucide-react';
 import { toast } from 'sonner';
 import { moderateText } from '../lib/api';
+import { saveUserQuestion } from '../lib/questions';
 import { CreatableSelect } from './CreatableSelect';
 
 const TOPIC_FLAT = TOPIC_TREE.flatMap(n => n.children
@@ -15,7 +16,7 @@ const ROLE_OPTS = ROLES.map(r => ({ id: r, label: r }));
 const DIFF_OPTS = DIFFICULTIES.map(d => ({ id: d, label: d }));
 const ROUND_OPTS = ROUND_TYPES.map(r => ({ id: r, label: r }));
 
-export const AddQuestionModal = ({ open, onOpenChange, onAdded }) => {
+export const AddQuestionModal = ({ open, onOpenChange, onAdded, userId }) => {
   const [form, setForm] = useState({
     company: 'amazon', role: 'SDE2', topic: 'arrays',
     difficulty: 'Medium', round: 'Technical', body: '',
@@ -42,7 +43,7 @@ export const AddQuestionModal = ({ open, onOpenChange, onAdded }) => {
         setSubmitting(false);
         return;
       }
-      // Build the new question object and add it live to the page
+      // Build the new question object
       const topicLabel = TOPIC_FLAT.find(t => t.id === form.topic)?.label || form.topic;
       const newQuestion = {
         id: `user-${Date.now()}`,
@@ -60,6 +61,12 @@ export const AddQuestionModal = ({ open, onOpenChange, onAdded }) => {
         tech: [],
         isUserSubmitted: true,
       };
+
+      // Save to Supabase (fire and forget — show immediately regardless)
+      saveUserQuestion(newQuestion, userId).then(saved => {
+        if (saved?.id) newQuestion.id = saved.id;
+      });
+
       onAdded?.(newQuestion);
       onOpenChange(false);
       toast.success('Question added! It\'s now live in the question bank. +40 XP', { duration: 4000 });

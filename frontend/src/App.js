@@ -96,7 +96,7 @@ function App() {
           {/* App shell — visible to all, actions gated by sign-in */}
           <Route path="/app/questions" element={
             <AppShell session={session} onSignOut={() => setSession(null)}>
-              <QuestionBank isGuest={!session} />
+              <QuestionBank isGuest={!session} userId={session?.user?.id} />
             </AppShell>
           } />
           <Route path="/app/review" element={
