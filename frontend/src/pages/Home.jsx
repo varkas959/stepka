@@ -52,12 +52,12 @@ const Hero = ({ session }) => (
         <Sparkles size={11} /> built for engineers in motion
       </div>
       <h1 className="text-4xl sm:text-6xl lg:text-7xl font-semibold leading-[0.95] tracking-tight">
-        Real questions.<br />
-        <span className="text-zinc-600">From real loops.</span>
+        Know exactly<br />
+        <span className="text-zinc-600">what to prep.</span>
       </h1>
       <p className="mt-6 text-base sm:text-lg text-zinc-400 leading-relaxed max-w-2xl">
-        Stepkai is the question bank, study plan, and spaced-repetition rep system for engineers switching companies.
-        No fluff, no filler — just signal from candidates who actually sat in the room.
+        Paste any JD and get a focused prep plan. Real interview questions from TCS, Infosys, Wipro and Indian tech companies.
+        AI graded practice built for experienced engineers switching roles.
       </p>
       <div className="mt-9 flex items-center gap-3 flex-wrap">
         <Link to="/app/questions" data-testid="hero-cta"

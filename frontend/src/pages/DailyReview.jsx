@@ -43,13 +43,13 @@ export default function DailyReview({ isGuest = false }) {
     else { setIdx(i => i + 1); setFlipped(false); }
   };
 
-  if (phase === 'queue') return <QueueView state={state} breakdown={breakdown} total={SRS_CARDS.length} onStart={startSession} />;
+  if (phase === 'queue') return <QueueView state={state} breakdown={breakdown} total={SRS_CARDS.length} onStart={startSession} isGuest={isGuest} />;
   if (phase === 'session') return <SessionView idx={idx} flipped={flipped} setFlipped={setFlipped} onRate={handleRate} onExit={() => setPhase('queue')} />;
   return <DoneView ratings={ratings} state={state} onContinue={() => navigate('/app/progress')} onAgain={() => setPhase('queue')} />;
 }
 
 // ───────────── Queue ─────────────
-const QueueView = ({ state, breakdown, total, onStart }) => {
+const QueueView = ({ state, breakdown, total, onStart, isGuest }) => {
   const goalPct = Math.round((state.reviewedToday / state.goalToday) * 100);
   return (
     <div className="px-4 md:px-10 py-6 md:py-10 max-w-3xl mx-auto">

@@ -28,7 +28,7 @@ function SignInPrompt() {
 }
 
 export default function Practice({ isGuest = false }) {
-  const [qIdx, setQIdx] = useState(0);
+  const [qIdx, setQIdx] = useState(() => Math.floor(Math.random() * QUESTIONS.length));
   const q = QUESTIONS[qIdx];
   const isBehavioral = BEHAVIORAL_TOPICS.includes(q.topic);
   const [mode, setMode] = useState(isBehavioral ? 'text' : 'code');
