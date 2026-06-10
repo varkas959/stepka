@@ -155,7 +155,7 @@ export default function QuestionBank({ isGuest = false, userId }) {
         </button>
       </div>
 
-      {/* Inline filter bar â€” search + chips on one row */}
+      {/* Inline filter bar - search + chips on one row */}
       <div className="mb-5 flex flex-wrap items-center gap-1.5" data-testid="filter-row">
         {/* Search */}
         <div className="flex items-center gap-1.5 border border-white/10 bg-zinc-950 rounded-md px-3 py-1.5 focus-within:border-emerald-500/40 transition-colors min-w-[160px] flex-1 md:flex-none md:w-56">
@@ -164,7 +164,7 @@ export default function QuestionBank({ isGuest = false, userId }) {
             data-testid="question-search"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="searchâ€¦"
+            placeholder="search..."
             className="flex-1 bg-transparent border-0 outline-none font-mono text-sm text-zinc-100 placeholder:text-zinc-600 w-full"
           />
           {search && (
@@ -174,7 +174,7 @@ export default function QuestionBank({ isGuest = false, userId }) {
           )}
         </div>
 
-        {/* Filter chips â€” selected show value + Ã—, unselected show + label */}
+        {/* Filter chips - selected show value + x, unselected show + label */}
         {FILTER_DEFS.map(def => (
           <SearchableFilterChip
             key={def.key}
@@ -188,7 +188,7 @@ export default function QuestionBank({ isGuest = false, userId }) {
         ))}
         <SortChip value={sortBy} onChange={setSortBy} />
 
-        {/* Clear all â€” only shown when any filter is active */}
+        {/* Clear all - only shown when any filter is active */}
         {(search || Object.values(filters).some(v => v !== ALL)) && (
           <button
             onClick={() => { setSearch(''); setFilters({ company: ALL, role: ALL, topic: ALL, tech: ALL, difficulty: ALL, round: ALL }); }}
@@ -199,7 +199,7 @@ export default function QuestionBank({ isGuest = false, userId }) {
         )}
       </div>
 
-      {/* Mobile FAB â€” appears when scrolled */}
+      {/* Mobile FAB - appears when scrolled */}
       <button
         data-testid="add-question-fab"
         onClick={handleAddQuestion}
@@ -211,32 +211,6 @@ export default function QuestionBank({ isGuest = false, userId }) {
         <Plus size={16} strokeWidth={2.5} />
         <span>Add Question</span>
       </button>
-
-      {/* Browse by â€” SEO links */}
-      <div className="mb-5 p-4 rounded-lg border border-white/5 bg-zinc-900/40">
-        <div className="font-mono text-[10px] uppercase tracking-[0.22em] text-zinc-600 mb-3">Browse by</div>
-        <div className="flex flex-wrap gap-1.5">
-          <Link to="/questions/trending" className="font-mono text-xs px-2.5 py-1 rounded border border-amber-500/30 text-amber-400 hover:bg-amber-500/[0.06] transition-colors">ðŸ”¥ Trending</Link>
-          {ACTIVE_COMPANIES.map(c => (
-            <Link key={c.id} to={`/questions/company/${slugify(c.name)}`}
-              className="font-mono text-xs px-2.5 py-1 rounded border border-white/10 text-zinc-400 hover:text-zinc-50 hover:border-white/25 transition-colors">
-              {c.name}
-            </Link>
-          ))}
-          {ACTIVE_TOPICS.map(t => (
-            <Link key={t.id} to={`/questions/topic/${slugify(t.name)}`}
-              className="font-mono text-xs px-2.5 py-1 rounded border border-emerald-500/20 text-emerald-500 hover:bg-emerald-500/[0.06] transition-colors">
-              {t.name}
-            </Link>
-          ))}
-          {ACTIVE_TECHS.map(t => (
-            <Link key={t} to={`/questions/tech/${slugify(t)}`}
-              className="font-mono text-xs px-2.5 py-1 rounded border border-blue-500/20 text-blue-400 hover:bg-blue-500/[0.06] transition-colors">
-              {t}
-            </Link>
-          ))}
-        </div>
-      </div>
 
       {/* Count */}
       <div className="font-mono text-sm mb-4">
@@ -368,7 +342,7 @@ const QuestionCard = ({ q, expanded, onToggleExpand, upvoted, asked, onUpvote, o
           <TagPill>{q.role}</TagPill>
           {topicLabels.map(t => <TagPill key={t}>{t}</TagPill>)}
           <TagPill kind={q.difficulty}>{q.difficulty}</TagPill>
-          {isVerified && <TagPill kind="verified">âœ“ Verified</TagPill>}
+          {isVerified && <TagPill kind={'verified'}>&#10003; Verified</TagPill>}
         </div>
 
         {/* Body */}

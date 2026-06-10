@@ -100,7 +100,7 @@ export const QUESTIONS = [
   {
     id: 'q6', company: 'microsoft', role: 'SDE2', topic: 'arrays', topicPath: 'DSA / Arrays',
     difficulty: 'Medium', round: 'Technical',
-    body: 'Given a matrix of 0s and 1s, find the largest rectangle containing only 1s and return its area. Walk through the histogram-based O(n*m) solution and discuss why the naive O(nÂ²mÂ²) approach is unacceptable at scale.',
+    body: 'Given a matrix of 0s and 1s, find the largest rectangle containing only 1s and return its area. Walk through the histogram-based O(n*m) solution and discuss why the naive O(n2*m2) approach is unacceptable at scale.',
     verifyCount: 7, upvotes: 43, daysAgo: 4, asked: 38,
   },
   {
