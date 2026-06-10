@@ -212,11 +212,26 @@ export default function QuestionBank({ isGuest = false, userId }) {
         <span>Add Question</span>
       </button>
 
-      {/* Count */}
-      <div className="font-mono text-sm mb-4">
-        <span className="text-zinc-50 font-semibold">{filtered.length}</span>
-        <span className="text-zinc-500"> of {QUESTIONS.length} questions</span>
-      </div>
+      {/* Count + active filter banner */}
+      {Object.values(filters).some(v => v !== ALL) || search ? (
+        <div className="mb-4 flex items-center justify-between rounded-md border border-amber-500/30 bg-amber-500/[0.06] px-4 py-2.5">
+          <span className="font-mono text-sm text-amber-300">
+            Showing <span className="font-semibold text-amber-200">{filtered.length}</span> of{' '}
+            <span className="font-semibold text-amber-200">{allQuestions.length}</span> questions — filters active
+          </span>
+          <button
+            onClick={() => { setSearch(''); setFilters({ company: ALL, role: ALL, topic: ALL, tech: ALL, difficulty: ALL, round: ALL }); }}
+            className="font-mono text-xs font-semibold text-amber-400 hover:text-amber-200 underline ml-4"
+          >
+            clear all filters
+          </button>
+        </div>
+      ) : (
+        <div className="font-mono text-sm mb-4">
+          <span className="text-zinc-50 font-semibold">{filtered.length}</span>
+          <span className="text-zinc-500"> of {allQuestions.length} questions</span>
+        </div>
+      )}
 
       {/* Cards */}
       <div className="space-y-4" data-testid="question-feed">
