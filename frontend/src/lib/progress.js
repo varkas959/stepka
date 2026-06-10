@@ -49,13 +49,13 @@ const rowFromCamel = (s, userId) => ({
   updated_at: new Date().toISOString(),
 });
 
-// Detect the old fake-seeded plan and wipe it
-function sanitizeLoaded(p) {
-  const plan = p.activePlan;
-  if (plan && plan.company === 'amazon' && plan.currentDay === 4 && plan.dueQuestions === 3) {
-    return { ...p, activePlan: null, streak: 0, longestStreak: 0, level: 1, xp: 0, xpToNext: 500, dueToday: 0, reviewedToday: 0 };
-  }
-  return p;
+// Detect rows that were seeded with old fake defaults and reset them.
+// Old fake values: level=12, xp=3240, streak=7, activePlan=amazon
+function isFakeSeeded(p) {
+  if (p.level >= 10 && p.xp >= 1000) return true;          // old default: level 12, xp 3240
+  if (p.streak >= 5 && p.xp === 0) return true;             // fake streak with no real activity
+  if (p.activePlan?.company === 'amazon' && p.xp <= 100) return true; // seeded plan with no real XP
+  return false;
 }
 
 export async function loadProgress(userId) {
@@ -75,7 +75,14 @@ export async function loadProgress(userId) {
     if (insErr) console.error('[progress] seed failed:', insErr.message);
     return DEFAULTS;
   }
-  return sanitizeLoaded(camelFromRow(data));
+  const loaded = camelFromRow(data);
+  if (isFakeSeeded(loaded)) {
+    // Overwrite the bad row in Supabase so it never comes back
+    const row = rowFromCamel(DEFAULTS, userId);
+    supabase.from('user_progress').upsert(row, { onConflict: 'user_id' });
+    return DEFAULTS;
+  }
+  return loaded;
 }
 
 export async function saveProgress(userId, state) {
