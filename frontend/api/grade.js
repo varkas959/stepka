@@ -17,25 +17,28 @@ function extractJson(text) {
   return JSON.parse(text);
 }
 
-async function callGemini(apiKey, systemPrompt, userPrompt) {
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
-  const body = {
-    system_instruction: { parts: [{ text: systemPrompt }] },
-    contents: [{ role: 'user', parts: [{ text: userPrompt }] }],
-    generationConfig: { temperature: 0.4 },
-  };
-  const res = await fetch(url, {
+async function callOpenAI(apiKey, systemPrompt, userPrompt) {
+  const res = await fetch('https://api.openai.com/v1/chat/completions', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(body),
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${apiKey}`,
+    },
+    body: JSON.stringify({
+      model: 'gpt-4o-mini',
+      messages: [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: userPrompt },
+      ],
+      temperature: 0.4,
+    }),
   });
-  const body2 = await res.text();
+  const data = await res.json();
   if (!res.ok) {
     if (res.status === 429) throw new Error('QUOTA_EXCEEDED');
-    throw new Error(`Gemini ${res.status}: ${body2.slice(0, 300)}`);
+    throw new Error(`OpenAI error ${res.status}: ${data?.error?.message || ''}`);
   }
-  const data = JSON.parse(body2);
-  return data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+  return data.choices?.[0]?.message?.content || '';
 }
 
 const GRADE_SYSTEM = `You are a senior staff engineer grading interview answers at top tech companies.
@@ -89,9 +92,9 @@ Return ONLY this JSON shape (no markdown fences, no extra text):
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).end();
 
-  const apiKey = process.env.GEMINI_API_KEY;
+  const apiKey = process.env.OPENAI_API_KEY;
   if (!apiKey) {
-    return res.status(503).json({ error: 'GEMINI_API_KEY is not configured in Vercel environment variables.' });
+    return res.status(503).json({ error: 'OPENAI_API_KEY is not configured in Vercel environment variables.' });
   }
 
   const { question, answer, mode = 'text', is_behavioral = false } = req.body || {};
@@ -104,12 +107,12 @@ export default async function handler(req, res) {
     : TECHNICAL_TEMPLATE(q, a, mode);
 
   try {
-    const text = await callGemini(apiKey, GRADE_SYSTEM, prompt);
+    const text = await callOpenAI(apiKey, GRADE_SYSTEM, prompt);
     res.status(200).json(extractJson(text));
   } catch (e) {
     console.error('grade error:', e.message);
     if (e.message === 'QUOTA_EXCEEDED') {
-      return res.status(429).json({ error: 'Gemini free tier quota reached. Try again in a few minutes.' });
+      return res.status(429).json({ error: 'API quota reached. Try again in a few minutes.' });
     }
     res.status(502).json({ error: 'AI grading unavailable. Please try again.' });
   }
