@@ -30,13 +30,12 @@ async function callGemini(apiKey, systemPrompt, userPrompt) {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body),
   });
+  const body2 = await res.text();
   if (!res.ok) {
     if (res.status === 429) throw new Error('QUOTA_EXCEEDED');
-    const err = await res.text();
-    const errText = await res.text();
-    throw new Error(`Gemini ${res.status}: ${errText.slice(0, 300)}`);
+    throw new Error(`Gemini ${res.status}: ${body2.slice(0, 300)}`);
   }
-  const data = await res.json();
+  const data = JSON.parse(body2);
   return data.candidates?.[0]?.content?.parts?.[0]?.text || '';
 }
 
