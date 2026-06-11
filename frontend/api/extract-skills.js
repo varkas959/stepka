@@ -31,11 +31,13 @@ async function callGemini(apiKey, systemPrompt, userPrompt) {
     body: JSON.stringify(body),
   });
   const body2 = await res.text();
+  console.log('[gemini] status:', res.status, 'body:', body2.slice(0, 500));
   if (!res.ok) {
     if (res.status === 429) throw new Error('QUOTA_EXCEEDED');
-    throw new Error(`Gemini error ${res.status}`);
+    throw new Error(`Gemini ${res.status}: ${body2.slice(0, 500)}`);
   }
   const data = JSON.parse(body2);
+  console.log('[gemini] response ok, candidates:', data.candidates?.length);
   return data.candidates?.[0]?.content?.parts?.[0]?.text || '';
 }
 
@@ -79,6 +81,6 @@ export default async function handler(req, res) {
     if (e.message === 'QUOTA_EXCEEDED') {
       return res.status(429).json({ error: 'Gemini free tier quota reached. Try again in a few minutes, or upgrade your API key at ai.google.dev.' });
     }
-    res.status(502).json({ error: 'AI service unavailable. Please try again.' });
+    res.status(502).json({ error: e.message });
   }
 }
