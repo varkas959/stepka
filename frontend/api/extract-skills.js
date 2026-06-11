@@ -19,9 +19,10 @@ function extractJson(text) {
 }
 
 async function callGemini(apiKey, systemPrompt, userPrompt) {
-  const url = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
   const body = {
-    contents: [{ role: 'user', parts: [{ text: systemPrompt + '\n\n' + userPrompt }] }],
+    system_instruction: { parts: [{ text: systemPrompt }] },
+    contents: [{ role: 'user', parts: [{ text: userPrompt }] }],
     generationConfig: { temperature: 0.3 },
   };
   const res = await fetch(url, {
@@ -32,7 +33,7 @@ async function callGemini(apiKey, systemPrompt, userPrompt) {
   const body2 = await res.text();
   if (!res.ok) {
     if (res.status === 429) throw new Error('QUOTA_EXCEEDED');
-    throw new Error(`Gemini ${res.status}: ${body2.slice(0, 300)}`);
+    throw new Error(`Gemini error ${res.status}`);
   }
   const data = JSON.parse(body2);
   return data.candidates?.[0]?.content?.parts?.[0]?.text || '';
@@ -78,6 +79,6 @@ export default async function handler(req, res) {
     if (e.message === 'QUOTA_EXCEEDED') {
       return res.status(429).json({ error: 'Gemini free tier quota reached. Try again in a few minutes, or upgrade your API key at ai.google.dev.' });
     }
-    res.status(502).json({ error: e.message });
+    res.status(502).json({ error: 'AI service unavailable. Please try again.' });
   }
 }
