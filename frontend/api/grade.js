@@ -20,9 +20,8 @@ function extractJson(text) {
 async function callGemini(apiKey, systemPrompt, userPrompt) {
   const url = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
   const body = {
-    system_instruction: { parts: [{ text: systemPrompt }] },
-    contents: [{ role: 'user', parts: [{ text: userPrompt }] }],
-    generationConfig: { temperature: 0.4 },
+    contents: [{ role: 'user', parts: [{ text: systemPrompt + '\n\n' + userPrompt }] }],
+    generationConfig: { temperature: 0.3 },
   };
   const res = await fetch(url, {
     method: 'POST',
