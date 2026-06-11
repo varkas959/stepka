@@ -31,8 +31,8 @@ async function callGemini(apiKey, systemPrompt, userPrompt) {
     body: JSON.stringify(body),
   });
   if (!res.ok) {
-    const err = await res.text();
-    throw new Error(`Gemini API error ${res.status}: ${err}`);
+    if (res.status === 429) throw new Error('QUOTA_EXCEEDED');
+    throw new Error(`Gemini error ${res.status}`);
   }
   const data = await res.json();
   return data.candidates?.[0]?.content?.parts?.[0]?.text || '';
@@ -77,6 +77,9 @@ export default async function handler(req, res) {
     res.status(200).json(extractJson(text));
   } catch (e) {
     console.error('analyze-jd error:', e.message);
-    res.status(502).json({ error: e.message });
+    if (e.message === 'QUOTA_EXCEEDED') {
+      return res.status(429).json({ error: 'Gemini free tier quota reached. Try again in a few minutes.' });
+    }
+    res.status(502).json({ error: 'AI service unavailable. Please try again.' });
   }
 }

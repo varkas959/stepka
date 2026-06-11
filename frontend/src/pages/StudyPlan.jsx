@@ -53,7 +53,8 @@ export default function StudyPlan({ isGuest = false }) {
       setRatings(r);
       setStep('assess');
     } catch (e) {
-      toast.error(e?.response?.data?.error || e?.response?.data?.detail || e.message || 'Could not extract skills.');
+      const msg = e?.response?.data?.error || e?.response?.data?.detail || e.message || 'Could not extract skills.';
+      toast.error(msg, { duration: 6000 });
       setStep('input');
     }
   };
