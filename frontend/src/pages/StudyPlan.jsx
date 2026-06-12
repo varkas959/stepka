@@ -8,7 +8,7 @@ const ACTIVE_COMPANY_IDS = [...new Set(QUESTIONS.map(q => q.company))];
 const ACTIVE_COMPANIES = COMPANIES.filter(c => ACTIVE_COMPANY_IDS.includes(c.id));
 const ACTIVE_ROLES = [...new Set(QUESTIONS.map(q => q.role))];
 import { useAppState } from '../lib/appState';
-import { extractSkills } from '../lib/api';
+import { extractSkills, generatePlan } from '../lib/api';
 import { PixelBar } from '../components/PixelBar';
 
 // 5 mastery levels — user self-rates each extracted skill
@@ -25,9 +25,10 @@ export default function StudyPlan({ isGuest = false }) {
   const [jd, setJd] = useState('We are hiring a Senior Software Engineer (SDE2) for our Payments team.\nResponsibilities: design distributed payment processing pipelines, own Kafka topics, partner with infra on latency.\nMust have: 4+ years Java, distributed systems, system design, LLD, microservices on AWS.');
   const [company, setCompany] = useState('amazon');
   const [role, setRole] = useState('SDE2');
-  const [expandedDay, setExpandedDay] = useState(4);
-  const [skills, setSkills] = useState([]);          // [{name, weight}]
-  const [ratings, setRatings] = useState({});         // { skillName: mastery 0-95 }
+  const [expandedDay, setExpandedDay] = useState(1);
+  const [skills, setSkills] = useState([]);
+  const [ratings, setRatings] = useState({});
+  const [generatedPlan, setGeneratedPlan] = useState(null);
   const { state, setActivePlan, setReadiness } = useAppState();
 
   const readiness = useMemo(() => {
@@ -64,12 +65,28 @@ export default function StudyPlan({ isGuest = false }) {
     setStep('result');
   };
 
-  const activatePlan = () => {
-    setActivePlan({ company, role, currentDay: 1, totalDays: 14, dueQuestions: 3 });
-    setStep('plan');
+  const activatePlan = async () => {
+    setStep('generating');
+    try {
+      const skillsPayload = skills.map(s => ({
+        name: s.name,
+        weight: s.weight || 3,
+        mastery: ratings[s.name] ?? 25,
+      }));
+      const companyName = COMPANIES.find(c => c.id === company)?.name || company;
+      const plan = await generatePlan({ company: companyName, role, skills: skillsPayload });
+      setGeneratedPlan(plan);
+      setActivePlan({ company, role, currentDay: 1, totalDays: 14, dueQuestions: 5 });
+      setExpandedDay(1);
+      setStep('plan');
+    } catch (e) {
+      const msg = e?.response?.data?.error || e.message || 'Could not generate plan.';
+      toast.error(msg, { duration: 6000 });
+      setStep('result');
+    }
   };
 
-  if (step === 'plan') return <PlanCalendar expandedDay={expandedDay} setExpandedDay={setExpandedDay} onReset={() => setStep('input')} state={state} />;
+  if (step === 'plan') return <PlanCalendar plan={generatedPlan} expandedDay={expandedDay} setExpandedDay={setExpandedDay} onReset={() => { setStep('input'); setGeneratedPlan(null); }} state={state} />;
 
   return (
     <div className="px-4 md:px-10 py-6 md:py-10 max-w-4xl mx-auto">
@@ -110,6 +127,14 @@ export default function StudyPlan({ isGuest = false }) {
         <div className="mt-7 rounded-lg border border-white/10 bg-zinc-950 p-14 flex flex-col items-center" data-testid="analyzing">
           <Loader2 size={28} className="animate-spin text-emerald-400" />
           <div className="font-mono text-sm text-zinc-300 mt-5">extracting required skills…</div>
+        </div>
+      )}
+
+      {step === 'generating' && (
+        <div className="mt-7 rounded-lg border border-white/10 bg-zinc-950 p-14 flex flex-col items-center">
+          <Loader2 size={28} className="animate-spin text-amber-400" />
+          <div className="font-mono text-sm text-zinc-300 mt-5">generating your 14-day plan…</div>
+          <div className="font-mono text-xs text-zinc-600 mt-2">tailoring to your skill gaps</div>
         </div>
       )}
 
@@ -174,7 +199,7 @@ const SelfAssess = ({ skills, ratings, setRating, readiness, onBack, onContinue 
                   return (
                     <button key={m.v} data-testid={`mastery-${s.name}-${m.v}`}
                       onClick={() => setRating(s.name, m.v)}
-                      className={`font-mono text-[10px] sm:text-[11px] py-1.5 rounded border transition-colors ${
+                      className={`font-mono text-[9px] sm:text-[11px] py-1.5 px-0.5 rounded border transition-colors overflow-hidden whitespace-nowrap text-ellipsis ${
                         active
                           ? 'border-emerald-500/50 bg-emerald-500/[0.10] text-emerald-300'
                           : 'border-white/10 text-zinc-500 hover:text-zinc-100 hover:border-white/25'
@@ -359,26 +384,31 @@ const Stepper = ({ step }) => {
   );
 };
 
-const PlanCalendar = ({ expandedDay, setExpandedDay, onReset, state }) => {
+const PlanCalendar = ({ plan, expandedDay, setExpandedDay, onReset, state }) => {
   const company = COMPANIES.find(c => c.id === state.activePlan?.company) || COMPANIES[0];
+  const days = plan?.days || [];
+  const currentDay = state.activePlan?.currentDay || 1;
+  const expandedData = days.find(d => d.day === expandedDay);
+
   return (
     <div className="px-4 md:px-10 py-6 md:py-10 max-w-5xl mx-auto">
       <Breadcrumb segments={['study-plan', `${company.id}-${state.activePlan?.role?.toLowerCase()}`, '14-day-plan']} />
       <div className="flex items-start justify-between gap-4 mt-1 mb-6">
         <div>
-          <h1 className="text-4xl md:text-5xl font-semibold tracking-tight text-zinc-50">{company.name} {state.activePlan?.role} prep</h1>
-          <p className="font-mono text-sm text-zinc-400 mt-3">Day <span className="text-zinc-100">{state.activePlan?.currentDay}</span> of {state.activePlan?.totalDays} · click any day to expand</p>
+          <h1 className="text-3xl md:text-5xl font-semibold tracking-tight text-zinc-50">{company.name} · {state.activePlan?.role} prep</h1>
+          <p className="font-mono text-sm text-zinc-400 mt-3">Day <span className="text-zinc-100">{currentDay}</span> of 14 · tap any day to expand</p>
         </div>
-        <button onClick={onReset} data-testid="regenerate-plan" className="font-mono text-xs uppercase tracking-[0.18em] text-zinc-400 hover:text-zinc-50 border border-white/10 rounded-md px-3 py-2">Regenerate</button>
+        <button onClick={onReset} data-testid="regenerate-plan" className="shrink-0 font-mono text-xs uppercase tracking-[0.18em] text-zinc-400 hover:text-zinc-50 border border-white/10 rounded-md px-3 py-2">New plan</button>
       </div>
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-2">
-        {STUDY_PLAN.map(d => {
-          const isToday = d.day === state.activePlan?.currentDay;
-          const isDone = d.day < (state.activePlan?.currentDay || 1);
+
+      <div className="grid grid-cols-7 gap-1.5 sm:gap-2">
+        {days.map(d => {
+          const isToday = d.day === currentDay;
+          const isDone = d.day < currentDay;
           const isExpanded = expandedDay === d.day;
           return (
             <button key={d.day} data-testid={`plan-day-${d.day}`} onClick={() => setExpandedDay(isExpanded ? null : d.day)}
-              className={`relative text-left p-3 rounded-md border transition-colors overflow-hidden ${
+              className={`relative text-left p-2 sm:p-3 rounded-md border transition-colors overflow-hidden ${
                 isExpanded ? 'border-amber-500/50 bg-amber-500/[0.05]'
                 : isToday ? 'border-amber-500/40 bg-amber-500/[0.04]'
                 : isDone ? 'border-emerald-500/25 bg-emerald-500/[0.03]'
@@ -386,37 +416,48 @@ const PlanCalendar = ({ expandedDay, setExpandedDay, onReset, state }) => {
               }`}>
               {(isToday || isExpanded) && <div className="absolute left-0 top-0 bottom-0 w-[2px]" style={{ background: '#f59e0b' }} />}
               {isDone && !isExpanded && <div className="absolute left-0 top-0 bottom-0 w-[2px]" style={{ background: '#22c55e' }} />}
-              <div className="flex items-center justify-between">
-                <div className="font-mono text-[10px] uppercase tracking-[0.18em] text-zinc-600">day</div>
-                <div className="font-mono text-lg font-semibold text-zinc-50">{d.day}</div>
-              </div>
-              <div className="mt-2 space-y-1">
-                {d.topics.slice(0, 3).map(t => <div key={t} className="font-mono text-[10px] px-1.5 py-0.5 rounded bg-white/[0.04] text-zinc-300 truncate">{t}</div>)}
-              </div>
+              <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-zinc-600">d{d.day}</div>
+              <div className="font-mono text-base sm:text-lg font-semibold text-zinc-50">{d.day}</div>
+              <div className="mt-1 font-mono text-[9px] text-zinc-500 truncate leading-tight">{d.focus?.split('·')[0]?.trim()}</div>
             </button>
           );
         })}
       </div>
-      {expandedDay && (
-        <div className="mt-6 rounded-lg border border-white/10 bg-zinc-950 p-6 animate-fade-up">
-          <div className="flex items-center gap-2 mb-4 font-mono text-sm">
-            <span className="text-zinc-500">day {expandedDay} ·</span>
-            <span className="text-zinc-100">{STUDY_PLAN[expandedDay - 1].topics.join(' · ')}</span>
+
+      {expandedData && (
+        <div className="mt-6 rounded-lg border border-white/10 bg-zinc-950 p-5 sm:p-6 animate-fade-up">
+          <div className="flex items-center gap-2 mb-5">
+            <span className="font-mono text-[10px] uppercase tracking-[0.18em] text-zinc-600">day {expandedData.day}</span>
+            <span className="text-zinc-700">·</span>
+            <span className="font-mono text-sm text-zinc-100">{expandedData.focus}</span>
           </div>
-          <div className="space-y-2">
-            {STUDY_PLAN[expandedDay - 1].questions.map(qId => {
-              const q = QUESTIONS.find(x => x.id === qId);
-              if (!q) return null;
-              return (
-                <div key={qId} className="flex items-start gap-3 p-3 rounded-md border border-white/5 hover:bg-white/[0.02] transition-colors">
-                  <div className="font-mono text-[10px] px-1.5 py-0.5 rounded border border-amber-500/30 bg-amber-500/[0.05] text-amber-400 shrink-0">{COMPANIES.find(c => c.id === q.company)?.name}</div>
-                  <div className="flex-1 min-w-0">
-                    <div className="font-mono text-xs text-zinc-500">{q.topicPath} · {q.difficulty}</div>
-                    <div className="text-zinc-100 text-sm line-clamp-2 mt-0.5" style={{ fontFamily: 'IBM Plex Sans, sans-serif' }}>{q.body}</div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div>
+              <div className="font-mono text-[10px] uppercase tracking-[0.22em] text-zinc-600 mb-3">Study tasks</div>
+              <ol className="space-y-2">
+                {(expandedData.tasks || []).map((task, i) => (
+                  <li key={i} className="flex items-start gap-3">
+                    <span className="font-mono text-[10px] text-zinc-700 mt-0.5 shrink-0 w-4">{i + 1}.</span>
+                    <span className="text-zinc-200 text-sm leading-relaxed" style={{ fontFamily: 'IBM Plex Sans, sans-serif' }}>{task}</span>
+                  </li>
+                ))}
+              </ol>
+            </div>
+
+            <div>
+              <div className="font-mono text-[10px] uppercase tracking-[0.22em] text-zinc-600 mb-3">Practice questions</div>
+              <div className="space-y-2">
+                {(expandedData.practiceQuestions || []).map((q, i) => (
+                  <div key={i} className="p-3 rounded-md border border-amber-500/20 bg-amber-500/[0.03]">
+                    <div className="flex items-start gap-2">
+                      <span className="font-mono text-[10px] text-amber-500 mt-0.5 shrink-0">Q{i + 1}</span>
+                      <span className="text-zinc-100 text-sm leading-relaxed" style={{ fontFamily: 'IBM Plex Sans, sans-serif' }}>{q}</span>
+                    </div>
                   </div>
-                </div>
-              );
-            })}
+                ))}
+              </div>
+            </div>
           </div>
         </div>
       )}

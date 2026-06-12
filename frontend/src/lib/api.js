@@ -28,3 +28,8 @@ export async function analyzeJD({ jd, targetCompany, targetRole }) {
   });
   return data;
 }
+
+export async function generatePlan({ company, role, skills }) {
+  const { data } = await api.post('/generate-plan', { company, role, skills });
+  return data;
+}
