@@ -1,7 +1,6 @@
-const MAX_TEXT_LEN = 8000;
-const CONTROL_RE = /[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]/g;
-const URL_RE = /\bhttps?:\/\/\S+|\bwww\.\S+/gi;
+import { sanitize, checkOrigin, checkRateLimit } from './_security.js';
 
+const URL_RE = /\bhttps?:\/\/\S+|\bwww\.\S+/gi;
 const PROFANITY_WORDS = new Set([
   'fuck', 'shit', 'bitch', 'asshole', 'bastard', 'cunt', 'dick', 'pussy',
   'porn', 'xxx', 'nsfw', 'nude', 'naked', 'sex', 'erotic', 'escort',
@@ -11,15 +10,12 @@ const ADULT_DOMAINS = new Set([
   'pornhub', 'xvideos', 'xhamster', 'redtube', 'onlyfans', 'chaturbate', 'youporn',
 ]);
 
-function sanitize(text) {
-  if (!text) return '';
-  return String(text).replace(CONTROL_RE, '').trim().slice(0, MAX_TEXT_LEN);
-}
-
 export default function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).end();
+  if (!checkOrigin(req, res)) return;
+  if (!checkRateLimit(req, res)) return;
 
-  const text = sanitize(req.body?.text ?? '');
+  const text  = sanitize(req.body?.text ?? '');
   const lower = text.toLowerCase();
   const flagged = [];
 
