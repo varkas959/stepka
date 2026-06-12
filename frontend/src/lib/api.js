@@ -29,7 +29,17 @@ export async function analyzeJD({ jd, targetCompany, targetRole }) {
   return data;
 }
 
-export async function generatePlan({ company, role, skills }) {
-  const { data } = await api.post('/generate-plan', { company, role, skills });
+export async function generatePlan({ company, role, heatmap, gaps, readiness }) {
+  const { data } = await api.post('/generate-plan', { company, role, heatmap, gaps, readiness });
+  return data;
+}
+
+export async function generateAssessment({ company, role, competencies }) {
+  const { data } = await api.post('/generate-assessment', { company, role, competencies });
+  return data;
+}
+
+export async function evaluateAssessment({ company, role, qa }) {
+  const { data } = await api.post('/evaluate-assessment', { company, role, qa });
   return data;
 }
