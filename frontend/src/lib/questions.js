@@ -25,7 +25,9 @@ export async function loadUserQuestions() {
     upvotes: row.upvotes ?? 0,
     asked: row.asked ?? 1,
     verifyCount: row.verify_count ?? 1,
-    daysAgo: row.days_ago ?? 0,
+    daysAgo: row.created_at
+      ? Math.floor((Date.now() - new Date(row.created_at).getTime()) / 86400000)
+      : (row.days_ago ?? 0),
     isUserSubmitted: true,
   }));
 }
