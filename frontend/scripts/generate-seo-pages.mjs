@@ -450,10 +450,440 @@ ${practiceBlock('','')}`,
 console.log(`[seo] Generated questions index`);
 
 // ═══════════════════════════════════════════════════════════════════════════
-// 7. SITEMAP.XML
+// 7. COMPANY INTERVIEW PROCESS PAGES  /interview-process/[company]/
+//    Targets: "TCS interview process 2026", "Wipro interview rounds"
+// ═══════════════════════════════════════════════════════════════════════════
+
+// Known round data derived from QUESTIONS
+const ROUND_INFO = {
+  amazon:    { rounds: ['Online Assessment','Technical (LP+DSA)','Technical (LP+DSA)','Bar Raiser','Hiring Manager'], tips: 'Every round has Leadership Principle behavioural questions alongside DSA. Prepare STAR stories for all 16 LPs before your first round.' },
+  google:    { rounds: ['Recruiter screen','Phone screen (DSA)','Onsite x4 (DSA, System Design, Behavioural)','Hiring Committee'], tips: 'Google grades on a scale of 1–4. A 3 on most rounds clears the bar. Focus on clean code and walking through your thought process out loud.' },
+  microsoft: { rounds: ['Recruiter call','Phone screen','Onsite x4 (DSA, Design, Culture)','As-Appropriate (senior)'], tips: 'Microsoft values "growth mindset". Show curiosity, ask clarifying questions, and be ready to explain trade-offs clearly.' },
+  tcs:       { rounds: ['TCS NQT / Online test','Technical interview','Managerial round','HR round'], tips: 'TCS NQT tests Aptitude, Verbal, Coding. Technical round focuses on Java/Python basics, OOPs, DBMS, and OS. Be specific about project experience.' },
+  infosys:   { rounds: ['InfyTQ / Hackathon','Technical interview','HR round'], tips: 'Infosys asks Java fundamentals heavily — Collections, multithreading, JVM internals. Spring Boot is common for experienced hires.' },
+  wipro:     { rounds: ['Online test (AMCAT)','Technical interview','Managerial round','HR round'], tips: 'Wipro technical rounds focus on Selenium/automation for testers and Java/SQL for developers. Prepare at least 2-3 automation framework projects.' },
+  accenture: { rounds: ['Online assessment','Technical interview','Communication assessment','HR round'], tips: 'Accenture values communication. Practice explaining your projects clearly. They hire for Playwright/Selenium automation, DevOps, and Java development.' },
+  deloitte:  { rounds: ['Online test','Technical interview','Case interview (consulting)','HR round'], tips: 'Deloitte DevOps rounds focus heavily on Jenkins, Docker, Kubernetes, and CI/CD pipelines. Have a detailed pipeline explanation ready.' },
+  capgemini: { rounds: ['Pseudo-code test','Technical interview','Versant (English)','HR round'], tips: 'Capgemini tests pseudo-code and analytical thinking. Playwright/Selenium and REST API testing is common for QA roles. English communication is tested separately.' },
+  flipkart:  { rounds: ['Phone screen','Machine coding','System design','Culture fit'], tips: 'Flipkart machine coding is 90 minutes. They expect clean, runnable code — not just pseudocode. Practice LLD problems like Parking Lot, Snake and Ladder.' },
+  swiggy:    { rounds: ['Phone screen','Technical (DSA)','System design','Hiring Manager'], tips: 'Swiggy asks logistics/geo-spatial system design questions frequently. Think about real-time tracking, ETA estimation, and matching algorithms.' },
+  meta:      { rounds: ['Recruiter call','Phone screen x2','Onsite x5 (Coding, System Design, Behavioural)'], tips: 'Meta values speed of execution. System Design rounds often involve social graph or feed ranking problems. Behavioural rounds use the "impact" framework.' },
+  uber:      { rounds: ['Phone screen','Technical x2','System Design','Hiring Manager'], tips: 'Uber frequently asks about geo-spatial systems, matching algorithms, and surge pricing. Show you understand distributed system trade-offs.' },
+};
+
+const ACTIVE_COMPANIES = COMPANIES.filter(c => QUESTIONS.some(q => q.company === c.id));
+
+ACTIVE_COMPANIES.forEach(co => {
+  const qs       = QUESTIONS.filter(q => q.company === co.id);
+  const info     = ROUND_INFO[co.id] || {
+    rounds: ['Online test / phone screen', 'Technical interview', 'Managerial / HR round'],
+    tips:   `Prepare well for the technical interview with questions from ${co.name}'s previous loops.`,
+  };
+  const compSlug  = slug(co.name);
+  const title     = `${co.name} Interview Process ${YEAR} — Rounds, Tips & Questions`;
+  const desc      = `Everything about the ${co.name} interview process: rounds, what each round tests, difficulty level, and ${qs.length} real questions asked by engineers who cleared the loop.`;
+  const canonical = `/interview-process/${compSlug}/`;
+
+  const techs  = [...new Set(qs.flatMap(q => q.tech||[]))].slice(0, 8);
+  const topics = [...new Set(qs.map(q => q.topicPath))];
+
+  const bodyHtml = `
+<p class="subtitle">${esc(desc)}</p>
+<div class="stat-row">
+  <div class="stat"><b>${info.rounds.length}</b> rounds</div>
+  <div class="stat"><b>${qs.length}</b> real questions</div>
+  <div class="stat"><b>${qs.reduce((s,q)=>s+q.asked,0)}</b> engineers asked</div>
+</div>
+
+<h2>Interview Rounds at ${esc(co.name)}</h2>
+<ol style="padding-left:20px;margin-bottom:24px">
+${info.rounds.map(r => `  <li style="padding:8px 0;color:#d4d4d8;font-size:15px">${esc(r)}</li>`).join('\n')}
+</ol>
+
+<div style="padding:18px 22px;border-radius:10px;border:1px solid rgba(245,158,11,.2);background:rgba(245,158,11,.04);margin-bottom:32px">
+  <div style="font-family:monospace;font-size:10px;text-transform:uppercase;letter-spacing:.18em;color:#f59e0b;margin-bottom:8px">Insider tip</div>
+  <p style="color:#d4d4d8;font-size:14px;line-height:1.7">${esc(info.tips)}</p>
+</div>
+
+<h2>Real Questions Asked at ${esc(co.name)}</h2>
+${qs.sort((a,b)=>b.upvotes-a.upvotes).slice(0,10).map((q,i)=>qCard(q,i+1)).join('\n')}
+
+${practiceBlock(co.name, '')}
+
+${relatedSection(`What ${esc(co.name)} asks by topic`, topics.map(tp => ({
+  label: tp, href: `/questions/company/${compSlug}/`,
+})))}
+${relatedSection(`${esc(co.name)} questions by technology`, techs.map(t => ({
+  label: `${co.name} ${t}`, href: `/questions/${compSlug}-${slug(t)}/`,
+})))}
+${relatedSection('Other company interview processes', ACTIVE_COMPANIES.filter(c=>c.id!==co.id).slice(0,10).map(c=>({
+  label: `${c.name} Interview Process`, href: `/interview-process/${slug(c.name)}/`,
+})))}`;
+
+  write(`interview-process/${compSlug}/index.html`, shell({
+    title, desc, canonical, h1: title, bodyHtml,
+    faqItems: [
+      { q: `How many rounds does ${co.name} interview have?`, a: `${co.name} typically has ${info.rounds.length} rounds: ${info.rounds.join(', ')}.` },
+      { q: `What topics does ${co.name} ask in technical rounds?`, a: topics.join(', ') + '. Based on ' + qs.length + ' questions reported by engineers.' },
+      { q: `How hard is the ${co.name} interview?`, a: `Difficulty ranges from ${[...new Set(qs.map(q=>q.difficulty))].join(', ')}. ${info.tips}` },
+    ],
+    breadcrumb: [{ label: 'Interview Process', href: '/interview-process/' }, { label: co.name, href: canonical }],
+  }));
+});
+
+// Interview process index page
+{
+  const title = `Tech Company Interview Process Guide ${YEAR}`;
+  const desc  = `How to clear interviews at TCS, Infosys, Wipro, Capgemini, Accenture and 20+ companies. Round-by-round breakdown, insider tips, and real questions from engineers who got the offer.`;
+  write('interview-process/index.html', shell({
+    title, desc, canonical: '/interview-process/', h1: title,
+    breadcrumb: [{ label: 'Interview Process', href: '/interview-process/' }],
+    bodyHtml: `
+<p class="subtitle">${esc(desc)}</p>
+<h2>Select a Company</h2>
+<div class="pill-grid">
+${ACTIVE_COMPANIES.map(c => `<a href="/interview-process/${slug(c.name)}/" class="pill">${esc(c.name)} Interview Process</a>`).join('\n')}
+</div>
+${practiceBlock('', '')}`,
+  }));
+}
+
+console.log(`[seo] Generated interview-process pages`);
+
+// ═══════════════════════════════════════════════════════════════════════════
+// 8. HOW-TO-PREPARE PAGES  /prepare/[company]/
+//    Targets: "how to prepare for TCS interview", "Wipro interview preparation guide"
+// ═══════════════════════════════════════════════════════════════════════════
+
+ACTIVE_COMPANIES.forEach(co => {
+  const qs      = QUESTIONS.filter(q => q.company === co.id);
+  const compSlug = slug(co.name);
+  const topics   = [...new Set(qs.map(q => q.topicPath))];
+  const techs    = [...new Set(qs.flatMap(q => q.tech||[]))].slice(0, 8);
+  const topQ     = qs.sort((a,b)=>b.upvotes-a.upvotes).slice(0, 5);
+  const title    = `How to Prepare for ${co.name} Interview ${YEAR} — Complete Guide`;
+  const desc     = `Step-by-step preparation guide for ${co.name} interviews. Covers what to study, how long to prepare, top resources, and ${qs.length} real questions reported by engineers who cleared the ${co.name} process.`;
+  const canonical = `/prepare/${compSlug}/`;
+
+  const bodyHtml = `
+<p class="subtitle">${esc(desc)}</p>
+
+<h2>Step 1 — Understand what ${esc(co.name)} actually tests</h2>
+<p style="color:#a1a1aa;font-size:14px;line-height:1.75;margin-bottom:16px">Based on ${qs.length} questions reported by engineers, ${esc(co.name)} focuses on: <b style="color:#f4f4f5">${topics.join(', ')}</b>.</p>
+<div class="stat-row">
+  <div class="stat">Topics: <b>${topics.length}</b></div>
+  <div class="stat">Questions reported: <b>${qs.length}</b></div>
+  <div class="stat">Engineers interviewed: <b>${qs.reduce((s,q)=>s+q.asked,0)}</b></div>
+</div>
+
+<h2>Step 2 — Study the right topics in order</h2>
+<ol style="padding-left:20px;margin-bottom:24px">
+${topics.map((tp,i) => {
+  const tqs = qs.filter(q => q.topicPath === tp);
+  return `  <li style="padding:10px 0;color:#d4d4d8;font-size:14px;line-height:1.6">
+    <b style="color:#f4f4f5">${esc(tp)}</b> — ${tqs.length} questions. ${i===0 ? 'Start here — highest weight in technical rounds.' : i===1 ? 'Second priority after the first topic.' : 'Cover once the first two topics are solid.'}
+  </li>`;
+}).join('\n')}
+</ol>
+
+<h2>Step 3 — Practice with real questions</h2>
+<p style="color:#a1a1aa;font-size:14px;line-height:1.75;margin-bottom:16px">These are the most upvoted questions engineers report being asked at ${esc(co.name)}:</p>
+${topQ.map((q,i)=>qCard(q,i+1)).join('\n')}
+
+<h2>Step 4 — Analyse the job description</h2>
+<div style="padding:20px 24px;border-radius:10px;border:1px solid rgba(255,255,255,.1);background:#0c0c0f;margin-bottom:16px">
+  <p style="color:#d4d4d8;font-size:14px;line-height:1.75">Paste the exact ${esc(co.name)} JD into Stepkai's AI tool. It will extract the competencies being tested, score your current readiness, and generate a personalised day-by-day plan targeting your specific gaps — not a generic checklist.</p>
+  <div style="margin-top:16px"><a href="/app/study-plan" class="cta" style="display:inline-block">Analyse my JD →</a></div>
+</div>
+
+<h2>Step 5 — Mock interview</h2>
+<p style="color:#a1a1aa;font-size:14px;line-height:1.75;margin-bottom:24px">Practice answering ${esc(co.name)} questions with AI grading. Get instant feedback on depth, correctness, and communication before the real thing.</p>
+<a href="/app/practice" class="cta" style="display:inline-block;margin-bottom:32px">Start practising →</a>
+
+${relatedSection(`All ${esc(co.name)} questions by technology`, techs.map(t => ({
+  label: `${co.name} ${t}`, href: `/questions/${compSlug}-${slug(t)}/`,
+})))}
+${relatedSection('Preparation guides for other companies', ACTIVE_COMPANIES.filter(c=>c.id!==co.id).slice(0,10).map(c=>({
+  label: `How to prepare for ${c.name}`, href: `/prepare/${slug(c.name)}/`,
+})))}`;
+
+  write(`prepare/${compSlug}/index.html`, shell({
+    title, desc, canonical, h1: title, bodyHtml,
+    faqItems: [
+      { q: `How long does it take to prepare for ${co.name} interview?`, a: `For experienced engineers, 2–4 weeks of focused preparation covering ${topics.join(', ')} is typically sufficient for ${co.name}.` },
+      { q: `What topics should I study for ${co.name} interview?`, a: `${co.name} interview questions cover ${topics.join(', ')}. The most upvoted topics from ${qs.length} real questions are: ${topics.slice(0,3).join(', ')}.` },
+      { q: `Is ${co.name} interview hard?`, a: `Difficulty levels range from ${[...new Set(qs.map(q=>q.difficulty))].join(' to ')}. Most questions are Medium. Preparation with real questions from engineers who cleared the loop makes a significant difference.` },
+    ],
+    breadcrumb: [{ label: 'Prepare', href: '/prepare/' }, { label: co.name, href: canonical }],
+  }));
+});
+
+// Prepare index
+{
+  const title = `Interview Preparation Guides — TCS, Infosys, Wipro, Capgemini & More`;
+  const desc  = `Company-specific preparation guides written from real interview data. Know exactly what to study, in what order, and how long it takes to prepare for each company.`;
+  write('prepare/index.html', shell({
+    title, desc, canonical: '/prepare/', h1: title,
+    breadcrumb: [{ label: 'Prepare', href: '/prepare/' }],
+    bodyHtml: `
+<p class="subtitle">${esc(desc)}</p>
+<h2>Pick your target company</h2>
+<div class="pill-grid">
+${ACTIVE_COMPANIES.map(c => `<a href="/prepare/${slug(c.name)}/" class="pill">${esc(c.name)} Preparation Guide</a>`).join('\n')}
+</div>
+${practiceBlock('','')}`,
+  }));
+}
+
+console.log(`[seo] Generated prepare pages`);
+
+// ═══════════════════════════════════════════════════════════════════════════
+// 9. FEATURE LANDING PAGES  /tools/[feature]/
+//    Targets: "JD analysis tool", "AI interview practice", "study plan generator"
+// ═══════════════════════════════════════════════════════════════════════════
+
+const FEATURES = [
+  {
+    id: 'jd-analysis',
+    title: `JD Analysis Tool — Know Exactly What to Prep From Any Job Description`,
+    desc:  'Free AI tool that reads any tech job description and tells you which skills to focus on, how ready you are, and what your gaps are. No generic advice.',
+    h1:    'JD Analysis Tool',
+    appPath: '/app/study-plan',
+    cta:   'Analyse my JD free →',
+    faq: [
+      { q: 'How does the JD analysis tool work?', a: 'Paste any job description. The AI extracts the key competencies being tested, scores your readiness based on a quick assessment, and shows you exactly which skills are critical gaps vs strengths for that specific role.' },
+      { q: 'Is the JD analysis tool free?', a: 'Yes, completely free. No signup required for the analysis. Create an account to save your results and get a full 14-day study plan.' },
+      { q: 'Which companies JDs does it work for?', a: 'Any company — TCS, Infosys, Wipro, Capgemini, Accenture, Deloitte, Amazon, Google, and any other tech company. It reads the raw JD text, not a company database.' },
+    ],
+    body: `
+<p class="subtitle">Paste any tech job description. The AI extracts what's actually being tested — not what the JD says in jargon — and shows your readiness score and specific gaps.</p>
+
+<h2>What the JD analysis does</h2>
+<ol style="padding-left:20px;margin-bottom:24px">
+  <li style="padding:8px 0;color:#d4d4d8;font-size:15px"><b style="color:#f4f4f5">Extracts real competencies</b> — strips HR jargon and identifies the actual technical skills being tested</li>
+  <li style="padding:8px 0;color:#d4d4d8;font-size:15px"><b style="color:#f4f4f5">Runs a 10-question assessment</b> — mixed MCQ, scenario, ranking, and free-text questions calibrated to that JD</li>
+  <li style="padding:8px 0;color:#d4d4d8;font-size:15px"><b style="color:#f4f4f5">Shows your readiness score</b> — confidence-weighted percentage per skill, not a vague overall score</li>
+  <li style="padding:8px 0;color:#d4d4d8;font-size:15px"><b style="color:#f4f4f5">Identifies critical gaps</b> — exactly which skills to fix first, in priority order</li>
+  <li style="padding:8px 0;color:#d4d4d8;font-size:15px"><b style="color:#f4f4f5">Generates a 14-day plan</b> — specific daily tasks with measurable outcomes, not "study Kafka"</li>
+</ol>
+
+<div style="padding:20px 24px;border-radius:10px;border:1px solid rgba(245,158,11,.25);background:rgba(245,158,11,.04);margin-bottom:32px">
+  <h3 style="font-size:16px;margin-bottom:8px">Try it free — no signup needed</h3>
+  <p style="color:#a1a1aa;font-size:14px;line-height:1.7;margin-bottom:16px">Paste any JD from TCS, Infosys, Wipro, Capgemini, Amazon, or any other company. Takes 5 minutes. Most engineers are surprised by what the JD is actually testing vs what they thought.</p>
+  <a href="/app/study-plan" class="cta" style="display:inline-block">Analyse my JD →</a>
+</div>
+
+<h2>Why generic preparation guides fail</h2>
+<p style="color:#a1a1aa;font-size:14px;line-height:1.75;margin-bottom:24px">A TCS SDE2 JD focusing on Spring Boot microservices needs completely different preparation than a TCS SDE2 JD for a Kafka streaming team — even though both say "Java, 4 years, microservices experience." The JD analysis reads the specific requirements and adapts the prep accordingly.</p>`,
+  },
+  {
+    id: 'ai-interview-practice',
+    title: `AI Interview Practice — Get Graded on Real Interview Questions`,
+    desc:  'Practice real interview questions from TCS, Infosys, Wipro, Capgemini and 20+ companies. AI grades your answers instantly on depth, correctness, and communication.',
+    h1:    'AI Interview Practice',
+    appPath: '/app/practice',
+    cta:   'Start practising free →',
+    faq: [
+      { q: 'How does AI interview practice work?', a: 'Pick a company and topic. Answer the question in your own words. The AI grades your answer on depth of knowledge, technical correctness, and how clearly you communicated — same criteria real interviewers use.' },
+      { q: 'What companies and topics are available?', a: `Questions from ${ACTIVE_COMPANIES.map(c=>c.name).slice(0,8).join(', ')} and more. Topics include DSA, System Design, Behavioural, Domain-specific, Testing, DevOps, and API Testing.` },
+      { q: 'Is this better than LeetCode?', a: 'For interview communication skills, yes. LeetCode tests if your code runs — AI grading tests if your explanation is strong enough to convince a real interviewer. Both are useful for different things.' },
+    ],
+    body: `
+<p class="subtitle">Stop practising in isolation. Answer real interview questions and get instant feedback on what a hiring manager would actually think of your answer.</p>
+
+<h2>What makes this different from other practice tools</h2>
+<ol style="padding-left:20px;margin-bottom:24px">
+  <li style="padding:8px 0;color:#d4d4d8;font-size:15px"><b style="color:#f4f4f5">Real questions</b> — reported by engineers who went through actual ${ACTIVE_COMPANIES.slice(0,4).map(c=>c.name).join(', ')} and other company loops</li>
+  <li style="padding:8px 0;color:#d4d4d8;font-size:15px"><b style="color:#f4f4f5">AI grading</b> — scored on depth, correctness, and communication quality — not just keywords</li>
+  <li style="padding:8px 0;color:#d4d4d8;font-size:15px"><b style="color:#f4f4f5">Spaced repetition</b> — weak questions resurface. Strong answers get retired. Your time goes to what you actually need.</li>
+  <li style="padding:8px 0;color:#d4d4d8;font-size:15px"><b style="color:#f4f4f5">Progress tracking</b> — see your mastery score per topic grow as you practice</li>
+</ol>
+
+<div style="padding:20px 24px;border-radius:10px;border:1px solid rgba(245,158,11,.25);background:rgba(245,158,11,.04);margin-bottom:32px">
+  <h3 style="font-size:16px;margin-bottom:8px">Free forever for the core practice</h3>
+  <p style="color:#a1a1aa;font-size:14px;line-height:1.7;margin-bottom:16px">${QUESTIONS.length} real questions, AI grading, and progress tracking. No paywall on the basics.</p>
+  <a href="/app/practice" class="cta" style="display:inline-block">Start practising →</a>
+</div>`,
+  },
+  {
+    id: 'study-plan-generator',
+    title: `Free Interview Study Plan Generator — Personalised 14-Day Roadmap`,
+    desc:  'Generate a personalised 14-day interview study plan based on your actual skill gaps. AI builds the plan from your JD analysis results — not a generic checklist.',
+    h1:    'Interview Study Plan Generator',
+    appPath: '/app/study-plan',
+    cta:   'Build my study plan →',
+    faq: [
+      { q: 'How is this different from a generic study plan?', a: 'Generic plans say "study Kafka". This plan says "Explain Kafka partitions, replication, consumer groups, ISR and retention policy. Build a producer-consumer demo." Every task has a measurable outcome tied to your specific gaps.' },
+      { q: 'How long does it take to generate a plan?', a: 'About 10 minutes including the assessment. Paste your JD, answer 10 questions, and your plan is ready with day-by-day tasks and practice questions.' },
+      { q: 'Can I get a plan for any company?', a: `Yes. The plan is built from your JD, not a company template. It works for TCS, Infosys, Wipro, Capgemini, Accenture, Amazon, Google, startups, or any tech role.` },
+    ],
+    body: `
+<p class="subtitle">Most study plans are useless because they're generic. This one is built from your actual JD, your assessment results, and your specific gaps — so every day's work moves the needle.</p>
+
+<h2>How the plan is generated</h2>
+<ol style="padding-left:20px;margin-bottom:24px">
+  <li style="padding:8px 0;color:#d4d4d8;font-size:15px"><b style="color:#f4f4f5">Paste your JD</b> — the AI extracts the real competencies being tested (not the HR jargon)</li>
+  <li style="padding:8px 0;color:#d4d4d8;font-size:15px"><b style="color:#f4f4f5">Complete a 10-question assessment</b> — MCQ, scenario, ranking, and free-text questions calibrated to your JD</li>
+  <li style="padding:8px 0;color:#d4d4d8;font-size:15px"><b style="color:#f4f4f5">See your skills heatmap</b> — readiness score per competency, critical gaps flagged</li>
+  <li style="padding:8px 0;color:#d4d4d8;font-size:15px"><b style="color:#f4f4f5">Get your 14-day roadmap</b> — Days 1-7 front-load critical gaps, Days 8-12 strengthen weak areas, Days 13-14 mock interview simulation</li>
+</ol>
+
+<h2>What a day looks like</h2>
+<div style="padding:18px 22px;border-radius:10px;border:1px solid rgba(255,255,255,.1);background:#0c0c0f;margin-bottom:24px">
+  <div style="font-family:monospace;font-size:11px;color:#52525b;margin-bottom:10px">day 3 example — if System Design is a critical gap</div>
+  <ul style="padding-left:20px;color:#d4d4d8;font-size:14px;line-height:1.8">
+    <li>Design a URL shortener (tinyurl clone). Write API spec, DB schema, cache strategy, and scaling plan to 1B requests/day.</li>
+    <li>Implement consistent hashing in code and explain why it reduces hotspots vs round-robin.</li>
+    <li>Answer: "Design a notification service for 10M daily messages" — time yourself to 30 minutes.</li>
+    <li>Reflection: what would break first at 10x scale? Write 3 bullet points.</li>
+  </ul>
+</div>
+
+<div style="padding:20px 24px;border-radius:10px;border:1px solid rgba(245,158,11,.25);background:rgba(245,158,11,.04);margin-bottom:32px">
+  <a href="/app/study-plan" class="cta" style="display:inline-block">Generate my plan — free →</a>
+</div>`,
+  },
+];
+
+FEATURES.forEach(f => {
+  const canonical = `/tools/${f.id}/`;
+  const bodyHtml = `${f.body}
+${relatedSection('Related tools', FEATURES.filter(f2=>f2.id!==f.id).map(f2=>({ label: f2.h1, href: `/tools/${f2.id}/` })))}
+${relatedSection('Company interview prep', ACTIVE_COMPANIES.slice(0,10).map(c=>({ label: `${c.name} preparation guide`, href: `/prepare/${slug(c.name)}/` })))}`;
+
+  write(`tools/${f.id}/index.html`, shell({
+    title: f.title, desc: f.desc, canonical, h1: f.h1, bodyHtml, faqItems: f.faq,
+    breadcrumb: [{ label: 'Tools', href: '/tools/' }, { label: f.h1, href: canonical }],
+  }));
+});
+
+// Tools index
+{
+  const title = 'Free Interview Prep Tools — JD Analysis, AI Practice, Study Plans';
+  const desc  = 'Free tools to prepare smarter for tech interviews. Analyse any JD, practice with AI grading, and generate a personalised study plan based on your actual gaps.';
+  write('tools/index.html', shell({
+    title, desc, canonical: '/tools/', h1: title,
+    breadcrumb: [{ label: 'Tools', href: '/tools/' }],
+    bodyHtml: `
+<p class="subtitle">${esc(desc)}</p>
+<div class="pill-grid">
+${FEATURES.map(f => `<a href="/tools/${f.id}/" class="pill accent">${esc(f.h1)}</a>`).join('\n')}
+</div>
+<h2>All tools are free</h2>
+<p style="color:#a1a1aa;font-size:14px;line-height:1.75">No paid tiers for the core prep workflow. JD analysis, assessment, study plan generation, and question practice are all free. Create an account to save progress across sessions.</p>
+${practiceBlock('','')}`,
+  }));
+}
+
+console.log(`[seo] Generated feature/tool pages`);
+
+// ═══════════════════════════════════════════════════════════════════════════
+// 10. TECHNOLOGY COMPARISON GUIDES  /compare/[tech-vs-tech]/
+//     Targets: "selenium vs playwright 2026", "java vs python for interviews"
+// ═══════════════════════════════════════════════════════════════════════════
+
+const COMPARISONS = [
+  {
+    slug: 'selenium-vs-playwright',
+    title: `Selenium vs Playwright ${YEAR} — Which to Learn for QA Interviews`,
+    desc:  `Selenium vs Playwright for interview preparation. Which framework do TCS, Wipro, Accenture, and Capgemini ask about? Real data from ${QUESTIONS.filter(q=>(q.tech||[]).some(t=>['Selenium','Playwright'].includes(t))).length} interview questions.`,
+    h1:    `Selenium vs Playwright ${YEAR}`,
+    techs: ['Selenium', 'Playwright'],
+    comparison: [
+      { aspect: 'Industry adoption in India', selenium: 'Very high — majority of legacy projects', playwright: 'Rapidly growing — new projects in 2024–26' },
+      { aspect: 'Interview frequency', selenium: 'High at Wipro, TCS, Infosys (older stacks)', playwright: 'High at Accenture, Capgemini, new startups' },
+      { aspect: 'Architecture', selenium: 'WebDriver protocol — external browser driver', playwright: 'CDP/browser-native — built-in browser control' },
+      { aspect: 'Auto-wait', selenium: 'Manual — requires explicit waits', playwright: 'Built-in — actionability checks before every action' },
+      { aspect: 'Cross-browser', selenium: 'Chrome, Firefox, Safari, Edge, IE', playwright: 'Chromium, Firefox, WebKit (no IE)' },
+      { aspect: 'Speed', selenium: 'Slower — network round trips to WebDriver', playwright: 'Faster — in-process browser control' },
+      { aspect: 'Language support', selenium: 'Java, Python, C#, Ruby, JavaScript', playwright: 'TypeScript/JS, Python, Java, C#' },
+    ],
+  },
+  {
+    slug: 'java-vs-python-interview',
+    title: `Java vs Python for Tech Interviews ${YEAR} — Which to Choose`,
+    desc:  `Java or Python for your next tech interview? Which language does TCS, Infosys, Wipro prefer? Data from real interview questions across Indian tech companies.`,
+    h1:    `Java vs Python for Tech Interviews ${YEAR}`,
+    techs: ['Java', 'Python'],
+    comparison: [
+      { aspect: 'Preferred at Indian service companies', java: 'Strong preference — TCS, Infosys, Wipro, Accenture', python: 'Growing — data/ML roles, scripting, testing' },
+      { aspect: 'DSA in interviews', java: 'Collections, Streams, generics well-tested', python: 'List comprehension, dicts, generators commonly asked' },
+      { aspect: 'OOP questions', java: 'Very heavy — JVM internals, GC, threading', python: 'Lighter — duck typing, decorators, GIL' },
+      { aspect: 'Framework questions', java: 'Spring Boot, Hibernate, Maven', python: 'Django, FastAPI, Flask, Pytest' },
+      { aspect: 'Verbosity in interviews', java: 'More lines — but shows discipline', python: 'Concise — faster to write, easier to explain' },
+      { aspect: 'Salary impact (India)', java: 'Marginally higher for backend roles', python: 'Higher for ML/data roles' },
+    ],
+  },
+];
+
+COMPARISONS.forEach(comp => {
+  const canonical = `/compare/${comp.slug}/`;
+  const [tech1, tech2] = comp.techs;
+  const qs1 = QUESTIONS.filter(q=>(q.tech||[]).includes(tech1));
+  const qs2 = QUESTIONS.filter(q=>(q.tech||[]).includes(tech2));
+  const companies1 = [...new Set(qs1.map(q=>COMPANY_MAP[q.company]?.name).filter(Boolean))];
+  const companies2 = [...new Set(qs2.map(q=>COMPANY_MAP[q.company]?.name).filter(Boolean))];
+
+  const tableRows = comp.comparison.map(row => `
+  <tr>
+    <td style="padding:12px 14px;color:#a1a1aa;font-size:13px;border-bottom:1px solid rgba(255,255,255,.06)">${esc(row.aspect)}</td>
+    <td style="padding:12px 14px;color:#d4d4d8;font-size:13px;border-bottom:1px solid rgba(255,255,255,.06)">${esc(row[slug(tech1).replace(/-/g,'')] || row.selenium || row.java || '')}</td>
+    <td style="padding:12px 14px;color:#d4d4d8;font-size:13px;border-bottom:1px solid rgba(255,255,255,.06)">${esc(row[slug(tech2).replace(/-/g,'')] || row.playwright || row.python || '')}</td>
+  </tr>`).join('');
+
+  const bodyHtml = `
+<p class="subtitle">${esc(comp.desc)}</p>
+<div class="stat-row">
+  <div class="stat">${esc(tech1)}: <b>${qs1.length} questions</b></div>
+  <div class="stat">${esc(tech2)}: <b>${qs2.length} questions</b></div>
+</div>
+
+<h2>Side-by-side comparison</h2>
+<div style="overflow-x:auto;margin-bottom:32px">
+<table style="width:100%;border-collapse:collapse;border:1px solid rgba(255,255,255,.09);border-radius:10px;overflow:hidden">
+  <thead>
+    <tr style="background:#0c0c0f">
+      <th style="padding:12px 14px;text-align:left;font-family:monospace;font-size:10px;text-transform:uppercase;letter-spacing:.18em;color:#52525b">Aspect</th>
+      <th style="padding:12px 14px;text-align:left;font-family:monospace;font-size:10px;text-transform:uppercase;letter-spacing:.18em;color:#f59e0b">${esc(tech1)}</th>
+      <th style="padding:12px 14px;text-align:left;font-family:monospace;font-size:10px;text-transform:uppercase;letter-spacing:.18em;color:#60a5fa">${esc(tech2)}</th>
+    </tr>
+  </thead>
+  <tbody>${tableRows}</tbody>
+</table>
+</div>
+
+<h2>Interview questions for ${esc(tech1)} (${qs1.length} total)</h2>
+<p style="color:#a1a1aa;font-size:13px;margin-bottom:16px">Companies asking: ${companies1.join(', ')}</p>
+${qs1.sort((a,b)=>b.upvotes-a.upvotes).slice(0,4).map((q,i)=>qCard(q,i+1)).join('\n')}
+<p style="margin-top:12px"><a href="/questions/tech/${slug(tech1)}/" class="pill">See all ${qs1.length} ${esc(tech1)} questions →</a></p>
+
+<h2>Interview questions for ${esc(tech2)} (${qs2.length} total)</h2>
+<p style="color:#a1a1aa;font-size:13px;margin-bottom:16px">Companies asking: ${companies2.join(', ')}</p>
+${qs2.sort((a,b)=>b.upvotes-a.upvotes).slice(0,4).map((q,i)=>qCard(q,i+1)).join('\n')}
+<p style="margin-top:12px"><a href="/questions/tech/${slug(tech2)}/" class="pill">See all ${qs2.length} ${esc(tech2)} questions →</a></p>
+
+${practiceBlock('', '')}
+${relatedSection('Related comparisons', COMPARISONS.filter(c=>c.slug!==comp.slug).map(c=>({ label: c.h1, href: `/compare/${c.slug}/` })))}`;
+
+  write(`compare/${comp.slug}/index.html`, shell({
+    title: comp.title, desc: comp.desc, canonical, h1: comp.h1, bodyHtml,
+    faqItems: [
+      { q: `Should I learn ${tech1} or ${tech2} for interviews?`, a: `${tech1} has ${qs1.length} questions from ${companies1.slice(0,3).join(', ')}. ${tech2} has ${qs2.length} questions from ${companies2.slice(0,3).join(', ')}. The best choice depends on your target company.` },
+    ],
+    breadcrumb: [{ label: 'Compare', href: '/compare/' }, { label: `${tech1} vs ${tech2}`, href: canonical }],
+  }));
+});
+
+console.log(`[seo] Generated comparison pages`);
+
+// ═══════════════════════════════════════════════════════════════════════════
+// 11. SITEMAP.XML
 // ═══════════════════════════════════════════════════════════════════════════
 const today = new Date().toISOString().split('T')[0];
-const staticPages = ['/', '/app/questions', '/app/study-plan', '/app/practice', '/app/daily-review'];
+const staticPages = [
+  '/', '/app/questions', '/app/study-plan', '/app/practice', '/app/daily-review',
+  '/questions/', '/interview-process/', '/prepare/', '/tools/', '/compare/',
+];
 
 const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
