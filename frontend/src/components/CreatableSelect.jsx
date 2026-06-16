@@ -77,7 +77,7 @@ export const CreatableSelect = ({
             {q.trim() && !exists && (
               <button type="button" data-testid={`creatable-add-${testid}`}
                 onClick={() => commit(q.trim())}
-                className="w-full flex items-center gap-2 px-3 py-2 font-mono text-sm text-left text-amber-400 hover:bg-amber-500/[0.06] border-t border-white/5">
+                className="w-full flex items-center gap-2 px-3 py-2 font-mono text-sm text-left hover:bg-white/5 border-t border-white/5" style={{ color: '#3B6FD4' }}>
                 <Plus size={12} /> <span>add custom: "{q.trim()}"</span>
               </button>
             )}

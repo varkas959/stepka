@@ -41,11 +41,10 @@ const FILTER_DEFS = [
   { key: 'round',      label: 'round',      options: ROUND_TYPES.map(r => ({ id: r, label: r })) },
 ];
 
-// Accent color per question (left edge)
 const accentForQ = (q) => {
-  if (q.difficulty === 'Hard') return '#ef4444';
-  if (q.difficulty === 'Easy') return '#22c55e';
-  return '#f59e0b';
+  if (q.difficulty === 'Hard') return '#EF4444';
+  if (q.difficulty === 'Easy') return '#22C55E';
+  return '#3B6FD4';
 };
 
 
@@ -129,8 +128,8 @@ export default function QuestionBank({ isGuest = false, userId }) {
   return (
     <div className="px-4 md:px-10 py-6 md:py-10 max-w-[1200px] mx-auto">
       {/* Breadcrumb */}
-      <div className="font-mono text-sm text-zinc-600 mb-4" data-testid="breadcrumb">
-        <span className="text-emerald-400">~</span>
+      <div className="font-mono text-sm mb-4" style={{ color: '#4B5270' }} data-testid="breadcrumb">
+        <span style={{ color: '#3B6FD4' }}>~</span>
         <span className="mx-1.5">/</span>
         <span className="text-zinc-400">{breadcrumbPath}</span>
         <span className="mx-1.5">/</span>
@@ -206,7 +205,7 @@ export default function QuestionBank({ isGuest = false, userId }) {
         className={`md:hidden fixed bottom-6 right-5 z-50 inline-flex items-center gap-2 font-mono text-sm font-semibold px-4 py-3 rounded-full text-zinc-950 shadow-lg transition-all duration-200 ${
           scrolled ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'
         }`}
-        style={{ background: '#f59e0b', boxShadow: '0 4px 20px rgba(245,158,11,0.4)' }}
+        style={{ background: '#3B6FD4' }}
       >
         <Plus size={16} strokeWidth={2.5} />
         <span>Add Question</span>
@@ -214,16 +213,18 @@ export default function QuestionBank({ isGuest = false, userId }) {
 
       {/* Count + active filter banner */}
       {Object.values(filters).some(v => v !== ALL) || search ? (
-        <div className="mb-4 flex items-center justify-between rounded-md border border-amber-500/30 bg-amber-500/[0.06] px-4 py-2.5">
-          <span className="font-mono text-sm text-amber-300">
-            Showing <span className="font-semibold text-amber-200">{filtered.length}</span> of{' '}
-            <span className="font-semibold text-amber-200">{allQuestions.length}</span> questions — filters active
+        <div className="mb-4 flex items-center justify-between rounded-md px-4 py-2.5"
+             style={{ border: '1px solid rgba(59,111,212,0.25)', background: 'rgba(59,111,212,0.06)' }}>
+          <span className="font-mono text-sm" style={{ color: '#8B8FA8' }}>
+            Showing <span className="font-semibold" style={{ color: '#F2F2F4' }}>{filtered.length}</span> of{' '}
+            <span className="font-semibold" style={{ color: '#F2F2F4' }}>{allQuestions.length}</span> questions
           </span>
           <button
             onClick={() => { setSearch(''); setFilters({ company: ALL, role: ALL, topic: ALL, tech: ALL, difficulty: ALL, round: ALL }); }}
-            className="font-mono text-xs font-semibold text-amber-400 hover:text-amber-200 underline ml-4"
+            className="font-mono text-xs underline ml-4 transition-opacity hover:opacity-70"
+            style={{ color: '#3B6FD4' }}
           >
-            clear all filters
+            clear all
           </button>
         </div>
       ) : (
@@ -260,7 +261,10 @@ export default function QuestionBank({ isGuest = false, userId }) {
       <button
         data-testid="submit-unlock"
         onClick={handleAddQuestion}
-        className="w-full text-left mt-6 border border-white/10 hover:border-emerald-500/30 hover:bg-emerald-500/[0.03] bg-zinc-950 rounded-md p-5 flex items-center gap-4 transition-colors group"
+        className="w-full text-left mt-6 rounded-md p-5 flex items-center gap-4 transition-colors"
+      style={{ border: '1px solid #272B3F', background: '#141720' }}
+      onMouseEnter={e => { e.currentTarget.style.borderColor = '#3B6FD430'; e.currentTarget.style.background = 'rgba(59,111,212,0.04)'; }}
+      onMouseLeave={e => { e.currentTarget.style.borderColor = '#272B3F'; e.currentTarget.style.background = '#141720'; }}
       >
         <Plus size={18} className="text-emerald-400 shrink-0" strokeWidth={2.25} />
         <div className="flex-1 font-mono text-sm text-zinc-400">
@@ -308,12 +312,12 @@ const SortChip = ({ value, onChange }) => {
 
 // â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€ Card â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€
 const TAG_PALETTE = {
-  company: { border: 'rgba(245,158,11,0.35)', bg: 'rgba(245,158,11,0.07)', text: '#fbbf24' },
-  default: { border: 'rgba(255,255,255,0.12)', bg: 'rgba(255,255,255,0.03)', text: '#a1a1aa' },
-  Easy:    { border: 'rgba(34,197,94,0.35)',  bg: 'rgba(34,197,94,0.07)',  text: '#4ade80' },
-  Medium:  { border: 'rgba(245,158,11,0.35)', bg: 'rgba(245,158,11,0.07)', text: '#fbbf24' },
-  Hard:    { border: 'rgba(239,68,68,0.35)',  bg: 'rgba(239,68,68,0.07)',  text: '#f87171' },
-  verified:{ border: 'rgba(34,197,94,0.35)',  bg: 'rgba(34,197,94,0.07)',  text: '#4ade80' },
+  company: { border: 'rgba(59,111,212,0.35)', bg: 'rgba(59,111,212,0.08)', text: '#7BA7F5' },
+  default: { border: 'rgba(255,255,255,0.10)', bg: 'rgba(255,255,255,0.03)', text: '#8B8FA8' },
+  Easy:    { border: 'rgba(34,197,94,0.30)',  bg: 'rgba(34,197,94,0.06)',  text: '#4ade80' },
+  Medium:  { border: 'rgba(245,158,11,0.30)', bg: 'rgba(245,158,11,0.06)', text: '#FCD34D' },
+  Hard:    { border: 'rgba(239,68,68,0.30)',  bg: 'rgba(239,68,68,0.06)',  text: '#FCA5A5' },
+  verified:{ border: 'rgba(34,197,94,0.30)',  bg: 'rgba(34,197,94,0.06)',  text: '#4ade80' },
 };
 
 const TagPill = ({ children, kind = 'default', testid }) => {
@@ -341,10 +345,12 @@ const QuestionCard = ({ q, expanded, onToggleExpand, upvoted, asked, onUpvote, o
   return (
     <article
       data-testid={`question-card-${q.id}`}
-      className="relative rounded-lg border border-white/10 bg-zinc-950 hover:border-white/20 transition-colors animate-fade-up overflow-hidden"
-      style={{ boxShadow: '0 8px 24px -16px rgba(0,0,0,0.6)' }}
+      className="relative rounded-lg animate-fade-up overflow-hidden transition-colors"
+      style={{ border: '1px solid #272B3F', background: '#141720' }}
+      onMouseEnter={e => e.currentTarget.style.borderColor = '#323752'}
+      onMouseLeave={e => e.currentTarget.style.borderColor = '#272B3F'}
     >
-      <div className="absolute left-0 top-0 bottom-0 w-[3px]" style={{ background: accent, opacity: 0.85 }} />
+      <div className="absolute left-0 top-0 bottom-0 w-[2px]" style={{ background: accent }} />
       <div className="pl-6 pr-6 py-5">
         {/* tags row */}
         <div className="flex items-center flex-wrap gap-1.5 mb-4">
@@ -363,12 +369,12 @@ const QuestionCard = ({ q, expanded, onToggleExpand, upvoted, asked, onUpvote, o
         {/* Body */}
         {expanded ? (
           <div className="text-zinc-100 text-base leading-relaxed space-y-2"
-               style={{ fontFamily: 'IBM Plex Sans, sans-serif' }}>
+               style={{ color: '#F2F2F4' }}>
             {q.body.split('\n').map((line, i) => <p key={i}>{line}</p>)}
           </div>
         ) : (
           <p className="text-zinc-100 text-base leading-relaxed line-clamp-3"
-             style={{ fontFamily: 'IBM Plex Sans, sans-serif' }}>
+             style={{ color: '#F2F2F4' }}>
             {q.body.replace(/\n/g, ' ')}
           </p>
         )}
@@ -433,7 +439,7 @@ const BlueprintModal = ({ companyId, onClose }) => {
 
   return (
     <Dialog open={true} onOpenChange={(v) => !v && onClose()}>
-      <DialogContent data-testid="blueprint-modal" className="max-w-2xl bg-zinc-950 border border-white/10 text-zinc-50">
+      <DialogContent data-testid="blueprint-modal" className="max-w-2xl" style={{ background: '#141720', border: '1px solid #272B3F', color: '#F2F2F4' }}>
         <DialogHeader>
           <div className="flex items-center gap-3 mb-2">
             <div className="w-10 h-10 rounded-md flex items-center justify-center font-mono font-bold text-sm"

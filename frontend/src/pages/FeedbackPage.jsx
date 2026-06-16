@@ -49,7 +49,7 @@ export default function FeedbackPage() {
         <CheckCircle size={48} className="text-emerald-400 mb-5" strokeWidth={1.5} />
         <h1 className="text-2xl font-semibold text-zinc-50 mb-2">Thanks for the feedback!</h1>
         <p className="text-zinc-400 text-sm mb-8 text-center max-w-sm">We read every submission and use it to improve Stepkai.</p>
-        <Link to="/app/questions" className="font-mono text-sm font-semibold uppercase tracking-[0.14em] px-5 py-2.5 rounded-md text-zinc-950 hover:brightness-110 transition-all" style={{ background: '#f59e0b' }}>
+        <Link to="/app/questions" className="font-mono text-sm font-semibold uppercase tracking-[0.14em] px-5 py-2.5 rounded-md text-white hover:opacity-90 transition-opacity" style={{ background: '#3B6FD4' }}>
           Back to questions
         </Link>
       </div>
@@ -67,7 +67,7 @@ export default function FeedbackPage() {
       <header className="border-b border-white/5 sticky top-0 z-30 bg-zinc-950/90 backdrop-blur">
         <div className="max-w-2xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2">
-            <div className="w-7 h-7 rounded flex items-center justify-center font-mono font-bold text-zinc-950 text-xs" style={{ background: '#f59e0b' }}>sk</div>
+            <div className="w-7 h-7 rounded flex items-center justify-center font-mono font-bold text-white text-xs" style={{ background: '#3B6FD4' }}>S</div>
             <span className="font-mono font-semibold text-sm">Stepkai</span>
           </Link>
         </div>
@@ -93,7 +93,7 @@ export default function FeedbackPage() {
                   onClick={() => setCategory(c.id)}
                   className={`font-mono text-sm px-4 py-2 rounded-md border transition-colors ${
                     category === c.id
-                      ? 'border-amber-500/50 bg-amber-500/[0.08] text-amber-300'
+                      ? 'border-blue-500/50 bg-blue-500/[0.08] text-blue-200'
                       : 'border-white/10 text-zinc-400 hover:border-white/25 hover:text-zinc-200'
                   }`}
                 >
@@ -106,7 +106,7 @@ export default function FeedbackPage() {
           {/* Message */}
           <div>
             <label className="block font-mono text-xs uppercase tracking-[0.18em] text-zinc-500 mb-3">
-              Message <span className="text-amber-500">*</span>
+              Message <span style={{ color: '#3B6FD4' }}>*</span>
             </label>
             <textarea
               value={message}
@@ -117,7 +117,7 @@ export default function FeedbackPage() {
                 category === 'feature' ? 'What would you like to see in Stepkai? The more detail the better…' :
                 'What would you like to know?'
               }
-              className="w-full bg-zinc-900 border border-white/10 rounded-lg px-4 py-3 text-sm text-zinc-100 placeholder:text-zinc-600 focus:outline-none focus:border-amber-500/40 resize-y font-mono"
+              className="w-full bg-zinc-900 border border-white/10 rounded-lg px-4 py-3 text-sm text-zinc-100 placeholder:text-zinc-600 focus:outline-none focus:border-blue-500/40 resize-y font-mono"
             />
             <div className="flex items-center justify-between mt-1">
               {error && <span className="font-mono text-xs text-red-400">{error}</span>}
@@ -162,8 +162,8 @@ export default function FeedbackPage() {
           <button
             type="submit"
             disabled={submitting || !message.trim()}
-            className="w-full font-mono text-sm font-semibold uppercase tracking-[0.14em] px-5 py-3 rounded-md text-zinc-950 hover:brightness-110 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-            style={{ background: '#f59e0b' }}
+            className="w-full font-mono text-sm font-semibold uppercase tracking-[0.14em] px-5 py-3 rounded-md text-white hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
+            style={{ background: '#3B6FD4' }}
           >
             {submitting ? 'Sending…' : 'Send feedback'}
           </button>

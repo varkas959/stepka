@@ -83,7 +83,7 @@ export const AddQuestionModal = ({ open, onOpenChange, onAdded, userId }) => {
       <DialogContent data-testid="add-question-modal" className="max-w-2xl bg-zinc-950 border border-white/10 text-zinc-50 max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <div className="flex items-center gap-2 mb-2">
-            <Plus size={16} className="text-amber-500" strokeWidth={2.25} />
+            <Plus size={16} strokeWidth={2.25} style={{ color: '#3B6FD4' }} />
             <DialogTitle className="text-xl font-semibold tracking-tight">Submit an interview question</DialogTitle>
           </div>
           <DialogDescription className="text-zinc-400 mt-1">
@@ -141,8 +141,8 @@ export const AddQuestionModal = ({ open, onOpenChange, onAdded, userId }) => {
 
           <div className="flex items-center gap-2 pt-1">
             <button type="submit" data-testid="aq-submit" disabled={submitting}
-              className="inline-flex items-center gap-2 font-mono text-sm font-semibold uppercase tracking-[0.14em] px-4 py-2 rounded-md text-zinc-950 hover:brightness-110 transition-all disabled:opacity-50"
-              style={{ background: '#f59e0b', boxShadow: '0 0 0 1px rgba(245,158,11,0.4), 0 0 24px -8px rgba(245,158,11,0.6)' }}>
+              className="inline-flex items-center gap-2 font-mono text-sm font-semibold uppercase tracking-[0.14em] px-4 py-2 rounded-md text-white hover:opacity-90 transition-opacity disabled:opacity-50"
+              style={{ background: '#3B6FD4' }}>
               {submitting && <Loader2 size={14} className="animate-spin" />}
               {submitting ? 'Adding…' : 'Add question'}
             </button>

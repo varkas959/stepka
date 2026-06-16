@@ -28,7 +28,7 @@ export const AuthGate = () => {
            style={{ backgroundImage: `linear-gradient(180deg, rgba(9,9,11,0.4) 0%, rgba(9,9,11,0.85) 100%), url(${AUTH_BG})`, backgroundSize: 'cover', backgroundPosition: 'center' }}>
         <div className="relative z-10 max-w-md">
           <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded border border-white/10 bg-black/40 mb-6">
-            <Sparkles size={12} className="text-amber-400" />
+            <Sparkles size={12} style={{ color: '#3B6FD4' }} />
             <span className="text-[10px] uppercase tracking-[0.22em] text-zinc-300">Built for engineers in motion</span>
           </div>
           <h1 className="text-5xl font-semibold leading-[0.95] tracking-tight text-zinc-50">
@@ -57,7 +57,7 @@ export const AuthGate = () => {
       <div className="w-full md:w-1/2 flex items-center justify-center p-6 md:p-12">
         <div className="w-full max-w-sm">
           <div className="flex items-center gap-2.5 mb-10">
-            <div className="w-9 h-9 rounded-md flex items-center justify-center font-mono font-bold text-zinc-950" style={{ background: '#f59e0b' }}>sk</div>
+            <div className="w-9 h-9 rounded-md flex items-center justify-center font-mono font-bold text-white" style={{ background: '#3B6FD4' }}>S</div>
             <div>
               <div className="font-mono text-lg font-semibold tracking-tight">Stepkai</div>
               <div className="text-[10px] uppercase tracking-[0.22em] text-zinc-500">interview prep</div>

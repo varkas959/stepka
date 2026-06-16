@@ -8,7 +8,7 @@ export default function LegalPage({ kind = 'privacy' }) {
       <header className="border-b border-white/5">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2.5" data-testid="legal-home-link">
-            <div className="w-7 h-7 rounded-md flex items-center justify-center font-mono font-bold text-zinc-950 text-xs" style={{ background: '#f59e0b' }}>sk</div>
+            <div className="w-7 h-7 rounded-md flex items-center justify-center font-mono font-bold text-white text-xs" style={{ background: '#3B6FD4' }}>S</div>
             <span className="font-mono font-semibold tracking-tight text-sm">Stepkai</span>
           </Link>
           <Link to="/" className="font-mono text-xs text-zinc-400 hover:text-zinc-50 inline-flex items-center gap-1.5">

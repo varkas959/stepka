@@ -1,47 +1,50 @@
-import { NavLink, useNavigate, Link, useLocation } from 'react-router-dom';
-import { Diamond, Target, Grid3x3, Terminal, CircleDashed, Flame, Check, Menu, X, MessageSquare, Sun, Moon } from 'lucide-react';
+import { NavLink, Link } from 'react-router-dom';
+import { BookOpen, RotateCcw, LayoutGrid, Terminal, BarChart2, Flame, Check, Menu, X, MessageSquare } from 'lucide-react';
 import { useState } from 'react';
-import { useTheme } from 'next-themes';
 import { useAppState } from '../lib/appState';
-import { PixelBar } from './PixelBar';
+
+const BG  = '#0C0E14';
+const BG2 = '#141720';
+const BDR = '#272B3F';
+const T1  = '#F2F2F4';
+const T2  = '#8B8FA8';
+const T3  = '#4B5270';
+const ACC = '#3B6FD4';
 
 const navItems = [
-  { to: '/app/questions', label: 'Question Bank', icon: Diamond, key: 'questions' },
-  { to: '/app/review',    label: 'Daily Review',  icon: Target,  key: 'review', badge: true },
-  { to: '/app/plan',      label: 'Study Plan',    icon: Grid3x3, key: 'plan' },
-  { to: '/app/practice',  label: 'Practice',      icon: Terminal, key: 'practice' },
-  { to: '/app/progress',  label: 'Progress',      icon: CircleDashed, key: 'progress' },
+  { to: '/app/questions', label: 'Question Bank', icon: BookOpen,   key: 'questions' },
+  { to: '/app/review',    label: 'Daily Review',  icon: RotateCcw,  key: 'review',   badge: true },
+  { to: '/app/plan',      label: 'Study Plan',    icon: LayoutGrid, key: 'plan' },
+  { to: '/app/practice',  label: 'Practice',      icon: Terminal,   key: 'practice' },
+  { to: '/app/progress',  label: 'Progress',      icon: BarChart2,  key: 'progress' },
 ];
 
 export const Sidebar = ({ user, isGuest }) => {
   const { state } = useAppState();
   const [mobileOpen, setMobileOpen] = useState(false);
-  const { theme, setTheme } = useTheme();
-  // navigate kept reserved for future use
-  // eslint-disable-next-line no-unused-vars
-  const navigate = useNavigate();
 
   const progressPct = Math.min(100, Math.round((state.xp / state.xpToNext) * 100));
 
   const content = (
     <>
       {/* Logo */}
-      <div className="flex items-center justify-between px-5 py-5 border-b border-white/5">
+      <div className="flex items-center justify-between px-5 py-4" style={{ borderBottom: `1px solid ${BDR}` }}>
         <div className="flex items-center gap-2.5" data-testid="sidebar-logo">
-          <div className="w-9 h-9 rounded-md flex items-center justify-center font-mono font-bold text-zinc-950"
-               style={{ background: '#f59e0b' }}>sk</div>
+          <div className="w-7 h-7 rounded flex items-center justify-center text-xs font-bold text-white" style={{ background: ACC }}>S</div>
           <div>
-            <div className="font-mono text-base font-semibold tracking-tight text-zinc-50">Stepkai</div>
-            <div className="text-[9px] uppercase tracking-[0.22em] text-zinc-600 font-mono">interview prep</div>
+            <div className="text-sm font-semibold" style={{ color: T1 }}>Stepkai</div>
+            <div className="text-[10px]" style={{ color: T3 }}>Interview prep</div>
           </div>
         </div>
-        <button className="md:hidden text-zinc-400" onClick={() => setMobileOpen(false)} aria-label="close menu"><X size={18} /></button>
+        <button className="md:hidden" onClick={() => setMobileOpen(false)} aria-label="close menu" style={{ color: T2 }}>
+          <X size={18} />
+        </button>
       </div>
 
-      {/* Workspace label + nav */}
-      <div className="px-3 pt-6 flex-1">
-        <div className="text-[10px] uppercase tracking-[0.22em] text-zinc-600 font-mono px-3 mb-2">Workspace</div>
-        <nav className="space-y-1" data-testid="sidebar-nav">
+      {/* Nav */}
+      <div className="px-3 pt-5 flex-1">
+        <div className="text-[10px] font-medium uppercase tracking-widest px-3 mb-3" style={{ color: T3, letterSpacing: '0.12em' }}>Workspace</div>
+        <nav className="space-y-0.5" data-testid="sidebar-nav">
           {navItems.map(item => {
             const Icon = item.icon;
             return (
@@ -51,20 +54,27 @@ export const Sidebar = ({ user, isGuest }) => {
                 data-testid={`nav-${item.key}`}
                 onClick={() => setMobileOpen(false)}
                 className={({ isActive }) =>
-                  `group relative flex items-center gap-3 px-3 py-2 rounded-md text-sm transition-colors border-l-2 ${
-                    isActive
-                      ? 'bg-amber-500/[0.06] text-zinc-50 font-medium border-l-amber-500'
-                      : 'border-l-transparent text-zinc-400 hover:text-zinc-50 hover:bg-white/5'
+                  `flex items-center gap-3 px-3 py-2 rounded-md text-sm transition-colors ${
+                    isActive ? 'font-medium' : ''
                   }`
                 }
+                style={({ isActive }) => ({
+                  background: isActive ? `${ACC}18` : 'transparent',
+                  color: isActive ? T1 : T2,
+                })}
               >
-                <Icon size={15} strokeWidth={1.75} />
-                <span className="flex-1">{item.label}</span>
-                {item.badge && state.dueToday > 0 && (
-                  <span data-testid="review-badge"
-                        className="font-mono text-[10px] px-1.5 py-0.5 rounded bg-amber-500/15 text-amber-400 border border-amber-500/30">
-                    {state.dueToday}
-                  </span>
+                {({ isActive }) => (
+                  <>
+                    <Icon size={15} strokeWidth={1.75} style={{ color: isActive ? ACC : T3 }} />
+                    <span className="flex-1">{item.label}</span>
+                    {item.badge && state.dueToday > 0 && (
+                      <span data-testid="review-badge"
+                            className="text-[10px] px-1.5 py-0.5 rounded font-mono"
+                            style={{ background: `${ACC}20`, color: ACC, border: `1px solid ${ACC}40` }}>
+                        {state.dueToday}
+                      </span>
+                    )}
+                  </>
                 )}
               </NavLink>
             );
@@ -72,74 +82,60 @@ export const Sidebar = ({ user, isGuest }) => {
         </nav>
       </div>
 
-      {/* Theme toggle */}
-      <div className="px-4 pb-2">
-        <button
-          onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-          className="w-full flex items-center justify-between px-3 py-2 rounded-md border border-white/10 hover:bg-white/5 transition-colors"
-        >
-          <span className="font-mono text-xs text-zinc-500 uppercase tracking-[0.18em]">Appearance</span>
-          <div className="flex items-center gap-1.5">
-            <span className="font-mono text-xs text-zinc-400">{theme === 'dark' ? 'Dark' : 'Light'}</span>
-            {theme === 'dark'
-              ? <Moon size={13} className="text-zinc-400" />
-              : <Sun size={13} className="text-amber-500" />
-            }
-          </div>
-        </button>
-      </div>
-
-      {/* Feedback link */}
+      {/* Feedback */}
       <div className="px-3 pb-2">
         <NavLink to="/feedback" onClick={() => setMobileOpen(false)}
-          className={({ isActive }) =>
-            `flex items-center gap-3 px-3 py-2 rounded-md text-sm transition-colors border-l-2 ${
-              isActive ? 'bg-amber-500/[0.06] text-zinc-50 font-medium border-l-amber-500' : 'border-l-transparent text-zinc-500 hover:text-zinc-300 hover:bg-white/5'
-            }`
-          }>
+          className="flex items-center gap-3 px-3 py-2 rounded-md text-sm transition-colors"
+          style={({ isActive }) => ({ color: isActive ? T1 : T3, background: isActive ? `${ACC}18` : 'transparent' })}>
           <MessageSquare size={15} strokeWidth={1.75} />
           <span>Feedback</span>
         </NavLink>
       </div>
 
-      {/* User card / Sign in */}
-      <div className="px-3 pb-4 pt-4 border-t border-white/5">
+      {/* User / Sign in */}
+      <div className="px-3 pb-4 pt-3" style={{ borderTop: `1px solid ${BDR}` }}>
         {isGuest ? (
           <Link to="/signin" onClick={() => setMobileOpen(false)}
-            className="flex items-center justify-center gap-2 w-full py-2.5 rounded-md font-mono text-sm font-semibold text-zinc-950 hover:brightness-110 transition-all"
-            style={{ background: '#f59e0b' }}>
+            className="flex items-center justify-center gap-2 w-full py-2.5 rounded-md text-sm font-medium text-white transition-opacity hover:opacity-90"
+            style={{ background: ACC }}>
             Sign in to track progress
           </Link>
         ) : (
           <>
             <Link to="/app/profile" onClick={() => setMobileOpen(false)} data-testid="sidebar-user"
-              className="flex items-start gap-3 p-2.5 rounded-md hover:bg-white/[0.03] transition-colors">
-              <div className="w-10 h-10 rounded-md flex items-center justify-center font-mono text-sm font-semibold shrink-0"
-                style={{ background: 'rgba(245,158,11,0.12)', color: '#f59e0b', border: '1px solid rgba(245,158,11,0.25)' }}>
+              className="flex items-start gap-3 p-2 rounded-md transition-colors hover:bg-white/5">
+              <div className="w-8 h-8 rounded flex items-center justify-center text-xs font-semibold shrink-0"
+                style={{ background: `${ACC}20`, color: ACC, border: `1px solid ${ACC}30` }}>
                 {user?.avatarInitials || 'U'}
               </div>
               <div className="flex-1 min-w-0">
-                <div className="text-sm font-medium truncate text-zinc-50">{user?.name?.split(' ')[0] || 'User'}</div>
-                <div className="text-[9px] uppercase tracking-[0.18em] text-zinc-600 font-mono mt-0.5">Level {state.level} candidate</div>
+                <div className="text-sm font-medium truncate" style={{ color: T1 }}>{user?.name?.split(' ')[0] || 'User'}</div>
+                <div className="text-[10px] mt-0.5" style={{ color: T3 }}>Level {state.level}</div>
               </div>
             </Link>
-            <div className="mt-3 px-1">
-              <div className="flex items-center justify-between text-[10px] font-mono mb-1.5">
-                <span className="text-zinc-600 uppercase tracking-[0.18em]">Progress</span>
-                <span className="text-amber-500 font-medium">{progressPct}%</span>
+
+            {/* XP bar */}
+            <div className="mt-3 px-2">
+              <div className="flex items-center justify-between text-[10px] mb-1.5" style={{ color: T3 }}>
+                <span>XP progress</span>
+                <span className="font-mono" style={{ color: T2 }}>{progressPct}%</span>
               </div>
-              <PixelBar value={progressPct} height={10} color="#f59e0b" />
+              <div className="h-1 rounded-full" style={{ background: BDR }}>
+                <div className="h-1 rounded-full transition-all" style={{ width: `${progressPct}%`, background: ACC }} />
+              </div>
             </div>
-            <div className="mt-4 px-1 flex items-center gap-3 text-xs font-mono">
-              <span className="inline-flex items-center gap-1.5 text-zinc-300">
-                <Flame size={12} className="text-amber-500" fill="currentColor" />
-                <span className="text-zinc-50">{state.streak}</span>
-                <span className="text-zinc-600">day streak</span>
+
+            {/* Stats row */}
+            <div className="mt-3 px-2 flex items-center gap-4 text-xs">
+              <span className="flex items-center gap-1.5" style={{ color: T2 }}>
+                <Flame size={11} style={{ color: '#F59E0B' }} />
+                <span className="font-mono" style={{ color: T1 }}>{state.streak}</span>
+                <span style={{ color: T3 }}>streak</span>
               </span>
-              <span className="inline-flex items-center gap-1.5 text-zinc-300">
-                <Check size={12} className="text-emerald-400" strokeWidth={2.5} />
-                <span className="text-zinc-50">{state.reviewedToday}</span>
-                <span className="text-zinc-600">completed</span>
+              <span className="flex items-center gap-1.5" style={{ color: T2 }}>
+                <Check size={11} style={{ color: '#22C55E' }} strokeWidth={2.5} />
+                <span className="font-mono" style={{ color: T1 }}>{state.reviewedToday}</span>
+                <span style={{ color: T3 }}>today</span>
               </span>
             </div>
           </>
@@ -151,32 +147,29 @@ export const Sidebar = ({ user, isGuest }) => {
   return (
     <>
       {/* Mobile top bar */}
-      <div className="md:hidden fixed top-0 left-0 right-0 z-40 bg-zinc-950/95 backdrop-blur border-b border-white/5 h-14 flex items-center justify-between px-4">
-        <div className="flex items-center gap-2">
-          <button onClick={() => setMobileOpen(true)} data-testid="mobile-menu" className="text-zinc-300"><Menu size={20} /></button>
-          <div className="font-mono font-semibold">Stepkai</div>
-        </div>
+      <div className="md:hidden fixed top-0 left-0 right-0 z-40 backdrop-blur-sm h-14 flex items-center justify-between px-4"
+           style={{ background: `${BG}F0`, borderBottom: `1px solid ${BDR}` }}>
         <div className="flex items-center gap-3">
-          <button onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')} className="text-zinc-400 hover:text-zinc-200">
-            {theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
-          </button>
-          <div className="flex items-center gap-1.5 text-xs text-zinc-400">
-            <Flame size={12} className="text-amber-500" fill="currentColor" />
-            <span className="font-mono">{state.streak}</span>
-          </div>
+          <button onClick={() => setMobileOpen(true)} data-testid="mobile-menu" style={{ color: T2 }}><Menu size={20} /></button>
+          <div className="text-sm font-semibold" style={{ color: T1 }}>Stepkai</div>
+        </div>
+        <div className="flex items-center gap-3 text-xs font-mono" style={{ color: T2 }}>
+          <span className="flex items-center gap-1"><Flame size={11} style={{ color: '#F59E0B' }} />{state.streak}</span>
         </div>
       </div>
 
-      {/* Desktop */}
-      <aside className="hidden md:flex w-64 flex-col fixed inset-y-0 left-0 z-40 bg-black border-r border-white/5">
+      {/* Desktop sidebar */}
+      <aside className="hidden md:flex w-60 flex-col fixed inset-y-0 left-0 z-40"
+             style={{ background: BG2, borderRight: `1px solid ${BDR}` }}>
         {content}
       </aside>
 
       {/* Mobile drawer */}
       {mobileOpen && (
         <div className="md:hidden fixed inset-0 z-50">
-          <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={() => setMobileOpen(false)} />
-          <aside className="absolute inset-y-0 left-0 w-64 bg-black border-r border-white/5 flex flex-col animate-fade-up">
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setMobileOpen(false)} />
+          <aside className="absolute inset-y-0 left-0 w-60 flex flex-col animate-fade-up"
+                 style={{ background: BG2, borderRight: `1px solid ${BDR}` }}>
             {content}
           </aside>
         </div>

@@ -67,7 +67,7 @@ function RelatedLinks({ currentKind, currentSlug }) {
           </Link>
         ))}
         <Link to="/questions/trending"
-          className="font-mono text-xs px-2.5 py-1 rounded border border-amber-500/30 text-amber-400 hover:bg-amber-500/[0.06] transition-colors">
+          className="font-mono text-xs px-2.5 py-1 rounded border transition-colors" style={{ borderColor: 'rgba(59,111,212,0.3)', color: '#7AA9F7' }}>
           🔥 Trending
         </Link>
       </div>
@@ -90,10 +90,10 @@ function PageShell({ title, description, children, slug, kind }) {
       <header className="border-b border-white/5 sticky top-0 z-30 bg-zinc-950/90 backdrop-blur">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2">
-            <div className="w-7 h-7 rounded flex items-center justify-center font-mono font-bold text-zinc-950 text-xs" style={{ background: '#f59e0b' }}>sk</div>
+            <div className="w-7 h-7 rounded flex items-center justify-center font-mono font-bold text-white text-xs" style={{ background: '#3B6FD4' }}>S</div>
             <span className="font-mono font-semibold text-sm">Stepkai</span>
           </Link>
-          <Link to="/app/questions" className="inline-flex items-center gap-1.5 font-mono text-xs font-semibold uppercase tracking-[0.14em] px-3 py-1.5 rounded-md text-zinc-950 hover:brightness-110 transition-all" style={{ background: '#f59e0b' }}>
+          <Link to="/app/questions" className="inline-flex items-center gap-1.5 font-mono text-xs font-semibold uppercase tracking-[0.14em] px-3 py-1.5 rounded-md text-white hover:opacity-90 transition-opacity" style={{ background: '#3B6FD4' }}>
             Browse all <ArrowRight size={11} strokeWidth={2.5} />
           </Link>
         </div>
@@ -123,7 +123,7 @@ function TrendingPage() {
       description={`The ${questions.length} most popular interview questions right now, ranked by upvotes and how many engineers reported being asked them. Updated daily.`}
       kind="trending"
     >
-      <div className="mt-4 inline-flex items-center gap-2 font-mono text-xs text-amber-400 bg-amber-500/[0.06] border border-amber-500/20 px-3 py-1.5 rounded">
+      <div className="mt-4 inline-flex items-center gap-2 font-mono text-xs px-3 py-1.5 rounded" style={{ color: '#7AA9F7', background: 'rgba(59,111,212,0.06)', border: '1px solid rgba(59,111,212,0.2)' }}>
         <TrendingUp size={12} /> Ranked by upvotes + times asked
       </div>
       <QuestionList questions={questions} />

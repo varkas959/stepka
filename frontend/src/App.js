@@ -39,13 +39,14 @@ function AppShell({ session, onSignOut, children }) {
 
 function GuestBanner() {
   return (
-    <div className="border-b border-amber-500/20 bg-amber-500/[0.05] px-4 sm:px-6 py-2.5 flex items-center justify-between gap-3">
-      <span className="font-mono text-xs text-amber-300">
-        👋 Browsing as guest — sign in to track progress, upvote, and use Study Plan &amp; Practice
+    <div className="border-b px-4 sm:px-6 py-2.5 flex items-center justify-between gap-3"
+         style={{ borderColor: 'rgba(59,111,212,0.2)', background: 'rgba(59,111,212,0.05)' }}>
+      <span className="font-mono text-xs" style={{ color: 'rgba(59,111,212,0.8)' }}>
+        Browsing as guest — sign in to track progress, upvote, and use Study Plan &amp; Practice
       </span>
       <a href="/signin"
-        className="shrink-0 font-mono text-xs font-semibold uppercase tracking-[0.14em] px-3 py-1.5 rounded-md text-zinc-950 hover:brightness-110 transition-all"
-        style={{ background: '#f59e0b' }}>
+        className="shrink-0 font-mono text-xs font-semibold uppercase tracking-[0.14em] px-3 py-1.5 rounded-md text-white hover:opacity-90 transition-opacity"
+        style={{ background: '#3B6FD4' }}>
         Sign in
       </a>
     </div>

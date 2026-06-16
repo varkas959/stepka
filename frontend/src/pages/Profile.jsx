@@ -37,7 +37,7 @@ export default function Profile({ session, onSignOut }) {
       <Section icon={User} title="Identity">
         <div className="flex items-center gap-4 mb-5">
           <div className="w-12 h-12 rounded-md flex items-center justify-center font-mono text-base font-semibold"
-               style={{ background: 'rgba(245,158,11,0.12)', color: '#f59e0b', border: '1px solid rgba(245,158,11,0.25)' }}>
+               style={{ background: 'rgba(59,111,212,0.12)', color: '#3B6FD4', border: '1px solid rgba(59,111,212,0.25)' }}>
             {user.avatarInitials || 'U'}
           </div>
           <div>
@@ -78,7 +78,7 @@ export default function Profile({ session, onSignOut }) {
       <div className="flex items-center gap-2 mt-6">
         <button data-testid="save-settings" onClick={save}
           className="inline-flex items-center gap-2 font-mono text-sm font-semibold uppercase tracking-[0.14em] px-4 py-2.5 rounded-md text-zinc-950 hover:brightness-110 transition-all"
-          style={{ background: '#f59e0b' }}>
+          style={{ background: '#3B6FD4' }}>
           <Save size={14} strokeWidth={2.5} /> Save changes
         </button>
         <button data-testid="profile-signout" onClick={handleSignOut}
@@ -106,7 +106,7 @@ export default function Profile({ session, onSignOut }) {
 const Section = ({ icon: Icon, title, children }) => (
   <div className="mt-7 rounded-lg border border-white/10 bg-zinc-950 p-5">
     <div className="flex items-center gap-2 mb-4">
-      <Icon size={14} className="text-amber-500" strokeWidth={1.75} />
+      <Icon size={14} strokeWidth={1.75} style={{ color: '#3B6FD4' }} />
       <div className="font-mono text-[10px] uppercase tracking-[0.22em] text-zinc-600">{title}</div>
     </div>
     {children}
@@ -129,9 +129,10 @@ const Toggle = ({ label, hint, value, onChange, testid }) => (
     </div>
     <button data-testid={testid} onClick={() => onChange(!value)} aria-pressed={value}
       className={`shrink-0 inline-flex items-center w-10 h-6 rounded-full border transition-colors ${
-        value ? 'bg-amber-500/20 border-amber-500/50' : 'bg-zinc-900 border-white/10'
-      }`}>
-      <span className={`w-4 h-4 rounded-full transition-transform ml-1 ${value ? 'translate-x-4 bg-amber-500' : 'bg-zinc-500'}`} />
+        value ? 'border-blue-500/50' : 'bg-zinc-900 border-white/10'
+      }`} style={value ? { background: 'rgba(59,111,212,0.2)' } : {}}>
+      <span className={`w-4 h-4 rounded-full transition-transform ml-1 ${value ? 'translate-x-4' : 'bg-zinc-500'}`}
+            style={value ? { background: '#3B6FD4' } : {}} />
     </button>
   </div>
 );
@@ -143,12 +144,12 @@ const LegalLink = ({ to, children }) => (
 );
 
 const Breadcrumb = ({ segments }) => (
-  <div className="font-mono text-sm text-zinc-600 mb-4">
-    <span className="text-emerald-400">~</span>
+  <div className="font-mono text-sm mb-4" style={{ color: '#4B5270' }}>
+    <span style={{ color: '#3B6FD4' }}>~</span>
     {segments.map((s, i) => (
       <span key={i}>
         <span className="mx-1.5">/</span>
-        <span className={i === segments.length - 1 ? 'text-zinc-200' : 'text-zinc-400'}>{s}</span>
+        <span style={{ color: i === segments.length - 1 ? '#8B8FA8' : '#4B5270' }}>{s}</span>
       </span>
     ))}
   </div>

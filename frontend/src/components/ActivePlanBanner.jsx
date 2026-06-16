@@ -26,7 +26,7 @@ export const ActivePlanBanner = () => {
           <div className="w-[90px] sm:w-[150px]">
             <PixelBar value={dayPct} height={12} color="#22c55e" />
           </div>
-          <span className="font-mono text-xs sm:text-sm font-semibold text-amber-500">{dayPct}%</span>
+          <span className="font-mono text-xs sm:text-sm font-semibold" style={{ color: '#22C55E' }}>{dayPct}%</span>
         </div>
 
         <div className="hidden md:block w-px h-5 bg-white/10" />
@@ -43,8 +43,8 @@ export const ActivePlanBanner = () => {
         <button
           data-testid="start-plan-day"
           onClick={() => navigate('/app/plan')}
-          className="ml-auto shrink-0 inline-flex items-center gap-2 font-mono text-[10px] sm:text-sm font-semibold uppercase tracking-[0.14em] px-3 sm:px-5 py-2 sm:py-2.5 rounded-md text-zinc-950 hover:brightness-110 transition-all"
-          style={{ background: '#f59e0b', boxShadow: '0 0 0 1px rgba(245,158,11,0.4), 0 0 24px -8px rgba(245,158,11,0.6)' }}
+          className="ml-auto shrink-0 inline-flex items-center gap-2 font-mono text-[10px] sm:text-sm font-semibold uppercase tracking-[0.14em] px-3 sm:px-5 py-2 sm:py-2.5 rounded-md text-white hover:opacity-90 transition-opacity"
+          style={{ background: '#3B6FD4' }}
         >
           <span className="hidden sm:inline">Begin session</span><span className="sm:hidden">Begin</span> <ArrowRight size={14} strokeWidth={2.5} />
         </button>

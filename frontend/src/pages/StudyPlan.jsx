@@ -221,8 +221,8 @@ const InputStep = ({ jd, setJd, company, setCompany, role, setRole, onStart }) =
     <div className="border-t border-white/5 p-5 flex items-center justify-between">
       <div className="font-mono text-xs text-zinc-500">{jd.length} chars</div>
       <button onClick={onStart} disabled={!jd.trim()}
-        className="inline-flex items-center gap-2 font-mono text-sm font-semibold uppercase tracking-[0.14em] px-4 py-2.5 rounded-md text-zinc-950 hover:brightness-110 transition-all disabled:opacity-50"
-        style={{ background: '#f59e0b', boxShadow: '0 0 0 1px rgba(245,158,11,0.4), 0 0 24px -8px rgba(245,158,11,0.6)' }}>
+        className="inline-flex items-center gap-2 font-mono text-sm font-semibold uppercase tracking-[0.14em] px-4 py-2.5 rounded-md text-white hover:opacity-90 transition-opacity disabled:opacity-50"
+        style={{ background: '#3B6FD4' }}>
         <Sparkles size={14} strokeWidth={2.5} /> Start assessment
       </button>
     </div>
@@ -232,7 +232,7 @@ const InputStep = ({ jd, setJd, company, setCompany, role, setRole, onStart }) =
 // ─── Loading card ─────────────────────────────────────────────────────────────
 const LoadingCard = ({ color, text, sub }) => (
   <div className="mt-7 rounded-lg border border-white/10 bg-zinc-950 p-14 flex flex-col items-center animate-fade-up">
-    <Loader2 size={28} className={`animate-spin ${color === 'emerald' ? 'text-emerald-400' : 'text-amber-400'}`} />
+    <Loader2 size={28} className={`animate-spin ${color === 'emerald' ? 'text-emerald-400' : 'text-blue-400'}`} />
     <div className="font-mono text-sm text-zinc-300 mt-5">{text}</div>
     {sub && <div className="font-mono text-xs text-zinc-600 mt-1.5">{sub}</div>}
   </div>
@@ -281,14 +281,14 @@ const AssessmentQuiz = ({ questions, currentQ, onAnswer, label }) => {
           {TYPE_LABEL[q.type]}
         </span>
       </div>
-      <PixelBar value={pct} height={5} color="#f59e0b" />
+      <PixelBar value={pct} height={5} color="#3B6FD4" />
 
       <div className="mt-4 rounded-lg border border-white/10 bg-zinc-950 overflow-hidden">
         <div className="px-5 py-3 border-b border-white/5 flex items-center gap-2 font-mono text-xs">
           <span className="font-mono text-[10px] px-2 py-0.5 rounded border border-white/10 bg-white/[0.03] text-zinc-400">{q.competency}</span>
         </div>
         <div className="p-5">
-          <p className="text-zinc-100 text-base leading-relaxed" style={{ fontFamily: 'IBM Plex Sans, sans-serif' }}>{q.question}</p>
+          <p className="text-zinc-100 text-base leading-relaxed" style={{ fontFamily: 'inherit' }}>{q.question}</p>
         </div>
 
         <div className="px-5 pb-5">
@@ -309,8 +309,8 @@ const AssessmentQuiz = ({ questions, currentQ, onAnswer, label }) => {
             Skip →
           </button>
           <button onClick={handleNext} disabled={!canSubmit() && q.type !== 'free_text'}
-            className="inline-flex items-center gap-2 font-mono text-sm font-semibold uppercase tracking-[0.14em] px-5 py-2.5 rounded-md text-zinc-950 hover:brightness-110 transition-all disabled:opacity-40"
-            style={{ background: '#f59e0b' }}>
+            className="inline-flex items-center gap-2 font-mono text-sm font-semibold uppercase tracking-[0.14em] px-5 py-2.5 rounded-md text-white hover:opacity-90 transition-opacity disabled:opacity-40"
+            style={{ background: '#3B6FD4' }}>
             {currentQ + 1 === total ? <>Submit <CheckCircle2 size={14} /></> : <>Next <ArrowRight size={14} strokeWidth={2.5} /></>}
           </button>
         </div>
@@ -327,9 +327,9 @@ const MCQOptions = ({ options, selected, onSelect }) => (
       return (
         <button key={i} onClick={() => onSelect(letter)}
           className={`w-full text-left p-3 rounded-md border font-mono text-sm transition-all ${
-            isSelected ? 'border-amber-500/60 bg-amber-500/[0.08] text-amber-200' : 'border-white/10 text-zinc-300 hover:border-white/25 hover:bg-white/[0.03]'
+            isSelected ? 'border-blue-500/60 bg-blue-500/[0.08] text-blue-100' : 'border-white/10 text-zinc-300 hover:border-white/25 hover:bg-white/[0.03]'
           }`}>
-          <span className={`font-semibold mr-2 ${isSelected ? 'text-amber-400' : 'text-zinc-600'}`}>{letter}.</span>
+          <span className={`font-semibold mr-2 ${isSelected ? 'text-blue-400' : 'text-zinc-600'}`}>{letter}.</span>
           {opt.replace(/^[A-D]\.\s*/, '')}
         </button>
       );
@@ -349,7 +349,7 @@ const RankingPicker = ({ items, order, setOrder }) => {
         <div className="flex flex-wrap gap-2 mb-4">
           {remaining.map(item => (
             <button key={item} onClick={() => addItem(item)}
-              className="font-mono text-xs px-3 py-1.5 rounded-md border border-white/15 bg-zinc-900 text-zinc-300 hover:border-amber-500/40 hover:text-amber-300 transition-colors">
+              className="font-mono text-xs px-3 py-1.5 rounded-md border border-white/15 bg-zinc-900 text-zinc-300 hover:border-blue-500/40 hover:text-blue-300 transition-colors">
               {item}
             </button>
           ))}
@@ -424,20 +424,20 @@ const ScreeningResults = ({ result, onSkip, onDeepDive }) => {
       </div>
 
       {needsDeepDive && deepDiveSkills?.length > 0 ? (
-        <div className="rounded-lg border border-amber-500/30 bg-amber-500/[0.04] p-5">
+        <div className="rounded-lg p-5" style={{ border: '1px solid rgba(59,111,212,0.3)', background: 'rgba(59,111,212,0.04)' }}>
           <div className="flex items-start gap-3">
-            <Brain size={18} className="text-amber-400 mt-0.5 shrink-0" />
+            <Brain size={18} style={{ color: '#7AA9F7' }} className="mt-0.5 shrink-0" />
             <div className="flex-1">
               <div className="font-mono text-sm text-zinc-100 font-semibold">
                 We identified {deepDiveSkills.length} area{deepDiveSkills.length > 1 ? 's' : ''} that need deeper evaluation
               </div>
               <p className="font-mono text-xs text-zinc-400 mt-1.5 leading-relaxed">
-                A {deepDiveCount}-question deep-dive on <span className="text-amber-300">{deepDiveSkills.map(s => s.skill).join(', ')}</span> will give your plan much higher accuracy.
+                A {deepDiveCount}-question deep-dive on <span style={{ color: '#7AA9F7' }}>{deepDiveSkills.map(s => s.skill).join(', ')}</span> will give your plan much higher accuracy.
               </p>
               <div className="flex gap-2 mt-4 flex-wrap">
                 <button onClick={onDeepDive}
-                  className="inline-flex items-center gap-2 font-mono text-sm font-semibold uppercase tracking-[0.14em] px-4 py-2.5 rounded-md text-zinc-950 hover:brightness-110 transition-all"
-                  style={{ background: '#f59e0b' }}>
+                  className="inline-flex items-center gap-2 font-mono text-sm font-semibold uppercase tracking-[0.14em] px-4 py-2.5 rounded-md text-white hover:opacity-90 transition-opacity"
+                  style={{ background: '#3B6FD4' }}>
                   Continue deep-dive ({deepDiveCount} questions) <ArrowRight size={13} strokeWidth={2.5} />
                 </button>
                 <button onClick={onSkip}
@@ -451,8 +451,8 @@ const ScreeningResults = ({ result, onSkip, onDeepDive }) => {
       ) : (
         <div className="flex justify-end">
           <button onClick={onSkip}
-            className="inline-flex items-center gap-2 font-mono text-sm font-semibold uppercase tracking-[0.14em] px-5 py-2.5 rounded-md text-zinc-950 hover:brightness-110"
-            style={{ background: '#f59e0b' }}>
+            className="inline-flex items-center gap-2 font-mono text-sm font-semibold uppercase tracking-[0.14em] px-5 py-2.5 rounded-md text-white hover:opacity-90 transition-opacity"
+            style={{ background: '#3B6FD4' }}>
             Generate personalised plan <ArrowRight size={14} strokeWidth={2.5} />
           </button>
         </div>
@@ -516,8 +516,8 @@ const GapView = ({ heatmap, gaps, readiness, summary, company, role, onContinue,
           <ArrowLeft size={13} /> Back
         </button>
         <button onClick={onContinue}
-          className="inline-flex items-center gap-2 font-mono text-sm font-semibold uppercase tracking-[0.14em] px-5 py-2.5 rounded-md text-zinc-950 hover:brightness-110"
-          style={{ background: '#f59e0b', boxShadow: '0 0 0 1px rgba(245,158,11,0.4), 0 0 24px -8px rgba(245,158,11,0.6)' }}>
+          className="inline-flex items-center gap-2 font-mono text-sm font-semibold uppercase tracking-[0.14em] px-5 py-2.5 rounded-md text-white hover:opacity-90 transition-opacity"
+          style={{ background: '#3B6FD4' }}>
           Generate personalised roadmap <ArrowRight size={14} strokeWidth={2.5} />
         </button>
       </div>
@@ -570,13 +570,13 @@ const PlanCalendar = ({ plan, expandedDay, setExpandedDay, state, onReset }) => 
           return (
             <button key={d.day} onClick={() => setExpandedDay(isExpanded ? null : d.day)}
               className={`relative text-left p-2 rounded-md border transition-all overflow-hidden ${
-                isExpanded ? 'border-amber-500/60 bg-amber-500/[0.07] ring-1 ring-amber-500/20'
+                isExpanded ? 'border-blue-500/60 bg-blue-500/[0.07] ring-1 ring-blue-500/20'
                 : isMock ? 'border-blue-500/40 bg-blue-500/[0.05] hover:border-blue-500/60'
                 : isToday ? 'border-emerald-500/40 bg-emerald-500/[0.04]'
                 : isDone ? 'border-white/5 bg-zinc-950 opacity-60'
                 : 'border-white/10 bg-zinc-950 hover:border-white/20'
               }`}>
-              {isExpanded && <div className="absolute left-0 top-0 bottom-0 w-[2px]" style={{ background: '#f59e0b' }} />}
+              {isExpanded && <div className="absolute left-0 top-0 bottom-0 w-[2px]" style={{ background: '#3B6FD4' }} />}
               {!isExpanded && isToday && <div className="absolute left-0 top-0 bottom-0 w-[2px]" style={{ background: '#22c55e' }} />}
               {!isExpanded && isMock && !isToday && <div className="absolute left-0 top-0 bottom-0 w-[2px]" style={{ background: '#3b82f6' }} />}
               <div className="font-mono text-[9px] text-zinc-600">d{d.day}</div>
@@ -608,7 +608,7 @@ const PlanCalendar = ({ plan, expandedDay, setExpandedDay, state, onReset }) => 
                 {(expandedData.tasks || []).map((task, i) => (
                   <li key={i} className="flex items-start gap-3">
                     <span className="font-mono text-[10px] text-zinc-700 mt-0.5 shrink-0 w-4">{i + 1}.</span>
-                    <span className="text-zinc-200 text-sm leading-relaxed" style={{ fontFamily: 'IBM Plex Sans, sans-serif' }}>{task}</span>
+                    <span className="text-zinc-200 text-sm leading-relaxed" style={{ fontFamily: 'inherit' }}>{task}</span>
                   </li>
                 ))}
               </ol>
@@ -617,10 +617,10 @@ const PlanCalendar = ({ plan, expandedDay, setExpandedDay, state, onReset }) => 
               <div className="font-mono text-[10px] uppercase tracking-[0.22em] text-zinc-600 mb-3">Practice questions</div>
               <div className="space-y-2.5">
                 {(expandedData.practiceQuestions || []).map((q, i) => (
-                  <div key={i} className="p-3 rounded-md border border-amber-500/20 bg-amber-500/[0.03]">
+                  <div key={i} className="p-3 rounded-md" style={{ border: '1px solid rgba(59,111,212,0.2)', background: 'rgba(59,111,212,0.03)' }}>
                     <div className="flex items-start gap-2">
-                      <span className="font-mono text-[10px] text-amber-500 shrink-0 mt-0.5">Q{i + 1}</span>
-                      <span className="text-zinc-100 text-sm leading-relaxed" style={{ fontFamily: 'IBM Plex Sans, sans-serif' }}>{q}</span>
+                      <span className="font-mono text-[10px] shrink-0 mt-0.5" style={{ color: '#3B6FD4' }}>Q{i + 1}</span>
+                      <span className="text-zinc-100 text-sm leading-relaxed" style={{ fontFamily: 'inherit' }}>{q}</span>
                     </div>
                   </div>
                 ))}
@@ -665,7 +665,8 @@ const Stepper = ({ step }) => {
     <div className="flex items-center gap-2 mt-6 font-mono text-xs flex-wrap">
       {steps.map((s, i) => (
         <div key={s.id} className="flex items-center gap-2">
-          <div className={`w-5 h-5 rounded flex items-center justify-center text-[10px] transition-colors ${i < idx ? 'bg-emerald-500 text-zinc-950 font-semibold' : i === idx ? 'bg-amber-500 text-zinc-950 font-semibold' : 'bg-zinc-900 text-zinc-600 border border-white/10'}`}>
+          <div className={`w-5 h-5 rounded flex items-center justify-center text-[10px] transition-colors ${i < idx ? 'bg-emerald-500 text-zinc-950 font-semibold' : i === idx ? 'text-white font-semibold' : 'bg-zinc-900 text-zinc-600 border border-white/10'}`}
+               style={i === idx ? { background: '#3B6FD4' } : {}}>
             {i < idx ? '✓' : i + 1}
           </div>
           <div className={i <= idx ? 'text-zinc-100' : 'text-zinc-600'}>{s.label}</div>
@@ -700,7 +701,7 @@ const Select = ({ label, value, onChange, options, placeholder = 'Type or select
           <div className="absolute z-50 mt-1 w-full max-h-52 overflow-y-auto rounded-md border border-white/10 bg-zinc-900 shadow-xl">
             {filtered.map(o => (
               <button key={o.id} type="button" onMouseDown={() => { onChange(o.id); setSearch(''); setOpen(false); }}
-                className={`w-full text-left px-3 py-2 font-mono text-sm hover:bg-white/5 transition-colors ${value === o.id ? 'text-amber-400' : 'text-zinc-200'}`}>
+                className={`w-full text-left px-3 py-2 font-mono text-sm hover:bg-white/5 transition-colors ${value === o.id ? 'text-blue-400' : 'text-zinc-200'}`}>
                 {o.label}
               </button>
             ))}
@@ -719,10 +720,10 @@ const Select = ({ label, value, onChange, options, placeholder = 'Type or select
 
 // ─── Breadcrumb ──────────────────────────────────────────────────────────────
 const Breadcrumb = ({ segments }) => (
-  <div className="font-mono text-sm text-zinc-600 mb-4">
-    <span className="text-emerald-400">~</span>
+  <div className="font-mono text-sm mb-4" style={{ color: '#4B5270' }}>
+    <span style={{ color: '#3B6FD4' }}>~</span>
     {segments.map((s, i) => (
-      <span key={i}><span className="mx-1.5">/</span><span className={i === segments.length - 1 ? 'text-zinc-200' : 'text-zinc-400'}>{s}</span></span>
+      <span key={i}><span className="mx-1.5">/</span><span style={{ color: i === segments.length - 1 ? '#8B8FA8' : '#4B5270' }}>{s}</span></span>
     ))}
   </div>
 );

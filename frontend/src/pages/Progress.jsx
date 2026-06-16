@@ -21,9 +21,10 @@ export default function Progress({ isGuest = false }) {
   return (
     <div className="px-4 md:px-10 py-6 md:py-10 max-w-7xl mx-auto" data-testid="progress-page">
       {isGuest && (
-        <div className="mb-6 rounded-lg border border-amber-500/30 bg-amber-500/[0.06] p-4 flex items-center justify-between gap-3">
-          <span className="font-mono text-sm text-amber-300">Sign in to track your real progress, streaks, and XP</span>
-          <a href="/signin" className="shrink-0 font-mono text-xs font-semibold uppercase tracking-[0.14em] px-3 py-1.5 rounded-md text-zinc-950 hover:brightness-110" style={{ background: '#f59e0b' }}>Sign in</a>
+        <div className="mb-6 rounded-lg p-4 flex items-center justify-between gap-3"
+             style={{ border: '1px solid rgba(59,111,212,0.3)', background: 'rgba(59,111,212,0.06)' }}>
+          <span className="font-mono text-sm" style={{ color: 'rgba(59,111,212,0.85)' }}>Sign in to track your real progress, streaks, and XP</span>
+          <a href="/signin" className="shrink-0 font-mono text-xs font-semibold uppercase tracking-[0.14em] px-3 py-1.5 rounded-md text-white hover:opacity-90 transition-opacity" style={{ background: '#3B6FD4' }}>Sign in</a>
         </div>
       )}
       <Breadcrumb segments={['progress', 'dashboard']} />
@@ -72,10 +73,10 @@ export default function Progress({ isGuest = false }) {
               </div>
               <div className="font-mono text-xs text-zinc-500 mt-1">{(state.xpToNext - state.xp).toLocaleString()} XP to Lvl {state.level + 1}</div>
             </div>
-            <Zap size={20} className="text-amber-500" />
+            <Zap size={20} style={{ color: '#3B6FD4' }} />
           </div>
           <div className="mt-4">
-            <PixelBar value={xpPct} height={12} color="#f59e0b" />
+            <PixelBar value={xpPct} height={12} color="#3B6FD4" />
           </div>
           <div className="mt-5">
             <div className="font-mono text-[10px] uppercase tracking-[0.18em] text-zinc-600 mb-2">XP by source · last 30 days</div>
@@ -178,12 +179,12 @@ const Eyebrow = ({ children }) => (
 );
 
 const Breadcrumb = ({ segments }) => (
-  <div className="font-mono text-sm text-zinc-600 mb-4">
-    <span className="text-emerald-400">~</span>
+  <div className="font-mono text-sm mb-4" style={{ color: '#4B5270' }}>
+    <span style={{ color: '#3B6FD4' }}>~</span>
     {segments.map((s, i) => (
       <span key={i}>
         <span className="mx-1.5">/</span>
-        <span className={i === segments.length - 1 ? 'text-zinc-200' : 'text-zinc-400'}>{s}</span>
+        <span style={{ color: i === segments.length - 1 ? '#8B8FA8' : '#4B5270' }}>{s}</span>
       </span>
     ))}
   </div>

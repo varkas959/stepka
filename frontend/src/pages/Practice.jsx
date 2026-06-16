@@ -18,11 +18,14 @@ function twoSum(nums, target) {
   return null;
 }`;
 
+const ACC = '#3B6FD4';
 function SignInPrompt() {
   return (
-    <div className="mb-6 rounded-lg border border-amber-500/30 bg-amber-500/[0.06] p-4 flex items-center justify-between gap-3">
-      <span className="font-mono text-sm text-amber-300">Sign in to submit answers and get AI grading</span>
-      <a href="/signin" className="shrink-0 font-mono text-xs font-semibold uppercase tracking-[0.14em] px-3 py-1.5 rounded-md text-zinc-950 hover:brightness-110" style={{ background: '#f59e0b' }}>Sign in</a>
+    <div className="mb-6 rounded-lg p-4 flex items-center justify-between gap-3"
+         style={{ border: '1px solid rgba(59,111,212,0.3)', background: 'rgba(59,111,212,0.06)' }}>
+      <span className="font-mono text-sm" style={{ color: 'rgba(59,111,212,0.85)' }}>Sign in to submit answers and get AI grading</span>
+      <a href="/signin" className="shrink-0 font-mono text-xs font-semibold uppercase tracking-[0.14em] px-3 py-1.5 rounded-md text-white hover:opacity-90 transition-opacity"
+         style={{ background: ACC }}>Sign in</a>
     </div>
   );
 }
@@ -76,10 +79,10 @@ export default function Practice({ isGuest = false }) {
 
       <div className="flex items-start justify-between gap-4 flex-wrap mb-6 mt-1">
         <div>
-          <h1 className="text-3xl md:text-4xl font-semibold tracking-tight text-zinc-50">
-            <span className="text-zinc-500">$</span> practice · ai graded
+          <h1 className="text-3xl md:text-4xl font-semibold tracking-tight" style={{ color: '#F2F2F4' }}>
+            <span style={{ color: '#4B5270' }}>$</span> practice · ai graded
           </h1>
-          <p className="font-mono text-sm text-zinc-400 mt-2">Submit → 1.5s grade → rubric. Honest, specific, no fluff.</p>
+          <p className="font-mono text-sm mt-2" style={{ color: '#8B8FA8' }}>Submit → 1.5s grade → rubric. Honest, specific, no fluff.</p>
         </div>
         <div className="flex items-center gap-2 font-mono text-xs">
           <button onClick={() => setQIdx(i => (i - 1 + QUESTIONS.length) % QUESTIONS.length)}
@@ -94,7 +97,7 @@ export default function Practice({ isGuest = false }) {
         {/* Question */}
         <section className="rounded-lg border border-white/10 bg-zinc-950 overflow-hidden">
           <div className="px-5 py-3 border-b border-white/5 flex items-center gap-3 font-mono text-xs">
-            <span className="font-mono text-[11px] px-2 py-0.5 rounded-[4px] border border-amber-500/35 bg-amber-500/[0.07] text-amber-400">{company?.name}</span>
+            <span className="font-mono text-[11px] px-2 py-0.5 rounded-[4px] border" style={{ borderColor: 'rgba(59,111,212,0.35)', background: 'rgba(59,111,212,0.07)', color: '#7AA9F7' }}>{company?.name}</span>
             <span className="font-mono text-[11px] px-2 py-0.5 rounded-[4px] border border-white/10 bg-white/[0.03] text-zinc-300">{q.role}</span>
             <span className="font-mono text-[11px] px-2 py-0.5 rounded-[4px] border border-white/10 bg-white/[0.03] text-zinc-300">{q.difficulty}</span>
             <span className="ml-auto inline-flex items-center gap-1.5 text-zinc-400">
@@ -102,7 +105,7 @@ export default function Practice({ isGuest = false }) {
             </span>
           </div>
           <div className="p-5">
-            <div className="text-zinc-100 text-base md:text-lg leading-relaxed" style={{ fontFamily: 'IBM Plex Sans, sans-serif' }}>
+            <div className="text-zinc-100 text-base md:text-lg leading-relaxed" style={{ fontFamily: 'inherit' }}>
               {q.body}
             </div>
             <div className="mt-4 font-mono text-xs text-zinc-500">{q.topicPath} · {q.round} round</div>
@@ -116,11 +119,13 @@ export default function Practice({ isGuest = false }) {
             <span className="text-zinc-500">your-answer</span>
             <div className="ml-auto inline-flex items-center gap-0.5 border border-white/10 rounded-md p-0.5">
               <button data-testid="mode-text" onClick={() => setMode('text')}
-                className={`px-2 py-1 rounded-sm text-[11px] inline-flex items-center gap-1 ${mode === 'text' ? 'bg-amber-500 text-zinc-950 font-semibold' : 'text-zinc-400'}`}>
+                className="px-2 py-1 rounded-sm text-[11px] inline-flex items-center gap-1 transition-colors"
+                style={mode === 'text' ? { background: ACC, color: '#fff', fontWeight: 600 } : { color: '#8B8FA8' }}>
                 <FileText size={11} /> text
               </button>
               <button data-testid="mode-code" onClick={() => setMode('code')}
-                className={`px-2 py-1 rounded-sm text-[11px] inline-flex items-center gap-1 ${mode === 'code' ? 'bg-amber-500 text-zinc-950 font-semibold' : 'text-zinc-400'}`}>
+                className="px-2 py-1 rounded-sm text-[11px] inline-flex items-center gap-1 transition-colors"
+                style={mode === 'code' ? { background: ACC, color: '#fff', fontWeight: 600 } : { color: '#8B8FA8' }}>
                 <Code2 size={11} /> code
               </button>
             </div>
@@ -137,8 +142,8 @@ export default function Practice({ isGuest = false }) {
           <div className="border-t border-white/5 p-4 flex items-center gap-3">
             {!feedback ? (
               <button data-testid="submit-answer" onClick={submit} disabled={submitting}
-                className="inline-flex items-center gap-2 font-mono text-sm font-semibold uppercase tracking-[0.14em] px-4 py-2 rounded-md text-zinc-950 hover:brightness-110 transition-all disabled:opacity-50"
-                style={{ background: '#f59e0b', boxShadow: '0 0 0 1px rgba(245,158,11,0.4), 0 0 24px -8px rgba(245,158,11,0.6)' }}>
+                className="inline-flex items-center gap-2 font-mono text-sm font-semibold uppercase tracking-[0.14em] px-4 py-2 rounded-md text-white hover:opacity-90 transition-opacity disabled:opacity-50"
+                style={{ background: ACC }}>
                 {submitting && <Loader2 size={14} className="animate-spin" />}
                 {submitting ? 'Grading…' : <>Submit <ArrowRight size={14} strokeWidth={2.5} /></>}
               </button>
@@ -161,7 +166,7 @@ export default function Practice({ isGuest = false }) {
 const FeedbackPanel = ({ feedback }) => {
   const applyToSrs = () => toast.success(`Applied "${feedback.suggestedLabel}" to SRS. Next review in 7d.`);
   const overall = parseFloat(feedback.overall);
-  const overallColor = overall < 2.5 ? '#ef4444' : overall < 3.8 ? '#f59e0b' : '#22c55e';
+  const overallColor = overall < 2.5 ? '#ef4444' : overall < 3.8 ? ACC : '#22c55e';
   return (
     <section className="mt-4 rounded-lg border border-white/10 bg-zinc-950 p-6 animate-fade-up" data-testid="feedback-panel">
       <div className="font-mono text-[10px] uppercase tracking-[0.22em] text-zinc-600 mb-4">Ai feedback</div>
@@ -174,7 +179,7 @@ const FeedbackPanel = ({ feedback }) => {
           </div>
           <div className="mt-5 space-y-2.5">
             {feedback.dims.map(d => {
-              const color = d.score >= 75 ? '#22c55e' : d.score >= 60 ? '#f59e0b' : '#ef4444';
+              const color = d.score >= 75 ? '#22c55e' : d.score >= 60 ? ACC : '#ef4444';
               return (
                 <div key={d.name} className="font-mono text-xs">
                   <div className="flex justify-between mb-1">
@@ -190,15 +195,16 @@ const FeedbackPanel = ({ feedback }) => {
 
         <div className="lg:col-span-2">
           <div className="font-mono text-[10px] uppercase tracking-[0.22em] text-zinc-600">Notes</div>
-          <p className="mt-2 text-zinc-100 leading-relaxed" style={{ fontFamily: 'IBM Plex Sans, sans-serif' }}>{feedback.text}</p>
+          <p className="mt-2 text-zinc-100 leading-relaxed" style={{ fontFamily: 'inherit' }}>{feedback.text}</p>
 
-          <div className="mt-5 border border-amber-500/30 bg-amber-500/[0.04] rounded-md p-4 flex items-center gap-4">
-            <div className="font-mono text-xs text-zinc-300">
-              Suggested SRS rating: <span className="text-amber-400">"{feedback.suggestedLabel} ({feedback.suggestedRating})"</span>
+          <div className="mt-5 rounded-md p-4 flex items-center gap-4"
+               style={{ border: '1px solid rgba(59,111,212,0.3)', background: 'rgba(59,111,212,0.04)' }}>
+            <div className="font-mono text-xs" style={{ color: '#F2F2F4' }}>
+              Suggested SRS rating: <span style={{ color: '#7AA9F7' }}>"{feedback.suggestedLabel} ({feedback.suggestedRating})"</span>
             </div>
             <button data-testid="apply-srs" onClick={applyToSrs}
-              className="ml-auto inline-flex items-center gap-1.5 font-mono text-xs font-semibold uppercase tracking-[0.14em] px-3 py-1.5 rounded-md text-zinc-950 hover:brightness-110 transition-all"
-              style={{ background: '#f59e0b' }}>
+              className="ml-auto inline-flex items-center gap-1.5 font-mono text-xs font-semibold uppercase tracking-[0.14em] px-3 py-1.5 rounded-md text-white hover:opacity-90 transition-opacity"
+              style={{ background: ACC }}>
               Apply to SRS
             </button>
           </div>
@@ -209,12 +215,12 @@ const FeedbackPanel = ({ feedback }) => {
 };
 
 const Breadcrumb = ({ segments }) => (
-  <div className="font-mono text-sm text-zinc-600 mb-4">
-    <span className="text-emerald-400">~</span>
+  <div className="font-mono text-sm mb-4" style={{ color: '#4B5270' }}>
+    <span style={{ color: ACC }}>~</span>
     {segments.map((s, i) => (
       <span key={i}>
         <span className="mx-1.5">/</span>
-        <span className={i === segments.length - 1 ? 'text-zinc-200' : 'text-zinc-400'}>{s}</span>
+        <span style={{ color: i === segments.length - 1 ? '#8B8FA8' : '#4B5270' }}>{s}</span>
       </span>
     ))}
   </div>
