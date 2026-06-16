@@ -3,7 +3,8 @@ import { Loader2, Sparkles, ChevronDown, ArrowRight, ArrowLeft, CheckCircle2, Al
 import { toast } from 'sonner';
 import { COMPANIES, QUESTIONS } from '../lib/mockData';
 import { useAppState } from '../lib/appState';
-import { extractSkills, generateAssessment, evaluateAssessment, generatePlan } from '../lib/api';
+import { extractSkills, generateAssessment, evaluateAssessment, generatePlan, saveReport } from '../lib/api';
+import { supabase } from '../lib/supabaseClient';
 import { PixelBar } from '../components/PixelBar';
 
 const ACTIVE_COMPANY_IDS = [...new Set(QUESTIONS.map(q => q.company))];
@@ -30,6 +31,7 @@ export default function StudyPlan({ isGuest = false }) {
   const [summary, setSummary] = useState('');
   const [generatedPlan, setGeneratedPlan] = useState(null);
   const [expandedDay, setExpandedDay] = useState(null);
+  const [reportSlug, setReportSlug] = useState(null);
   const { state, setActivePlan, setReadiness } = useAppState();
 
   const companyName = COMPANIES.find(c => c.id === company)?.name || company;
@@ -142,6 +144,11 @@ export default function StudyPlan({ isGuest = false }) {
       setActivePlan({ company, role, currentDay: 1, totalDays: 14 });
       setExpandedDay(1);
       setStep('plan');
+      // Save shareable report in background (non-blocking)
+      const { data: { user } = {} } = await supabase.auth.getUser().catch(() => ({}));
+      saveReport({ company: companyName, role, readiness, heatmap, gaps, summary, userId: user?.id })
+        .then(({ slug }) => setReportSlug(slug))
+        .catch(() => {});
     } catch (e) {
       toast.error(e?.response?.data?.error || e.message || 'Plan generation failed.', { duration: 6000 });
       setStep('gaps');
@@ -150,7 +157,8 @@ export default function StudyPlan({ isGuest = false }) {
 
   if (step === 'plan') {
     return <PlanCalendar plan={generatedPlan} expandedDay={expandedDay} setExpandedDay={setExpandedDay} state={state}
-      onReset={() => { setStep('input'); setGeneratedPlan(null); setExpandedDay(null); }} />;
+      reportSlug={reportSlug}
+      onReset={() => { setStep('input'); setGeneratedPlan(null); setExpandedDay(null); setReportSlug(null); }} />;
   }
 
   return (
@@ -535,8 +543,45 @@ const GapBucket = ({ color, label, items, desc }) => (
   </div>
 );
 
+// ─── Share panel ─────────────────────────────────────────────────────────────
+const SharePanel = ({ slug }) => {
+  const [copied, setCopied] = React.useState(false);
+  if (!slug) return null;
+  const url = `${window.location.origin}/r/${slug}`;
+  const copy = () => {
+    navigator.clipboard.writeText(url);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+  return (
+    <div className="mb-5 rounded-lg p-4" style={{ border: '1px solid rgba(59,111,212,0.25)', background: 'rgba(59,111,212,0.05)' }}>
+      <div className="flex items-center gap-2 mb-3">
+        <svg width="13" height="13" viewBox="0 0 14 14" fill="none"><circle cx="3" cy="7" r="1.5" stroke="#3B6FD4" strokeWidth="1.5"/><circle cx="11" cy="2.5" r="1.5" stroke="#3B6FD4" strokeWidth="1.5"/><circle cx="11" cy="11.5" r="1.5" stroke="#3B6FD4" strokeWidth="1.5"/><path d="M4.4 6.35L9.6 3.15M4.4 7.65L9.6 10.85" stroke="#3B6FD4" strokeWidth="1.5" strokeLinecap="round"/></svg>
+        <span className="font-mono text-[10px] uppercase tracking-[0.18em]" style={{ color: '#3B6FD4' }}>Share your readiness report</span>
+      </div>
+      <div className="flex items-center gap-2">
+        <div className="flex-1 font-mono text-xs px-3 py-2 rounded-md truncate" style={{ background: 'rgba(0,0,0,0.3)', color: '#8B8FA8', border: '1px solid #272B3F' }}>{url}</div>
+        <button onClick={copy} className="shrink-0 font-mono text-xs px-3 py-2 rounded-md text-white hover:opacity-90 transition-opacity" style={{ background: '#3B6FD4' }}>
+          {copied ? 'Copied!' : 'Copy link'}
+        </button>
+      </div>
+      <div className="flex gap-2 mt-2.5">
+        <a href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`} target="_blank" rel="noopener noreferrer"
+           className="flex-1 text-center font-mono text-xs py-1.5 rounded-md transition-opacity hover:opacity-80"
+           style={{ border: '1px solid #272B3F', color: '#8B8FA8' }}>LinkedIn</a>
+        <a href={`https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}&text=${encodeURIComponent('My interview readiness score is live. See the breakdown:')}`} target="_blank" rel="noopener noreferrer"
+           className="flex-1 text-center font-mono text-xs py-1.5 rounded-md transition-opacity hover:opacity-80"
+           style={{ border: '1px solid #272B3F', color: '#8B8FA8' }}>Twitter / X</a>
+        <a href={`https://api.whatsapp.com/send?text=${encodeURIComponent(`My interview readiness report: ${url}`)}`} target="_blank" rel="noopener noreferrer"
+           className="flex-1 text-center font-mono text-xs py-1.5 rounded-md transition-opacity hover:opacity-80"
+           style={{ border: '1px solid #272B3F', color: '#8B8FA8' }}>WhatsApp</a>
+      </div>
+    </div>
+  );
+};
+
 // ─── Plan calendar ────────────────────────────────────────────────────────────
-const PlanCalendar = ({ plan, expandedDay, setExpandedDay, state, onReset }) => {
+const PlanCalendar = ({ plan, expandedDay, setExpandedDay, state, onReset, reportSlug }) => {
   const company = COMPANIES.find(c => c.id === state.activePlan?.company) || COMPANIES[0];
   const days = plan?.days || [];
   const currentDay = state.activePlan?.currentDay || 1;
@@ -560,6 +605,8 @@ const PlanCalendar = ({ plan, expandedDay, setExpandedDay, state, onReset }) => 
           <button onClick={onReset} className="font-mono text-xs uppercase tracking-[0.18em] text-zinc-400 hover:text-zinc-50 border border-white/10 rounded-md px-3 py-2">New plan</button>
         </div>
       </div>
+
+      <SharePanel slug={reportSlug} />
 
       <div className="grid grid-cols-7 gap-1 sm:gap-1.5">
         {days.map(d => {

@@ -23,6 +23,7 @@ import AuthCallback from './pages/AuthCallback';
 import LegalPage from './pages/LegalPage';
 import FeedbackPage from './pages/FeedbackPage';
 import SEOPage from './pages/SEOPage';
+import ReportPage from './pages/ReportPage';
 
 function AppShell({ session, onSignOut, children }) {
   return (
@@ -89,6 +90,7 @@ function App() {
           <Route path="/terms" element={<LegalPage kind="terms" />} />
           <Route path="/questions" element={<PublicQuestions />} />
           <Route path="/feedback" element={<FeedbackPage />} />
+          <Route path="/report/:slug" element={<ReportPage />} />
           <Route path="/questions/trending" element={<SEOPage kind="trending" />} />
           <Route path="/questions/company/:slug" element={<SEOPage kind="company" />} />
           <Route path="/questions/topic/:slug" element={<SEOPage kind="topic" />} />
