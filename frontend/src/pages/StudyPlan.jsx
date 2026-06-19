@@ -4,6 +4,7 @@ import { toast } from 'sonner';
 import { COMPANIES, QUESTIONS } from '../lib/mockData';
 import { useAppState } from '../lib/appState';
 import { extractSkills, generateAssessment, evaluateAssessment, generatePlan, saveReport } from '../lib/api';
+import { track } from '../lib/analytics';
 import { supabase } from '../lib/supabaseClient';
 import { PixelBar } from '../components/PixelBar';
 
@@ -41,15 +42,18 @@ export default function StudyPlan({ isGuest = false }) {
     if (isGuest) { window.location.href = '/signin'; return; }
     if (!jd.trim()) { toast.error('Paste a job description first.'); return; }
     setStep('extracting');
+    track('jd_upload_started', { company: companyName, role });
     try {
       const data = await extractSkills({ jd, targetCompany: companyName, targetRole: role });
       const comps = (data.skills || []).slice(0, 10);
       setCompetencies(comps);
+      track('jd_upload_completed', { company: companyName, role, skill_count: comps.length });
       const asmData = await generateAssessment({ company: companyName, role, competencies: comps, mode: 'screening' });
       setQuestions(asmData.questions || []);
       setCurrentQ(0);
       setAnswers({});
       setStep('screening');
+      track('assessment_started', { company: companyName, role, question_count: (asmData.questions || []).length });
     } catch (e) {
       toast.error(e?.response?.data?.error || e.message || 'Failed.', { duration: 6000 });
       setStep('input');
@@ -83,6 +87,7 @@ export default function StudyPlan({ isGuest = false }) {
         setReadinessScore(result.readiness || 0);
         setSummary(result.summary || '');
         setReadiness(result.readiness || 0);
+        track('assessment_completed', { company: companyName, role, readiness: result.readiness || 0, phase: 'deep-dive' });
         setStep('gaps');
       }
     } catch (e) {
@@ -99,6 +104,7 @@ export default function StudyPlan({ isGuest = false }) {
     setReadinessScore(r.readiness || 0);
     setSummary(r.summary || '');
     setReadiness(r.readiness || 0);
+    track('assessment_completed', { company: companyName, role, readiness: r.readiness || 0, phase: 'screening' });
     setStep('gaps');
   };
 
@@ -144,6 +150,7 @@ export default function StudyPlan({ isGuest = false }) {
       setActivePlan({ company, role, currentDay: 1, totalDays: 14 });
       setExpandedDay(1);
       setStep('plan');
+      track('study_plan_generated', { company: companyName, role, readiness });
       // Save shareable report in background (non-blocking)
       const { data: { user } = {} } = await supabase.auth.getUser().catch(() => ({}));
       saveReport({ company: companyName, role, readiness, heatmap, gaps, summary, userId: user?.id })

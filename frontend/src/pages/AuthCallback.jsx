@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Loader2 } from 'lucide-react';
 import { getSession } from '../lib/auth';
+import { track } from '../lib/analytics';
 
 export default function AuthCallback() {
   const navigate = useNavigate();
@@ -16,6 +17,7 @@ export default function AuthCallback() {
         const session = await getSession();
         if (cancelled) return;
         if (session) {
+          track('login_success', { provider: session.user.provider });
           navigate('/app/questions', { replace: true });
           return;
         }

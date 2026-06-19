@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { signInWithProvider } from '../lib/auth';
+import { track } from '../lib/analytics';
 import { Loader2, Sparkles } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -11,6 +12,7 @@ export const AuthGate = () => {
 
   const handle = async (provider) => {
     setLoading(provider);
+    track('login_clicked', { provider });
     try {
       // signInWithProvider triggers a full browser redirect to the OAuth provider.
       // The redirect lands on /auth/callback which finalizes the session.
