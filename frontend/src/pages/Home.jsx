@@ -22,15 +22,37 @@ const C = {
 const ACTIVE_COMPANY_IDS = new Set(QUESTIONS.map(q => q.company));
 const ACTIVE_COMPANIES = COMPANIES.filter(c => ACTIVE_COMPANY_IDS.has(c.id));
 
-const REPORT_STRENGTHS = [
-  { name: 'Java',            score: 84 },
-  { name: 'SQL',             score: 71 },
-  { name: 'Data Structures', score: 68 },
-];
-const REPORT_GAPS = [
-  { name: 'System Design',       score: 19 },
-  { name: 'Distributed Systems', score: 24 },
-  { name: 'Kafka / Streams',     score: 38 },
+const PROFILES = [
+  {
+    company: 'Amazon', role: 'Senior SDE', readiness: 61,
+    strengths: [{ name: 'Java', score: 84 }, { name: 'SQL', score: 71 }, { name: 'Data Structures', score: 68 }],
+    gaps:      [{ name: 'System Design', score: 19 }, { name: 'Distributed Systems', score: 24 }, { name: 'Kafka / Streams', score: 38 }],
+    weeks: 3,
+  },
+  {
+    company: 'Atlassian', role: 'Product Owner', readiness: 58,
+    strengths: [{ name: 'Stakeholder Mgmt', score: 79 }, { name: 'Backlog Grooming', score: 72 }, { name: 'User Stories', score: 65 }],
+    gaps:      [{ name: 'OKR Alignment', score: 22 }, { name: 'Release Planning', score: 31 }, { name: 'Roadmapping', score: 41 }],
+    weeks: 4,
+  },
+  {
+    company: 'Google', role: 'Business Analyst', readiness: 72,
+    strengths: [{ name: 'Data Analysis', score: 88 }, { name: 'SQL', score: 76 }, { name: 'Requirements', score: 70 }],
+    gaps:      [{ name: 'Process Mapping', score: 28 }, { name: 'Change Management', score: 35 }, { name: 'Stakeholder Reports', score: 44 }],
+    weeks: 2,
+  },
+  {
+    company: 'PhonePe', role: 'Scrum Master', readiness: 54,
+    strengths: [{ name: 'Sprint Planning', score: 81 }, { name: 'Retrospectives', score: 69 }, { name: 'Agile Coaching', score: 63 }],
+    gaps:      [{ name: 'Metrics & Reporting', score: 17 }, { name: 'Dependency Mgmt', score: 29 }, { name: 'Scaled Agile', score: 36 }],
+    weeks: 4,
+  },
+  {
+    company: 'Netflix', role: 'Data Engineer', readiness: 67,
+    strengths: [{ name: 'Python', score: 86 }, { name: 'Apache Spark', score: 73 }, { name: 'Data Modelling', score: 66 }],
+    gaps:      [{ name: 'Flink / Streaming', score: 21 }, { name: 'ML Pipelines', score: 33 }, { name: 'Cost Optimisation', score: 45 }],
+    weeks: 3,
+  },
 ];
 
 export default function Home() {
@@ -79,134 +101,145 @@ const HomeNav = ({ session }) => (
   </header>
 );
 
-// ─── Report card ─────────────────────────────────────────────────────────────
-const ReadinessReport = () => (
-  <div className="hidden lg:flex flex-col rounded-xl overflow-hidden"
-       style={{ border: `1px solid ${C.border}`, background: C.bg2 }}>
-    {/* Report header */}
-    <div className="px-5 py-3 flex items-center justify-between"
-         style={{ borderBottom: `1px solid ${C.border}`, background: C.bg }}>
-      <span className="font-mono text-[10px] uppercase tracking-[0.2em]" style={{ color: C.text3 }}>Readiness Report</span>
-      <span className="font-mono text-[10px]" style={{ color: C.text3 }}>
-        {new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
-      </span>
-    </div>
+// ─── Rotating report card ─────────────────────────────────────────────────────
+const ReadinessReport = () => {
+  const [idx, setIdx]       = useState(0);
+  const [visible, setVisible] = useState(true);
 
-    {/* Candidate + role */}
-    <div className="px-5 pt-4 pb-3" style={{ borderBottom: `1px solid ${C.border}` }}>
-      <div className="flex items-start justify-between gap-4">
-        <div>
-          <div className="text-base font-semibold" style={{ color: C.text1 }}>Amazon</div>
-          <div className="font-mono text-xs mt-0.5" style={{ color: C.text3 }}>SDE2 · Technical loop</div>
-        </div>
-        <div className="text-right">
-          <div className="font-mono text-4xl font-semibold leading-none" style={{ color: C.amber }}>61<span className="text-xl">%</span></div>
-          <div className="font-mono text-[10px] mt-1 uppercase tracking-[0.15em]" style={{ color: C.amber }}>Interview Ready</div>
-        </div>
-      </div>
-      {/* Score gauge */}
-      <div className="mt-4 h-1 rounded-full overflow-hidden" style={{ background: C.bg3 }}>
-        <div className="h-full rounded-full" style={{ width: '61%', background: C.amber }} />
-      </div>
-      <div className="font-mono text-[10px] mt-2" style={{ color: C.text3 }}>
-        3 gaps to close before loop
-      </div>
-    </div>
+  useEffect(() => {
+    const id = setInterval(() => {
+      setVisible(false);
+      setTimeout(() => {
+        setIdx(i => (i + 1) % PROFILES.length);
+        setVisible(true);
+      }, 320);
+    }, 4000);
+    return () => clearInterval(id);
+  }, []);
 
-    {/* Strengths + Gaps */}
-    <div className="grid grid-cols-2 flex-1">
-      <div className="px-5 py-4" style={{ borderRight: `1px solid ${C.border}`, borderBottom: `1px solid ${C.border}` }}>
-        <div className="font-mono text-[10px] uppercase tracking-[0.2em] mb-3" style={{ color: C.green }}>Strengths</div>
-        <div className="space-y-2.5">
-          {REPORT_STRENGTHS.map(s => (
-            <div key={s.name} className="flex items-center gap-2">
-              <Check size={11} strokeWidth={2.5} style={{ color: C.green, flexShrink: 0 }} />
-              <span className="text-xs flex-1 truncate" style={{ color: C.text2 }}>{s.name}</span>
-              <span className="font-mono text-xs ml-auto" style={{ color: C.green }}>{s.score}%</span>
+  const p = PROFILES[idx];
+  const scoreClr = p.readiness >= 75 ? C.green : p.readiness >= 50 ? C.amber : C.red;
+  const scoreLabel = p.readiness >= 75 ? 'Loop Ready' : p.readiness >= 50 ? 'Interview Ready' : 'Needs Prep';
+
+  return (
+    <div className="hidden md:flex flex-col rounded-xl overflow-hidden"
+         style={{ border: `1px solid ${C.border}`, background: C.bg2, minWidth: 0 }}>
+
+      {/* Header */}
+      <div className="px-5 py-3 flex items-center justify-between"
+           style={{ borderBottom: `1px solid ${C.border}`, background: C.bg }}>
+        <span className="font-mono text-[10px] uppercase tracking-[0.2em]" style={{ color: C.text3 }}>Readiness Report</span>
+        <span className="font-mono text-[10px]" style={{ color: C.text3 }}>
+          {new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
+        </span>
+      </div>
+
+      {/* Animated content */}
+      <div style={{ opacity: visible ? 1 : 0, transition: 'opacity 0.3s ease' }}>
+        {/* Candidate + score */}
+        <div className="px-5 pt-5 pb-4" style={{ borderBottom: `1px solid ${C.border}` }}>
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <div className="text-lg font-semibold" style={{ color: C.text1 }}>{p.company}</div>
+              <div className="font-mono text-xs mt-1" style={{ color: C.text3 }}>{p.role} · Technical loop</div>
             </div>
-          ))}
-        </div>
-      </div>
-      <div className="px-5 py-4" style={{ borderBottom: `1px solid ${C.border}` }}>
-        <div className="font-mono text-[10px] uppercase tracking-[0.2em] mb-3" style={{ color: C.red }}>Weak Areas</div>
-        <div className="space-y-2.5">
-          {REPORT_GAPS.map(s => (
-            <div key={s.name} className="flex items-center gap-2">
-              <X size={11} strokeWidth={2.5} style={{ color: C.red, flexShrink: 0 }} />
-              <span className="text-xs flex-1 truncate" style={{ color: C.text2 }}>{s.name}</span>
-              <span className="font-mono text-xs ml-auto" style={{ color: C.red }}>{s.score}%</span>
+            <div className="text-right shrink-0">
+              <div className="font-mono font-semibold leading-none" style={{ fontSize: 48, color: scoreClr }}>
+                {p.readiness}<span style={{ fontSize: 22 }}>%</span>
+              </div>
+              <div className="font-mono text-[10px] mt-1.5 uppercase tracking-[0.15em]" style={{ color: scoreClr }}>{scoreLabel}</div>
             </div>
-          ))}
+          </div>
+          <div className="mt-4 h-1.5 rounded-full overflow-hidden" style={{ background: C.bg3 }}>
+            <div className="h-full rounded-full" style={{ width: `${p.readiness}%`, background: scoreClr, transition: 'width 0.6s ease' }} />
+          </div>
+          <div className="font-mono text-[10px] mt-2" style={{ color: C.text3 }}>
+            {p.gaps.length} gaps to close before loop
+          </div>
         </div>
-      </div>
-    </div>
 
-    {/* Prep estimate */}
-    <div className="px-5 py-3 flex items-center justify-between" style={{ background: C.bg }}>
-      <div className="flex items-center gap-2">
-        <Clock size={11} style={{ color: C.text3 }} />
-        <div>
-          <div className="font-mono text-[10px] uppercase tracking-[0.15em]" style={{ color: C.text3 }}>Estimated Preparation</div>
-          <div className="font-mono text-sm font-semibold mt-0.5" style={{ color: C.text1 }}>3 weeks · 45 min/day</div>
+        {/* Strengths + Gaps */}
+        <div className="grid grid-cols-2">
+          <div className="px-5 py-4" style={{ borderRight: `1px solid ${C.border}`, borderBottom: `1px solid ${C.border}` }}>
+            <div className="font-mono text-[10px] uppercase tracking-[0.2em] mb-3" style={{ color: C.green }}>Strengths</div>
+            <div className="space-y-2.5">
+              {p.strengths.map(s => (
+                <div key={s.name} className="flex items-center gap-2">
+                  <Check size={11} strokeWidth={2.5} style={{ color: C.green, flexShrink: 0 }} />
+                  <span className="text-xs flex-1 truncate" style={{ color: C.text2 }}>{s.name}</span>
+                  <span className="font-mono text-xs ml-auto" style={{ color: C.green }}>{s.score}%</span>
+                </div>
+              ))}
+            </div>
+          </div>
+          <div className="px-5 py-4" style={{ borderBottom: `1px solid ${C.border}` }}>
+            <div className="font-mono text-[10px] uppercase tracking-[0.2em] mb-3" style={{ color: C.red }}>Weak Areas</div>
+            <div className="space-y-2.5">
+              {p.gaps.map(s => (
+                <div key={s.name} className="flex items-center gap-2">
+                  <X size={11} strokeWidth={2.5} style={{ color: C.red, flexShrink: 0 }} />
+                  <span className="text-xs flex-1 truncate" style={{ color: C.text2 }}>{s.name}</span>
+                  <span className="font-mono text-xs ml-auto" style={{ color: C.red }}>{s.score}%</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Prep estimate */}
+        <div className="px-5 py-3.5 flex items-center justify-between" style={{ background: C.bg }}>
+          <div className="flex items-center gap-2.5">
+            <Clock size={12} style={{ color: C.text3 }} />
+            <div>
+              <div className="font-mono text-[10px] uppercase tracking-[0.15em]" style={{ color: C.text3 }}>Estimated Preparation</div>
+              <div className="font-mono text-sm font-semibold mt-0.5" style={{ color: C.text1 }}>{p.weeks} weeks · 45 min/day</div>
+            </div>
+          </div>
+          <Link to="/app/plan" className="font-mono text-xs hover:opacity-80 transition-opacity" style={{ color: C.accent }}>
+            Start assessment →
+          </Link>
         </div>
       </div>
-      <Link to="/app/plan" className="font-mono text-xs hover:opacity-80 transition-opacity" style={{ color: C.accent }}>
-        Start assessment →
-      </Link>
+
+      {/* Profile dots */}
+      <div className="flex items-center justify-center gap-1.5 py-3" style={{ background: C.bg }}>
+        {PROFILES.map((_, i) => (
+          <button key={i} onClick={() => { setVisible(false); setTimeout(() => { setIdx(i); setVisible(true); }, 320); }}
+            className="rounded-full transition-all"
+            style={{ width: i === idx ? 16 : 6, height: 6, background: i === idx ? C.accent : C.border2 }} />
+        ))}
+      </div>
     </div>
-  </div>
-);
+  );
+};
 
 // ─── Hero ─────────────────────────────────────────────────────────────────────
-const STEPS = [
-  'Paste a JD.',
-  'Identify gaps.',
-  'Practice what matters.',
-  'Track readiness over time.',
-];
-
 const Hero = () => (
-  <section className="px-6 pt-16 pb-20">
-    <div className="max-w-6xl mx-auto grid lg:grid-cols-2 gap-16 items-start">
-      <div className="lg:pt-4">
+  <section className="px-6 pt-14 pb-20">
+    <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-12 lg:gap-20 items-center">
+
+      {/* Left */}
+      <div>
         <div className="font-mono text-[10px] uppercase tracking-[0.2em] mb-6" style={{ color: C.text3 }}>
           {QUESTIONS.length}+ questions · {ACTIVE_COMPANIES.length} companies
         </div>
 
-        <h1 className="text-5xl sm:text-6xl font-bold leading-[1.05] tracking-tight"
+        <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold leading-[1.06] tracking-tight"
             style={{ color: C.text1, letterSpacing: '-0.03em' }}>
-          Measure your<br />
-          readiness<br />
-          <span style={{ color: C.text3 }}>for any role.</span>
+          Stop preparing<br />
+          everything.<br />
+          <span style={{ color: C.text3 }}>Prepare what the<br />interview actually<br />requires.</span>
         </h1>
 
-        <div className="mt-8 space-y-2 pl-4" style={{ borderLeft: `2px solid ${C.border2}` }}>
-          {STEPS.map((line, i) => (
-            <div key={i} className="text-base" style={{ color: i < 2 ? C.text2 : C.text3 }}>{line}</div>
-          ))}
-        </div>
+        <p className="mt-6 text-base leading-relaxed max-w-md" style={{ color: C.text2 }}>
+          Upload a job description, discover your skill gaps, and get a personalised preparation plan based on your target role.
+        </p>
 
-        {/* Mobile-only score snapshot */}
-        <div className="lg:hidden mt-8 rounded-lg p-4 flex items-center justify-between"
-             style={{ border: `1px solid ${C.border}`, background: C.bg2 }}>
-          <div>
-            <div className="font-mono text-[10px] uppercase tracking-[0.18em] mb-1" style={{ color: C.text3 }}>Example · Amazon SDE2</div>
-            <div className="flex items-center gap-3">
-              <span className="font-mono text-2xl font-semibold" style={{ color: C.amber }}>61%</span>
-              <span className="text-xs" style={{ color: C.text3 }}>3 gaps to close</span>
-            </div>
-          </div>
-          <div className="text-right">
-            <div className="text-xs" style={{ color: C.green }}>✓ Java, SQL</div>
-            <div className="text-xs mt-0.5" style={{ color: C.red }}>✗ System Design</div>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-4 mt-10 flex-wrap">
+        <div className="flex items-center gap-4 mt-9 flex-wrap">
           <Link to="/app/plan" data-testid="hero-cta"
-            className="inline-flex items-center gap-2 font-medium px-5 py-2.5 rounded-lg transition-opacity hover:opacity-90 text-white"
+            className="inline-flex items-center gap-2 font-semibold px-6 py-3 rounded-lg transition-opacity hover:opacity-90 text-white"
             style={{ background: C.accent, fontSize: '15px' }}>
-            Assess your readiness <ArrowRight size={15} strokeWidth={2} />
+            Start Free Assessment <ArrowRight size={15} strokeWidth={2.5} />
           </Link>
           <Link to="/app/questions"
             className="text-sm transition-opacity hover:opacity-80"
@@ -218,10 +251,11 @@ const Hero = () => (
         <div className="flex items-center gap-8 mt-12 pt-8" style={{ borderTop: `1px solid ${C.border}` }}>
           <Stat value={`${QUESTIONS.length}+`} label="Verified questions" />
           <Stat value={`${ACTIVE_COMPANIES.length}`} label="Companies tracked" />
-          <Stat value="30q" label="Per assessment" />
+          <Stat value="Free" label="To start" />
         </div>
       </div>
 
+      {/* Right — rotating report card */}
       <ReadinessReport />
     </div>
   </section>
