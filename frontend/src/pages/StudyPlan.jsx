@@ -229,7 +229,7 @@ const InputStep = ({ jd, setJd, company, setCompany, role, setRole, onStart }) =
         <div className="text-[11px] font-mono uppercase tracking-[0.16em] text-zinc-500 mb-4">What you get</div>
         <ul className="space-y-3.5">
           {[
-            { label: 'Skill gap analysis',             desc: 'See exactly where you're weak vs. what the role needs' },
+            { label: 'Skill gap analysis',             desc: 'See exactly where you are weak vs. what the role needs' },
             { label: 'Interview readiness score',      desc: 'A single number from your actual answers, not self-assessment' },
             { label: 'Personalised study plan',        desc: '14-day roadmap prioritised by your specific gaps' },
             { label: 'Role-specific practice questions', desc: 'Curated questions that match your target company and level' },
