@@ -292,6 +292,48 @@ const InputStep = ({ jd, setJd, company, setCompany, role, setRole, onStart }) =
           </div>
         </div>
 
+        {/* Sample output preview */}
+        <div className="mx-5 mb-4 rounded-lg border border-white/8 overflow-hidden" style={{ background: '#0C0E14' }}>
+          <div className="px-4 py-2.5 border-b border-white/6 flex items-center gap-2" style={{ background: '#111318' }}>
+            <span className="w-1.5 h-1.5 rounded-full bg-zinc-600 inline-block" />
+            <span className="font-mono text-[11px] uppercase tracking-[0.14em] text-zinc-500">Sample output · Business Analyst at Google</span>
+          </div>
+          <div className="px-4 py-4 grid grid-cols-2 sm:grid-cols-4 gap-4">
+            <div>
+              <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-zinc-600 mb-2">Detected Skills</div>
+              <div className="space-y-1">
+                {['SQL', 'Stakeholder Mgmt', 'Requirements'].map(s => (
+                  <div key={s} className="flex items-center gap-1.5">
+                    <span className="text-[11px]" style={{ color: '#22c55e' }}>✓</span>
+                    <span className="font-mono text-[12px] text-zinc-300">{s}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div>
+              <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-zinc-600 mb-2">Readiness Score</div>
+              <div className="font-mono text-3xl font-semibold" style={{ color: '#f59e0b' }}>61<span className="text-base text-zinc-600">%</span></div>
+              <div className="font-mono text-[11px] text-zinc-500 mt-1">Needs improvement</div>
+            </div>
+            <div>
+              <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-zinc-600 mb-2">Top Gaps</div>
+              <div className="space-y-1">
+                {['Process Mapping', 'Data Analysis', 'Reporting'].map(g => (
+                  <div key={g} className="flex items-center gap-1.5">
+                    <span className="text-[11px] text-zinc-600">•</span>
+                    <span className="font-mono text-[12px] text-zinc-400">{g}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div>
+              <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-zinc-600 mb-2">Estimated Plan</div>
+              <div className="font-mono text-3xl font-semibold text-zinc-100">14<span className="text-base text-zinc-600"> days</span></div>
+              <div className="font-mono text-[11px] text-zinc-500 mt-1">Personalised roadmap</div>
+            </div>
+          </div>
+        </div>
+
         {/* Footer */}
         <div className="px-5 py-4 border-t border-white/6 flex items-center justify-between gap-3" style={{ background: '#111318' }}>
           <div className="text-[12px] font-mono text-zinc-500">
