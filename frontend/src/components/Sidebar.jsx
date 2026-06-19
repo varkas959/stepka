@@ -12,9 +12,9 @@ const T3  = '#4B5270';
 const ACC = '#3B6FD4';
 
 const navItems = [
+  { to: '/app/plan',      label: 'Study Plan',    icon: LayoutGrid, key: 'plan' },
   { to: '/app/questions', label: 'Question Bank', icon: BookOpen,   key: 'questions' },
   { to: '/app/review',    label: 'Daily Review',  icon: RotateCcw,  key: 'review',   badge: true },
-  { to: '/app/plan',      label: 'Study Plan',    icon: LayoutGrid, key: 'plan' },
   { to: '/app/practice',  label: 'Practice',      icon: Terminal,   key: 'practice' },
   { to: '/app/progress',  label: 'Progress',      icon: BarChart2,  key: 'progress' },
 ];

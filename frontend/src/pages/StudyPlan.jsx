@@ -169,16 +169,20 @@ export default function StudyPlan({ isGuest = false }) {
   }
 
   return (
-    <div className="px-4 md:px-10 py-6 md:py-10 max-w-4xl mx-auto">
+    <div className="px-4 md:px-8 py-6 md:py-8 max-w-5xl mx-auto">
       <Breadcrumb segments={['study-plan', step]} />
-      <h1 className="text-3xl md:text-5xl font-semibold tracking-tight text-zinc-50 mt-1">JD → assess → plan</h1>
-      <p className="text-zinc-300 mt-3 text-base max-w-xl leading-loose">
-        Paste a JD, complete a mixed-format assessment, then get a personalised roadmap built on your actual gaps.
-      </p>
-      <Stepper step={step} />
 
       {step === 'input' && (
         <InputStep jd={jd} setJd={setJd} company={company} setCompany={setCompany} role={role} setRole={setRole} onStart={startAssessment} />
+      )}
+      {step !== 'input' && (
+        <>
+          <h1 className="text-3xl md:text-4xl font-semibold tracking-tight text-zinc-50 mt-1">JD → assess → plan</h1>
+          <p className="text-zinc-300 mt-2 text-base max-w-xl leading-loose">
+            Paste a JD, complete a mixed-format assessment, then get a personalised roadmap built on your actual gaps.
+          </p>
+          <Stepper step={step} />
+        </>
       )}
       {(step === 'extracting') && <LoadingCard color="emerald" text="Extracting competencies…" sub="Generating 10 mixed-format questions" />}
       {(step === 'evaluating') && <LoadingCard color="amber" text="Evaluating your answers…" sub="Applying confidence-weighted scoring" />}
@@ -212,34 +216,94 @@ export default function StudyPlan({ isGuest = false }) {
 
 // ─── Input step ──────────────────────────────────────────────────────────────
 const InputStep = ({ jd, setJd, company, setCompany, role, setRole, onStart }) => (
-  <div className="mt-7 rounded-lg border border-white/10 bg-zinc-950 animate-fade-up">
-    <div className="px-5 py-3 border-b border-white/5 font-mono text-xs flex items-center gap-2">
-      <span className="text-emerald-400">&gt;</span>
-      <span className="text-zinc-400">paste-job-description</span>
-      <span className="ml-auto text-[12px] uppercase tracking-[0.18em] text-zinc-500">step 1 of 4</span>
+  <div className="mt-4 animate-fade-up">
+    {/* Page title */}
+    <div className="mb-6">
+      <h1 className="text-2xl md:text-3xl font-semibold tracking-tight text-zinc-50">Find out exactly what to prepare.</h1>
+      <p className="text-zinc-400 mt-1.5 text-sm">Upload a job description and get a personalised gap analysis in minutes.</p>
     </div>
-    <textarea value={jd} onChange={e => setJd(e.target.value)} rows={9}
-      className="w-full bg-transparent border-0 p-5 text-base font-mono text-zinc-100 placeholder:text-zinc-500 focus:outline-none resize-y leading-loose"
-      placeholder="// paste the full job description here…" />
-    <div className="border-t border-white/5 p-5 grid grid-cols-1 sm:grid-cols-2 gap-4">
-      <div>
-        <Select label="target company" value={company} onChange={setCompany}
-          options={ACTIVE_COMPANIES.map(c => ({ id: c.id, label: c.name }))} placeholder="Type company name…" />
-        <p className="font-mono text-[12px] text-zinc-500 mt-1.5">Not listed? Just type your company name.</p>
+
+    <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.6fr] gap-5 items-start">
+      {/* Left: value proposition */}
+      <div className="rounded-xl border border-white/8 p-6" style={{ background: '#111318' }}>
+        <div className="text-[11px] font-mono uppercase tracking-[0.16em] text-zinc-500 mb-4">What you get</div>
+        <ul className="space-y-3.5">
+          {[
+            { label: 'Skill gap analysis',             desc: 'See exactly where you're weak vs. what the role needs' },
+            { label: 'Interview readiness score',      desc: 'A single number from your actual answers, not self-assessment' },
+            { label: 'Personalised study plan',        desc: '14-day roadmap prioritised by your specific gaps' },
+            { label: 'Role-specific practice questions', desc: 'Curated questions that match your target company and level' },
+          ].map(({ label, desc }) => (
+            <li key={label} className="flex items-start gap-3">
+              <span className="mt-0.5 w-5 h-5 rounded-full flex items-center justify-center shrink-0 text-[11px]"
+                style={{ background: 'rgba(34,197,94,0.12)', color: '#22c55e' }}>✓</span>
+              <div>
+                <div className="text-sm font-medium text-zinc-100">{label}</div>
+                <div className="text-[12px] text-zinc-500 mt-0.5 leading-relaxed">{desc}</div>
+              </div>
+            </li>
+          ))}
+        </ul>
+
+        <div className="mt-6 pt-5 border-t border-white/6">
+          <div className="text-[11px] font-mono uppercase tracking-[0.16em] text-zinc-500 mb-3">How it works</div>
+          <div className="space-y-2.5">
+            {[
+              { n: '1', t: 'Paste job description', d: 'Any JD from LinkedIn, Naukri, company sites' },
+              { n: '2', t: 'Answer 10 questions',   d: 'Mixed format — scenario, MCQ, ranking, free-text' },
+              { n: '3', t: 'Get your roadmap',      d: 'Gap-prioritised 14-day plan built on your answers' },
+            ].map(({ n, t, d }) => (
+              <div key={n} className="flex items-start gap-3">
+                <span className="w-5 h-5 rounded flex items-center justify-center shrink-0 text-[11px] font-mono font-semibold mt-0.5"
+                  style={{ background: 'rgba(59,111,212,0.15)', color: '#7AA9F7', border: '1px solid rgba(59,111,212,0.25)' }}>{n}</span>
+                <div>
+                  <div className="text-sm text-zinc-200 font-medium">{t}</div>
+                  <div className="text-[12px] text-zinc-500 leading-relaxed">{d}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
-      <div>
-        <Select label="target role" value={role} onChange={setRole}
-          options={ACTIVE_ROLES.map(r => ({ id: r, label: r }))} placeholder="Type or select role…" />
-        <p className="font-mono text-[12px] text-zinc-500 mt-1.5">Not listed? Type your exact role.</p>
+
+      {/* Right: upload card */}
+      <div className="rounded-xl border border-white/10 overflow-hidden" style={{ background: '#0F1117' }}>
+        {/* Header */}
+        <div className="px-5 py-3.5 border-b border-white/6 flex items-center gap-2" style={{ background: '#111318' }}>
+          <span className="text-emerald-400 font-mono text-sm">&gt;</span>
+          <span className="font-mono text-sm text-zinc-300">paste-job-description</span>
+          <span className="ml-auto font-mono text-[11px] text-zinc-500 px-2 py-0.5 rounded border border-white/8" style={{ background: 'rgba(255,255,255,0.02)' }}>step 1 of 4</span>
+        </div>
+
+        {/* Textarea */}
+        <textarea value={jd} onChange={e => setJd(e.target.value)} rows={10}
+          className="w-full bg-transparent border-0 px-5 py-4 text-sm font-mono text-zinc-100 placeholder:text-zinc-600 focus:outline-none resize-y leading-relaxed"
+          placeholder={"// Paste the full job description here…\n//\n// Tip: include the requirements section\n// for the most accurate gap analysis."} />
+
+        {/* Company + Role */}
+        <div className="px-5 pb-4 grid grid-cols-1 sm:grid-cols-2 gap-3 border-t border-white/6 pt-4">
+          <div>
+            <Select label="Target company" value={company} onChange={setCompany}
+              options={ACTIVE_COMPANIES.map(c => ({ id: c.id, label: c.name }))} placeholder="Search company…" />
+          </div>
+          <div>
+            <Select label="Target role" value={role} onChange={setRole}
+              options={ACTIVE_ROLES.map(r => ({ id: r, label: r }))} placeholder="Search role…" />
+          </div>
+        </div>
+
+        {/* Footer */}
+        <div className="px-5 py-4 border-t border-white/6 flex items-center justify-between gap-3" style={{ background: '#111318' }}>
+          <div className="text-[12px] font-mono text-zinc-500">
+            {jd.length > 0 ? <span>{jd.length} chars · <span style={{ color: jd.length > 200 ? '#22c55e' : '#f59e0b' }}>{jd.length > 200 ? 'Good length' : 'Add more for best results'}</span></span> : 'No JD pasted yet'}
+          </div>
+          <button onClick={onStart} disabled={!jd.trim()}
+            className="inline-flex items-center gap-2 text-sm font-semibold px-5 py-2.5 rounded-lg text-white hover:opacity-90 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+            style={{ background: '#3B6FD4' }}>
+            <Sparkles size={14} strokeWidth={2.5} /> Start assessment
+          </button>
+        </div>
       </div>
-    </div>
-    <div className="border-t border-white/5 p-5 flex items-center justify-between">
-      <div className="font-mono text-sm text-zinc-400">{jd.length} chars</div>
-      <button onClick={onStart} disabled={!jd.trim()}
-        className="inline-flex items-center gap-2 font-mono text-sm font-semibold uppercase tracking-[0.14em] px-4 py-2.5 rounded-md text-white hover:opacity-90 transition-opacity disabled:opacity-50"
-        style={{ background: '#3B6FD4' }}>
-        <Sparkles size={14} strokeWidth={2.5} /> Start assessment
-      </button>
     </div>
   </div>
 );

@@ -18,7 +18,7 @@ export default function AuthCallback() {
         if (cancelled) return;
         if (session) {
           track('login_success', { provider: session.user.provider });
-          navigate('/app/questions', { replace: true });
+          navigate('/app/plan', { replace: true });
           return;
         }
       } catch (e) {
