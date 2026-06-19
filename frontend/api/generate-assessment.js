@@ -15,11 +15,15 @@ const SCREENING_PROMPT = (company, role, competencies) => {
 COMPETENCY MATRIX:
 ${compList}
 
-REQUIRED DISTRIBUTION (exactly): 5 MCQ, 3 scenario_selection, 1 ranking, 1 free_text
+REQUIRED DISTRIBUTION (exactly): 2 MCQ, 3 scenario_selection, 1 ranking, 4 free_text
+ORDERING RULE: The first 3 questions must NOT be MCQ. Spread MCQ questions at positions 5 and 8 or later.
+
+This mirrors a real interview: start with open-ended questions that reveal reasoning, reserve MCQ for quick knowledge checks mid-way.
 
 Return ONLY this JSON:
 {"questions":[
-  {"id":"q1","type":"mcq","competency":"<name>","question":"<q>","options":["A. <o>","B. <o>","C. <o>","D. <o>"],"correctAnswer":"<A|B|C|D>"},
+  {"id":"q1","type":"free_text","competency":"<name>","question":"<q>","evaluation_criteria":["<c1>","<c2>","<c3>"]},
+  {"id":"q2","type":"scenario_selection","competency":"<name>","question":"<q>","options":["A. <o>","B. <o>","C. <o>","D. <o>"],"correctAnswer":"<A|B|C|D>"},
   {"id":"q3","type":"ranking","competency":"<name>","question":"<q>","items":["<i1>","<i2>","<i3>","<i4>"],"correctOrder":["<highest>","<2nd>","<3rd>","<lowest>"]},
   {"id":"q4","type":"free_text","competency":"<name>","question":"<q>","evaluation_criteria":["<c1>","<c2>","<c3>"]}
 ]}`;
@@ -27,14 +31,15 @@ Return ONLY this JSON:
 
 const DEEPDIVE_PROMPT = (company, role, weakSkills, questionCount) => {
   const skillList = weakSkills.map(s => `- ${s.skill} (score: ${s.score}%, band: ${s.band})`).join('\n');
-  const mcq      = Math.round(questionCount * 0.3);
+  const mcq      = Math.max(1, Math.round(questionCount * 0.2));
   const scenario = Math.round(questionCount * 0.3);
-  const ranking  = Math.round(questionCount * 0.2);
+  const ranking  = Math.round(questionCount * 0.1);
   const freetext = questionCount - mcq - scenario - ranking;
   return `Generate ${questionCount} deep-dive questions for ${role} at ${company}.
 Focus ONLY on these weak areas:
 ${skillList}
 Distribution: ${mcq} MCQ, ${scenario} scenario_selection, ${ranking} ranking, ${freetext} free_text.
+Do NOT place MCQ questions first — open with free_text or scenario_selection.
 Use the same JSON format. Escalate complexity to expose depth of understanding.`;
 };
 

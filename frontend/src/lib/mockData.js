@@ -41,7 +41,53 @@ export const TECH_STACK = [
   'ML/AI', 'TensorFlow', 'PyTorch', 'LLM', 'RAG',
 ];
 
-export const ROLES = ['SDE1', 'SDE2', 'Staff', 'DS', 'PM', 'Tester', 'DevOps', 'Developer'];
+// Canonical role taxonomy — display names shown in UI and filters
+export const ROLES = [
+  // Engineering
+  'Junior SDE', 'Senior SDE', 'Staff Engineer', 'Principal Engineer',
+  // Product & Agile
+  'Product Manager', 'Product Owner', 'Business Analyst', 'Scrum Master', 'Delivery Lead',
+  // Data & ML
+  'Data Scientist', 'Data Engineer', 'ML Engineer',
+  // QA
+  'QA Engineer', 'SDET',
+  // Infrastructure
+  'DevOps Engineer', 'SRE',
+  // Architecture & General
+  'Technical Architect', 'Full Stack Developer',
+];
+
+// Maps messy/legacy role values → canonical display name
+export const ROLE_MAP = {
+  'SDE1': 'Junior SDE',
+  'SDE2': 'Senior SDE',
+  'Staff': 'Staff Engineer',
+  'DS': 'Data Scientist',
+  'PM': 'Product Manager',
+  'PO': 'Product Owner',
+  'Product owner': 'Product Owner',
+  'Tester': 'QA Engineer',
+  'DevOps': 'DevOps Engineer',
+  'Developer': 'Full Stack Developer',
+  'BA': 'Business Analyst',
+  'Scrum Lead': 'Scrum Master',
+};
+
+// Category taxonomy — what kind of question is this?
+export const CATEGORIES = ['DSA', 'System Design', 'Behavioral', 'Technical', 'Domain', 'Agile', 'Testing', 'DevOps'];
+
+// Maps topic id → category
+export const CATEGORY_MAP = {
+  'arrays': 'DSA', 'trees': 'DSA', 'graphs': 'DSA', 'dsa': 'DSA', 'DP': 'DSA',
+  'Arrays': 'DSA', 'Trees': 'DSA', 'Graphs': 'DSA',
+  'system-design': 'System Design', 'System Design': 'System Design',
+  'HLD': 'System Design', 'LLD': 'System Design', 'OOD': 'System Design',
+  'behavioral': 'Behavioral', 'Behavioral': 'Behavioral', 'Behavioral (LP)': 'Behavioral',
+  'Machine Coding': 'Technical',
+  'domain': 'Domain', 'Domain': 'Domain',
+  'testing': 'Testing', 'api-testing': 'Testing', 'Testing': 'Testing', 'API Testing': 'Testing',
+  'devops': 'DevOps', 'DevOps': 'DevOps',
+};
 
 export const TOPIC_TREE = [
   {

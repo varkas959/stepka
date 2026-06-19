@@ -2,7 +2,7 @@
 import { Plus, X, ArrowUp, DollarSign, ArrowUpRight, Info } from 'lucide-react';
 import { toast } from 'sonner';
 import { Link } from 'react-router-dom';
-import { QUESTIONS, COMPANIES, ROLES, TOPIC_TREE, DIFFICULTIES, ROUND_TYPES, COMPANY_BLUEPRINTS, TECH_STACK } from '../lib/mockData';
+import { QUESTIONS, COMPANIES, ROLES, ROLE_MAP, CATEGORIES, CATEGORY_MAP, TOPIC_TREE, DIFFICULTIES, ROUND_TYPES, COMPANY_BLUEPRINTS, TECH_STACK } from '../lib/mockData';
 import { loadUserQuestions } from '../lib/questions';
 
 const slugify = (s) => s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
@@ -32,12 +32,20 @@ const TOPIC_OPTIONS = TOPIC_TREE.flatMap(n => n.children
   ? n.children.map(c => ({ id: c.id, label: c.name, group: n.name }))
   : [{ id: n.id, label: n.name }]);
 
+// Resolve a question's role to its canonical display name
+const canonicalRole = (role) => ROLE_MAP[role] || role;
+
+// Derive a question's category from its topic id, falling back to round type
+const deriveCategory = (q) =>
+  CATEGORY_MAP[q.topic] || (q.round === 'System Design' ? 'System Design' : q.round === 'HR' ? 'Behavioral' : 'Technical');
+
 const FILTER_DEFS = [
-  { key: 'company',    label: 'company',    options: COMPANIES.map(c => ({ id: c.id, label: c.name })) },
   { key: 'role',       label: 'role',       options: ROLES.map(r => ({ id: r, label: r })) },
+  { key: 'category',   label: 'category',   options: CATEGORIES.map(c => ({ id: c, label: c })) },
+  { key: 'difficulty', label: 'difficulty', options: DIFFICULTIES.map(d => ({ id: d, label: d })) },
+  { key: 'company',    label: 'company',    options: COMPANIES.map(c => ({ id: c.id, label: c.name })) },
   { key: 'topic',      label: 'topic',      options: TOPIC_OPTIONS },
   { key: 'tech',       label: 'technology', options: TECH_STACK.map(t => ({ id: t, label: t })) },
-  { key: 'difficulty', label: 'difficulty', options: DIFFICULTIES.map(d => ({ id: d, label: d })) },
   { key: 'round',      label: 'round',      options: ROUND_TYPES.map(r => ({ id: r, label: r })) },
 ];
 
@@ -49,7 +57,7 @@ const accentForQ = (q) => {
 
 
 export default function QuestionBank({ isGuest = false, userId }) {
-  const [filters, setFilters] = useState({ company: ALL, role: ALL, topic: ALL, tech: ALL, difficulty: ALL, round: ALL });
+  const [filters, setFilters] = useState({ company: ALL, role: ALL, category: ALL, topic: ALL, tech: ALL, difficulty: ALL, round: ALL });
   const [sortBy, setSortBy] = useState('recent');
   const [search, setSearch] = useState('');
   const [expandedId, setExpandedId] = useState(null);
@@ -88,7 +96,8 @@ export default function QuestionBank({ isGuest = false, userId }) {
   const filtered = useMemo(() => {
     let list = allQuestions.filter(q => {
       if (filters.company !== ALL && q.company !== filters.company) return false;
-      if (filters.role !== ALL && q.role !== filters.role) return false;
+      if (filters.role !== ALL && canonicalRole(q.role) !== filters.role) return false;
+      if (filters.category !== ALL && deriveCategory(q) !== filters.category) return false;
       if (filters.topic !== ALL && q.topic !== filters.topic) return false;
       if (filters.tech !== ALL && !(q.tech || []).includes(filters.tech)) return false;
       if (filters.difficulty !== ALL && q.difficulty !== filters.difficulty) return false;
@@ -190,7 +199,7 @@ export default function QuestionBank({ isGuest = false, userId }) {
         {/* Clear all - only shown when any filter is active */}
         {(search || Object.values(filters).some(v => v !== ALL)) && (
           <button
-            onClick={() => { setSearch(''); setFilters({ company: ALL, role: ALL, topic: ALL, tech: ALL, difficulty: ALL, round: ALL }); }}
+            onClick={() => { setSearch(''); setFilters({ company: ALL, role: ALL, category: ALL, topic: ALL, tech: ALL, difficulty: ALL, round: ALL }); }}
             className="font-mono text-xs text-zinc-600 hover:text-zinc-300 px-2 py-1.5 transition-colors"
           >
             clear all
@@ -220,7 +229,7 @@ export default function QuestionBank({ isGuest = false, userId }) {
             <span className="font-semibold" style={{ color: '#F2F2F4' }}>{allQuestions.length}</span> questions
           </span>
           <button
-            onClick={() => { setSearch(''); setFilters({ company: ALL, role: ALL, topic: ALL, tech: ALL, difficulty: ALL, round: ALL }); }}
+            onClick={() => { setSearch(''); setFilters({ company: ALL, role: ALL, category: ALL, topic: ALL, tech: ALL, difficulty: ALL, round: ALL }); }}
             className="font-mono text-xs underline ml-4 transition-opacity hover:opacity-70"
             style={{ color: '#3B6FD4' }}
           >
@@ -320,6 +329,17 @@ const TAG_PALETTE = {
   verified:{ border: 'rgba(34,197,94,0.30)',  bg: 'rgba(34,197,94,0.06)',  text: '#4ade80' },
 };
 
+const CATEGORY_STYLE = {
+  'DSA':           { border: 'rgba(59,111,212,0.30)', bg: 'rgba(59,111,212,0.07)', text: '#7BA7F5' },
+  'System Design': { border: 'rgba(139,92,246,0.30)', bg: 'rgba(139,92,246,0.07)', text: '#C4B5FD' },
+  'Behavioral':    { border: 'rgba(245,158,11,0.30)', bg: 'rgba(245,158,11,0.07)', text: '#FCD34D' },
+  'Technical':     { border: 'rgba(255,255,255,0.12)', bg: 'rgba(255,255,255,0.04)', text: '#A1A1AA' },
+  'Domain':        { border: 'rgba(20,184,166,0.30)', bg: 'rgba(20,184,166,0.07)', text: '#5EEAD4' },
+  'Agile':         { border: 'rgba(34,197,94,0.30)',  bg: 'rgba(34,197,94,0.07)',  text: '#4ade80' },
+  'Testing':       { border: 'rgba(249,115,22,0.30)', bg: 'rgba(249,115,22,0.07)', text: '#FCA5A5' },
+  'DevOps':        { border: 'rgba(14,165,233,0.30)', bg: 'rgba(14,165,233,0.07)', text: '#7DD3FC' },
+};
+
 const TagPill = ({ children, kind = 'default', testid }) => {
   const p = TAG_PALETTE[kind] || TAG_PALETTE.default;
   return (
@@ -336,11 +356,12 @@ const QuestionCard = ({ q, expanded, onToggleExpand, upvoted, asked, onUpvote, o
   const accent = accentForQ(q);
   const isVerified = q.verifyCount >= 3;
   const company = COMPANIES.find(c => c.id === q.company);
-  // For user-submitted companies not in our list, show the raw value with a neutral style
   const companyName = company?.name || q.company;
   const companyColor = company?.color || '#94a3b8';
-  const topicLabels = q.topicPath?.split(' / ') || [q.topic];
-  const popularity = Math.min(100, q.asked * 2); // 0-100 visual scale
+  const popularity = Math.min(100, q.asked * 2);
+  const role = canonicalRole(q.role);
+  const category = deriveCategory(q);
+  const catStyle = CATEGORY_STYLE[category] || TAG_PALETTE.default;
 
   return (
     <article
@@ -352,17 +373,27 @@ const QuestionCard = ({ q, expanded, onToggleExpand, upvoted, asked, onUpvote, o
     >
       <div className="absolute left-0 top-0 bottom-0 w-[2px]" style={{ background: accent }} />
       <div className="pl-6 pr-6 py-5">
-        {/* tags row */}
-        <div className="flex items-center flex-wrap gap-1.5 mb-4">
+        {/* Primary metadata row — role first so users instantly know relevance */}
+        <div className="flex items-center flex-wrap gap-1.5 mb-3">
+          {/* Role — most prominent, larger text */}
+          <span className="inline-flex items-center font-mono text-[12px] font-semibold px-2.5 py-0.5 rounded-[4px] whitespace-nowrap"
+            style={{ border: '1px solid rgba(59,111,212,0.45)', background: 'rgba(59,111,212,0.12)', color: '#93C5FD' }}>
+            {role}
+          </span>
+          {/* Category */}
+          <span className="inline-flex items-center font-mono text-[11px] px-2 py-0.5 rounded-[4px] whitespace-nowrap"
+            style={{ border: `1px solid ${catStyle.border}`, background: catStyle.bg, color: catStyle.text }}>
+            {category}
+          </span>
+          {/* Difficulty */}
+          <TagPill kind={q.difficulty}>{q.difficulty}</TagPill>
+          {/* Company — secondary, right-aligned visually by flex wrap */}
           <button onClick={onCompanyClick} data-testid={`open-blueprint-${q.company}`}>
             <span className="inline-flex items-center gap-1 font-mono text-[11px] px-2 py-0.5 rounded-[4px] whitespace-nowrap"
               style={{ border: `1px solid ${companyColor}44`, background: `${companyColor}18`, color: companyColor }}>
               {companyName}
             </span>
           </button>
-          <TagPill>{q.role}</TagPill>
-          {topicLabels.map(t => <TagPill key={t}>{t}</TagPill>)}
-          <TagPill kind={q.difficulty}>{q.difficulty}</TagPill>
           {isVerified && <TagPill kind={'verified'}>&#10003; Verified</TagPill>}
         </div>
 
