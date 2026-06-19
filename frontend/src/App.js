@@ -83,7 +83,7 @@ function App() {
           {/* Public */}
           <Route path="/" element={<Home />} />
           <Route path="/signin" element={
-            session ? <Navigate to="/app/questions" replace /> : <AuthGate />
+            session ? <Navigate to="/app/plan" replace /> : <AuthGate />
           } />
           <Route path="/auth/callback" element={<AuthCallback />} />
           <Route path="/privacy" element={<LegalPage kind="privacy" />} />
