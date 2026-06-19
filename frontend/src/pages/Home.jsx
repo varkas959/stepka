@@ -84,7 +84,7 @@ const HomeNav = ({ session }) => (
       </nav>
       <div className="flex items-center gap-3">
         {session ? (
-          <Link to="/app/questions" data-testid="nav-open-app"
+          <Link to="/app/plan" data-testid="nav-open-app"
             className="inline-flex items-center gap-1.5 text-sm font-medium px-4 py-1.5 rounded-md transition-opacity hover:opacity-90 text-white"
             style={{ background: C.accent }}>
             Open app <ArrowRight size={13} strokeWidth={2} />
