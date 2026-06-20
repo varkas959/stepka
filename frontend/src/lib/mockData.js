@@ -28,6 +28,7 @@ export const COMPANIES = [
   { id: 'tcs',        name: 'TCS',        color: '#002E6E', initials: 'TC' },
   { id: 'capgemini',  name: 'Capgemini',  color: '#0070AD', initials: 'CG' },
   { id: 'payu',       name: 'PayU',       color: '#FF6B35', initials: 'PU' },
+  { id: 'general',    name: 'General',    color: '#6B7280', initials: 'GN' },
 ];
 
 export const TECH_STACK = [
@@ -108,7 +109,7 @@ export const TOPIC_TREE = [
 ];
 
 export const DIFFICULTIES = ['Easy', 'Medium', 'Hard'];
-export const ROUND_TYPES = ['Screening', 'Technical', 'System Design', 'HR'];
+export const ROUND_TYPES = ['Screening', 'Technical', 'System Design', 'HR', 'Scenario'];
 
 export const QUESTIONS = [
   {
@@ -1473,6 +1474,84 @@ export const QUESTIONS = [
     answer: 'Use a feature flag service (LaunchDarkly or in-house). Bucket users by userId hash (not random) for consistency across sessions. Evaluate flags server-side at HTML render time (or in a CDN worker) to avoid CLS from client-side flag flicker. Track conversion events (payment_initiated, payment_success) with experiment_id + variant as properties. Use a holdout group. Run for statistical significance (min 1–2 weeks). Measure revenue per visitor, not just click-through.',
     evaluation_criteria: ['Consistent bucketing strategy (hash-based, not random per request)', 'Addresses flash of wrong variant (server-side or CDN evaluation)', 'Correct success metrics (revenue/conversion, not vanity metrics)'],
     verifyCount: 5, upvotes: 71, daysAgo: 1, asked: 49, tech: ['JavaScript', 'React', 'System Design'] },
+
+  // ── General · Data Engineer · Mid-Senior · Snowflake Scenarios ──────────────
+  { id: 'q237', company: 'general', role: 'Data Engineer', topic: 'domain', topicPath: 'Snowflake / Snowpipe',
+    difficulty: 'Medium', round: 'Scenario', experience: '5–8 Years', source: 'Community Report',
+    body: 'A file lands in AWS S3 and must be ingested into Snowflake automatically in near real-time. How would you design the solution? Explain the role of Snowpipe, event notifications, and the ingestion workflow.',
+    answer: 'Configure an S3 event notification (SNS → SQS) to fire when a new file lands. Snowpipe listens to the SQS queue via an auto-ingest pipe (CREATE PIPE … AUTO_INGEST=TRUE). When triggered, Snowpipe loads the file into a staging table using the COPY INTO definition embedded in the pipe. Files are micro-batched — latency is typically under 1 minute. Monitor via SYSTEM$PIPE_STATUS and pipe load history.',
+    evaluation_criteria: ['Correctly describes S3 → SNS → SQS → Snowpipe event chain', 'Mentions AUTO_INGEST=TRUE and COPY INTO in pipe definition', 'Knows monitoring tools: SYSTEM$PIPE_STATUS, load history views'],
+    verifyCount: 5, upvotes: 67, daysAgo: 1, asked: 48, tech: ['Snowflake', 'AWS S3', 'Python'] },
+
+  { id: 'q238', company: 'general', role: 'Data Engineer', topic: 'domain', topicPath: 'Snowflake / Time Travel',
+    difficulty: 'Medium', round: 'Scenario', experience: '5–8 Years', source: 'Community Report',
+    body: 'A production table was accidentally deleted 2 hours ago. How would you recover the data using Snowflake Time Travel?',
+    answer: 'If the table was dropped: UNDROP TABLE my_table; — Snowflake restores it from Time Travel within the retention window (default 1 day, up to 90 days on Enterprise). If rows were deleted: CREATE TABLE recovered AS SELECT * FROM my_table AT(OFFSET => -7200); — queries the table as it existed 2 hours ago. Then INSERT back into production. Confirm retention period was active: SHOW TABLES LIKE \'my_table\' checks DATA_RETENTION_TIME_IN_DAYS.',
+    evaluation_criteria: ['Uses UNDROP TABLE for dropped tables', 'Uses AT(OFFSET) or AT(TIMESTAMP) for row-level recovery', 'Checks DATA_RETENTION_TIME_IN_DAYS before assuming recovery is possible'],
+    verifyCount: 6, upvotes: 79, daysAgo: 1, asked: 57, tech: ['Snowflake', 'SQL'] },
+
+  { id: 'q239', company: 'general', role: 'Data Engineer', topic: 'domain', topicPath: 'Snowflake / Fail-safe',
+    difficulty: 'Hard', round: 'Scenario', experience: '5–8 Years', source: 'Community Report',
+    body: 'A critical table was dropped 10 days ago and the Time Travel retention period has expired. What recovery options are available? Explain how Fail-safe works and its limitations.',
+    answer: 'Fail-safe provides an additional 7-day recovery window after Time Travel expires, but it is only accessible by Snowflake Support — you cannot query or restore it yourself. Submit a support ticket immediately with the table name, drop timestamp, and account details. Limitations: Fail-safe is not a user-facing feature; recovery is best-effort, not guaranteed; Temporary and Transient tables have 0-day Fail-safe. Prevention: set longer DATA_RETENTION_TIME_IN_DAYS, implement backup pipelines to S3, and restrict DROP TABLE privileges.',
+    evaluation_criteria: ['Correctly states Fail-safe is 7 days and requires Snowflake Support', 'Knows Temporary/Transient tables have no Fail-safe', 'Recommends prevention: retention settings, backup pipelines, privilege controls'],
+    verifyCount: 5, upvotes: 61, daysAgo: 1, asked: 44, tech: ['Snowflake', 'SQL'] },
+
+  { id: 'q240', company: 'general', role: 'Data Engineer', topic: 'domain', topicPath: 'Snowflake / Zero Copy Cloning',
+    difficulty: 'Medium', round: 'Scenario', experience: '5–8 Years', source: 'Community Report',
+    body: 'Your team needs a test environment containing production data without duplicating storage costs. How would you use Zero Copy Cloning and what are its benefits and limitations?',
+    answer: 'CREATE DATABASE test_db CLONE prod_db; — Snowflake creates metadata pointers to the same underlying micro-partitions; no data is physically copied. Storage cost is only incurred when cloned or source data diverges (copy-on-write). Benefits: instant clone of TB-scale databases, no storage duplication at creation time, clones are fully independent objects. Limitations: DML on the clone triggers copy-on-write costs; clones do not inherit resource monitors, future grants, or dynamic data masking policies — these must be reapplied manually.',
+    evaluation_criteria: ['Explains copy-on-write metadata pointer mechanism', 'States storage cost only on divergence', 'Mentions what is NOT cloned: policies, resource monitors, future grants'],
+    verifyCount: 5, upvotes: 72, daysAgo: 1, asked: 51, tech: ['Snowflake', 'SQL'] },
+
+  { id: 'q241', company: 'general', role: 'Data Engineer', topic: 'domain', topicPath: 'Snowflake / Data Quality',
+    difficulty: 'Hard', round: 'Scenario', experience: '5–8 Years', source: 'Community Report',
+    body: 'Snowpipe is ingesting duplicate records from cloud storage. How would you detect, prevent, and remediate duplicate data in Snowflake?',
+    answer: 'Detect: SELECT id, COUNT(*) FROM table GROUP BY id HAVING COUNT(*) > 1. Prevent at ingest: Snowpipe has built-in file deduplication — it will not re-load the same file path within 64 days (metadata cache). For row-level deduplication use a STREAM + TASK with MERGE INTO (match on natural key, only insert when NOT MATCHED). Remediate existing duplicates: CREATE TABLE clean AS SELECT * FROM (SELECT *, ROW_NUMBER() OVER (PARTITION BY id ORDER BY ingested_at DESC) rn FROM table) WHERE rn = 1; then swap with ALTER TABLE … SWAP WITH.',
+    evaluation_criteria: ['Uses GROUP BY + HAVING to detect duplicates', 'Knows Snowpipe 64-day file deduplication window', 'Uses MERGE INTO or ROW_NUMBER() + SWAP for prevention and remediation'],
+    verifyCount: 6, upvotes: 83, daysAgo: 1, asked: 59, tech: ['Snowflake', 'SQL', 'Python'] },
+
+  { id: 'q242', company: 'general', role: 'Data Engineer', topic: 'domain', topicPath: 'Snowflake / Performance Tuning',
+    difficulty: 'Hard', round: 'Scenario', experience: '5–8 Years', source: 'Community Report',
+    body: 'A query that previously completed in 2 minutes now takes 20 minutes. Describe your systematic approach to troubleshooting and optimizing performance in Snowflake.',
+    answer: 'Step 1: Query Profile in Snowsight — identify the most expensive operator (spilling to disk, large table scans, exploding joins). Step 2: Check warehouse utilisation — was the warehouse queued or undersized? Step 3: Partition pruning — are the WHERE filters on clustered columns? Run SYSTEM$CLUSTERING_INFORMATION. Step 4: Check for data skew in JOINs — if one value dominates, consider salting. Step 5: Check for stale statistics or recent data volume increase. Fixes: scale up warehouse, add clustering key on high-cardinality filter columns, rewrite correlated subqueries as JOINs, use result cache by ensuring queries are identical.',
+    evaluation_criteria: ['Starts with Query Profile and identifies bottleneck type (spill, scan, join)', 'Checks partition pruning and clustering effectiveness', 'Considers data volume growth and warehouse sizing, not just query rewrite'],
+    verifyCount: 7, upvotes: 91, daysAgo: 1, asked: 65, tech: ['Snowflake', 'SQL', 'Python'] },
+
+  { id: 'q243', company: 'general', role: 'Data Engineer', topic: 'domain', topicPath: 'Snowflake / Architecture',
+    difficulty: 'Hard', round: 'Scenario', experience: '5–8 Years', source: 'Community Report',
+    body: 'Design an end-to-end data pipeline using Python, PySpark, Snowflake, Airflow, and AWS S3. Explain data flow, orchestration, monitoring, and failure handling.',
+    answer: 'Flow: Source data → PySpark job (transformation/cleaning) → writes Parquet to S3 → Snowpipe auto-ingests into Snowflake staging schema → dbt or SQL tasks promote to curated layer. Orchestration: Airflow DAG with sensors (S3KeySensor), PySpark on EMR, then Snowflake operator or SQLExecuteQueryOperator for downstream models. Monitoring: Airflow task logs + SLAs, Snowflake QUERY_HISTORY and PIPE_USAGE_HISTORY, CloudWatch for S3/EMR. Failure handling: Airflow retries with exponential backoff, dead-letter S3 prefix for failed files, alerting via PagerDuty/Slack on DAG failure, idempotent MERGE INTO so reruns are safe.',
+    evaluation_criteria: ['Describes complete data flow with correct tool responsibilities', 'Airflow orchestration with appropriate sensors and operators', 'Addresses idempotency, monitoring, and alerting — not just the happy path'],
+    verifyCount: 6, upvotes: 87, daysAgo: 1, asked: 62, tech: ['Snowflake', 'PySpark', 'Airflow', 'AWS S3', 'Python'] },
+
+  { id: 'q244', company: 'general', role: 'Data Engineer', topic: 'domain', topicPath: 'Snowflake / Concepts',
+    difficulty: 'Medium', round: 'Scenario', experience: '5–8 Years', source: 'Community Report',
+    body: 'Compare Snowpipe and COPY INTO. When would you choose one over the other?',
+    answer: 'COPY INTO: manually or schedule-triggered batch load, best for large periodic loads (hourly/daily), full control over timing, lower per-file overhead. Snowpipe: event-driven, near real-time (sub-minute latency), serverless compute billed per credit used, ideal for continuous streaming from cloud storage. Choose COPY INTO when data arrives in large scheduled batches. Choose Snowpipe when files land continuously and latency matters. Snowpipe costs more per byte for small files due to per-file overhead; COPY INTO is more cost-efficient for bulk loads.',
+    evaluation_criteria: ['Correctly contrasts trigger mechanism (manual/scheduled vs event-driven)', 'Addresses latency trade-off', 'Mentions cost difference: Snowpipe per-file overhead vs COPY INTO bulk efficiency'],
+    verifyCount: 5, upvotes: 68, daysAgo: 1, asked: 49, tech: ['Snowflake', 'SQL'] },
+
+  { id: 'q245', company: 'general', role: 'Data Engineer', topic: 'domain', topicPath: 'Snowflake / Concepts',
+    difficulty: 'Medium', round: 'Scenario', experience: '5–8 Years', source: 'Community Report',
+    body: 'Compare Time Travel and Fail-safe in Snowflake. What are the key differences and use cases for each?',
+    answer: 'Time Travel: user-accessible, query historical data with AT/BEFORE syntax, UNDROP objects, configurable 0–90 days (edition-dependent), incurs storage cost. Fail-safe: automatic 7-day window after Time Travel expires, only Snowflake Support can recover data, no user access, no additional configuration. Use Time Travel for self-service recovery, auditing, and debugging. Rely on Fail-safe as a last-resort disaster recovery backstop. Neither replaces a proper backup strategy for long-term retention needs.',
+    evaluation_criteria: ['Clearly distinguishes user-accessible (TT) from support-only (FS)', 'States correct retention windows: 0–90 days TT, 7 days FS', 'Recommends external backup for long-term retention beyond these windows'],
+    verifyCount: 5, upvotes: 64, daysAgo: 1, asked: 46, tech: ['Snowflake', 'SQL'] },
+
+  { id: 'q246', company: 'general', role: 'Data Engineer', topic: 'domain', topicPath: 'Snowflake / Concepts',
+    difficulty: 'Medium', round: 'Scenario', experience: '5–8 Years', source: 'Community Report',
+    body: 'Compare Temporary, Transient, and Permanent tables in Snowflake. When would each table type be appropriate?',
+    answer: 'Permanent: full Time Travel (up to 90 days) + 7-day Fail-safe, highest storage cost. Best for production tables. Transient: configurable Time Travel (0–1 day), no Fail-safe, lower storage cost. Best for large intermediate tables where full recovery is not needed (e.g. staging, ETL scratch space). Temporary: session-scoped, auto-dropped when session ends, no Fail-safe, 0–1 day TT. Best for within-session intermediate results (e.g. temp joins, dedup steps). Using Transient/Temporary tables for non-critical data significantly reduces storage costs by eliminating Fail-safe overhead.',
+    evaluation_criteria: ['Correctly maps Time Travel and Fail-safe availability to each type', 'Gives appropriate use case for each (prod / staging / session)', 'Mentions storage cost implication of Fail-safe on Permanent tables'],
+    verifyCount: 5, upvotes: 71, daysAgo: 1, asked: 52, tech: ['Snowflake', 'SQL'] },
+
+  { id: 'q247', company: 'general', role: 'Data Engineer', topic: 'domain', topicPath: 'Snowflake / Concepts',
+    difficulty: 'Medium', round: 'Scenario', experience: '5–8 Years', source: 'Community Report',
+    body: 'Compare Streams and Tasks in Snowflake. How do they work together to support Change Data Capture (CDC) workflows?',
+    answer: 'Stream: a change-tracking object on a table that captures INSERT, UPDATE, DELETE operations as they occur (stores metadata — adds METADATA$ACTION, METADATA$ISUPDATE, METADATA$ROW_ID columns). Consuming the stream (SELECT from it in a DML) advances the offset. Task: a scheduled or trigger-based SQL job. Together for CDC: create a STREAM on the source table, create a TASK that runs on a schedule (or AFTER another task) and executes MERGE INTO target USING (SELECT * FROM stream WHERE METADATA$ACTION = \'INSERT\') — inserts new rows, updates changed rows, deletes removed rows. The TASK automatically marks the STREAM as consumed after each successful run.',
+    evaluation_criteria: ['Correctly describes Stream as a CDC offset pointer, not a copy of data', 'Explains METADATA$ACTION columns for DML classification', 'Shows STREAM + TASK + MERGE INTO pattern for CDC propagation'],
+    verifyCount: 6, upvotes: 77, daysAgo: 1, asked: 55, tech: ['Snowflake', 'SQL'] },
 ];
 
 export const COMPANY_BLUEPRINTS = {
