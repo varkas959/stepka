@@ -1278,6 +1278,57 @@ export const QUESTIONS = [
   { id: 'q206', company: 'capgemini', role: 'Tester', topic: 'testing', topicPath: 'Testing', difficulty: 'Medium', round: 'Technical',
     body: 'What is cross-browser testing? How do you run the same Playwright test suite on Chrome, Firefox, and WebKit simultaneously? How do you handle browser-specific issues in your automation code?',
     verifyCount: 4, upvotes: 38, daysAgo: 5, asked: 22, tech: ['Playwright', 'TypeScript', 'JavaScript'] },
+
+  // ── Accenture · Full Stack Developer · 8–12 yrs · React / Frontend Performance ──
+  { id: 'q207', company: 'accenture', role: 'Full Stack Developer', topic: 'domain', topicPath: 'Frontend / Performance',
+    difficulty: 'Medium', round: 'Technical', experience: '8–12 Years', source: 'Community Report',
+    body: 'What is the difference between async and defer attributes in JavaScript? When would you use each one?',
+    verifyCount: 3, upvotes: 41, daysAgo: 2, asked: 28, tech: ['JavaScript', 'HTML', 'React'] },
+
+  { id: 'q208', company: 'accenture', role: 'Full Stack Developer', topic: 'domain', topicPath: 'Frontend / Performance',
+    difficulty: 'Medium', round: 'Technical', experience: '8–12 Years', source: 'Community Report',
+    body: 'What is Critical CSS, and how does it improve page load performance in React applications?',
+    verifyCount: 3, upvotes: 37, daysAgo: 2, asked: 24, tech: ['React', 'CSS', 'Performance'] },
+
+  { id: 'q209', company: 'accenture', role: 'Full Stack Developer', topic: 'domain', topicPath: 'Frontend / Performance',
+    difficulty: 'Medium', round: 'Technical', experience: '8–12 Years', source: 'Community Report',
+    body: 'What techniques can be used to optimize images in React or Next.js applications for better performance?',
+    verifyCount: 4, upvotes: 52, daysAgo: 2, asked: 35, tech: ['React', 'Next.js', 'Performance'] },
+
+  { id: 'q210', company: 'accenture', role: 'Full Stack Developer', topic: 'domain', topicPath: 'Frontend / Performance',
+    difficulty: 'Medium', round: 'Technical', experience: '8–12 Years', source: 'Community Report',
+    body: 'How would you optimize video delivery in a web application to reduce load times and improve user experience?',
+    verifyCount: 3, upvotes: 33, daysAgo: 2, asked: 21, tech: ['JavaScript', 'CDN', 'React'] },
+
+  { id: 'q211', company: 'accenture', role: 'Full Stack Developer', topic: 'domain', topicPath: 'Frontend / Performance',
+    difficulty: 'Hard', round: 'Technical', experience: '8–12 Years', source: 'Community Report',
+    body: 'What causes unnecessary re-renders in React, and how can React.memo, useMemo, and useCallback help improve performance?',
+    verifyCount: 6, upvotes: 78, daysAgo: 2, asked: 54, tech: ['React', 'JavaScript', 'Performance'] },
+
+  { id: 'q212', company: 'accenture', role: 'Full Stack Developer', topic: 'domain', topicPath: 'Frontend / Performance',
+    difficulty: 'Medium', round: 'Technical', experience: '8–12 Years', source: 'Community Report',
+    body: 'What are resource hints such as preload, prefetch, and dns-prefetch? Explain when you would use each of them.',
+    verifyCount: 4, upvotes: 45, daysAgo: 2, asked: 31, tech: ['HTML', 'JavaScript', 'Performance'] },
+
+  { id: 'q213', company: 'accenture', role: 'Full Stack Developer', topic: 'domain', topicPath: 'Frontend / Performance',
+    difficulty: 'Hard', round: 'Technical', experience: '8–12 Years', source: 'Community Report',
+    body: 'A React application has a slow initial page load. What steps would you take to identify and fix the performance bottlenecks?',
+    verifyCount: 5, upvotes: 67, daysAgo: 2, asked: 47, tech: ['React', 'Webpack', 'Performance'] },
+
+  { id: 'q214', company: 'accenture', role: 'Full Stack Developer', topic: 'domain', topicPath: 'Frontend / Performance',
+    difficulty: 'Medium', round: 'Technical', experience: '8–12 Years', source: 'Community Report',
+    body: 'How would you optimize the loading of third-party scripts such as analytics, chat widgets, or advertising libraries?',
+    verifyCount: 4, upvotes: 49, daysAgo: 2, asked: 33, tech: ['JavaScript', 'React', 'Performance'] },
+
+  { id: 'q215', company: 'accenture', role: 'Full Stack Developer', topic: 'domain', topicPath: 'Frontend / Performance',
+    difficulty: 'Hard', round: 'Technical', experience: '8–12 Years', source: 'Community Report',
+    body: 'What strategies would you use to improve Core Web Vitals (LCP, FID/INP, CLS) in a React application?',
+    verifyCount: 5, upvotes: 71, daysAgo: 2, asked: 49, tech: ['React', 'Lighthouse', 'Performance'] },
+
+  { id: 'q216', company: 'accenture', role: 'Full Stack Developer', topic: 'domain', topicPath: 'Frontend / Performance',
+    difficulty: 'Hard', round: 'Technical', experience: '8–12 Years', source: 'Community Report',
+    body: 'A component renders hundreds of items and users experience UI lag. How would you investigate and optimize the rendering performance?',
+    verifyCount: 5, upvotes: 63, daysAgo: 2, asked: 44, tech: ['React', 'JavaScript', 'Performance'] },
 ];
 
 export const COMPANY_BLUEPRINTS = {
