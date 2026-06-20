@@ -27,6 +27,7 @@ export const COMPANIES = [
   { id: 'infosys',    name: 'Infosys',    color: '#007CC3', initials: 'IN' },
   { id: 'tcs',        name: 'TCS',        color: '#002E6E', initials: 'TC' },
   { id: 'capgemini',  name: 'Capgemini',  color: '#0070AD', initials: 'CG' },
+  { id: 'payu',       name: 'PayU',       color: '#FF6B35', initials: 'PU' },
 ];
 
 export const TECH_STACK = [
@@ -1329,6 +1330,149 @@ export const QUESTIONS = [
     difficulty: 'Hard', round: 'Technical', experience: '8–12 Years', source: 'Community Report',
     body: 'A component renders hundreds of items and users experience UI lag. How would you investigate and optimize the rendering performance?',
     verifyCount: 5, upvotes: 63, daysAgo: 2, asked: 44, tech: ['React', 'JavaScript', 'Performance'] },
+
+  // ── PayU · Frontend Developer · SDE-2 · Round 1: DSA (Medium) ──────────────
+  { id: 'q217', company: 'payu', role: 'Full Stack Developer', topic: 'arrays', topicPath: 'DSA / Arrays',
+    difficulty: 'Medium', round: 'Technical', experience: '2–5 Years', source: 'Interview Experience',
+    body: 'Given an array of transaction amounts, find all pairs whose sum equals a given target. Return the count of unique pairs. For example: [100, 200, 300, 400], target = 500 → pairs: (100,400), (200,300) → count: 2. What is the time and space complexity of your approach?',
+    answer: 'Use a HashSet. Iterate the array; for each element x, check if (target - x) exists in the set. If yes, record the pair (store seen pairs as sorted tuples in a Set to avoid duplicates). If no, add x to the set. Time: O(n), Space: O(n).',
+    evaluation_criteria: ['Uses HashSet for O(n) rather than nested loops O(n²)', 'Handles duplicates correctly using a Set of sorted pairs', 'States time O(n) and space O(n) complexity correctly'],
+    verifyCount: 5, upvotes: 61, daysAgo: 1, asked: 42, tech: ['JavaScript', 'Java', 'Python'] },
+
+  { id: 'q218', company: 'payu', role: 'Full Stack Developer', topic: 'arrays', topicPath: 'DSA / Arrays',
+    difficulty: 'Medium', round: 'Technical', experience: '2–5 Years', source: 'Interview Experience',
+    body: 'You have an array of daily payment failure counts for the past 30 days. Find the longest contiguous subarray where failures stayed below a given threshold k. Explain your sliding window approach and walk through the algorithm step by step.',
+    answer: 'Use a sliding window with two pointers (left, right). Expand right; when arr[right] >= k, advance left until the condition is satisfied again. Track the max window size throughout. Time: O(n), Space: O(1).',
+    evaluation_criteria: ['Correctly identifies sliding window pattern', 'Handles edge cases: all elements above k, all below k', 'Achieves O(n) time and O(1) space'],
+    verifyCount: 4, upvotes: 48, daysAgo: 1, asked: 33, tech: ['JavaScript', 'Java'] },
+
+  { id: 'q219', company: 'payu', role: 'Full Stack Developer', topic: 'dsa', topicPath: 'DSA / Hashmaps',
+    difficulty: 'Medium', round: 'Technical', experience: '2–5 Years', source: 'Interview Experience',
+    body: 'Given a list of payment events, each with a merchant ID and an amount, use a HashMap to return the top 3 merchants by total transaction volume. How would you handle ties? Write the complete solution.',
+    answer: 'Build a frequency map: {merchantId → totalVolume}. Convert to array, sort descending by volume, slice top 3. For ties, sort secondarily by merchantId alphabetically. Time: O(n + m log m) where m = unique merchants.',
+    evaluation_criteria: ['Correctly aggregates using a Map/Object', 'Sorts and slices correctly', 'Articulates tie-breaking strategy'],
+    verifyCount: 5, upvotes: 57, daysAgo: 1, asked: 39, tech: ['JavaScript', 'Java'] },
+
+  { id: 'q220', company: 'payu', role: 'Full Stack Developer', topic: 'dsa', topicPath: 'DSA / Hashmaps',
+    difficulty: 'Medium', round: 'Technical', experience: '2–5 Years', source: 'Interview Experience',
+    body: 'Implement a function that detects duplicate transaction IDs within a 5-minute time window. Given an array of {id, timestamp} objects, return all IDs that appear more than once within any 5-minute rolling window. What data structure would you use and why?',
+    answer: 'Use a Map of {id → [timestamps]}. For each event, push its timestamp into the map under its id. Then for each id, check if any two timestamps differ by ≤ 300000ms. A sliding deque per id gives O(n) total. HashMap chosen for O(1) lookup.',
+    evaluation_criteria: ['Uses Map for efficient grouping', 'Correctly computes 5-minute window (300000ms)', 'Considers and handles duplicates across multiple windows'],
+    verifyCount: 6, upvotes: 72, daysAgo: 1, asked: 51, tech: ['JavaScript'] },
+
+  { id: 'q221', company: 'payu', role: 'Full Stack Developer', topic: 'arrays', topicPath: 'DSA / Arrays',
+    difficulty: 'Medium', round: 'Technical', experience: '2–5 Years', source: 'Interview Experience',
+    body: 'Given a 2D matrix representing a payment heatmap (rows = hours, columns = days), find the submatrix with the maximum sum. The submatrix represents the peak payment activity window. Describe your approach — can you do better than O(n³)?',
+    answer: 'Use Kadane\'s algorithm extended to 2D. Fix left and right column boundaries (O(n²) pairs), compress each row between them into a 1D array by summing, then run Kadane\'s on that 1D array. Total: O(n² × m) where n=cols, m=rows. This is optimal for this problem.',
+    evaluation_criteria: ['Knows Kadane\'s 1D algorithm before extending', 'Correctly describes column-fixing approach', 'States O(n²m) complexity and why O(n³) brute force is worse'],
+    verifyCount: 4, upvotes: 44, daysAgo: 1, asked: 29, tech: ['JavaScript', 'Java', 'Python'] },
+
+  { id: 'q222', company: 'payu', role: 'Full Stack Developer', topic: 'dsa', topicPath: 'DSA / Hashmaps',
+    difficulty: 'Medium', round: 'Technical', experience: '2–5 Years', source: 'Interview Experience',
+    body: 'Design an in-memory rate limiter that allows at most N requests per user per minute. Given a stream of {userId, timestamp} requests, return true if the request should be allowed or false if it should be throttled. Implement using JavaScript.',
+    answer: 'Use a Map<userId, deque of timestamps>. For each request: remove timestamps older than (current - 60000ms) from the front of the deque. If deque.length < N, push current timestamp and return true. Else return false. Space per user: O(N).',
+    evaluation_criteria: ['Uses sliding window with a deque or array', 'Correctly prunes stale timestamps', 'Returns correct boolean and explains the O(N) space trade-off per user'],
+    verifyCount: 7, upvotes: 83, daysAgo: 1, asked: 58, tech: ['JavaScript'] },
+
+  // ── PayU · Frontend Developer · SDE-2 · Round 2: JavaScript & React (Medium) ─
+  { id: 'q223', company: 'payu', role: 'Full Stack Developer', topic: 'domain', topicPath: 'JavaScript / Fundamentals',
+    difficulty: 'Medium', round: 'Technical', experience: '2–5 Years', source: 'Interview Experience',
+    body: 'What will the following code output and why?\n\nconst obj = { x: 10 };\nconst fn = () => console.log(this.x);\nobj.fn = fn;\nobj.fn();\n\nNow rewrite fn as a regular function. How does the output change and what is the reason?',
+    answer: 'Arrow fn: logs undefined (or window.x in non-strict browser) because arrow functions capture `this` from the enclosing lexical scope (module/global), not from the call site. Regular fn: logs 10 because `this` is bound to the calling object (obj) at invocation time.',
+    evaluation_criteria: ['Correctly identifies arrow vs regular function `this` binding', 'Explains lexical vs dynamic `this`', 'Correctly predicts both outputs'],
+    verifyCount: 8, upvotes: 91, daysAgo: 1, asked: 67, tech: ['JavaScript'] },
+
+  { id: 'q224', company: 'payu', role: 'Full Stack Developer', topic: 'domain', topicPath: 'JavaScript / Fundamentals',
+    difficulty: 'Medium', round: 'Technical', experience: '2–5 Years', source: 'Interview Experience',
+    body: 'Predict the output of this code:\n\nconsole.log(1);\nsetTimeout(() => console.log(2), 0);\nPromise.resolve().then(() => console.log(3));\nconsole.log(4);\n\nExplain the event loop mechanism that determines this order.',
+    answer: 'Output: 1, 4, 3, 2. Synchronous code runs first (1, 4). Then the microtask queue drains (Promise → 3). Then the macrotask queue runs (setTimeout → 2). Microtasks always complete before the next macrotask.',
+    evaluation_criteria: ['Correctly outputs 1 4 3 2', 'Distinguishes microtask queue (Promise) from macrotask queue (setTimeout)', 'Explains event loop tick order'],
+    verifyCount: 9, upvotes: 104, daysAgo: 1, asked: 78, tech: ['JavaScript'] },
+
+  { id: 'q225', company: 'payu', role: 'Full Stack Developer', topic: 'domain', topicPath: 'JavaScript / Fundamentals',
+    difficulty: 'Medium', round: 'Technical', experience: '2–5 Years', source: 'Interview Experience',
+    body: 'Implement a debounce function from scratch in JavaScript. Then explain where you would use debounce vs throttle in a payment checkout flow — for example on a search input, a "Pay Now" button, and a scroll event handler.',
+    answer: 'debounce(fn, delay): return a wrapper that clears and resets a timer on every call; fn fires only after delay ms of silence. Use debounce for search input (wait for typing to stop). Use throttle for scroll (fire at most once per frame). For "Pay Now" button, disable after first click to prevent double-submission rather than debounce.',
+    evaluation_criteria: ['Correct debounce implementation with clearTimeout/setTimeout', 'Correctly distinguishes debounce (trailing edge) from throttle (leading/interval)', 'Identifies double-submit risk on payment buttons'],
+    verifyCount: 7, upvotes: 88, daysAgo: 1, asked: 62, tech: ['JavaScript', 'React'] },
+
+  { id: 'q226', company: 'payu', role: 'Full Stack Developer', topic: 'domain', topicPath: 'React / Concepts',
+    difficulty: 'Medium', round: 'Technical', experience: '2–5 Years', source: 'Interview Experience',
+    body: 'Explain the reconciliation algorithm in React. How does React decide which DOM nodes to update when state changes? What is the role of the key prop and what happens when you use an array index as a key versus a stable unique ID?',
+    answer: 'React diffs the virtual DOM tree top-down. Same type → update props. Different type → unmount + remount. Keys help React match list items across renders. Index keys cause incorrect reuse when the list is reordered/filtered — React sees the same key at a position and reuses the old component instance, leading to stale state. Stable unique IDs (e.g. item.id) allow correct matching.',
+    evaluation_criteria: ['Explains virtual DOM diffing and O(n) heuristic', 'Correctly explains key usage in lists', 'Gives concrete example of index-key bug (e.g. reordered list with controlled inputs)'],
+    verifyCount: 8, upvotes: 96, daysAgo: 1, asked: 71, tech: ['React', 'JavaScript'] },
+
+  { id: 'q227', company: 'payu', role: 'Full Stack Developer', topic: 'domain', topicPath: 'React / Coding',
+    difficulty: 'Medium', round: 'Technical', experience: '2–5 Years', source: 'Interview Experience',
+    body: 'Build a custom useFetch hook in React that accepts a URL, returns { data, loading, error }, handles component unmount (cleanup), and prevents state updates on an unmounted component. Show the complete implementation.',
+    answer: 'Use useEffect with an AbortController. Set loading=true, fetch the URL, on success set data, on error set error, in cleanup call controller.abort() and set a cancelled flag to prevent setState after unmount. Return { data, loading, error }.',
+    evaluation_criteria: ['Correct AbortController cleanup on unmount', 'Handles loading/error/data state transitions', 'Prevents setState on unmounted component (either via flag or abort)'],
+    verifyCount: 7, upvotes: 82, daysAgo: 1, asked: 59, tech: ['React', 'JavaScript'] },
+
+  { id: 'q228', company: 'payu', role: 'Full Stack Developer', topic: 'domain', topicPath: 'React / Coding',
+    difficulty: 'Medium', round: 'Technical', experience: '2–5 Years', source: 'Interview Experience',
+    body: 'Implement a reusable PaymentForm component in React with fields for card number, expiry, and CVV. Add real-time validation using controlled components: card number must be 16 digits, expiry must be a future month, CVV 3–4 digits. No external libraries.',
+    answer: 'Use useState for each field and an errors object. Validate on onChange (or onBlur). Card: strip non-digits, check length === 16. Expiry: parse MM/YY, compare to current month. CVV: 3-4 digit regex. Disable submit button until all fields valid. Never log or store raw CVV.',
+    evaluation_criteria: ['Uses controlled components (value + onChange)', 'Validates all three fields correctly', 'Mentions security concern — CVV should not be stored/logged'],
+    verifyCount: 6, upvotes: 74, daysAgo: 1, asked: 53, tech: ['React', 'JavaScript'] },
+
+  { id: 'q229', company: 'payu', role: 'Full Stack Developer', topic: 'domain', topicPath: 'React / Coding',
+    difficulty: 'Medium', round: 'Technical', experience: '2–5 Years', source: 'Interview Experience',
+    body: 'You need to implement optimistic UI for a "Add to Cart" button in a React e-commerce app. When the user clicks, the UI should update immediately, but revert if the API call fails. How would you implement this pattern without any state management library?',
+    answer: 'On click: immediately update local state (optimistic update) and disable the button. Fire the API call. On success: confirm (or refetch). On failure: revert state to previous value and show an error toast. Use useRef to hold the previous state snapshot for rollback.',
+    evaluation_criteria: ['Implements immediate state update before API resolves', 'Correctly reverts on failure using previous state snapshot', 'Handles concurrent clicks (disabling button or using a loading ref)'],
+    verifyCount: 6, upvotes: 79, daysAgo: 1, asked: 55, tech: ['React', 'JavaScript'] },
+
+  // ── PayU · Frontend Developer · SDE-2 · Round 3: Techno-Managerial (Hard) ───
+  { id: 'q230', company: 'payu', role: 'Full Stack Developer', topic: 'domain', topicPath: 'JavaScript / Promises',
+    difficulty: 'Hard', round: 'Technical', experience: '2–5 Years', source: 'Interview Experience',
+    body: 'Implement Promise.allSettled from scratch without using the native method. Then explain the difference between Promise.all, Promise.allSettled, Promise.any, and Promise.race — give a concrete payment flow example for when you would use each.',
+    answer: 'allSettled: wrap each promise in a .then(value => ({status:"fulfilled",value})).catch(reason => ({status:"rejected",reason})), then Promise.all that array. Examples: .all for fetching user + payment methods in parallel (fail fast). .allSettled for logging all payment attempts regardless of outcome. .race for timeout logic. .any for trying multiple payment gateways and using whichever succeeds first.',
+    evaluation_criteria: ['Correct allSettled implementation', 'Correctly distinguishes all four combinators', 'Payment domain examples are realistic and accurate'],
+    verifyCount: 8, upvotes: 97, daysAgo: 1, asked: 69, tech: ['JavaScript'] },
+
+  { id: 'q231', company: 'payu', role: 'Full Stack Developer', topic: 'domain', topicPath: 'JavaScript / Promises',
+    difficulty: 'Hard', round: 'Technical', experience: '2–5 Years', source: 'Interview Experience',
+    body: 'A payment API call must retry up to 3 times on network failure, with exponential backoff (1s, 2s, 4s delays) between attempts. Implement a retryWithBackoff(fn, maxRetries) utility using Promises. Handle the case where all retries fail.',
+    answer: 'Recursive async function: attempt fn(), on success resolve, on failure if retries > 0 wait (delay = 2^attempt * 1000ms) then recurse with retries-1. Base case: retries === 0 → reject with last error. Use setTimeout wrapped in a Promise for the delay.',
+    evaluation_criteria: ['Correct exponential backoff formula (2^attempt * baseDelay)', 'Handles rejection after all retries exhausted', 'Avoids promise anti-patterns (no unnecessary new Promise wrappers around async/await)'],
+    verifyCount: 7, upvotes: 88, daysAgo: 1, asked: 63, tech: ['JavaScript'] },
+
+  { id: 'q232', company: 'payu', role: 'Full Stack Developer', topic: 'domain', topicPath: 'React / Architecture',
+    difficulty: 'Hard', round: 'System Design', experience: '2–5 Years', source: 'Interview Experience',
+    body: 'Design the frontend architecture for a PayU checkout SDK that can be embedded in any merchant website as a script tag. It must render a payment form in an iframe, handle cross-origin communication, support multiple payment methods (card, UPI, netbanking), and work across React, Vue, and plain HTML merchant sites.',
+    answer: 'Serve a JS bundle that creates an iframe pointing to PayU\'s domain. Use postMessage for cross-origin communication (parent → iframe: payment params; iframe → parent: result events). Inside the iframe: a React app with a step-based form. Expose a global JS API (PayU.open({...}).then(onSuccess)). Use Content-Security-Policy to sandbox the iframe. Tokenise card details server-side; never send raw card data to parent.',
+    evaluation_criteria: ['Correctly identifies iframe + postMessage for cross-origin isolation', 'Describes the JS API surface for merchant integration', 'Mentions security: PCI compliance, no raw card data to parent, CSP sandboxing'],
+    verifyCount: 6, upvotes: 81, daysAgo: 1, asked: 57, tech: ['JavaScript', 'React', 'Security'] },
+
+  { id: 'q233', company: 'payu', role: 'Full Stack Developer', topic: 'domain', topicPath: 'React / Architecture',
+    difficulty: 'Hard', round: 'System Design', experience: '2–5 Years', source: 'Interview Experience',
+    body: 'You are building a multi-step payment flow: Cart → Address → Payment Method → OTP → Confirmation. Each step has its own data, validation, and API calls. How would you architect state management for this flow in React without Redux? Discuss trade-offs.',
+    answer: 'Use React Context + useReducer at the checkout root. Each step dispatches actions (SET_ADDRESS, SET_PAYMENT_METHOD, etc.) to a central reducer. Steps read only their slice. Use a step index in state for navigation. Persist to sessionStorage on each dispatch for refresh recovery. Trade-off vs Redux: simpler setup but no devtools, harder time-travel debugging. For this bounded flow, Context+Reducer is proportionate.',
+    evaluation_criteria: ['Chooses Context + useReducer and justifies it over Redux', 'Addresses step navigation state', 'Mentions sessionStorage persistence for page refresh resilience'],
+    verifyCount: 7, upvotes: 85, daysAgo: 1, asked: 61, tech: ['React', 'JavaScript'] },
+
+  { id: 'q234', company: 'payu', role: 'Full Stack Developer', topic: 'domain', topicPath: 'Frontend / Hierarchical Navigation',
+    difficulty: 'Hard', round: 'Technical', experience: '2–5 Years', source: 'Interview Experience',
+    body: 'Design and implement a recursive category tree component in React for a merchant product catalogue. The tree can be N levels deep, each node can be expanded/collapsed independently, and the selected path must be highlighted. Clicking a leaf node should emit the full path (e.g. "Electronics > Phones > Android"). Optimise to avoid re-rendering siblings when one node is toggled.',
+    answer: 'Implement a TreeNode component that renders its children recursively. Store expanded state in a Set (nodeId) lifted to the root. Pass onToggle and selectedPath as props or via Context. Use React.memo on TreeNode — it only re-renders when its own expanded state changes. Build the full path by passing a path array down through recursion, appending each node\'s label.',
+    evaluation_criteria: ['Correct recursive rendering without depth limit', 'Expanded state isolated per node to prevent sibling re-renders', 'Full path construction passed top-down through recursion'],
+    verifyCount: 6, upvotes: 76, daysAgo: 1, asked: 54, tech: ['React', 'JavaScript'] },
+
+  { id: 'q235', company: 'payu', role: 'Full Stack Developer', topic: 'domain', topicPath: 'Frontend / Best Practices',
+    difficulty: 'Hard', round: 'Technical', experience: '2–5 Years', source: 'Interview Experience',
+    body: 'A merchant reports that their checkout page built with your SDK scores 38 on Google Lighthouse. Walk through your systematic debugging process: which Core Web Vitals are likely failing, what tools you would use, and give five concrete optimisations specific to a payment checkout flow.',
+    answer: 'Check: LCP (likely slow hero/form render), CLS (payment form shifts after fonts/images load), INP (slow OTP input response). Tools: Lighthouse, WebPageTest, Chrome DevTools Performance tab. Optimisations: (1) inline critical CSS, (2) preconnect to payment API domain, (3) lazy-load non-critical scripts (chat widget), (4) reserve space for dynamic elements (fix CLS), (5) code-split payment method components so UPI/Netbanking load on demand.',
+    evaluation_criteria: ['Correctly identifies which CWV metrics are at risk', 'Uses appropriate profiling tools', 'At least 3 concrete, checkout-specific optimisations (not generic)'],
+    verifyCount: 6, upvotes: 79, daysAgo: 1, asked: 56, tech: ['JavaScript', 'React', 'Performance'] },
+
+  { id: 'q236', company: 'payu', role: 'Full Stack Developer', topic: 'domain', topicPath: 'Product Engineering',
+    difficulty: 'Hard', round: 'System Design', experience: '2–5 Years', source: 'Interview Experience',
+    body: 'PayU wants to run A/B tests on the checkout button colour and payment method ordering to improve conversion rates. As the frontend engineer, how would you design the experimentation infrastructure: flag evaluation, consistent user bucketing, avoiding layout shift between variants, and measuring the right success metrics?',
+    answer: 'Use a feature flag service (LaunchDarkly or in-house). Bucket users by userId hash (not random) for consistency across sessions. Evaluate flags server-side at HTML render time (or in a CDN worker) to avoid CLS from client-side flag flicker. Track conversion events (payment_initiated, payment_success) with experiment_id + variant as properties. Use a holdout group. Run for statistical significance (min 1–2 weeks). Measure revenue per visitor, not just click-through.',
+    evaluation_criteria: ['Consistent bucketing strategy (hash-based, not random per request)', 'Addresses flash of wrong variant (server-side or CDN evaluation)', 'Correct success metrics (revenue/conversion, not vanity metrics)'],
+    verifyCount: 5, upvotes: 71, daysAgo: 1, asked: 49, tech: ['JavaScript', 'React', 'System Design'] },
 ];
 
 export const COMPANY_BLUEPRINTS = {
