@@ -15,12 +15,22 @@ const COMPANY_OPTS = COMPANIES.map(c => ({ id: c.id, label: c.name }));
 const ROLE_OPTS = ROLES.map(r => ({ id: r, label: r }));
 const DIFF_OPTS = DIFFICULTIES.map(d => ({ id: d, label: d }));
 const ROUND_OPTS = ROUND_TYPES.map(r => ({ id: r, label: r }));
+const EXP_OPTS = ['0–2 Years', '2–5 Years', '5–8 Years', '8–12 Years', '12+ Years'].map(e => ({ id: e, label: e }));
+const SOURCE_OPTS = ['Community Report', 'My Interview', 'Glassdoor', 'LinkedIn', 'Other'].map(s => ({ id: s, label: s }));
+
+const PROFILE_OPTIONS = [
+  { id: 'anonymous', label: 'Remain anonymous',  desc: 'Your name and role are hidden' },
+  { id: 'role',      label: 'Show my role only', desc: 'e.g. "Senior SDE, 5–8 years"' },
+  { id: 'name',      label: 'Show my name',       desc: 'Your display name is visible' },
+];
 
 export const AddQuestionModal = ({ open, onOpenChange, onAdded, userId }) => {
   const [form, setForm] = useState({
     company: 'amazon', role: 'SDE2', topic: 'arrays',
     difficulty: 'Medium', round: 'Technical', body: '',
+    experience: '2–5 Years', source: 'Community Report',
   });
+  const [profile, setProfile] = useState('anonymous');
   const [submitting, setSubmitting] = useState(false);
   const [violations, setViolations] = useState([]);
 
@@ -54,6 +64,9 @@ export const AddQuestionModal = ({ open, onOpenChange, onAdded, userId }) => {
         difficulty: form.difficulty,
         round: form.round,
         body: form.body.trim(),
+        experience: form.experience,
+        source: form.source,
+        contributorProfile: profile,
         verifyCount: 1,
         upvotes: 0,
         daysAgo: 0,
@@ -70,7 +83,8 @@ export const AddQuestionModal = ({ open, onOpenChange, onAdded, userId }) => {
       onAdded?.(newQuestion);
       onOpenChange(false);
       toast.success('Question added! It\'s now live in the question bank. +40 XP', { duration: 4000 });
-      setForm({ company: 'amazon', role: 'SDE2', topic: 'arrays', difficulty: 'Medium', round: 'Technical', body: '' });
+      setForm({ company: 'amazon', role: 'SDE2', topic: 'arrays', difficulty: 'Medium', round: 'Technical', body: '', experience: '2–5 Years', source: 'Community Report' });
+      setProfile('anonymous');
     } catch (err) {
       toast.error(err?.response?.data?.detail || err.message || 'Submission failed. Try again.');
     } finally {
@@ -93,11 +107,37 @@ export const AddQuestionModal = ({ open, onOpenChange, onAdded, userId }) => {
 
         <form onSubmit={submit} className="space-y-4 mt-3">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <CreatableSelect label="company"   value={form.company}    options={COMPANY_OPTS} onChange={(v) => set('company', v)}    testid="aq-company" />
-            <CreatableSelect label="role"      value={form.role}       options={ROLE_OPTS}    onChange={(v) => set('role', v)}       testid="aq-role" />
-            <CreatableSelect label="topic"     value={form.topic}      options={TOPIC_FLAT}   onChange={(v) => set('topic', v)}      testid="aq-topic" />
-            <CreatableSelect label="round"     value={form.round}      options={ROUND_OPTS}   onChange={(v) => set('round', v)}      testid="aq-round" />
+            <CreatableSelect label="company"    value={form.company}    options={COMPANY_OPTS} onChange={(v) => set('company', v)}    testid="aq-company" />
+            <CreatableSelect label="role"       value={form.role}       options={ROLE_OPTS}    onChange={(v) => set('role', v)}       testid="aq-role" />
+            <CreatableSelect label="experience" value={form.experience} options={EXP_OPTS}     onChange={(v) => set('experience', v)} testid="aq-experience" />
+            <CreatableSelect label="source"     value={form.source}     options={SOURCE_OPTS}  onChange={(v) => set('source', v)}     testid="aq-source" />
+            <CreatableSelect label="topic"      value={form.topic}      options={TOPIC_FLAT}   onChange={(v) => set('topic', v)}      testid="aq-topic" />
+            <CreatableSelect label="round"      value={form.round}      options={ROUND_OPTS}   onChange={(v) => set('round', v)}      testid="aq-round" />
             <CreatableSelect label="difficulty" value={form.difficulty} options={DIFF_OPTS}    onChange={(v) => set('difficulty', v)} testid="aq-difficulty" />
+          </div>
+
+          {/* Contributor profile */}
+          <div className="rounded-md border border-white/8 p-4" style={{ background: '#0F1117' }}>
+            <div className="font-mono text-[10px] uppercase tracking-[0.18em] text-zinc-500 mb-3">Your profile on this question</div>
+            <div className="space-y-2">
+              {PROFILE_OPTIONS.map(opt => (
+                <label key={opt.id} className="flex items-start gap-3 cursor-pointer group">
+                  <div className="mt-0.5 w-4 h-4 rounded-full border flex items-center justify-center shrink-0 transition-colors"
+                    style={{
+                      borderColor: profile === opt.id ? '#3B6FD4' : 'rgba(255,255,255,0.15)',
+                      background: profile === opt.id ? 'rgba(59,111,212,0.15)' : 'transparent',
+                    }}>
+                    {profile === opt.id && <div className="w-1.5 h-1.5 rounded-full" style={{ background: '#3B6FD4' }} />}
+                  </div>
+                  <input type="radio" name="profile" value={opt.id} checked={profile === opt.id}
+                    onChange={() => setProfile(opt.id)} className="sr-only" />
+                  <div>
+                    <div className="text-sm text-zinc-200 font-medium">{opt.label}</div>
+                    <div className="text-[11px] text-zinc-500 mt-0.5">{opt.desc}</div>
+                  </div>
+                </label>
+              ))}
+            </div>
           </div>
 
           <div>

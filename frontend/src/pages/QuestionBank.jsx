@@ -419,9 +419,12 @@ const QuestionCard = ({ q, expanded, onToggleExpand, upvoted, asked, onUpvote, o
         <div className="my-4 border-t border-white/5" />
 
         {/* meta row */}
-        <div className="flex items-center flex-wrap gap-x-6 gap-y-2 text-xs font-mono text-zinc-500">
+        <div className="flex items-center flex-wrap gap-x-5 gap-y-2 text-xs font-mono text-zinc-500">
+          <span><span className="text-zinc-600">Asked in</span> <span className="text-zinc-300">{companyName}</span></span>
+          <span><span className="text-zinc-600">Role</span> <span className="text-zinc-300">{role}</span></span>
+          {q.experience && <span><span className="text-zinc-600">Exp</span> <span className="text-zinc-300">{q.experience}</span></span>}
+          <span><span className="text-zinc-600">Source</span> <span className="text-zinc-300">{q.source || 'Community Report'}</span></span>
           <span><span className="text-zinc-600">reported</span> <span className="text-zinc-300">{q.daysAgo}d ago</span></span>
-          <span><span className="text-zinc-600">{q.round}</span> <span className="text-zinc-400">round</span></span>
           <span className="inline-flex items-center gap-2">
             <span className="text-zinc-600">Popularity:</span>
             <PixelBar value={popularity} width={70} height={12} color="#22c55e" />
