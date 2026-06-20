@@ -124,7 +124,7 @@ footer a{color:#52525b}
 <body>
 <nav class="nav"><div class="nav-inner">
   <a href="/" class="logo"><div class="logo-badge">sk</div>Stepkai</a>
-  <a href="/app/questions" class="cta">Practice free →</a>
+  <a href="/app/plan" class="cta">Practice free →</a>
 </div></nav>
 <main>
 ${breadcrumb.length ? `<div class="breadcrumb">
@@ -134,7 +134,7 @@ ${breadcrumb.length ? `<div class="breadcrumb">
 ${bodyHtml}
 </main>
 <footer>
-  <p>&copy; ${YEAR} Stepkai &middot; <a href="/">Home</a> &middot; <a href="/app/questions">Question Bank</a> &middot; <a href="/app/study-plan">Study Plan</a> &middot; <a href="/questions/">Browse All</a></p>
+  <p>&copy; ${YEAR} Stepkai &middot; <a href="/">Home</a> &middot; <a href="/app/questions">Question Bank</a> &middot; <a href="/app/plan">Study Plan</a> &middot; <a href="/questions/">Browse All</a> &middot; <a href="/companies/">Companies</a> &middot; <a href="/roles/">Roles</a></p>
   <p style="margin-top:8px">Real interview questions from engineers who cleared the loop.</p>
 </footer>
 </body></html>`;
@@ -144,15 +144,17 @@ ${bodyHtml}
 function qCard(q, idx) {
   const co = COMPANY_MAP[q.company];
   const techTags = (q.tech || []).slice(0, 3).map(t => `<span class="tag">${esc(t)}</span>`).join('');
+  const expTag = q.experience ? `<span class="tag">${esc(q.experience)}</span>` : '';
+  const srcTag = q.source && q.source !== 'Community Report' ? `<span class="tag" style="color:#60a5fa;border-color:#60a5fa40">${esc(q.source)}</span>` : '';
   return `<div class="q-card">
   <div class="q-tags">
     ${co ? `<span class="tag" style="color:${co.color};border-color:${co.color}40">${esc(co.name)}</span>` : ''}
     <span class="tag diff-${esc(q.difficulty)}">${esc(q.difficulty)}</span>
     <span class="tag">${esc(q.round)} round</span>
-    ${techTags}
+    ${expTag}${srcTag}${techTags}
   </div>
   <p class="q-body">${esc(q.body)}</p>
-  <div class="q-meta">↑ ${q.upvotes} upvotes &middot; ${q.asked} engineers asked this</div>
+  <div class="q-meta">↑ ${q.upvotes} upvotes &middot; ${q.asked} engineers asked this${q.role ? ` &middot; ${esc(q.role)}` : ''}</div>
 </div>`;
 }
 
@@ -877,12 +879,278 @@ ${relatedSection('Related comparisons', COMPARISONS.filter(c=>c.slug!==comp.slug
 console.log(`[seo] Generated comparison pages`);
 
 // ═══════════════════════════════════════════════════════════════════════════
-// 11. SITEMAP.XML
+// 11. COMPANY + ROLE PAGES  /companies/[company]/[role]-interview-questions/
+//     e.g. "Business Analyst Interview Questions at Accenture"
+// ═══════════════════════════════════════════════════════════════════════════
+const companyRoleMap = new Map();
+
+QUESTIONS.forEach(q => {
+  if (!q.role) return;
+  const key = `${q.company}:${slug(q.role)}`;
+  if (!companyRoleMap.has(key)) companyRoleMap.set(key, { questions: [], company: COMPANY_MAP[q.company], role: q.role, roleSlug: slug(q.role) });
+  companyRoleMap.get(key).questions.push(q);
+});
+
+companyRoleMap.forEach(({ questions, company, role, roleSlug }) => {
+  if (!company || questions.length < 2) return;
+  const compSlug = slug(company.name);
+  const canonical = `/companies/${compSlug}/${roleSlug}-interview-questions/`;
+  const title = `${role} Interview Questions at ${company.name} ${YEAR}`;
+  const h1 = `${role} Interview Questions at ${company.name}`;
+  const desc = `${questions.length} real ${role} interview questions asked at ${company.name}. Covers ${[...new Set(questions.map(q => q.round))].join(', ')} rounds. Sourced from engineers who cleared the loop.`;
+
+  const topicFreq = {};
+  questions.forEach(q => { const t = q.topic || q.topicPath; if (t) topicFreq[t] = (topicFreq[t] || 0) + 1; });
+  const topTopics = Object.entries(topicFreq).sort((a,b) => b[1]-a[1]).slice(0, 5);
+
+  const expFreq = {};
+  questions.forEach(q => { if (q.experience) expFreq[q.experience] = (expFreq[q.experience] || 0) + 1; });
+  const topExp = Object.entries(expFreq).sort((a,b) => b[1]-a[1]).slice(0, 4);
+
+  const roundFreq = {};
+  questions.forEach(q => { if (q.round) roundFreq[q.round] = (roundFreq[q.round] || 0) + 1; });
+
+  const sameRoleCompanies = [...new Set(
+    QUESTIONS.filter(q => q.role === role && q.company !== company.id)
+      .map(q => COMPANY_MAP[q.company]?.name).filter(Boolean)
+  )].slice(0, 6);
+
+  const faqItems = [
+    { q: `What topics does ${company.name} ask ${role}s?`, a: topTopics.length ? `Common topics: ${topTopics.map(([t])=>t).join(', ')}.` : 'Topics vary by team.' },
+    { q: `What rounds are there in ${company.name} ${role} interview?`, a: `Reported rounds: ${Object.keys(roundFreq).join(', ')}.` },
+    { q: `What experience level does ${company.name} hire ${role}s at?`, a: topExp.length ? `Most reported experience: ${topExp[0][0]}.` : 'Experience levels vary by team.' },
+  ];
+
+  const signalsHtml = `
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin-bottom:32px">
+  <div style="border:1px solid rgba(255,255,255,.09);border-radius:10px;padding:16px;background:#0c0c0f">
+    <div style="font-family:monospace;font-size:10px;text-transform:uppercase;letter-spacing:.16em;color:#52525b;margin-bottom:10px">Frequently Asked Topics</div>
+    ${topTopics.map(([t,n]) => `<div style="display:flex;justify-content:space-between;padding:4px 0;font-size:13px;color:#d4d4d8;border-bottom:1px solid rgba(255,255,255,.04)"><span>${esc(t)}</span><span style="color:#a1a1aa;font-family:monospace">${n}x</span></div>`).join('')}
+  </div>
+  <div style="border:1px solid rgba(255,255,255,.09);border-radius:10px;padding:16px;background:#0c0c0f">
+    <div style="font-family:monospace;font-size:10px;text-transform:uppercase;letter-spacing:.16em;color:#52525b;margin-bottom:10px">Interview Rounds</div>
+    ${Object.entries(roundFreq).map(([r,n]) => `<div style="display:flex;justify-content:space-between;padding:4px 0;font-size:13px;color:#d4d4d8;border-bottom:1px solid rgba(255,255,255,.04)"><span>${esc(r)}</span><span style="color:#a1a1aa;font-family:monospace">${n}q</span></div>`).join('')}
+  </div>
+  ${topExp.length ? `<div style="border:1px solid rgba(255,255,255,.09);border-radius:10px;padding:16px;background:#0c0c0f">
+    <div style="font-family:monospace;font-size:10px;text-transform:uppercase;letter-spacing:.16em;color:#52525b;margin-bottom:10px">Experience Level</div>
+    ${topExp.map(([e,n]) => `<div style="display:flex;justify-content:space-between;padding:4px 0;font-size:13px;color:#d4d4d8;border-bottom:1px solid rgba(255,255,255,.04)"><span>${esc(e)}</span><span style="color:#a1a1aa;font-family:monospace">${n}q</span></div>`).join('')}
+  </div>` : ''}
+</div>`;
+
+  const bodyHtml = `
+<p class="subtitle">${esc(desc)}</p>
+<div class="stat-row">
+  <div class="stat"><b>${questions.length}</b> questions</div>
+  <div class="stat"><b>${questions.reduce((s,q)=>s+q.upvotes,0)}</b> upvotes</div>
+  <div class="stat">Rounds: <b>${Object.keys(roundFreq).length}</b></div>
+  ${topTopics.length ? `<div class="stat">Top topic: <b>${esc(topTopics[0][0])}</b></div>` : ''}
+</div>
+<h2>Interview Signals — What ${esc(company.name)} Asks ${esc(role)}s</h2>
+${signalsHtml}
+<h2>All ${esc(role)} Questions Asked at ${esc(company.name)}</h2>
+${questions.sort((a,b) => b.upvotes-a.upvotes).map((q,i) => qCard(q,i+1)).join('\n')}
+${practiceBlock(company.name, role)}
+${sameRoleCompanies.length ? relatedSection(`Other companies hiring ${esc(role)}s`, sameRoleCompanies.map(n => {
+  const co = COMPANIES.find(c => c.name===n);
+  return co ? { label: `${n} ${role} questions`, href: `/companies/${slug(n)}/${roleSlug}-interview-questions/` } : null;
+}).filter(Boolean)) : ''}
+${relatedSection(`More at ${esc(company.name)}`, [
+  { label: `All ${esc(company.name)} questions`, href: `/questions/company/${compSlug}/` },
+  { label: `${esc(company.name)} interview process`, href: `/interview-process/${compSlug}/` },
+  { label: `Prepare for ${esc(company.name)}`, href: `/prepare/${compSlug}/`, accent: true },
+])}`;
+
+  write(`companies/${compSlug}/${roleSlug}-interview-questions/index.html`, shell({
+    title, desc, canonical, h1, bodyHtml, faqItems,
+    breadcrumb: [
+      { label: 'Companies', href: '/companies/' },
+      { label: company.name, href: `/companies/${compSlug}/` },
+      { label: `${role} Questions`, href: canonical },
+    ],
+  }));
+});
+
+console.log(`[seo] Generated company+role pages`);
+
+// ═══════════════════════════════════════════════════════════════════════════
+// 12. ROLE PAGES  /roles/[role]/interview-questions/
+//     e.g. "Full Stack Developer Interview Questions — All Companies"
+// ═══════════════════════════════════════════════════════════════════════════
+const roleMap = new Map();
+
+QUESTIONS.forEach(q => {
+  if (!q.role) return;
+  const rs = slug(q.role);
+  if (!roleMap.has(rs)) roleMap.set(rs, { questions: [], role: q.role, roleSlug: rs });
+  roleMap.get(rs).questions.push(q);
+});
+
+roleMap.forEach(({ questions, role, roleSlug }) => {
+  if (questions.length < 3) return;
+  const canonical = `/roles/${roleSlug}/interview-questions/`;
+  const uniqueCompanies = [...new Set(questions.map(q => COMPANY_MAP[q.company]?.name).filter(Boolean))];
+  const title = `${role} Interview Questions ${YEAR} — All Companies`;
+  const h1 = `${role} Interview Questions`;
+  const desc = `${questions.length} verified ${role} interview questions from ${uniqueCompanies.slice(0, 5).join(', ')}${uniqueCompanies.length > 5 ? ' and more' : ''}. Covers all experience levels.`;
+
+  const companyFreq = {};
+  questions.forEach(q => { const n = COMPANY_MAP[q.company]?.name; if (n) companyFreq[n] = (companyFreq[n]||0)+1; });
+  const topCompanies = Object.entries(companyFreq).sort((a,b) => b[1]-a[1]);
+
+  const expFreq = {};
+  questions.forEach(q => { if (q.experience) expFreq[q.experience] = (expFreq[q.experience]||0)+1; });
+
+  const topicFreq = {};
+  questions.forEach(q => { const t = q.topic || q.topicPath; if (t) topicFreq[t] = (topicFreq[t]||0)+1; });
+  const topTopics = Object.entries(topicFreq).sort((a,b) => b[1]-a[1]).slice(0, 5);
+
+  const signalsHtml = `
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin-bottom:32px">
+  <div style="border:1px solid rgba(255,255,255,.09);border-radius:10px;padding:16px;background:#0c0c0f">
+    <div style="font-family:monospace;font-size:10px;text-transform:uppercase;letter-spacing:.16em;color:#52525b;margin-bottom:10px">Companies Asking</div>
+    ${topCompanies.slice(0, 6).map(([n,c]) => `<div style="display:flex;justify-content:space-between;padding:4px 0;font-size:13px;color:#d4d4d8;border-bottom:1px solid rgba(255,255,255,.04)"><span>${esc(n)}</span><span style="color:#a1a1aa;font-family:monospace">${c}q</span></div>`).join('')}
+  </div>
+  ${topTopics.length ? `<div style="border:1px solid rgba(255,255,255,.09);border-radius:10px;padding:16px;background:#0c0c0f">
+    <div style="font-family:monospace;font-size:10px;text-transform:uppercase;letter-spacing:.16em;color:#52525b;margin-bottom:10px">Most Asked Topics</div>
+    ${topTopics.map(([t,n]) => `<div style="display:flex;justify-content:space-between;padding:4px 0;font-size:13px;color:#d4d4d8;border-bottom:1px solid rgba(255,255,255,.04)"><span>${esc(t)}</span><span style="color:#a1a1aa;font-family:monospace">${n}x</span></div>`).join('')}
+  </div>` : ''}
+  ${Object.keys(expFreq).length ? `<div style="border:1px solid rgba(255,255,255,.09);border-radius:10px;padding:16px;background:#0c0c0f">
+    <div style="font-family:monospace;font-size:10px;text-transform:uppercase;letter-spacing:.16em;color:#52525b;margin-bottom:10px">By Experience</div>
+    ${Object.entries(expFreq).sort((a,b) => b[1]-a[1]).map(([e,n]) => `<div style="display:flex;justify-content:space-between;padding:4px 0;font-size:13px;color:#d4d4d8;border-bottom:1px solid rgba(255,255,255,.04)"><span>${esc(e)}</span><span style="color:#a1a1aa;font-family:monospace">${n}q</span></div>`).join('')}
+  </div>` : ''}
+</div>`;
+
+  const faqItems = [
+    { q: `What do ${role} interviews cover?`, a: topTopics.length ? `Common topics: ${topTopics.map(([t])=>t).join(', ')}.` : 'Technical and behavioral rounds are typical.' },
+    { q: `Which companies hire ${role}s?`, a: `Companies with reported questions: ${topCompanies.slice(0,5).map(([n])=>n).join(', ')}.` },
+  ];
+
+  const bodyHtml = `
+<p class="subtitle">${esc(desc)}</p>
+<div class="stat-row">
+  <div class="stat"><b>${questions.length}</b> questions</div>
+  <div class="stat"><b>${topCompanies.length}</b> companies</div>
+  <div class="stat"><b>${questions.reduce((s,q)=>s+q.upvotes,0)}</b> upvotes</div>
+</div>
+<h2>Interview Signals for ${esc(role)} Roles</h2>
+${signalsHtml}
+<h2>Top Questions by Upvotes</h2>
+${questions.sort((a,b) => b.upvotes-a.upvotes).slice(0, 12).map((q,i) => qCard(q,i+1)).join('\n')}
+${practiceBlock('', role)}
+${relatedSection(`${esc(role)} by company`, topCompanies.slice(0, 8).map(([n]) => {
+  const co = COMPANIES.find(c => c.name===n);
+  return co ? { label: `${n} ${role} questions`, href: `/companies/${slug(n)}/${roleSlug}-interview-questions/` } : null;
+}).filter(Boolean))}`;
+
+  write(`roles/${roleSlug}/interview-questions/index.html`, shell({
+    title, desc, canonical, h1, bodyHtml, faqItems,
+    breadcrumb: [
+      { label: 'Roles', href: '/roles/' },
+      { label: role, href: `/roles/${roleSlug}/` },
+      { label: 'Interview Questions', href: canonical },
+    ],
+  }));
+});
+
+console.log(`[seo] Generated role pages`);
+
+// ═══════════════════════════════════════════════════════════════════════════
+// 13. INTERVIEW EXPERIENCE PAGES  /interview-experience/[company]/
+//     "PayU Frontend Developer Interview Experience — Rounds & Topics"
+// ═══════════════════════════════════════════════════════════════════════════
+const expPagesMap = new Map();
+
+QUESTIONS.forEach(q => {
+  if (!q.source || !['Interview Experience', 'My Interview', 'Glassdoor'].includes(q.source)) return;
+  const co = COMPANY_MAP[q.company];
+  if (!co) return;
+  if (!expPagesMap.has(q.company)) expPagesMap.set(q.company, { questions: [], company: co });
+  expPagesMap.get(q.company).questions.push(q);
+});
+
+expPagesMap.forEach(({ questions, company }) => {
+  if (questions.length < 3) return;
+  const compSlug = slug(company.name);
+  const canonical = `/interview-experience/${compSlug}/`;
+  const rounds = [...new Set(questions.map(q => q.round).filter(Boolean))];
+  const title = `${company.name} Interview Experience ${YEAR} — Rounds, Questions & Tips`;
+  const h1 = `${company.name} Interview Experience`;
+  const desc = `Real ${company.name} interview experiences from engineers. ${questions.length} questions covering ${rounds.join(', ')} rounds. What to expect and how to prepare.`;
+
+  const roundFreq = {};
+  questions.forEach(q => { if (q.round) roundFreq[q.round] = (roundFreq[q.round]||0)+1; });
+
+  const topicFreq = {};
+  questions.forEach(q => { const t = q.topic||q.topicPath; if (t) topicFreq[t]=(topicFreq[t]||0)+1; });
+  const topTopics = Object.entries(topicFreq).sort((a,b) => b[1]-a[1]).slice(0, 6);
+
+  const roleFreq = {};
+  questions.forEach(q => { if (q.role) roleFreq[q.role] = (roleFreq[q.role]||0)+1; });
+  const topRoles = Object.entries(roleFreq).sort((a,b) => b[1]-a[1]).slice(0, 4);
+
+  const roundsHtml = Object.entries(roundFreq).map(([round, count]) => {
+    const roundQs = questions.filter(q => q.round===round).sort((a,b) => b.upvotes-a.upvotes).slice(0, 3);
+    return `
+<div style="border:1px solid rgba(255,255,255,.09);border-radius:10px;padding:20px;margin-bottom:20px;background:#0c0c0f">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+    <h3 style="font-size:15px;font-weight:600;color:#f4f4f5">${esc(round)} Round</h3>
+    <span style="font-family:monospace;font-size:11px;color:#a1a1aa;background:rgba(255,255,255,.06);padding:3px 10px;border-radius:20px">${count} reported</span>
+  </div>
+  ${roundQs.map(q => `<div style="padding:10px 0;border-top:1px solid rgba(255,255,255,.05)">
+    <p style="font-size:13px;color:#d4d4d8;line-height:1.65">${esc(trunc(q.body, 200))}</p>
+    <div style="margin-top:6px;font-family:monospace;font-size:10px;color:#52525b">↑${q.upvotes} · ${esc(q.difficulty)}${q.experience ? ` · ${esc(q.experience)}` : ''}</div>
+  </div>`).join('')}
+</div>`;
+  }).join('');
+
+  const faqItems = [
+    { q: `How many rounds does ${company.name} have?`, a: `Reported rounds: ${Object.keys(roundFreq).join(', ')}.` },
+    { q: `What topics are asked at ${company.name}?`, a: topTopics.length ? `Frequently asked: ${topTopics.map(([t])=>t).join(', ')}.` : 'Topics vary by role.' },
+    { q: `What roles does ${company.name} interview for?`, a: topRoles.length ? topRoles.map(([r])=>r).join(', ') : 'Multiple engineering roles.' },
+  ];
+
+  const bodyHtml = `
+<p class="subtitle">${esc(desc)}</p>
+<div class="stat-row">
+  <div class="stat"><b>${questions.length}</b> reported questions</div>
+  <div class="stat"><b>${Object.keys(roundFreq).length}</b> rounds</div>
+  <div class="stat">Most asked: <b>${esc(topTopics[0]?.[0] || 'Various')}</b></div>
+  ${topRoles.length ? `<div class="stat">Top role: <b>${esc(topRoles[0][0])}</b></div>` : ''}
+</div>
+
+<h2>Frequently Asked Topics</h2>
+<div class="pill-grid" style="margin-bottom:32px">
+${topTopics.map(([t,n]) => `<span class="pill">${esc(t)} <span style="color:#52525b">(${n})</span></span>`).join('\n')}
+</div>
+
+<h2>Round-by-Round Breakdown</h2>
+${roundsHtml}
+${practiceBlock(company.name, '')}
+${relatedSection(`More from ${esc(company.name)}`, [
+  { label: `All ${esc(company.name)} questions`, href: `/questions/company/${compSlug}/` },
+  { label: `${esc(company.name)} interview process`, href: `/interview-process/${compSlug}/` },
+  { label: `Prepare for ${esc(company.name)}`, href: `/prepare/${compSlug}/`, accent: true },
+])}`;
+
+  write(`interview-experience/${compSlug}/index.html`, shell({
+    title, desc, canonical, h1, bodyHtml, faqItems,
+    breadcrumb: [
+      { label: 'Interview Experience', href: '/interview-experience/' },
+      { label: company.name, href: canonical },
+    ],
+  }));
+});
+
+console.log(`[seo] Generated interview experience pages`);
+
+// ═══════════════════════════════════════════════════════════════════════════
+// 14. SITEMAP.XML
 // ═══════════════════════════════════════════════════════════════════════════
 const today = new Date().toISOString().split('T')[0];
 const staticPages = [
-  '/', '/app/questions', '/app/study-plan', '/app/practice', '/app/daily-review',
+  '/', '/app/questions', '/app/plan', '/app/practice', '/app/daily-review',
   '/questions/', '/interview-process/', '/prepare/', '/tools/', '/compare/',
+  '/companies/', '/roles/', '/interview-experience/',
 ];
 
 const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
