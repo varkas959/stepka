@@ -8,6 +8,83 @@ export function sanitize(text, max = 8000) {
   return String(text).replace(CONTROL_RE, '').trim().slice(0, max);
 }
 
+// ── PII detection + redaction ────────────────────────────────────────────────
+// Masks personal data before it is sent to the LLM, stored, or shown publicly.
+// Order matters: most-specific patterns first so they win the match.
+const PII_PATTERNS = [
+  { kind: 'api_key', re: /\b(?:sk|pk|rk|ghp|gho|xox[baprs])[-_][A-Za-z0-9_-]{12,}\b/g, mask: '[redacted-key]' },
+  { kind: 'jwt',     re: /\beyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{6,}\b/g, mask: '[redacted-token]' },
+  { kind: 'email',   re: /[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/g, mask: '[email]' },
+  { kind: 'ssn',     re: /\b\d{3}-\d{2}-\d{4}\b/g, mask: '[id]' },
+  { kind: 'aadhaar', re: /\b\d{4}\s\d{4}\s\d{4}\b/g, mask: '[id]' },
+  { kind: 'pan',     re: /\b[A-Z]{5}\d{4}[A-Z]\b/g, mask: '[id]' },
+  { kind: 'card',    re: /\b(?:\d[ -]?){13,16}\b/g, mask: '[card]' },
+  { kind: 'phone',   re: /(?:\+\d{1,3}[\s.-]?)?(?:\(?\d{2,4}\)?[\s.-]?){2,4}\d{2,4}/g, mask: '[phone]' },
+];
+
+// Returns { clean, found: [{kind, count}] }. Only treats long digit runs as
+// phone/card to avoid masking ordinary numbers in a JD ("5 years", "200ms").
+export function redactPII(text) {
+  if (!text) return { clean: '', found: [] };
+  let out = String(text);
+  const found = [];
+  for (const { kind, re, mask } of PII_PATTERNS) {
+    let count = 0;
+    out = out.replace(re, (m) => {
+      // For phone/card, require enough digits to be a real number
+      if ((kind === 'phone' || kind === 'card')) {
+        const digits = (m.match(/\d/g) || []).length;
+        if (digits < (kind === 'card' ? 13 : 10)) return m;
+      }
+      count++;
+      return mask;
+    });
+    if (count) found.push({ kind, count });
+  }
+  return { clean: out, found };
+}
+
+// ── Prompt-injection defense ─────────────────────────────────────────────────
+// Heuristic detection of attempts to override instructions inside user text.
+const INJECTION_RES = [
+  /ignore\s+(?:all\s+|any\s+)?(?:the\s+)?(?:previous|above|prior|earlier|preceding)\s+(?:instruction|prompt|message|context|rule)/i,
+  /disregard\s+(?:all\s+|the\s+)?(?:previous|above|prior)?\s*(?:instruction|prompt|rule)/i,
+  /forget\s+(?:everything|all|previous|the\s+above)/i,
+  /(?:you\s+are\s+now|act\s+as|pretend\s+to\s+be|behave\s+like|roleplay\s+as)\b/i,
+  /(?:new|updated|revised)\s+(?:system\s+)?(?:instruction|prompt|directive)/i,
+  /(?:reveal|print|show|repeat|output)\s+(?:your|the)\s+(?:system\s+)?(?:prompt|instruction)/i,
+  /(?:developer|god|jailbreak|dan)\s+mode/i,
+  /^\s*(?:system|assistant|developer)\s*[:>]/im,   // fake role turns
+  /<\/?(?:system|assistant|instruction)s?>/i,       // fake role tags
+];
+
+export function detectInjection(text) {
+  if (!text) return { suspected: false, matches: [] };
+  const matches = [];
+  for (const re of INJECTION_RES) {
+    const m = String(text).match(re);
+    if (m) matches.push(m[0].slice(0, 60));
+  }
+  return { suspected: matches.length > 0, matches };
+}
+
+// Wrap untrusted user text so the model treats it strictly as data. Neutralizes
+// delimiter-spoofing by stripping our fence token from the content first.
+export function wrapUntrusted(label, text) {
+  const nonce = Math.random().toString(36).slice(2, 10);
+  const fence = `===${label.toUpperCase()}_${nonce}===`;
+  const body = String(text || '').split(fence).join(''); // can't forge our fence
+  return { fence, block: `${fence}\n${body}\n${fence}` };
+}
+
+// One-shot: sanitize → redact PII → flag injection. For LLM-bound free text.
+export function safeForLLM(text, max = 8000) {
+  const s = sanitize(text, max);
+  const { clean, found } = redactPII(s);
+  const { suspected, matches } = detectInjection(clean);
+  return { clean, pii: found, injection: suspected, injectionMatches: matches };
+}
+
 // ── CORS origin guard ────────────────────────────────────────────────────────
 const ALLOWED_ORIGINS = new Set([
   'https://www.stepkai.com',

@@ -1315,6 +1315,17 @@ const staticPages = [
   '/companies/', '/roles/', '/interview-experience/', '/guide/',
 ];
 
+// Interview Intelligence SPA routes — crawlable via Helmet meta + SPA fallback.
+// /company/[slug], /role/[slug], /interview-experiences/[company]-[role]
+const intelRoles = [...new Set(QUESTIONS.map(q => q.role).filter(Boolean))];
+COMPANIES.filter(c => QUESTIONS.some(q => q.company === c.id)).forEach(c => {
+  const cs = slug(c.name);
+  staticPages.push(`/company/${cs}`);
+  [...new Set(QUESTIONS.filter(q => q.company === c.id).map(q => q.role).filter(Boolean))]
+    .forEach(r => staticPages.push(`/interview-experiences/${cs}-${slug(r)}`));
+});
+intelRoles.forEach(r => staticPages.push(`/role/${slug(r)}`));
+
 const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 ${staticPages.map(u => `  <url><loc>https://www.stepkai.com${u}</loc><changefreq>weekly</changefreq><priority>0.8</priority><lastmod>${today}</lastmod></url>`).join('\n')}

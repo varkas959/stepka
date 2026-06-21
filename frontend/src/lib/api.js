@@ -29,8 +29,20 @@ export async function analyzeJD({ jd, targetCompany, targetRole }) {
   return data;
 }
 
-export async function generatePlan({ company, role, heatmap, gaps, readiness }) {
-  const { data } = await api.post('/generate-plan', { company, role, heatmap, gaps, readiness });
+export async function generatePlan({ company, role, heatmap, gaps, readiness, falseConfidenceSkills, highRiskSkills }) {
+  const { data } = await api.post('/generate-plan', { company, role, heatmap, gaps, readiness, falseConfidenceSkills, highRiskSkills });
+  return data;
+}
+
+// Gap Intelligence — per-skill deep cards (why it matters, what's tested, mistakes, activities)
+export async function getGapIntelligence({ company, role, skills }) {
+  const { data } = await api.post('/gap-intelligence', { company, role, skills });
+  return data;
+}
+
+// Challenge My Readiness — adaptive interviewer; stateless, transcript replayed each turn
+export async function challengeTurn({ company, role, skill, transcript }) {
+  const { data } = await api.post('/challenge', { company, role, skill, transcript });
   return data;
 }
 

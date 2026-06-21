@@ -168,6 +168,8 @@ export const AddQuestionModal = ({ open, onOpenChange, onAdded, userId }) => {
                     {v.kind === 'profanity' && <>contains a flagged word: <span className="text-red-200">"{v.match}"</span></>}
                     {v.kind === 'url' && <>links are not allowed: <span className="text-red-200">{v.match}</span></>}
                     {v.kind === 'adult_domain' && <>adult / unsafe domain detected: <span className="text-red-200">{v.match}</span></>}
+                    {v.kind === 'pii' && <>remove personal data before submitting: <span className="text-red-200">{v.match}</span></>}
+                    {v.kind === 'injection' && <>instruction-like text isn't allowed: <span className="text-red-200">"{v.match}"</span></>}
                   </li>
                 ))}
               </ul>

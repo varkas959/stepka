@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { Loader2, Sparkles, ChevronDown, ArrowRight, ArrowLeft, CheckCircle2, AlertTriangle, XCircle, Trophy, Brain } from 'lucide-react';
+import { Loader2, Sparkles, ChevronDown, ArrowRight, ArrowLeft, CheckCircle2, AlertTriangle, XCircle, Trophy, Brain, Eye, Flame, Target, Send } from 'lucide-react';
 import { toast } from 'sonner';
 import { COMPANIES, QUESTIONS } from '../lib/mockData';
 import { useAppState } from '../lib/appState';
-import { extractSkills, generateAssessment, evaluateAssessment, generatePlan, saveReport } from '../lib/api';
+import { extractSkills, generateAssessment, evaluateAssessment, generatePlan, saveReport, getGapIntelligence, challengeTurn } from '../lib/api';
+import { classifySkills, prioritizedGapSkills } from '../lib/gapIntelligence';
 import { track } from '../lib/analytics';
 import { supabase } from '../lib/supabaseClient';
 import { PixelBar } from '../components/PixelBar';
@@ -30,6 +31,9 @@ export default function StudyPlan({ isGuest = false }) {
   const [gaps, setGaps] = useState({});
   const [readiness, setReadinessScore] = useState(0);
   const [summary, setSummary] = useState('');
+  const [gapIntel, setGapIntel] = useState(null);      // classified skills
+  const [gapCards, setGapCards] = useState([]);        // per-skill deep cards
+  const [challengeSkill, setChallengeSkill] = useState(null);
   const [generatedPlan, setGeneratedPlan] = useState(null);
   const [expandedDay, setExpandedDay] = useState(null);
   const [reportSlug, setReportSlug] = useState(null);
@@ -141,11 +145,43 @@ export default function StudyPlan({ isGuest = false }) {
     }
   };
 
+  // ── Step 4c: Gap Intelligence — classify + fetch per-skill deep cards ──
+  const runGapIntelligence = async () => {
+    const classified = classifySkills(heatmap, { companyId: company, role });
+    setGapIntel(classified);
+    setStep('gap-intel');
+    track('gap_intelligence_viewed', {
+      company: companyName, role,
+      false_confidence: classified.falseConfidence.length,
+      high_risk: classified.highRisk.length,
+    });
+    // Fetch deep cards for the prioritised gap skills (non-blocking for the UI)
+    const targets = prioritizedGapSkills(classified).slice(0, 6);
+    if (targets.length) {
+      try {
+        const { cards } = await getGapIntelligence({
+          company: companyName, role,
+          skills: targets.map(s => ({
+            skill: s.skill, score: s.score, falseConfidence: s.falseConfidence,
+            objectiveScore: s.objectiveScore, deepScore: s.deepScore,
+            riskScore: s.riskScore, askCount: s.frequency?.askCount || 0,
+            questionCount: s.frequency?.questionCount || 0,
+          })),
+        });
+        setGapCards(cards || []);
+      } catch (e) { /* cards are enhancement-only; silent fail */ }
+    }
+  };
+
   // ── Step 5: Generate plan ──
   const buildPlan = async () => {
     setStep('generating');
     try {
-      const plan = await generatePlan({ company: companyName, role, heatmap, gaps, readiness });
+      const plan = await generatePlan({
+        company: companyName, role, heatmap, gaps, readiness,
+        falseConfidenceSkills: gapIntel?.falseConfidence.map(s => s.skill) || [],
+        highRiskSkills: gapIntel?.highRisk.map(s => s.skill) || [],
+      });
       setGeneratedPlan(plan);
       setActivePlan({ company, role, currentDay: 1, totalDays: 14 });
       setExpandedDay(1);
@@ -188,6 +224,7 @@ export default function StudyPlan({ isGuest = false }) {
       {(step === 'evaluating') && <LoadingCard color="amber" text="Evaluating your answers…" sub="Applying confidence-weighted scoring" />}
       {(step === 'deep-generating') && <LoadingCard color="amber" text="Preparing deep-dive questions…" sub={`Targeting your ${screeningResult?.deepDiveSkills?.length} weak areas`} />}
       {(step === 'generating') && <LoadingCard color="amber" text="Building your personalised roadmap…" sub="Tailoring every task to your gaps" />}
+      {(step === 'gap-intel-loading') && <LoadingCard color="amber" text="Running Gap Intelligence…" sub="Cross-checking your answers against real interview data" />}
 
       {(step === 'screening' || step === 'deep-dive') && (
         <AssessmentQuiz
@@ -208,7 +245,20 @@ export default function StudyPlan({ isGuest = false }) {
 
       {step === 'gaps' && (
         <GapView heatmap={heatmap} gaps={gaps} readiness={readiness} summary={summary}
-          company={companyName} role={role} onContinue={buildPlan} onBack={() => setStep('screening-results')} />
+          company={companyName} role={role} onContinue={runGapIntelligence} onBack={() => setStep('screening-results')} />
+      )}
+
+      {step === 'gap-intel' && gapIntel && (
+        <GapIntelligenceView
+          intel={gapIntel} cards={gapCards} company={companyName} role={role}
+          onChallenge={(skill) => { setChallengeSkill(skill); setStep('challenge'); }}
+          onContinue={buildPlan} onBack={() => setStep('gaps')} />
+      )}
+
+      {step === 'challenge' && challengeSkill && (
+        <ChallengeMode
+          company={companyName} role={role} skill={challengeSkill}
+          onExit={() => setStep('gap-intel')} />
       )}
     </div>
   );
@@ -656,6 +706,264 @@ const GapBucket = ({ color, label, items, desc }) => (
   </div>
 );
 
+// ─── Gap Intelligence view ────────────────────────────────────────────────────
+// The differentiator: classifies skills into 4 evidence-backed categories and
+// surfaces per-skill "why it matters / what they test / mistakes / activities".
+const GapIntelligenceView = ({ intel, cards, company, role, onChallenge, onContinue, onBack }) => {
+  const { strong, weak, falseConfidence, highRisk } = intel;
+  const cardBySkill = Object.fromEntries((cards || []).map(c => [c.skill, c]));
+  const [openSkill, setOpenSkill] = useState(null);
+
+  const CATS = [
+    { key: 'highRisk',  items: highRisk,        Icon: Flame,        color: '#ef4444', label: 'High interview risk',
+      blurb: 'Weak AND frequently asked at this company/role. Fix these first — highest expected impact.' },
+    { key: 'falseConf', items: falseConfidence, Icon: Eye,          color: '#a855f7', label: 'False confidence',
+      blurb: 'You recognised correct answers but could not recall or articulate them. The interview tests recall, not recognition.' },
+    { key: 'weak',      items: weak,            Icon: AlertTriangle,color: '#f97316', label: 'Weak skills',
+      blurb: 'Below interview bar. Targeted practice will move these fastest.' },
+    { key: 'strong',    items: strong,          Icon: CheckCircle2, color: '#22c55e', label: 'Strong skills',
+      blurb: 'At or above bar. Maintain, do not over-invest.' },
+  ];
+
+  return (
+    <div className="mt-7 animate-fade-up space-y-4">
+      <div className="rounded-lg border border-white/10 bg-zinc-950 p-6">
+        <div className="flex items-center gap-2 mb-1">
+          <Brain size={16} style={{ color: '#7AA9F7' }} />
+          <div className="font-mono text-[12px] uppercase tracking-[0.22em] text-zinc-300">Gap Intelligence</div>
+        </div>
+        <p className="font-mono text-sm text-zinc-400 leading-loose mt-1">
+          Not a generic skill list — this is built from <span className="text-zinc-200">your actual answers</span> cross-checked against <span className="text-zinc-200">real reported {company} interview questions</span>.
+        </p>
+      </div>
+
+      {/* Four categories */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        {CATS.map(({ key, items, Icon, color, label, blurb }) => (
+          <div key={key} className="rounded-lg border p-4" style={{ borderColor: color + '33', background: color + '07' }}>
+            <div className="flex items-center gap-2 mb-1.5">
+              <Icon size={14} style={{ color }} />
+              <span className="font-mono text-[12px] uppercase tracking-[0.16em]" style={{ color }}>{label}</span>
+              <span className="ml-auto font-mono text-xs text-zinc-500">{items.length}</span>
+            </div>
+            <p className="font-mono text-[11px] text-zinc-500 leading-relaxed mb-2.5">{blurb}</p>
+            {items.length === 0 ? (
+              <p className="font-mono text-xs text-zinc-600">None detected.</p>
+            ) : (
+              <div className="flex flex-wrap gap-1.5">
+                {items.map(h => (
+                  <span key={h.skill} className="font-mono text-xs px-2 py-0.5 rounded border" style={{ color, borderColor: color + '40', background: color + '10' }}>
+                    {h.skill} <span className="opacity-60">{h.score}%</span>
+                  </span>
+                ))}
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+
+      {/* Per-skill deep cards */}
+      {prioritizedGapSkills(intel).slice(0, 6).map(h => {
+        const card = cardBySkill[h.skill];
+        const isOpen = openSkill === h.skill;
+        return (
+          <div key={h.skill} className="rounded-lg border border-white/10 bg-zinc-950 overflow-hidden">
+            <button onClick={() => setOpenSkill(isOpen ? null : h.skill)} className="w-full flex items-center gap-3 px-5 py-3.5 text-left hover:bg-white/[0.02] transition-colors">
+              {h.falseConfidence ? <Eye size={14} className="shrink-0" style={{ color: '#a855f7' }} />
+                : h.highRisk ? <Flame size={14} className="shrink-0" style={{ color: '#ef4444' }} />
+                : <AlertTriangle size={14} className="shrink-0" style={{ color: '#f97316' }} />}
+              <span className="font-mono text-sm text-zinc-100 font-semibold">{h.skill}</span>
+              <span className="font-mono text-[10px] px-1.5 py-0.5 rounded border border-white/10 text-zinc-400">risk {h.riskScore}</span>
+              {h.frequency?.questionCount > 0 && (
+                <span className="font-mono text-[10px] text-zinc-500 hidden sm:inline">asked ~{h.frequency.askCount}× · {h.frequency.questionCount} reported</span>
+              )}
+              <ChevronDown size={15} className={`ml-auto text-zinc-500 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+            </button>
+            {isOpen && (
+              <div className="px-5 pb-5 border-t border-white/5 pt-4 space-y-4">
+                {!card ? (
+                  <div className="flex items-center gap-2 font-mono text-xs text-zinc-500"><Loader2 size={13} className="animate-spin" /> Generating intelligence for this skill…</div>
+                ) : (
+                  <>
+                    <Field label="Why it matters in interviews" text={card.whyItMatters} />
+                    <Field label="What interviewers are actually testing" text={card.whatTheyTest} />
+                    {card.commonMistakes?.length > 0 && (
+                      <div>
+                        <div className="font-mono text-[11px] uppercase tracking-[0.18em] text-zinc-500 mb-1.5">Most common mistakes</div>
+                        <ul className="space-y-1">
+                          {card.commonMistakes.map((m, i) => <li key={i} className="font-mono text-[13px] text-zinc-300 leading-relaxed flex gap-2"><span className="text-red-400">✕</span>{m}</li>)}
+                        </ul>
+                      </div>
+                    )}
+                    {card.activities?.length > 0 && (
+                      <div>
+                        <div className="font-mono text-[11px] uppercase tracking-[0.18em] text-zinc-500 mb-1.5">Targeted practice</div>
+                        <div className="space-y-2">
+                          {card.activities.map((a, i) => (
+                            <div key={i} className="rounded-md border border-white/8 bg-white/[0.02] p-3">
+                              <div className="flex items-center gap-2 flex-wrap">
+                                <Target size={12} style={{ color: '#7AA9F7' }} />
+                                <span className="font-mono text-[13px] text-zinc-100 font-medium">{a.title}</span>
+                                {a.time && <span className="ml-auto font-mono text-[10px] text-zinc-500">{a.time}</span>}
+                              </div>
+                              {a.outcome && <div className="font-mono text-[12px] text-zinc-400 mt-1 leading-relaxed">→ {a.outcome}</div>}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </>
+                )}
+                <button onClick={() => onChallenge(h.skill)}
+                  className="inline-flex items-center gap-2 font-mono text-xs font-semibold px-3 py-2 rounded-md text-white hover:opacity-90 transition-opacity"
+                  style={{ background: '#7C3AED' }}>
+                  <Brain size={13} /> Challenge my depth on {h.skill}
+                </button>
+              </div>
+            )}
+          </div>
+        );
+      })}
+
+      <div className="flex items-center justify-between gap-3 flex-wrap pt-1">
+        <button onClick={onBack} className="inline-flex items-center gap-1.5 font-mono text-sm px-3 py-2 rounded-md border border-white/10 bg-zinc-900 hover:bg-zinc-800 text-zinc-100">
+          <ArrowLeft size={13} /> Back
+        </button>
+        <button onClick={onContinue} className="inline-flex items-center gap-2 font-mono text-sm font-semibold uppercase tracking-[0.14em] px-5 py-2.5 rounded-md text-white hover:opacity-90 transition-opacity" style={{ background: '#3B6FD4' }}>
+          Generate gap-driven roadmap <ArrowRight size={14} strokeWidth={2.5} />
+        </button>
+      </div>
+    </div>
+  );
+};
+
+const Field = ({ label, text }) => text ? (
+  <div>
+    <div className="font-mono text-[11px] uppercase tracking-[0.18em] text-zinc-500 mb-1">{label}</div>
+    <p className="text-[14px] text-zinc-200 leading-loose">{text}</p>
+  </div>
+) : null;
+
+// ─── Challenge My Readiness — adaptive interviewer ─────────────────────────────
+const ChallengeMode = ({ company, role, skill, onExit }) => {
+  const [transcript, setTranscript] = useState([]);   // [{ q, a }]
+  const [current, setCurrent] = useState(null);        // { nextQuestion, probeReason, gapDetected, depthReached, confidence }
+  const [answer, setAnswer] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [done, setDone] = useState(false);
+  const [verdict, setVerdict] = useState(null);
+
+  // Kick off with the opening question
+  React.useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const r = await challengeTurn({ company, role, skill, transcript: [] });
+        if (cancelled) return;
+        if (r.done) { setDone(true); setVerdict(r); }
+        else setCurrent(r);
+      } catch (e) { toast.error(e?.response?.data?.error || 'Challenge failed to start.'); onExit(); }
+      finally { if (!cancelled) setLoading(false); }
+    })();
+    return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const submit = async () => {
+    if (!current) return;
+    const newTranscript = [...transcript, { q: current.nextQuestion, a: answer.trim() }];
+    setTranscript(newTranscript);
+    setAnswer('');
+    setCurrent(null);
+    setLoading(true);
+    try {
+      const r = await challengeTurn({ company, role, skill, transcript: newTranscript });
+      if (r.done) { setDone(true); setVerdict(r); }
+      else setCurrent(r);
+    } catch (e) { toast.error(e?.response?.data?.error || 'Challenge failed.'); }
+    finally { setLoading(false); }
+  };
+
+  const cc = (c) => c < 40 ? '#ef4444' : c < 70 ? '#f59e0b' : '#22c55e';
+
+  return (
+    <div className="mt-7 animate-fade-up space-y-4">
+      <div className="rounded-lg p-5" style={{ border: '1px solid rgba(124,58,237,0.35)', background: 'rgba(124,58,237,0.06)' }}>
+        <div className="flex items-center gap-2">
+          <Brain size={16} style={{ color: '#a855f7' }} />
+          <div className="font-mono text-[12px] uppercase tracking-[0.2em] text-zinc-200">Challenge mode · {skill}</div>
+          <button onClick={onExit} className="ml-auto font-mono text-xs text-zinc-400 hover:text-zinc-100 border border-white/10 rounded px-2.5 py-1">Exit</button>
+        </div>
+        <p className="font-mono text-[12px] text-zinc-400 mt-2 leading-loose">
+          A senior interviewer probes one question at a time, drilling into your answers until your true depth is clear.
+        </p>
+      </div>
+
+      {/* Transcript */}
+      {transcript.map((t, i) => (
+        <div key={i} className="space-y-2">
+          <div className="rounded-md border border-white/8 bg-zinc-950 p-4">
+            <div className="font-mono text-[10px] uppercase tracking-[0.18em] text-zinc-500 mb-1">Interviewer · Q{i + 1}</div>
+            <p className="text-[14px] text-zinc-100 leading-relaxed">{t.q}</p>
+          </div>
+          <div className="rounded-md border border-white/5 bg-zinc-900/40 p-4 ml-4">
+            <div className="font-mono text-[10px] uppercase tracking-[0.18em] text-zinc-500 mb-1">You</div>
+            <p className="text-[14px] text-zinc-300 leading-relaxed whitespace-pre-wrap">{t.a || <span className="text-zinc-600 italic">(skipped)</span>}</p>
+          </div>
+        </div>
+      ))}
+
+      {loading && (
+        <div className="flex items-center gap-2 font-mono text-sm text-zinc-400 px-1"><Loader2 size={14} className="animate-spin" /> Interviewer is thinking…</div>
+      )}
+
+      {/* Active question */}
+      {!done && current && !loading && (
+        <div className="rounded-lg border border-white/10 bg-zinc-950 p-5">
+          {current.gapDetected && (
+            <div className="mb-3 rounded-md border border-amber-500/30 bg-amber-500/[0.06] px-3 py-2">
+              <span className="font-mono text-[11px] text-amber-400">Gap detected: </span>
+              <span className="font-mono text-[12px] text-zinc-300">{current.gapDetected}</span>
+            </div>
+          )}
+          <div className="font-mono text-[10px] uppercase tracking-[0.18em] text-zinc-500 mb-1">Interviewer · Q{transcript.length + 1}</div>
+          <p className="text-[15px] text-zinc-100 leading-relaxed mb-1">{current.nextQuestion}</p>
+          {current.probeReason && <p className="font-mono text-[11px] text-zinc-500 italic mb-3">why this: {current.probeReason}</p>}
+          <textarea value={answer} onChange={e => setAnswer(e.target.value)} rows={4}
+            placeholder="Answer in your own words. Be specific — vague answers get probed harder."
+            className="w-full bg-zinc-900 border border-white/10 rounded-md p-3 text-[14px] text-zinc-100 placeholder:text-zinc-600 focus:outline-none focus:border-white/30 resize-y leading-relaxed" />
+          <div className="flex items-center justify-between mt-3 gap-3">
+            <div className="flex items-center gap-3 font-mono text-[11px] text-zinc-500">
+              <span>depth {current.depthReached}/5</span>
+              <span>·</span>
+              <span style={{ color: cc(current.confidence) }}>confidence {current.confidence}%</span>
+            </div>
+            <button onClick={submit}
+              className="inline-flex items-center gap-2 font-mono text-sm font-semibold px-4 py-2 rounded-md text-white hover:opacity-90 transition-opacity" style={{ background: '#7C3AED' }}>
+              Submit answer <Send size={13} />
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Verdict */}
+      {done && verdict && (
+        <div className="rounded-lg border border-white/10 bg-zinc-950 p-6">
+          <div className="font-mono text-[12px] uppercase tracking-[0.2em] text-zinc-300 mb-3">Verdict · {skill}</div>
+          <div className="flex items-end gap-4 mb-3 flex-wrap">
+            <div className="font-mono text-4xl font-semibold" style={{ color: cc(verdict.confidence) }}>{verdict.depthReached}<span className="text-lg text-zinc-500">/5</span></div>
+            <div className="font-mono text-sm text-zinc-400 pb-1">demonstrated depth · interviewer confidence {verdict.confidence}%</div>
+          </div>
+          {verdict.verdict && <p className="text-[14px] text-zinc-200 leading-loose">{verdict.verdict}</p>}
+          <button onClick={onExit} className="mt-4 inline-flex items-center gap-2 font-mono text-sm font-semibold px-4 py-2 rounded-md text-white hover:opacity-90 transition-opacity" style={{ background: '#3B6FD4' }}>
+            <ArrowLeft size={13} /> Back to Gap Intelligence
+          </button>
+        </div>
+      )}
+    </div>
+  );
+};
+
 // ─── Share panel ─────────────────────────────────────────────────────────────
 const SharePanel = ({ slug }) => {
   const [copied, setCopied] = React.useState(false);
@@ -763,15 +1071,40 @@ const PlanCalendar = ({ plan, expandedDay, setExpandedDay, state, onReset, repor
           </div>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <div>
-              <div className="font-mono text-[12px] uppercase tracking-[0.22em] text-zinc-400 mb-3">Study tasks</div>
-              <ol className="space-y-2.5">
-                {(expandedData.tasks || []).map((task, i) => (
-                  <li key={i} className="flex items-start gap-3">
-                    <span className="font-mono text-[12px] text-zinc-500 mt-0.5 shrink-0 w-4">{i + 1}.</span>
-                    <span className="text-zinc-200 text-base leading-loose" style={{ fontFamily: 'inherit' }}>{task}</span>
-                  </li>
-                ))}
-              </ol>
+              {/* New structured day model — outcome / task / success / avoid / time */}
+              {(expandedData.outcome || expandedData.task) ? (
+                <div className="space-y-3.5">
+                  {expandedData.estimatedTime && (
+                    <div className="inline-flex items-center gap-1.5 font-mono text-[11px] px-2 py-1 rounded border border-white/10 text-zinc-400">
+                      ⏱ {expandedData.estimatedTime}
+                    </div>
+                  )}
+                  {expandedData.outcome && (
+                    <DayField color="#22c55e" label="Outcome" text={expandedData.outcome} />
+                  )}
+                  {expandedData.task && (
+                    <DayField color="#7AA9F7" label="Task" text={expandedData.task} />
+                  )}
+                  {expandedData.successCriteria && (
+                    <DayField color="#f59e0b" label="Success criteria" text={expandedData.successCriteria} />
+                  )}
+                  {expandedData.avoid && (
+                    <DayField color="#ef4444" label="Avoid" text={expandedData.avoid} />
+                  )}
+                </div>
+              ) : (
+                <>
+                  <div className="font-mono text-[12px] uppercase tracking-[0.22em] text-zinc-400 mb-3">Study tasks</div>
+                  <ol className="space-y-2.5">
+                    {(expandedData.tasks || []).map((task, i) => (
+                      <li key={i} className="flex items-start gap-3">
+                        <span className="font-mono text-[12px] text-zinc-500 mt-0.5 shrink-0 w-4">{i + 1}.</span>
+                        <span className="text-zinc-200 text-base leading-loose" style={{ fontFamily: 'inherit' }}>{task}</span>
+                      </li>
+                    ))}
+                  </ol>
+                </>
+              )}
             </div>
             <div>
               <div className="font-mono text-[12px] uppercase tracking-[0.22em] text-zinc-400 mb-3">Practice questions</div>
@@ -815,10 +1148,18 @@ const PlanCalendar = ({ plan, expandedDay, setExpandedDay, state, onReset, repor
   );
 };
 
+// ─── Day field (structured plan day) ──────────────────────────────────────────
+const DayField = ({ color, label, text }) => (
+  <div className="border-l-2 pl-3" style={{ borderColor: color }}>
+    <div className="font-mono text-[11px] uppercase tracking-[0.18em] mb-0.5" style={{ color }}>{label}</div>
+    <p className="text-zinc-200 text-[15px] leading-loose" style={{ fontFamily: 'inherit' }}>{text}</p>
+  </div>
+);
+
 // ─── Stepper ──────────────────────────────────────────────────────────────────
 const Stepper = ({ step }) => {
   const steps = [{ id: 'input', label: 'JD input' }, { id: 'screening', label: 'assessment' }, { id: 'gaps', label: 'gap analysis' }, { id: 'plan', label: 'roadmap' }];
-  const loadingMap = { extracting: 'input', evaluating: 'screening', 'screening-results': 'screening', 'deep-generating': 'screening', 'deep-dive': 'screening', 'deep-evaluating': 'screening', generating: 'gaps' };
+  const loadingMap = { extracting: 'input', evaluating: 'screening', 'screening-results': 'screening', 'deep-generating': 'screening', 'deep-dive': 'screening', 'deep-evaluating': 'screening', 'gap-intel': 'gaps', 'gap-intel-loading': 'gaps', challenge: 'gaps', generating: 'gaps' };
   const activeId = loadingMap[step] || step;
   const idx = steps.findIndex(s => s.id === activeId);
   return (

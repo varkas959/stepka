@@ -4,6 +4,8 @@ import { toast } from 'sonner';
 import { Link } from 'react-router-dom';
 import { QUESTIONS, COMPANIES, ROLES, ROLE_MAP, CATEGORIES, CATEGORY_MAP, TOPIC_TREE, DIFFICULTIES, ROUND_TYPES, COMPANY_BLUEPRINTS, TECH_STACK } from '../lib/mockData';
 import { loadUserQuestions } from '../lib/questions';
+import { verifyQuestion, markAsked, loadContributionCounts, loadExperienceLinkCounts } from '../lib/experiences';
+import { ExperienceModal } from '../components/ExperienceModal';
 
 const slugify = (s) => s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
 const ACTIVE_COMPANIES = COMPANIES.filter(c => QUESTIONS.some(q => q.company === c.id));
@@ -68,6 +70,8 @@ export default function QuestionBank({ isGuest = false, userId }) {
   const [signInAction, setSignInAction] = useState('continue');
   const [userQuestions, setUserQuestions] = useState([]);
   const [loadingQ, setLoadingQ] = useState(true);
+  const [contribCounts, setContribCounts] = useState({ verifications: {}, asks: {} });
+  const [reportCounts, setReportCounts] = useState({});   // experience-report frequency per question
 
   // Load persisted user-submitted questions from Supabase on mount
   useEffect(() => {
@@ -76,14 +80,31 @@ export default function QuestionBank({ isGuest = false, userId }) {
       .finally(() => setLoadingQ(false));
   }, []);
 
-  const allQuestions = useMemo(() => [...userQuestions, ...QUESTIONS], [userQuestions]);
+  // Overlay real community verify/ask counts + interview-report frequency on the seed numbers
+  useEffect(() => {
+    const ids = [...userQuestions.map(q => q.id), ...QUESTIONS.map(q => q.id)];
+    loadContributionCounts(ids).then(setContribCounts).catch(() => {});
+    loadExperienceLinkCounts(ids).then(setReportCounts).catch(() => {});
+  }, [userQuestions]);
+
+  const allQuestions = useMemo(() => [...userQuestions, ...QUESTIONS].map(q => ({
+    ...q,
+    asked: (q.asked || 0) + (contribCounts.asks[q.id] || 0) + (reportCounts[q.id] || 0),
+    verifyCount: (q.verifyCount || 0) + (contribCounts.verifications[q.id] || 0),
+  })), [userQuestions, contribCounts, reportCounts]);
 
   const handleQuestionAdded = (newQ) => {
     setUserQuestions(prev => [newQ, ...prev]);
     setExpandedId(newQ.id);
   };
   const [addOpen, setAddOpen] = useState(false);
+  const [expOpen, setExpOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+
+  const handleReportExperience = () => {
+    if (isGuest) return promptSignIn('report an interview experience');
+    setExpOpen(true);
+  };
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 200);
@@ -117,11 +138,14 @@ export default function QuestionBank({ isGuest = false, userId }) {
   const handleAsked = (q) => {
     if (isGuest) return promptSignIn('mark "I was asked this"');
     setAskedMap(m => ({ ...m, [q.id]: true }));
+    markAsked(q.id, userId).catch(() => {});   // persist "I was asked this"
     toast.success(`Thanks! You've unlocked 10 new questions`);
   };
   const handleUpvote = (q) => {
-    if (isGuest) return promptSignIn('upvote');
-    setUpvoteMap(m => ({ ...m, [q.id]: !m[q.id] }));
+    if (isGuest) return promptSignIn('verify this question');
+    const next = !upvoteMap[q.id];
+    setUpvoteMap(m => ({ ...m, [q.id]: next }));
+    if (next) verifyQuestion(q.id, userId).catch(() => {});  // persist verification
   };
   const handleAddQuestion = () => {
     if (isGuest) return promptSignIn('submit a question');
@@ -152,15 +176,32 @@ export default function QuestionBank({ isGuest = false, userId }) {
           <p className="text-zinc-400 mt-1.5 text-sm max-w-xl">
             <span className="text-zinc-200 font-medium">{allQuestions.length} verified questions</span> from engineers at top companies.
           </p>
+          {filters.company !== ALL && (
+            <Link to={`/company/${slugify(COMPANIES.find(c => c.id === filters.company)?.name || filters.company)}`}
+              className="inline-flex items-center gap-1.5 mt-2 font-mono text-xs text-purple-400 hover:text-purple-300">
+              View {COMPANIES.find(c => c.id === filters.company)?.name || filters.company} interview intelligence
+              <ArrowUpRight size={13} />
+            </Link>
+          )}
         </div>
-        {/* Desktop Add button */}
-        <button
-          data-testid="add-question"
-          onClick={handleAddQuestion}
-          className="hidden md:inline-flex shrink-0 items-center gap-2 text-sm font-medium px-4 py-2.5 rounded-md border border-white/10 bg-zinc-900 hover:bg-zinc-800 hover:border-white/20 text-zinc-100 transition-colors"
-        >
-          <Plus size={14} strokeWidth={2.25} /> Add Question
-        </button>
+        {/* Desktop action buttons */}
+        <div className="hidden md:flex shrink-0 items-center gap-2">
+          <button
+            data-testid="report-experience"
+            onClick={handleReportExperience}
+            className="inline-flex items-center gap-2 text-sm font-medium px-4 py-2.5 rounded-md text-white hover:opacity-90 transition-opacity"
+            style={{ background: '#7C3AED' }}
+          >
+            <Plus size={14} strokeWidth={2.25} /> Report Experience
+          </button>
+          <button
+            data-testid="add-question"
+            onClick={handleAddQuestion}
+            className="inline-flex items-center gap-2 text-sm font-medium px-4 py-2.5 rounded-md border border-white/10 bg-zinc-900 hover:bg-zinc-800 hover:border-white/20 text-zinc-100 transition-colors"
+          >
+            <Plus size={14} strokeWidth={2.25} /> Add Question
+          </button>
+        </div>
       </div>
 
       {/* Inline filter bar - search + chips on one row */}
@@ -288,6 +329,8 @@ export default function QuestionBank({ isGuest = false, userId }) {
       <BlueprintModal companyId={blueprintCompany} onClose={() => setBlueprintCompany(null)} />
       <SignInRequiredModal open={signInOpen} onOpenChange={setSignInOpen} action={signInAction} />
       <AddQuestionModal open={addOpen} onOpenChange={setAddOpen} onAdded={handleQuestionAdded} userId={userId} />
+      <ExperienceModal open={expOpen} onOpenChange={setExpOpen} userId={userId}
+        defaultCompany={filters.company !== ALL ? filters.company : undefined} />
     </div>
   );
 }

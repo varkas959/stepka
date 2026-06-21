@@ -1,4 +1,4 @@
-import { sanitize, checkOrigin, checkRateLimit } from './_security.js';
+import { sanitize, checkOrigin, checkRateLimit, redactPII, detectInjection } from './_security.js';
 
 const URL_RE = /\bhttps?:\/\/\S+|\bwww\.\S+/gi;
 const PROFANITY_WORDS = new Set([
@@ -33,6 +33,16 @@ export default function handler(req, res) {
       }
     }
   }
+
+  // PII — flag so the client can ask the user to remove it before submitting
+  const { found } = redactPII(text);
+  for (const { kind, count } of found) {
+    flagged.push({ kind: 'pii', match: `${kind} (${count})` });
+  }
+
+  // Prompt injection in submitted content
+  const { suspected, matches } = detectInjection(text);
+  if (suspected) flagged.push({ kind: 'injection', match: matches[0] });
 
   res.status(200).json({ ok: flagged.length === 0, flagged });
 }
