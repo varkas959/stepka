@@ -424,7 +424,7 @@ const QuestionCard = ({ q, expanded, onToggleExpand, upvoted, asked, onUpvote, o
           <span><span className="text-zinc-600">Role</span> <span className="text-zinc-300">{role}</span></span>
           {q.experience && <span><span className="text-zinc-600">Exp</span> <span className="text-zinc-300">{q.experience}</span></span>}
           <span><span className="text-zinc-600">Source</span> <span className="text-zinc-300">{q.source || 'Community Report'}</span></span>
-          <span><span className="text-zinc-600">reported</span> <span className="text-zinc-300">{q.daysAgo}d ago</span></span>
+          <span><span className="text-zinc-600">reported</span> <span className="text-zinc-300">{q.daysAgo === 0 ? 'Today' : `${q.daysAgo}d ago`}</span></span>
           <span className="inline-flex items-center gap-2">
             <span className="text-zinc-600">Popularity:</span>
             <PixelBar value={popularity} width={70} height={12} color="#22c55e" />
