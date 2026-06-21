@@ -255,11 +255,26 @@ COMPANIES.forEach(co => {
   const desc      = `${qs.length} real interview questions asked at ${co.name}. Covers ${[...new Set(qs.map(q=>q.topicPath))].join(', ')}. Reported by engineers who went through the ${co.name} process.`;
   const canonical = `/questions/company/${compSlug}/`;
 
-  const techs = [...new Set(qs.flatMap(q => q.tech||[]))].slice(0, 12);
+  const techs  = [...new Set(qs.flatMap(q => q.tech||[]))].slice(0, 12);
   const topics = [...new Set(qs.map(q => q.topicPath))];
+
+  // Roles for this company → guide links
+  const rolesHere = [...new Set(qs.map(q => q.role).filter(Boolean))];
+  const guideLinks = rolesHere.slice(0, 4).map(r => ({
+    label: `${co.name} ${r} Guide`, href: `/guide/${compSlug}-${slug(r)}/`, accent: true,
+  }));
+  const hasExpPage = QUESTIONS.some(q => q.company === co.id && ['Interview Experience','My Interview','Glassdoor'].includes(q.source));
+
+  const companyNavHtml = `
+<div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:32px">
+  <a href="${canonical}" class="pill" style="border-color:rgba(245,158,11,.5);color:#f59e0b">Questions</a>
+  ${hasExpPage ? `<a href="/interview-experience/${compSlug}/" class="pill">Interview Experiences</a>` : ''}
+  ${guideLinks.map(g => `<a href="${g.href}" class="pill accent">Interview Guides</a>`).join('')}
+</div>`;
 
   const bodyHtml = `
 <p class="subtitle">${esc(desc)}</p>
+${companyNavHtml}
 <div class="stat-row">
   <div class="stat"><b>${qs.length}</b> questions</div>
   <div class="stat"><b>${qs.reduce((s,q)=>s+q.asked,0)}</b> engineers asked</div>
@@ -270,6 +285,7 @@ ${topics.map(tp => {
   return `<h2>${esc(tp)} (${tqs.length})</h2>${tqs.map((q,i)=>qCard(q,i+1)).join('\n')}`;
 }).join('\n')}
 ${practiceBlock(co.name, '')}
+${guideLinks.length ? relatedSection(`${esc(co.name)} interview guides by role`, guideLinks) : ''}
 ${relatedSection(`${esc(co.name)} questions by technology`, techs.map(t => ({
   label: `${co.name} ${t}`,
   href: `/questions/${compSlug}-${slug(t)}/`,
@@ -1144,13 +1160,159 @@ ${relatedSection(`More from ${esc(company.name)}`, [
 console.log(`[seo] Generated interview experience pages`);
 
 // ═══════════════════════════════════════════════════════════════════════════
-// 14. SITEMAP.XML
+// 14. INTERVIEW GUIDE PAGES  /guide/[company]-[role]/
+//     "Which questions should I care about?" — evidence-backed prep playbook
+// ═══════════════════════════════════════════════════════════════════════════
+const DIFF_WEIGHT = { Easy: 1, Medium: 2, Hard: 3 };
+
+function difficultyLabel(qs) {
+  const avg = qs.reduce((s, q) => s + (DIFF_WEIGHT[q.difficulty] || 2), 0) / qs.length;
+  if (avg >= 2.6) return { label: 'Mostly Hard', color: '#ef4444', bars: '⬛⬛⬛⬜' };
+  if (avg >= 1.8) return { label: 'Medium–Hard', color: '#f59e0b', bars: '⬛⬛⬜⬜' };
+  return { label: 'Medium', color: '#22c55e', bars: '⬛⬜⬜⬜' };
+}
+
+const guideMap = new Map(); // key: "companyId:roleSlug"
+
+QUESTIONS.forEach(q => {
+  if (!q.role) return;
+  const key = `${q.company}:${slug(q.role)}`;
+  if (!guideMap.has(key)) guideMap.set(key, { questions: [], company: COMPANY_MAP[q.company], role: q.role, roleSlug: slug(q.role) });
+  guideMap.get(key).questions.push(q);
+});
+
+guideMap.forEach(({ questions, company, role, roleSlug }) => {
+  if (!company || questions.length < 3) return;
+  const compSlug = slug(company.name);
+  const canonical = `/guide/${compSlug}-${roleSlug}/`;
+  const title = `${company.name} ${role} Interview Guide ${YEAR}`;
+  const h1 = `${company.name} ${role} Interview Guide`;
+  const desc = `Evidence-backed preparation playbook for ${company.name} ${role} interviews. ${questions.length} reported questions, top topics, difficulty breakdown, and a free assessment.`;
+
+  const diff = difficultyLabel(questions);
+
+  // Topic frequency ranked
+  const topicFreq = {};
+  questions.forEach(q => { const t = q.topicPath || q.topic; if (t) topicFreq[t] = (topicFreq[t] || 0) + 1; });
+  const rankedTopics = Object.entries(topicFreq).sort((a, b) => b[1] - a[1]);
+
+  // Round frequency
+  const roundFreq = {};
+  questions.forEach(q => { if (q.round) roundFreq[q.round] = (roundFreq[q.round] || 0) + 1; });
+
+  // Experience range
+  const expFreq = {};
+  questions.forEach(q => { if (q.experience) expFreq[q.experience] = (expFreq[q.experience] || 0) + 1; });
+  const topExp = Object.entries(expFreq).sort((a, b) => b[1] - a[1]).slice(0, 2);
+
+  // Top questions by upvotes
+  const topQs = [...questions].sort((a, b) => b.upvotes - a.upvotes).slice(0, 6);
+
+  // Other companies with same role
+  const sameRole = [...new Set(
+    QUESTIONS.filter(q => q.role === role && q.company !== company.id)
+      .map(q => COMPANY_MAP[q.company]?.name).filter(Boolean)
+  )].slice(0, 5);
+
+  const focusAreasHtml = `
+<div style="border:1px solid rgba(255,255,255,.09);border-radius:12px;padding:24px;margin-bottom:32px;background:#0c0c0f">
+  <div style="font-family:monospace;font-size:10px;text-transform:uppercase;letter-spacing:.18em;color:#52525b;margin-bottom:16px">Topics most frequently reported</div>
+  ${rankedTopics.slice(0, 6).map(([t, n], i) => {
+    const pct = Math.round((n / questions.length) * 100);
+    const marker = i < 3 ? `<span style="color:#22c55e;margin-right:6px">✓</span>` : `<span style="color:#52525b;margin-right:6px">·</span>`;
+    return `<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.04)">
+      <span style="font-size:14px;color:${i < 3 ? '#f4f4f5' : '#a1a1aa'}">${marker}${esc(t)}</span>
+      <span style="font-family:monospace;font-size:12px;color:#52525b">${n} question${n > 1 ? 's' : ''} · ${pct}%</span>
+    </div>`;
+  }).join('')}
+</div>`;
+
+  const statsHtml = `
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:32px">
+  <div style="border:1px solid rgba(255,255,255,.09);border-radius:10px;padding:18px;background:#0c0c0f;text-align:center">
+    <div style="font-size:32px;font-weight:700;color:#f4f4f5;letter-spacing:-.02em">${questions.length}</div>
+    <div style="font-family:monospace;font-size:10px;text-transform:uppercase;letter-spacing:.16em;color:#52525b;margin-top:4px">Questions reported</div>
+  </div>
+  <div style="border:1px solid rgba(255,255,255,.09);border-radius:10px;padding:18px;background:#0c0c0f;text-align:center">
+    <div style="font-size:22px;font-weight:700;color:${diff.color};letter-spacing:-.01em">${diff.label}</div>
+    <div style="font-family:monospace;font-size:10px;text-transform:uppercase;letter-spacing:.16em;color:#52525b;margin-top:4px">Difficulty</div>
+  </div>
+  <div style="border:1px solid rgba(255,255,255,.09);border-radius:10px;padding:18px;background:#0c0c0f;text-align:center">
+    <div style="font-size:18px;font-weight:700;color:#f4f4f5">${topExp.length ? esc(topExp[0][0]) : 'All levels'}</div>
+    <div style="font-family:monospace;font-size:10px;text-transform:uppercase;letter-spacing:.16em;color:#52525b;margin-top:4px">Most reported exp</div>
+  </div>
+  <div style="border:1px solid rgba(255,255,255,.09);border-radius:10px;padding:18px;background:#0c0c0f;text-align:center">
+    <div style="font-size:18px;font-weight:700;color:#f4f4f5">${Object.keys(roundFreq).length}</div>
+    <div style="font-family:monospace;font-size:10px;text-transform:uppercase;letter-spacing:.16em;color:#52525b;margin-top:4px">Interview rounds</div>
+  </div>
+</div>`;
+
+  const roundsHtml = Object.entries(roundFreq).length ? `
+<div style="margin-bottom:32px">
+  <div style="font-family:monospace;font-size:10px;text-transform:uppercase;letter-spacing:.18em;color:#52525b;margin-bottom:12px">Rounds reported</div>
+  <div style="display:flex;flex-wrap:wrap;gap:8px">
+    ${Object.entries(roundFreq).sort((a,b)=>b[1]-a[1]).map(([r,n])=>`<span class="pill">${esc(r)} <span style="color:#52525b;font-size:10px">${n}q</span></span>`).join('')}
+  </div>
+</div>` : '';
+
+  const assessmentCtaHtml = `
+<div style="margin:40px 0;padding:28px 32px;border-radius:12px;background:linear-gradient(135deg,rgba(59,111,212,.12),rgba(245,158,11,.08));border:1px solid rgba(59,111,212,.3)">
+  <div style="font-family:monospace;font-size:10px;text-transform:uppercase;letter-spacing:.18em;color:#6b8dd6;margin-bottom:8px">Free · 10 minutes</div>
+  <h3 style="font-size:20px;font-weight:700;color:#f4f4f5;margin-bottom:8px">Know your gaps before the interview</h3>
+  <p style="color:#a1a1aa;font-size:14px;line-height:1.7;margin-bottom:20px">Answer 10 questions from this exact pool. Get a personalised readiness score for <strong style="color:#f4f4f5">${esc(company.name)} ${esc(role)}</strong> and a focused study plan targeting only your weak areas.</p>
+  <div style="display:flex;gap:12px;flex-wrap:wrap">
+    <a href="/app/plan" class="cta" style="display:inline-block;background:#3B6FD4">Take free assessment →</a>
+    <a href="/app/plan" class="cta" style="display:inline-block;background:transparent;border:1px solid rgba(245,158,11,.4);color:#f59e0b">Build study plan</a>
+  </div>
+</div>`;
+
+  const faqItems = [
+    { q: `How hard is the ${company.name} ${role} interview?`, a: `${diff.label} difficulty based on ${questions.length} reported questions. Most questions cover ${rankedTopics.slice(0,3).map(([t])=>t).join(', ')}.` },
+    { q: `What topics does ${company.name} ask ${role}s?`, a: `Top reported topics: ${rankedTopics.slice(0,5).map(([t,n])=>`${t} (${n} questions)`).join(', ')}.` },
+    { q: `How many rounds does ${company.name} have for ${role}?`, a: Object.keys(roundFreq).length ? `Reported rounds: ${Object.keys(roundFreq).join(', ')}.` : 'Round count varies by team.' },
+    { q: `What experience level does ${company.name} hire ${role}s at?`, a: topExp.length ? `Most reported: ${topExp.map(([e])=>e).join(' and ')}.` : 'Varies by position.' },
+  ];
+
+  const bodyHtml = `
+<p class="subtitle">${esc(desc)}</p>
+${statsHtml}
+${roundsHtml}
+${focusAreasHtml}
+${assessmentCtaHtml}
+<h2>Top Questions — Ranked by Community Votes</h2>
+<p style="color:#a1a1aa;font-size:13px;margin-bottom:20px">These ${topQs.length} questions appeared most in ${esc(company.name)} ${esc(role)} reports. Master these first.</p>
+${topQs.map((q, i) => qCard(q, i + 1)).join('\n')}
+<p style="margin-top:16px"><a href="/companies/${compSlug}/${roleSlug}-interview-questions/" class="pill">See all ${questions.length} questions →</a></p>
+${sameRole.length ? relatedSection(`Same role at other companies`, sameRole.map(n => {
+  const co2 = COMPANIES.find(c => c.name === n);
+  return co2 ? { label: `${n} ${role} guide`, href: `/guide/${slug(n)}-${roleSlug}/`, accent: true } : null;
+}).filter(Boolean)) : ''}
+${relatedSection(`More at ${esc(company.name)}`, [
+  { label: `All ${esc(company.name)} questions`, href: `/questions/company/${compSlug}/` },
+  { label: `${esc(company.name)} interview process`, href: `/interview-process/${compSlug}/` },
+  { label: `${esc(company.name)} ${role} questions`, href: `/companies/${compSlug}/${roleSlug}-interview-questions/` },
+])}`;
+
+  write(`guide/${compSlug}-${roleSlug}/index.html`, shell({
+    title, desc, canonical, h1, bodyHtml, faqItems,
+    breadcrumb: [
+      { label: 'Guides', href: '/guide/' },
+      { label: company.name, href: `/questions/company/${compSlug}/` },
+      { label: `${role} Guide`, href: canonical },
+    ],
+  }));
+});
+
+console.log(`[seo] Generated interview guide pages`);
+
+// ═══════════════════════════════════════════════════════════════════════════
+// 15. SITEMAP.XML
 // ═══════════════════════════════════════════════════════════════════════════
 const today = new Date().toISOString().split('T')[0];
 const staticPages = [
   '/', '/app/questions', '/app/plan', '/app/practice', '/app/daily-review',
   '/questions/', '/interview-process/', '/prepare/', '/tools/', '/compare/',
-  '/companies/', '/roles/', '/interview-experience/',
+  '/companies/', '/roles/', '/interview-experience/', '/guide/',
 ];
 
 const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
