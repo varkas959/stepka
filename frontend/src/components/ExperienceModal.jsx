@@ -20,7 +20,7 @@ const PROFILE_OPTIONS = [
 
 const blankRound = () => ({ type: 'Technical', difficulty: 3, topics: '', questions: [''], notes: '' });
 
-export const ExperienceModal = ({ open, onOpenChange, onSubmitted, userId, defaultCompany, defaultRole }) => {
+export const ExperienceModal = ({ open, onOpenChange, onSubmitted, userId, defaultCompany, defaultRole, embedded = false }) => {
   const [form, setForm] = useState({
     company: defaultCompany || 'amazon',
     role: defaultRole || 'Senior SDE',
@@ -106,19 +106,7 @@ export const ExperienceModal = ({ open, onOpenChange, onSubmitted, userId, defau
     }
   };
 
-  return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent data-testid="experience-modal" className="max-w-3xl bg-zinc-950 border border-white/10 text-zinc-50 max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <div className="flex items-center gap-2 mb-2">
-            <FileText size={16} strokeWidth={2.25} style={{ color: '#7C3AED' }} />
-            <DialogTitle className="text-xl font-semibold tracking-tight">Report your interview experience</DialogTitle>
-          </div>
-          <DialogDescription className="text-zinc-400 mt-1">
-            Help thousands of candidates. Your report builds real company intelligence — rounds, questions, difficulty, and outcomes.
-          </DialogDescription>
-        </DialogHeader>
-
+  const body = (
         <form onSubmit={submit} className="space-y-5 mt-3">
           {/* Core fields */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -137,7 +125,7 @@ export const ExperienceModal = ({ open, onOpenChange, onSubmitted, userId, defau
                 {[1, 2, 3, 4, 5].map(n => (
                   <button type="button" key={n} onClick={() => set('difficulty', n)}
                     className={`w-9 h-9 rounded-md border font-mono text-sm transition-colors ${
-                      form.difficulty === n ? 'border-purple-500/60 bg-purple-500/[0.12] text-purple-300' : 'border-white/10 text-zinc-400 hover:border-white/25'
+                      form.difficulty === n ? 'border-blue-500/60 bg-blue-500/[0.12] text-blue-300' : 'border-white/10 text-zinc-400 hover:border-white/25'
                     }`}>{n}</button>
                 ))}
               </div>
@@ -148,7 +136,7 @@ export const ExperienceModal = ({ open, onOpenChange, onSubmitted, userId, defau
           <div>
             <div className="flex items-center justify-between mb-2">
               <div className="font-mono text-[10px] uppercase tracking-[0.18em] text-zinc-500">rounds &amp; questions ({rounds.length})</div>
-              <button type="button" onClick={addRound} className="inline-flex items-center gap-1 font-mono text-xs text-purple-400 hover:text-purple-300">
+              <button type="button" onClick={addRound} className="inline-flex items-center gap-1 font-mono text-xs text-blue-400 hover:text-blue-300">
                 <Plus size={13} /> add round
               </button>
             </div>
@@ -169,7 +157,7 @@ export const ExperienceModal = ({ open, onOpenChange, onSubmitted, userId, defau
                     {[1, 2, 3, 4, 5].map(n => (
                       <button type="button" key={n} onClick={() => setRound(ri, 'difficulty', n)}
                         className={`w-7 h-7 rounded border font-mono text-xs transition-colors ${
-                          r.difficulty === n ? 'border-purple-500/60 bg-purple-500/[0.12] text-purple-300' : 'border-white/10 text-zinc-500 hover:border-white/25'
+                          r.difficulty === n ? 'border-blue-500/60 bg-blue-500/[0.12] text-blue-300' : 'border-white/10 text-zinc-500 hover:border-white/25'
                         }`}>{n}</button>
                     ))}
                   </div>
@@ -212,8 +200,8 @@ export const ExperienceModal = ({ open, onOpenChange, onSubmitted, userId, defau
               {PROFILE_OPTIONS.map(opt => (
                 <label key={opt.id} className="flex items-start gap-3 cursor-pointer">
                   <div className="mt-0.5 w-4 h-4 rounded-full border flex items-center justify-center shrink-0"
-                    style={{ borderColor: profile === opt.id ? '#7C3AED' : 'rgba(255,255,255,0.15)', background: profile === opt.id ? 'rgba(124,58,237,0.15)' : 'transparent' }}>
-                    {profile === opt.id && <div className="w-1.5 h-1.5 rounded-full" style={{ background: '#7C3AED' }} />}
+                    style={{ borderColor: profile === opt.id ? 'var(--accent)' : 'rgba(255,255,255,0.15)', background: profile === opt.id ? 'rgba(59,111,212,0.15)' : 'transparent' }}>
+                    {profile === opt.id && <div className="w-1.5 h-1.5 rounded-full" style={{ background: 'var(--accent)' }} />}
                   </div>
                   <input type="radio" name="exp-profile" checked={profile === opt.id} onChange={() => setProfile(opt.id)} className="sr-only" />
                   <div>
@@ -232,7 +220,7 @@ export const ExperienceModal = ({ open, onOpenChange, onSubmitted, userId, defau
           <div className="flex items-center gap-2 pt-1">
             <button type="submit" data-testid="exp-submit" disabled={submitting}
               className="inline-flex items-center gap-2 font-mono text-sm font-semibold uppercase tracking-[0.14em] px-4 py-2 rounded-md text-white hover:opacity-90 transition-opacity disabled:opacity-50"
-              style={{ background: '#7C3AED' }}>
+              style={{ background: 'var(--accent)' }}>
               {submitting && <Loader2 size={14} className="animate-spin" />}
               {submitting ? 'Submitting…' : 'Submit experience'}
             </button>
@@ -240,6 +228,21 @@ export const ExperienceModal = ({ open, onOpenChange, onSubmitted, userId, defau
               className="font-mono text-sm px-3 py-2 rounded-md border border-white/10 bg-zinc-900 hover:bg-zinc-800 text-zinc-100">Cancel</button>
           </div>
         </form>
+  );
+  if (embedded) return body;
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent data-testid="experience-modal" className="max-w-3xl bg-zinc-950 border border-white/10 text-zinc-50 max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <div className="flex items-center gap-2 mb-2">
+            <FileText size={16} strokeWidth={2.25} style={{ color: 'var(--accent)' }} />
+            <DialogTitle className="text-xl font-semibold tracking-tight">Report your interview experience</DialogTitle>
+          </div>
+          <DialogDescription className="text-zinc-400 mt-1">
+            Help thousands of candidates. Your report builds real company intelligence — rounds, questions, difficulty, and outcomes.
+          </DialogDescription>
+        </DialogHeader>
+        {body}
       </DialogContent>
     </Dialog>
   );

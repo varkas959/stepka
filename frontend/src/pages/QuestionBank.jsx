@@ -6,7 +6,7 @@ import { QUESTIONS, COMPANIES, ROLES, ROLE_MAP, CATEGORIES, CATEGORY_MAP, TOPIC_
 import { loadUserQuestions } from '../lib/questions';
 import { verifyQuestion, markAsked, unmarkAsked, loadUserActions, loadContributionCounts, loadExperienceLinkCounts } from '../lib/experiences';
 import { supabase } from '../lib/supabaseClient';
-import { ExperienceModal } from '../components/ExperienceModal';
+import { ContributeModal } from '../components/ContributeModal';
 
 const slugify = (s) => s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
 const ACTIVE_COMPANIES = COMPANIES.filter(c => QUESTIONS.some(q => q.company === c.id));
@@ -21,7 +21,6 @@ import {
 import { PixelBar } from '../components/PixelBar';
 import { SearchableFilterChip } from '../components/SearchableFilterChip';
 import { SignInRequiredModal } from '../components/SignInRequiredModal';
-import { AddQuestionModal } from '../components/AddQuestionModal';
 import { Check, ChevronDown } from 'lucide-react';
 
 const ALL = '__all';
@@ -115,13 +114,14 @@ export default function QuestionBank({ isGuest = false, userId }) {
     setUserQuestions(prev => [newQ, ...prev]);
     setExpandedId(newQ.id);
   };
-  const [addOpen, setAddOpen] = useState(false);
-  const [expOpen, setExpOpen] = useState(false);
+  const [contributeOpen, setContributeOpen] = useState(false);
+  const [contributeMode, setContributeMode] = useState('quick');
   const [scrolled, setScrolled] = useState(false);
 
-  const handleReportExperience = () => {
-    if (isGuest) return promptSignIn('report an interview experience');
-    setExpOpen(true);
+  const openContribute = (mode = 'quick') => {
+    if (isGuest) return promptSignIn('contribute to the question bank');
+    setContributeMode(mode);
+    setContributeOpen(true);
   };
 
   useEffect(() => {
@@ -182,10 +182,7 @@ export default function QuestionBank({ isGuest = false, userId }) {
       supabase.from('question_verifications').delete().match({ question_id: q.id, user_id: userId }).then(() => {});
     }
   };
-  const handleAddQuestion = () => {
-    if (isGuest) return promptSignIn('submit a question');
-    setAddOpen(true);
-  };
+  const handleAddQuestion = () => openContribute('quick');
 
   const breadcrumbParts = [
     filters.company !== ALL ? filters.company : null,
@@ -219,42 +216,28 @@ export default function QuestionBank({ isGuest = false, userId }) {
             </Link>
           )}
         </div>
-        {/* Desktop action buttons */}
-        <div className="hidden md:flex shrink-0 items-center gap-2">
+        {/* Desktop action button — single entry, toggle inside */}
+        <div className="hidden md:flex shrink-0 items-center">
           <button
-            data-testid="report-experience"
-            onClick={handleReportExperience}
+            data-testid="contribute"
+            onClick={() => openContribute('quick')}
             className="inline-flex items-center gap-2 text-sm font-medium px-4 py-2.5 rounded-md text-white hover:opacity-90 transition-opacity"
             style={{ background: 'var(--accent)' }}
           >
-            <Plus size={14} strokeWidth={2.25} /> Report Experience
-          </button>
-          <button
-            data-testid="add-question"
-            onClick={handleAddQuestion}
-            className="inline-flex items-center gap-2 text-sm font-medium px-4 py-2.5 rounded-md border border-white/10 bg-zinc-900 hover:bg-zinc-800 hover:border-white/20 text-zinc-100 transition-colors"
-          >
-            <Plus size={14} strokeWidth={2.25} /> Add Question
+            <Plus size={14} strokeWidth={2.25} /> Contribute
           </button>
         </div>
       </div>
 
-      {/* Mobile action buttons — desktop row is hidden on small screens */}
-      <div className="flex md:hidden items-center gap-2 mb-5">
+      {/* Mobile action button — desktop row is hidden on small screens */}
+      <div className="flex md:hidden mb-5">
         <button
-          data-testid="report-experience-mobile"
-          onClick={handleReportExperience}
+          data-testid="contribute-mobile"
+          onClick={() => openContribute('quick')}
           className="flex-1 inline-flex items-center justify-center gap-2 text-sm font-medium px-4 py-2.5 rounded-md text-white hover:opacity-90 transition-opacity"
-          style={{ background: '#7C3AED' }}
+          style={{ background: 'var(--accent)' }}
         >
-          <Plus size={14} strokeWidth={2.25} /> Report Experience
-        </button>
-        <button
-          data-testid="add-question-mobile"
-          onClick={handleAddQuestion}
-          className="flex-1 inline-flex items-center justify-center gap-2 text-sm font-medium px-4 py-2.5 rounded-md border border-white/10 bg-zinc-900 hover:bg-zinc-800 text-zinc-100 transition-colors"
-        >
-          <Plus size={14} strokeWidth={2.25} /> Add Question
+          <Plus size={14} strokeWidth={2.25} /> Contribute a question or experience
         </button>
       </div>
 
@@ -304,15 +287,15 @@ export default function QuestionBank({ isGuest = false, userId }) {
 
       {/* Mobile FAB - appears when scrolled */}
       <button
-        data-testid="add-question-fab"
-        onClick={handleAddQuestion}
-        className={`md:hidden fixed bottom-6 right-5 z-50 inline-flex items-center gap-2 font-mono text-sm font-semibold px-4 py-3 rounded-full text-zinc-950 shadow-lg transition-all duration-200 ${
+        data-testid="contribute-fab"
+        onClick={() => openContribute('quick')}
+        className={`md:hidden fixed bottom-6 right-5 z-50 inline-flex items-center gap-2 font-mono text-sm font-semibold px-4 py-3 rounded-full text-white shadow-lg transition-all duration-200 ${
           scrolled ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'
         }`}
         style={{ background: 'var(--accent)' }}
       >
         <Plus size={16} strokeWidth={2.5} />
-        <span>Add Question</span>
+        <span>Contribute</span>
       </button>
 
       {/* Count + active filter banner */}
@@ -383,9 +366,16 @@ export default function QuestionBank({ isGuest = false, userId }) {
 
       <BlueprintModal companyId={blueprintCompany} onClose={() => setBlueprintCompany(null)} />
       <SignInRequiredModal open={signInOpen} onOpenChange={setSignInOpen} action={signInAction} />
-      <AddQuestionModal open={addOpen} onOpenChange={setAddOpen} onAdded={handleQuestionAdded} userId={userId} />
-      <ExperienceModal open={expOpen} onOpenChange={setExpOpen} userId={userId}
-        defaultCompany={filters.company !== ALL ? filters.company : undefined} />
+      {contributeOpen && (
+        <ContributeModal
+          open={contributeOpen}
+          onOpenChange={setContributeOpen}
+          defaultMode={contributeMode}
+          onAdded={handleQuestionAdded}
+          userId={userId}
+          defaultCompany={filters.company !== ALL ? filters.company : undefined}
+        />
+      )}
     </div>
   );
 }

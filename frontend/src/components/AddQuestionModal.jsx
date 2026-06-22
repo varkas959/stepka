@@ -24,7 +24,7 @@ const PROFILE_OPTIONS = [
   { id: 'name',      label: 'Show my name',       desc: 'Your display name is visible' },
 ];
 
-export const AddQuestionModal = ({ open, onOpenChange, onAdded, userId }) => {
+export const AddQuestionModal = ({ open, onOpenChange, onAdded, userId, embedded = false }) => {
   const [form, setForm] = useState({
     company: 'amazon', role: 'SDE2', topic: 'arrays',
     difficulty: 'Medium', round: 'Technical', body: '',
@@ -92,19 +92,7 @@ export const AddQuestionModal = ({ open, onOpenChange, onAdded, userId }) => {
     }
   };
 
-  return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent data-testid="add-question-modal" className="max-w-2xl bg-zinc-950 border border-white/10 text-zinc-50 max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <div className="flex items-center gap-2 mb-2">
-            <Plus size={16} strokeWidth={2.25} style={{ color: 'var(--accent)' }} />
-            <DialogTitle className="text-xl font-semibold tracking-tight">Submit an interview question</DialogTitle>
-          </div>
-          <DialogDescription className="text-zinc-400 mt-1">
-            Help other engineers prep. Only submit questions you were actually asked. Pick from suggestions or type a custom value.
-          </DialogDescription>
-        </DialogHeader>
-
+  const body = (
         <form onSubmit={submit} className="space-y-4 mt-3">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <CreatableSelect label="company"    value={form.company}    options={COMPANY_OPTS} onChange={(v) => set('company', v)}    testid="aq-company" />
@@ -192,6 +180,21 @@ export const AddQuestionModal = ({ open, onOpenChange, onAdded, userId }) => {
               className="font-mono text-sm px-3 py-2 rounded-md border border-white/10 bg-zinc-900 hover:bg-zinc-800 text-zinc-100">Cancel</button>
           </div>
         </form>
+  );
+  if (embedded) return body;
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent data-testid="add-question-modal" className="max-w-2xl bg-zinc-950 border border-white/10 text-zinc-50 max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <div className="flex items-center gap-2 mb-2">
+            <Plus size={16} strokeWidth={2.25} style={{ color: 'var(--accent)' }} />
+            <DialogTitle className="text-xl font-semibold tracking-tight">Submit an interview question</DialogTitle>
+          </div>
+          <DialogDescription className="text-zinc-400 mt-1">
+            Help other engineers prep. Only submit questions you were actually asked.
+          </DialogDescription>
+        </DialogHeader>
+        {body}
       </DialogContent>
     </Dialog>
   );
