@@ -442,6 +442,15 @@ const QuestionCard = ({ q, expanded, onToggleExpand, upvoted, newUpvote, asked, 
   const category = deriveCategory(q);
   const catStyle = CATEGORY_STYLE[category] || TAG_PALETTE.default;
 
+  // Detect whether line-clamp is actually cutting off text (viewport-aware).
+  const bodyRef = useRef(null);
+  const [overflows, setOverflows] = useState(false);
+  useEffect(() => {
+    const el = bodyRef.current;
+    if (!el || expanded) return;
+    setOverflows(el.scrollHeight > el.clientHeight + 2);
+  }, [q.body, expanded]);
+
   return (
     <article
       data-testid={`question-card-${q.id}`}
@@ -458,12 +467,12 @@ const QuestionCard = ({ q, expanded, onToggleExpand, upvoted, newUpvote, asked, 
             {q.body.split('\n').map((line, i) => <p key={i}>{line}</p>)}
           </div>
         ) : (
-          <p className="text-zinc-100 text-base leading-relaxed line-clamp-3 mb-3"
+          <p ref={bodyRef} className="text-zinc-100 text-base leading-relaxed line-clamp-3 mb-3"
              style={{ color: '#F2F2F4' }}>
             {q.body.replace(/\n/g, ' ')}
           </p>
         )}
-        {q.body.length > 180 && (
+        {(overflows || expanded) && (
           <button onClick={onToggleExpand} className="font-mono text-sm text-emerald-400 hover:text-emerald-300 mb-4 block" data-testid={`expand-${q.id}`}>
             {expanded ? '- show less' : '+ show more'}
           </button>
