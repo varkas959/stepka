@@ -34,7 +34,7 @@ export const SearchableFilterChip = ({
       <PopoverTrigger asChild>
         <button
           data-testid={`filter-chip-${testid}`}
-          className={`group inline-flex items-center gap-1.5 font-mono text-sm px-3 py-1.5 rounded-md border transition-colors ${
+          className={`group inline-flex items-center gap-1 font-mono text-xs px-2.5 py-1.5 rounded-md border transition-colors ${
             active
               ? 'border-emerald-500/40 bg-emerald-500/[0.06] text-emerald-400'
               : 'border-white/10 bg-transparent text-zinc-500 hover:border-white/25 hover:text-zinc-300'

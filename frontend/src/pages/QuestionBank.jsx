@@ -222,7 +222,7 @@ export default function QuestionBank({ isGuest = false, userId }) {
             data-testid="question-search"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder={`Search ${allQuestions.length} interview questions…`}
+            placeholder="Search interview questions…"
             className="flex-1 bg-transparent border-0 outline-none text-base w-full"
             style={{ color: 'var(--text-1)' }}
           />
@@ -400,8 +400,7 @@ const SortChip = ({ value, onChange }) => {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <button data-testid="filter-chip-sort"
-          className="inline-flex items-center gap-1.5 font-mono text-sm px-3 py-1.5 rounded-md border border-white/10 bg-transparent text-zinc-500 hover:border-white/25 hover:text-zinc-300 transition-colors">
-          <span className="opacity-80">+</span>
+          className="inline-flex items-center gap-1 font-mono text-xs px-2.5 py-1.5 rounded-md border border-white/10 bg-transparent text-zinc-500 hover:border-white/25 hover:text-zinc-300 transition-colors">
           <span>sort: <span className="text-zinc-200">{opt?.label}</span></span>
           <ChevronDown size={12} className="text-zinc-600" />
         </button>
@@ -537,7 +536,7 @@ const QuestionCard = ({ q, expanded, onToggleExpand, upvoted, newUpvote, asked, 
                 : { border: '1px solid var(--chip-border)', background: 'var(--chip-bg)', color: 'var(--chip-text)' }}
             >
               <Check size={12} strokeWidth={2.5} />
-              <span className="hidden sm:inline">{asked ? 'Marked' : 'Asked this'}</span>
+              <span>{asked ? 'Marked' : 'Asked this'}</span>
             </button>
           </div>
         </div>

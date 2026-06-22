@@ -9,7 +9,6 @@ import { AppStateProvider } from './lib/appState';
 import { getSession, onAuthStateChange } from './lib/auth';
 import { AuthGate } from './components/AuthGate';
 import { Sidebar } from './components/Sidebar';
-import { ActivePlanBanner } from './components/ActivePlanBanner';
 
 import Home from './pages/Home';
 import QuestionBank from './pages/QuestionBank';
@@ -31,7 +30,6 @@ function AppShell({ session, onSignOut, children }) {
     <div className="min-h-screen bg-zinc-950 text-zinc-50">
       <Sidebar user={session?.user} onSignOut={onSignOut} isGuest={!session} />
       <div className="md:pl-64 pt-14 md:pt-0">
-        {session && <ActivePlanBanner />}
         {!session && <GuestBanner />}
         <div className="pb-20">{children}</div>
       </div>

@@ -2,6 +2,7 @@ import { Flame, Snowflake, Zap, TrendingUp } from 'lucide-react';
 import { useAppState } from '../lib/appState';
 import { PixelBar } from '../components/PixelBar';
 import { ContributionHeatmap } from '../components/ContributionHeatmap';
+import { ActivePlanBanner } from '../components/ActivePlanBanner';
 import { XP_EVENTS, XP_BREAKDOWN, TOPIC_MASTERY, COMPANIES } from '../lib/mockData';
 import { toast } from 'sonner';
 import { ResponsiveContainer, BarChart, Bar, XAxis, Tooltip, Cell } from 'recharts';
@@ -19,7 +20,9 @@ export default function Progress() {
   };
 
   return (
-    <div className="px-4 md:px-10 py-6 md:py-10 max-w-7xl mx-auto" data-testid="progress-page">
+    <>
+      <ActivePlanBanner />
+      <div className="px-4 md:px-10 py-6 md:py-10 max-w-7xl mx-auto" data-testid="progress-page">
       <Breadcrumb segments={['progress', 'dashboard']} />
       <div className="mt-1 mb-7">
         <h1 className="text-4xl md:text-5xl font-semibold tracking-tight text-zinc-50">Where you stand</h1>
@@ -157,7 +160,8 @@ export default function Progress() {
           </div>
         </Card>
       </div>
-    </div>
+      </div>
+    </>
   );
 }
 
