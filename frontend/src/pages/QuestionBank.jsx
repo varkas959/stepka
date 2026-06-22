@@ -348,9 +348,9 @@ export default function QuestionBank({ isGuest = false, userId }) {
         data-testid="submit-unlock"
         onClick={handleAddQuestion}
         className="w-full text-left mt-6 rounded-md p-5 flex items-center gap-4 transition-colors"
-      style={{ border: '1px solid #272B3F', background: '#141720' }}
+      style={{ border: '1px solid #262B3A', background: '#181B24' }}
       onMouseEnter={e => { e.currentTarget.style.borderColor = '#3B6FD430'; e.currentTarget.style.background = 'rgba(59,111,212,0.04)'; }}
-      onMouseLeave={e => { e.currentTarget.style.borderColor = '#272B3F'; e.currentTarget.style.background = '#141720'; }}
+      onMouseLeave={e => { e.currentTarget.style.borderColor = '#262B3A'; e.currentTarget.style.background = '#181B24'; }}
       >
         <Plus size={18} className="text-emerald-400 shrink-0" strokeWidth={2.25} />
         <div className="flex-1 font-mono text-sm text-zinc-400">
@@ -399,13 +399,16 @@ const SortChip = ({ value, onChange }) => {
 };
 
 // â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€ Card â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€
+// Calm, low-saturation palette. Difficulty is the one chip that carries a real
+// signal, so it keeps colour — but muted ~15% so it reads without glowing.
+const NEUTRAL = { border: 'rgba(148,163,184,0.22)', bg: 'rgba(148,163,184,0.08)', text: '#9AA3B8' };
 const TAG_PALETTE = {
-  company: { border: 'rgba(59,111,212,0.35)', bg: 'rgba(59,111,212,0.08)', text: '#7BA7F5' },
-  default: { border: 'rgba(255,255,255,0.10)', bg: 'rgba(255,255,255,0.03)', text: '#8B8FA8' },
-  Easy:    { border: 'rgba(34,197,94,0.30)',  bg: 'rgba(34,197,94,0.06)',  text: '#4ade80' },
-  Medium:  { border: 'rgba(245,158,11,0.30)', bg: 'rgba(245,158,11,0.06)', text: '#FCD34D' },
-  Hard:    { border: 'rgba(239,68,68,0.30)',  bg: 'rgba(239,68,68,0.06)',  text: '#FCA5A5' },
-  verified:{ border: 'rgba(34,197,94,0.30)',  bg: 'rgba(34,197,94,0.06)',  text: '#4ade80' },
+  company: NEUTRAL,
+  default: NEUTRAL,
+  Easy:    { border: 'rgba(34,197,94,0.22)',  bg: 'rgba(34,197,94,0.05)',  text: '#7FC9A0' },
+  Medium:  { border: 'rgba(217,162,74,0.22)', bg: 'rgba(217,162,74,0.05)', text: '#D6B36B' },
+  Hard:    { border: 'rgba(225,128,128,0.24)', bg: 'rgba(225,128,128,0.05)', text: '#DD9B9B' },
+  verified:{ border: 'rgba(127,201,160,0.20)', bg: 'transparent',          text: '#7FC9A0' },
 };
 
 const CATEGORY_STYLE = {
@@ -455,9 +458,9 @@ const QuestionCard = ({ q, expanded, onToggleExpand, upvoted, newUpvote, asked, 
     <article
       data-testid={`question-card-${q.id}`}
       className="rounded-lg animate-fade-up transition-colors"
-      style={{ border: '1px solid #272B3F', background: '#141720' }}
-      onMouseEnter={e => e.currentTarget.style.borderColor = '#323752'}
-      onMouseLeave={e => e.currentTarget.style.borderColor = '#272B3F'}
+      style={{ border: '1px solid #262B3A', background: '#181B24' }}
+      onMouseEnter={e => e.currentTarget.style.borderColor = '#343A4D'}
+      onMouseLeave={e => e.currentTarget.style.borderColor = '#262B3A'}
     >
       <div className="px-6 py-5">
         {/* Body */}
@@ -545,7 +548,7 @@ const BlueprintModal = ({ companyId, onClose }) => {
 
   return (
     <Dialog open={true} onOpenChange={(v) => !v && onClose()}>
-      <DialogContent data-testid="blueprint-modal" className="max-w-2xl" style={{ background: '#141720', border: '1px solid #272B3F', color: '#F2F2F4' }}>
+      <DialogContent data-testid="blueprint-modal" className="max-w-2xl" style={{ background: '#181B24', border: '1px solid #262B3A', color: '#F2F2F4' }}>
         <DialogHeader>
           <div className="flex items-center gap-3 mb-2">
             <div className="w-10 h-10 rounded-md flex items-center justify-center font-mono font-bold text-sm"
