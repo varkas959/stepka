@@ -80,10 +80,11 @@ export async function submitExperience(payload, userId) {
   // cannot be bypassed by hitting Supabase directly.
   const { data: { session } } = await supabase.auth.getSession();
   if (!session) throw new Error('Sign in required');
-  const resp = await fetch('/api/submit-experience', {
+  const resp = await fetch('/api/submit', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session.access_token}` },
     body: JSON.stringify({
+      type: 'experience',
       experience: {
         company: payload.company, role: payload.role,
         experienceYears: payload.experienceYears, interviewDate: payload.interviewDate || null,

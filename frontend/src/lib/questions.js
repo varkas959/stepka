@@ -38,10 +38,11 @@ export async function saveUserQuestion(q, userId) {
   const { data: { session } } = await supabase.auth.getSession();
   if (!session) { console.warn('[questions] no session — cannot save'); return null; }
   try {
-    const resp = await fetch('/api/submit-question', {
+    const resp = await fetch('/api/submit', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session.access_token}` },
       body: JSON.stringify({
+        type: 'question',
         id: q.id, company: q.company, role: q.role, topic: q.topic,
         topicPath: q.topicPath, difficulty: q.difficulty, round: q.round,
         body: q.body, tech: q.tech || [],
