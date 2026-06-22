@@ -19,16 +19,6 @@ function twoSum(nums, target) {
 }`;
 
 const ACC = 'var(--accent)';
-function SignInPrompt() {
-  return (
-    <div className="mb-6 rounded-lg p-4 flex items-center justify-between gap-3"
-         style={{ border: '1px solid rgba(59,111,212,0.3)', background: 'rgba(59,111,212,0.06)' }}>
-      <span className="font-mono text-sm" style={{ color: 'rgba(59,111,212,0.85)' }}>Sign in to submit answers and get AI grading</span>
-      <a href="/signin" className="shrink-0 font-mono text-xs font-semibold uppercase tracking-[0.14em] px-3 py-1.5 rounded-md text-white hover:opacity-90 transition-opacity"
-         style={{ background: ACC }}>Sign in</a>
-    </div>
-  );
-}
 
 export default function Practice({ isGuest = false }) {
   const [qIdx, setQIdx] = useState(() => Math.floor(Math.random() * QUESTIONS.length));
@@ -74,22 +64,21 @@ export default function Practice({ isGuest = false }) {
 
   return (
     <div className="px-4 md:px-10 py-6 md:py-10 max-w-7xl mx-auto" data-testid="practice-page">
-      {isGuest && <SignInPrompt />}
       <Breadcrumb segments={['practice', `${q.company}-${q.role.toLowerCase()}`, `q-${qIdx + 1}`]} />
 
       <div className="flex items-start justify-between gap-4 flex-wrap mb-6 mt-1">
         <div>
           <h1 className="text-3xl md:text-4xl font-semibold tracking-tight" style={{ color: 'var(--text-1)' }}>
-            <span style={{ color: 'var(--text-3)' }}>$</span> practice Â· ai graded
+            <span style={{ color: 'var(--text-3)' }}>$</span> practice · ai graded
           </h1>
-          <p className="font-mono text-sm mt-2" style={{ color: 'var(--text-2)' }}>Submit â†’ 1.5s grade â†’ rubric. Honest, specific, no fluff.</p>
+          <p className="font-mono text-sm mt-2" style={{ color: 'var(--text-2)' }}>Submit → 1.5s grade → rubric. Honest, specific, no fluff.</p>
         </div>
         <div className="flex items-center gap-2 font-mono text-xs">
           <button onClick={() => setQIdx(i => (i - 1 + QUESTIONS.length) % QUESTIONS.length)}
-            className="border border-white/10 rounded-md px-2.5 py-1.5 text-zinc-300 hover:bg-white/5" data-testid="prev-question">â† prev</button>
+            className="border border-white/10 rounded-md px-2.5 py-1.5 text-zinc-300 hover:bg-white/5" data-testid="prev-question">← prev</button>
           <span className="text-zinc-500">{qIdx + 1} / {QUESTIONS.length}</span>
           <button onClick={() => setQIdx(i => (i + 1) % QUESTIONS.length)}
-            className="border border-white/10 rounded-md px-2.5 py-1.5 text-zinc-300 hover:bg-white/5" data-testid="next-question">next â†’</button>
+            className="border border-white/10 rounded-md px-2.5 py-1.5 text-zinc-300 hover:bg-white/5" data-testid="next-question">next →</button>
         </div>
       </div>
 
@@ -108,7 +97,7 @@ export default function Practice({ isGuest = false }) {
             <div className="text-zinc-100 text-base md:text-lg leading-relaxed" style={{ fontFamily: 'inherit' }}>
               {q.body}
             </div>
-            <div className="mt-4 font-mono text-xs text-zinc-500">{q.topicPath} Â· {q.round} round</div>
+            <div className="mt-4 font-mono text-xs text-zinc-500">{q.topicPath} · {q.round} round</div>
           </div>
         </section>
 
@@ -145,7 +134,7 @@ export default function Practice({ isGuest = false }) {
                 className="inline-flex items-center gap-2 font-mono text-sm font-semibold uppercase tracking-[0.14em] px-4 py-2 rounded-md text-white hover:opacity-90 transition-opacity disabled:opacity-50"
                 style={{ background: ACC }}>
                 {submitting && <Loader2 size={14} className="animate-spin" />}
-                {submitting ? 'Gradingâ€¦' : <>Submit <ArrowRight size={14} strokeWidth={2.5} /></>}
+                {submitting ? 'Grading…' : <>Submit <ArrowRight size={14} strokeWidth={2.5} /></>}
               </button>
             ) : (
               <button data-testid="try-again" onClick={reset}

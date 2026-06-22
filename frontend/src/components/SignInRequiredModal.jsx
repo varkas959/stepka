@@ -3,7 +3,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Sparkles } from 'lucide-react';
 
 // Shown when an anonymous visitor tries to do something that needs an account.
-// Routes to /signin (top-level page) where the real OAuth handshake happens â€”
+// Routes to /signin (top-level page) where the real OAuth handshake happens —
 // avoids iframe / preview-pane redirect issues.
 export const SignInRequiredModal = ({ open, onOpenChange, action = 'continue' }) => {
   const navigate = useNavigate();
@@ -18,7 +18,7 @@ export const SignInRequiredModal = ({ open, onOpenChange, action = 'continue' })
             <DialogTitle className="text-lg font-semibold tracking-tight">Sign in to {action}</DialogTitle>
           </div>
           <DialogDescription className="text-zinc-400 mt-1">
-            Sign in with Google or LinkedIn â€” Stepkai uses Supabase Auth, we never see your password.
+            Sign in with Google or LinkedIn — Stepkai uses Supabase Auth, we never see your password.
           </DialogDescription>
         </DialogHeader>
 

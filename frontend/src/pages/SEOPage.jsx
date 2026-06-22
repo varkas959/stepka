@@ -3,7 +3,7 @@ import { Helmet } from 'react-helmet-async';
 import { ArrowRight, ArrowLeft, TrendingUp } from 'lucide-react';
 import { QUESTIONS, COMPANIES, TECH_STACK, TOPIC_TREE } from '../lib/mockData';
 
-// â”€â”€ helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── helpers ──────────────────────────────────────────────────────────────────
 const slugify = (s) => s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
 const unslug  = (s) => s.replace(/-/g, ' ');
 
@@ -35,7 +35,7 @@ function QuestionList({ questions, title }) {
               <span className="font-mono text-[11px] px-2 py-0.5 rounded border border-white/10 text-zinc-400">{q.difficulty}</span>
             </div>
             <p className="text-zinc-100 text-sm leading-relaxed line-clamp-3">{q.body.replace(/\n/g, ' ')}</p>
-            <div className="mt-3 font-mono text-xs text-zinc-600">â†‘ {q.upvotes} upvotes Â· {q.asked} people asked this</div>
+            <div className="mt-3 font-mono text-xs text-zinc-600">↑ {q.upvotes} upvotes · {q.asked} people asked this</div>
           </div>
         );
       })}
@@ -68,7 +68,7 @@ function RelatedLinks({ currentKind, currentSlug }) {
         ))}
         <Link to="/questions/trending"
           className="font-mono text-xs px-2.5 py-1 rounded border transition-colors" style={{ borderColor: 'rgba(59,111,212,0.3)', color: '#7AA9F7' }}>
-          ðŸ”¥ Trending
+          🔥 Trending
         </Link>
       </div>
     </div>
@@ -112,7 +112,7 @@ function PageShell({ title, description, children, slug, kind }) {
   );
 }
 
-// â”€â”€ Page variants â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Page variants ─────────────────────────────────────────────────────────────
 function TrendingPage() {
   const questions = [...QUESTIONS]
     .sort((a, b) => (b.upvotes + b.asked * 2) - (a.upvotes + a.asked * 2))
@@ -187,7 +187,7 @@ function TechPage() {
   );
 }
 
-// â”€â”€ Entry point â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Entry point ───────────────────────────────────────────────────────────────
 export default function SEOPage({ kind }) {
   if (kind === 'trending') return <TrendingPage />;
   if (kind === 'company')  return <CompanyPage />;

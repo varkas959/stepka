@@ -33,11 +33,11 @@ export const ActivePlanBanner = () => {
 
         <div className="hidden md:flex flex-1 min-w-0 items-center text-sm text-zinc-300 font-mono">
           <span className="text-zinc-50 font-medium truncate">{company?.name} {plan.role}</span>
-          <span className="text-zinc-600 mx-1.5">Â·</span>
+          <span className="text-zinc-600 mx-1.5">·</span>
           <span className="text-zinc-500">prep</span>
-          <span className="text-zinc-600 mx-1.5">Â·</span>
+          <span className="text-zinc-600 mx-1.5">·</span>
           <span className="text-zinc-50">{plan.dueQuestions}</span>
-          <span className="text-zinc-500 ml-1 truncate">question{plan.dueQuestions === 1 ? '' : 's'} dueâ€¦</span>
+          <span className="text-zinc-500 ml-1 truncate">question{plan.dueQuestions === 1 ? '' : 's'} due…</span>
         </div>
 
         <button

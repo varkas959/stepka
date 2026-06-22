@@ -9,7 +9,7 @@ export const CreatableSelect = ({
   value,
   onChange,
   options = [],       // [{id, label}]
-  placeholder = 'select or typeâ€¦',
+  placeholder = 'select or type…',
   testid,
 }) => {
   const [open, setOpen] = useState(false);
@@ -56,7 +56,7 @@ export const CreatableSelect = ({
               onKeyDown={(e) => {
                 if (e.key === 'Enter' && q.trim()) { e.preventDefault(); commit(q.trim()); }
               }}
-              placeholder={`type ${label}â€¦`}
+              placeholder={`type ${label}…`}
               className="flex-1 bg-transparent border-0 outline-none font-mono text-xs text-zinc-100 placeholder:text-zinc-600 px-1"
             />
             {q && (

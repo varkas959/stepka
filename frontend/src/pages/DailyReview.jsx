@@ -37,7 +37,7 @@ const toneStyle = (tone, active) => {
   return map[tone];
 };
 
-export default function DailyReview({ isGuest = false }) {
+export default function DailyReview() {
   const [phase, setPhase] = useState('queue');
   const [idx, setIdx] = useState(0);
   const [flipped, setFlipped] = useState(false);
@@ -58,23 +58,15 @@ export default function DailyReview({ isGuest = false }) {
     else { setIdx(i => i + 1); setFlipped(false); }
   };
 
-  if (phase === 'queue') return <QueueView state={state} breakdown={breakdown} total={SRS_CARDS.length} onStart={startSession} isGuest={isGuest} />;
+  if (phase === 'queue') return <QueueView state={state} breakdown={breakdown} total={SRS_CARDS.length} onStart={startSession} />;
   if (phase === 'session') return <SessionView idx={idx} flipped={flipped} setFlipped={setFlipped} onRate={handleRate} onExit={() => setPhase('queue')} />;
   return <DoneView ratings={ratings} state={state} onContinue={() => navigate('/app/progress')} onAgain={() => setPhase('queue')} />;
 }
 
-const QueueView = ({ state, breakdown, total, onStart, isGuest }) => {
+const QueueView = ({ state, breakdown, total, onStart }) => {
   const goalPct = Math.round((state.reviewedToday / state.goalToday) * 100);
   return (
     <div className="px-4 md:px-10 py-6 md:py-10 max-w-3xl mx-auto">
-      {isGuest && (
-        <div className="mb-6 rounded-lg p-4 flex items-center justify-between gap-3"
-             style={{ border: '1px solid rgba(59,111,212,0.3)', background: 'rgba(59,111,212,0.06)' }}>
-          <span className="font-mono text-sm" style={{ color: 'rgba(59,111,212,0.85)' }}>Sign in to save your review progress and build a streak</span>
-          <a href="/signin" className="shrink-0 font-mono text-xs font-semibold uppercase tracking-[0.14em] px-3 py-1.5 rounded-md text-white hover:opacity-90 transition-opacity"
-             style={{ background: C.accent }}>Sign in</a>
-        </div>
-      )}
       <Breadcrumb segments={['daily-review', 'queue']} />
       <h1 className="text-4xl md:text-5xl font-semibold tracking-tight mt-1" style={{ color: C.text1 }}>
         <span style={{ color: C.text3 }}>$</span> {total} cards due

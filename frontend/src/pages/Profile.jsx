@@ -24,7 +24,7 @@ export default function Profile({ session, onSignOut }) {
   };
 
   const dangerDelete = () => {
-    toast('Account deletion is manual for now â€” email hi@stepkai.com and we will purge your data within 30 days.', { duration: 6000 });
+    toast('Account deletion is manual for now — email hi@stepkai.com and we will purge your data within 30 days.', { duration: 6000 });
   };
 
   return (
@@ -43,7 +43,7 @@ export default function Profile({ session, onSignOut }) {
           <div>
             <div className="text-zinc-100 text-sm font-medium">{user.email || 'unknown'}</div>
             <div className="font-mono text-[10px] uppercase tracking-[0.18em] text-zinc-600 mt-0.5">
-              signed in via {user.provider || 'oauth'} Â· level {state.level}
+              signed in via {user.provider || 'oauth'} · level {state.level}
             </div>
           </div>
         </div>

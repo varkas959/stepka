@@ -2,7 +2,7 @@ import { NavLink, Link } from 'react-router-dom';
 import { BookOpen, RotateCcw, LayoutGrid, Terminal, BarChart2, Flame, Check, Menu, X, MessageSquare, Sun, Moon } from 'lucide-react';
 import { useState } from 'react';
 import { useAppState } from '../lib/appState';
-import { useTheme } from '../lib/theme';
+import { useTheme } from 'next-themes';
 
 const BG  = 'var(--page)';
 const BG2 = 'var(--surface)';
@@ -22,7 +22,8 @@ const navItems = [
 
 export const Sidebar = ({ user, isGuest }) => {
   const { state } = useAppState();
-  const { theme, toggle } = useTheme();
+  const { theme, setTheme } = useTheme();
+  const toggle = () => setTheme(theme === 'light' ? 'dark' : 'light');
   const [mobileOpen, setMobileOpen] = useState(false);
 
   const progressPct = Math.min(100, Math.round((state.xp / state.xpToNext) * 100));

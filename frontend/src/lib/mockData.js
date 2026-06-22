@@ -206,7 +206,7 @@ export const QUESTIONS = [
     tech: ['System Design', 'Microservices', 'Java', 'Go'],
   },
 
-  // â”€â”€ Accenture Â· Selenium Developer Â· 0-2 yrs â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Accenture · Selenium Developer · 0-2 yrs ──────────────────────────────
   {
     id: 'q13', company: 'accenture', role: 'Developer', topic: 'testing', topicPath: 'Testing',
     difficulty: 'Medium', round: 'Technical',
@@ -272,7 +272,7 @@ export const QUESTIONS = [
     tech: ['Java'],
   },
 
-  // â”€â”€ Deloitte Â· DevOps Engineer Â· 3-4 yrs â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Deloitte · DevOps Engineer · 3-4 yrs ──────────────────────────────────
   {
     id: 'q19', company: 'deloitte', role: 'DevOps', topic: 'devops', topicPath: 'DevOps',
     difficulty: 'Medium', round: 'Technical',
@@ -311,7 +311,7 @@ export const QUESTIONS = [
   {
     id: 'q24', company: 'deloitte', role: 'DevOps', topic: 'devops', topicPath: 'DevOps',
     difficulty: 'Medium', round: 'Technical',
-    body: 'Which Git branching strategy do you follow â€” GitFlow or trunk-based development â€” and why? Compare release cadence, merge complexity, hotfix handling, and suitability for CI/CD pipelines.',
+    body: 'Which Git branching strategy do you follow — GitFlow or trunk-based development — and why? Compare release cadence, merge complexity, hotfix handling, and suitability for CI/CD pipelines.',
     verifyCount: 4, upvotes: 62, daysAgo: 4, asked: 24,
     tech: ['GitHub Actions'],
   },
@@ -346,7 +346,7 @@ export const QUESTIONS = [
   {
     id: 'q24f', company: 'deloitte', role: 'DevOps', topic: 'devops', topicPath: 'DevOps',
     difficulty: 'Medium', round: 'Technical',
-    body: 'Explain your deployment workflow starting from code commit until production release. Cover feature branch â†’ PR â†’ CI â†’ merge â†’ staging deploy â†’ smoke tests â†’ canary/blue-green production deploy â†’ monitoring and rollback plan.',
+    body: 'Explain your deployment workflow starting from code commit until production release. Cover feature branch → PR → CI → merge → staging deploy → smoke tests → canary/blue-green production deploy → monitoring and rollback plan.',
     verifyCount: 7, upvotes: 39, daysAgo: 2, asked: 41,
     tech: ['Jenkins', 'Docker', 'Kubernetes', 'AWS'],
   },
@@ -372,7 +372,7 @@ export const QUESTIONS = [
     tech: ['Jenkins', 'GitHub Actions'],
   },
 
-  // â”€â”€ Wipro Â· Tester Â· Selenium Â· 3-4 yrs â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Wipro · Tester · Selenium · 3-4 yrs ───────────────────────────────────
   {
     id: 'q25', company: 'wipro', role: 'Tester', topic: 'testing', topicPath: 'Testing',
     difficulty: 'Hard', round: 'Technical',
@@ -501,7 +501,7 @@ export const QUESTIONS = [
     tech: ['Java'],
   },
 
-  // â”€â”€ Infosys Â· Java Developer Â· 3-5 yrs â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Infosys · Java Developer · 3-5 yrs ────────────────────────────────────
   {
     id: 'q31', company: 'infosys', role: 'SDE2', topic: 'domain', topicPath: 'Domain',
     difficulty: 'Medium', round: 'Technical',
@@ -538,7 +538,7 @@ export const QUESTIONS = [
     tech: ['Java', 'Spring Boot', 'MySQL'],
   },
 
-  // â”€â”€ TCS Â· Java Developer Â· 4-6 yrs â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── TCS · Java Developer · 4-6 yrs ────────────────────────────────────────
   {
     id: 'q36', company: 'tcs', role: 'SDE2', topic: 'domain', topicPath: 'Domain',
     difficulty: 'Medium', round: 'Technical',
@@ -549,7 +549,7 @@ export const QUESTIONS = [
   {
     id: 'q37', company: 'tcs', role: 'SDE2', topic: 'domain', topicPath: 'Domain',
     difficulty: 'Medium', round: 'Technical',
-    body: 'How do you handle transactions in Spring Boot? Explain the @Transactional annotation, propagation levels (REQUIRED, REQUIRES_NEW, NESTED), isolation levels, and how Spring proxies intercept methods â€” including why self-invocation bypasses the proxy.',
+    body: 'How do you handle transactions in Spring Boot? Explain the @Transactional annotation, propagation levels (REQUIRED, REQUIRES_NEW, NESTED), isolation levels, and how Spring proxies intercept methods — including why self-invocation bypasses the proxy.',
     verifyCount: 7, upvotes: 41, daysAgo: 2, asked: 43,
     tech: ['Java', 'Spring Boot'],
   },
@@ -582,7 +582,7 @@ export const QUESTIONS = [
     tech: ['Java', 'Spring Boot'],
   },
 
-  // â”€â”€ Capgemini Â· Playwright Tester Â· 4 yrs â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Capgemini · Playwright Tester · 4 yrs ─────────────────────────────────
   {
     id: 'q42', company: 'capgemini', role: 'Tester', topic: 'testing', topicPath: 'Testing',
     difficulty: 'Medium', round: 'Technical',
@@ -619,7 +619,7 @@ export const QUESTIONS = [
     tech: ['JavaScript', 'TypeScript', 'Playwright'],
   },
 
-  // â”€â”€ Swiggy â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Swiggy ────────────────────────────────────────────────────────────────
   {
     id: 'q47', company: 'swiggy', role: 'SDE2', topic: 'system-design', topicPath: 'System Design',
     difficulty: 'Hard', round: 'System Design',
@@ -642,7 +642,7 @@ export const QUESTIONS = [
     tech: ['Java', 'Python'],
   },
 
-  // â”€â”€ Meta â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Meta ──────────────────────────────────────────────────────────────────
   {
     id: 'q50', company: 'meta', role: 'SDE2', topic: 'system-design', topicPath: 'System Design',
     difficulty: 'Hard', round: 'System Design',
@@ -660,11 +660,11 @@ export const QUESTIONS = [
   {
     id: 'q52', company: 'meta', role: 'SDE1', topic: 'behavioral', topicPath: 'Behavioral',
     difficulty: 'Medium', round: 'HR',
-    body: 'Tell me about a time you had to make a decision with incomplete data.\nMeta values moving fast â€” how did you balance the need for speed against the risk of being wrong? What would you do differently today?',
+    body: 'Tell me about a time you had to make a decision with incomplete data.\nMeta values moving fast — how did you balance the need for speed against the risk of being wrong? What would you do differently today?',
     verifyCount: 6, upvotes: 87, daysAgo: 5, asked: 33,
   },
 
-  // â”€â”€ Zomato â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Zomato ────────────────────────────────────────────────────────────────
   {
     id: 'q53', company: 'zomato', role: 'SDE2', topic: 'system-design', topicPath: 'System Design',
     difficulty: 'Hard', round: 'System Design',
@@ -680,7 +680,7 @@ export const QUESTIONS = [
     tech: ['Java', 'Python'],
   },
 
-  // â”€â”€ Razorpay â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Razorpay ──────────────────────────────────────────────────────────────
   {
     id: 'q55', company: 'razorpay', role: 'SDE2', topic: 'system-design', topicPath: 'System Design',
     difficulty: 'Hard', round: 'System Design',
@@ -696,7 +696,7 @@ export const QUESTIONS = [
     tech: ['REST', 'Distributed Systems'],
   },
 
-  // â”€â”€ PhonePe â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── PhonePe ───────────────────────────────────────────────────────────────
   {
     id: 'q57', company: 'phonepe', role: 'SDE2', topic: 'system-design', topicPath: 'System Design',
     difficulty: 'Hard', round: 'System Design',
@@ -711,7 +711,7 @@ export const QUESTIONS = [
     verifyCount: 3, upvotes: 44, daysAgo: 7, asked: 16,
   },
 
-  // â”€â”€ Paytm â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Paytm ─────────────────────────────────────────────────────────────────
   {
     id: 'q59', company: 'paytm', role: 'SDE2', topic: 'system-design', topicPath: 'System Design',
     difficulty: 'Hard', round: 'System Design',
@@ -720,7 +720,7 @@ export const QUESTIONS = [
     tech: ['MySQL', 'Redis', 'Distributed Systems'],
   },
 
-  // â”€â”€ LinkedIn â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── LinkedIn ──────────────────────────────────────────────────────────────
   {
     id: 'q60', company: 'linkedin', role: 'SDE2', topic: 'system-design', topicPath: 'System Design',
     difficulty: 'Hard', round: 'System Design',
@@ -736,7 +736,7 @@ export const QUESTIONS = [
     tech: ['Distributed Systems', 'Elasticsearch', 'Kafka'],
   },
 
-  // â”€â”€ Atlassian â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Atlassian ─────────────────────────────────────────────────────────────
   {
     id: 'q62', company: 'atlassian', role: 'SDE2', topic: 'system-design', topicPath: 'System Design',
     difficulty: 'Hard', round: 'System Design',
@@ -751,7 +751,7 @@ export const QUESTIONS = [
     verifyCount: 4, upvotes: 63, daysAgo: 6, asked: 24,
   },
 
-  // â”€â”€ Uber â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Uber ──────────────────────────────────────────────────────────────────
   {
     id: 'q64', company: 'uber', role: 'SDE2', topic: 'system-design', topicPath: 'System Design',
     difficulty: 'Hard', round: 'System Design',
@@ -762,12 +762,12 @@ export const QUESTIONS = [
   {
     id: 'q65', company: 'uber', role: 'SDE2', topic: 'system-design', topicPath: 'System Design',
     difficulty: 'Hard', round: 'System Design',
-    body: 'Design Uber\'s dynamic pricing (surge) system.\nWhen supply is low and demand is high in a geofenced zone, prices increase automatically.\nExplain the data pipeline, the pricing model, how you prevent oscillations (price going up â†’ drivers rush in â†’ price drops â†’ drivers leave), and regulatory constraints.',
+    body: 'Design Uber\'s dynamic pricing (surge) system.\nWhen supply is low and demand is high in a geofenced zone, prices increase automatically.\nExplain the data pipeline, the pricing model, how you prevent oscillations (price going up → drivers rush in → price drops → drivers leave), and regulatory constraints.',
     verifyCount: 10, upvotes: 75, daysAgo: 2, asked: 74,
     tech: ['Kafka', 'Redis', 'Distributed Systems'],
   },
 
-  // â”€â”€ Stripe â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Stripe ────────────────────────────────────────────────────────────────
   {
     id: 'q66', company: 'stripe', role: 'SDE2', topic: 'system-design', topicPath: 'System Design',
     difficulty: 'Hard', round: 'System Design',
@@ -783,7 +783,7 @@ export const QUESTIONS = [
     tech: ['PostgreSQL', 'REST', 'Distributed Systems'],
   },
 
-  // â”€â”€ Salesforce â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Salesforce ────────────────────────────────────────────────────────────
   {
     id: 'q68', company: 'salesforce', role: 'SDE2', topic: 'system-design', topicPath: 'System Design',
     difficulty: 'Hard', round: 'System Design',
@@ -792,7 +792,7 @@ export const QUESTIONS = [
     tech: ['PostgreSQL', 'Distributed Systems', 'AWS'],
   },
 
-  // â”€â”€ Oracle â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Oracle ────────────────────────────────────────────────────────────────
   {
     id: 'q69', company: 'oracle', role: 'SDE2', topic: 'domain', topicPath: 'Domain',
     difficulty: 'Medium', round: 'Technical',
@@ -808,7 +808,7 @@ export const QUESTIONS = [
     tech: ['Distributed Systems', 'PostgreSQL'],
   },
 
-  // â”€â”€ Adobe â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Adobe ─────────────────────────────────────────────────────────────────
   {
     id: 'q71', company: 'adobe', role: 'SDE2', topic: 'system-design', topicPath: 'System Design',
     difficulty: 'Hard', round: 'System Design',
@@ -824,11 +824,11 @@ export const QUESTIONS = [
     tech: ['Java', 'C++'],
   },
 
-  // â”€â”€ Apple â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Apple ─────────────────────────────────────────────────────────────────
   {
     id: 'q73', company: 'apple', role: 'SDE2', topic: 'system-design', topicPath: 'System Design',
     difficulty: 'Hard', round: 'System Design',
-    body: 'Design iCloud Photo Library â€” 2 billion photos synced across iPhone, iPad, and Mac.\nCover: deduplication (perceptual hashing), delta sync (only changed chunks), offline-first with conflict resolution, and privacy â€” how Apple performs server-side processing without seeing unencrypted photos.',
+    body: 'Design iCloud Photo Library — 2 billion photos synced across iPhone, iPad, and Mac.\nCover: deduplication (perceptual hashing), delta sync (only changed chunks), offline-first with conflict resolution, and privacy — how Apple performs server-side processing without seeing unencrypted photos.',
     verifyCount: 8, upvotes: 59, daysAgo: 2, asked: 57,
     tech: ['Distributed Systems', 'AWS', 'Kafka'],
   },
@@ -840,7 +840,7 @@ export const QUESTIONS = [
     tech: ['Swift', 'iOS'],
   },
 
-  // â”€â”€ Netflix â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Netflix ───────────────────────────────────────────────────────────────
   {
     id: 'q75', company: 'netflix', role: 'SDE2', topic: 'system-design', topicPath: 'System Design',
     difficulty: 'Hard', round: 'System Design',
@@ -856,7 +856,7 @@ export const QUESTIONS = [
     tech: ['Distributed Systems', 'AWS'],
   },
 
-  // â”€â”€ Airbnb â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Airbnb ────────────────────────────────────────────────────────────────
   {
     id: 'q77', company: 'airbnb', role: 'SDE2', topic: 'system-design', topicPath: 'System Design',
     difficulty: 'Hard', round: 'System Design',
@@ -2029,10 +2029,10 @@ export const SRS_CARDS = [
 // XP & dashboard data
 export const XP_EVENTS = [
   { id: 'e1', source: 'review', amount: 120, label: 'Reviewed 12 cards', ago: '2h ago' },
-  { id: 'e2', source: 'submission', amount: 80, label: 'Graded answer Â· Amazon q', ago: '5h ago' },
+  { id: 'e2', source: 'submission', amount: 80, label: 'Graded answer · Amazon q', ago: '5h ago' },
   { id: 'e3', source: 'review', amount: 60, label: 'Reviewed 6 cards', ago: 'yesterday' },
-  { id: 'e4', source: 'contribution', amount: 40, label: 'Submitted question Â· Google', ago: '2d ago' },
-  { id: 'e5', source: 'submission', amount: 100, label: 'Graded answer Â· System Design', ago: '3d ago' },
+  { id: 'e4', source: 'contribution', amount: 40, label: 'Submitted question · Google', ago: '2d ago' },
+  { id: 'e5', source: 'submission', amount: 100, label: 'Graded answer · System Design', ago: '3d ago' },
 ];
 
 export const XP_BREAKDOWN = [

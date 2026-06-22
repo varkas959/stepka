@@ -59,7 +59,7 @@ export const ExperienceModal = ({ open, onOpenChange, onSubmitted, userId, defau
         const hasInj = flagged?.some(f => f.kind === 'injection');
         toast.error(
           hasPii ? 'Please remove personal data (emails, phone numbers, IDs) before submitting.'
-          : hasInj ? 'Remove instruction-like text Ã¢â‚¬â€ just describe the questions you were asked.'
+          : hasInj ? 'Remove instruction-like text — just describe the questions you were asked.'
           : 'Submission flagged by moderation. Please revise.'
         );
         setSubmitting(false);
@@ -94,7 +94,7 @@ export const ExperienceModal = ({ open, onOpenChange, onSubmitted, userId, defau
       if (result.matchedCount > 0) bits.push(`${result.matchedCount} matched to existing questions`);
       if (result.createdCount > 0) bits.push(`${result.createdCount} new question${result.createdCount > 1 ? 's' : ''} added`);
       toast.success(
-        bits.length ? `Experience added Ã¢â‚¬â€ ${bits.join(', ')}.` : 'Interview experience added. Thank you for contributing.',
+        bits.length ? `Experience added — ${bits.join(', ')}.` : 'Interview experience added. Thank you for contributing.',
         { duration: 5000 }
       );
       setRounds([blankRound()]);
@@ -115,7 +115,7 @@ export const ExperienceModal = ({ open, onOpenChange, onSubmitted, userId, defau
             <DialogTitle className="text-xl font-semibold tracking-tight">Report your interview experience</DialogTitle>
           </div>
           <DialogDescription className="text-zinc-400 mt-1">
-            Help thousands of candidates. Your report builds real company intelligence Ã¢â‚¬â€ rounds, questions, difficulty, and outcomes.
+            Help thousands of candidates. Your report builds real company intelligence — rounds, questions, difficulty, and outcomes.
           </DialogDescription>
         </DialogHeader>
 
@@ -132,7 +132,7 @@ export const ExperienceModal = ({ open, onOpenChange, onSubmitted, userId, defau
                 className="w-full bg-zinc-900 border border-white/10 rounded-md p-2.5 text-sm font-mono text-zinc-100 focus:outline-none focus:border-white/30" />
             </div>
             <div>
-              <div className="font-mono text-[10px] uppercase tracking-[0.18em] text-zinc-500 mb-1.5">difficulty (1Ã¢â‚¬â€œ5)</div>
+              <div className="font-mono text-[10px] uppercase tracking-[0.18em] text-zinc-500 mb-1.5">difficulty (1–5)</div>
               <div className="flex items-center gap-2">
                 {[1, 2, 3, 4, 5].map(n => (
                   <button type="button" key={n} onClick={() => set('difficulty', n)}
@@ -174,13 +174,13 @@ export const ExperienceModal = ({ open, onOpenChange, onSubmitted, userId, defau
                     ))}
                   </div>
                   <input value={r.topics} onChange={e => setRound(ri, 'topics', e.target.value)}
-                    placeholder="topics asked (comma-separated) Ã¢â‚¬â€ e.g. Promises, React Performance, System Design"
+                    placeholder="topics asked (comma-separated) — e.g. Promises, React Performance, System Design"
                     className="w-full mb-2 bg-zinc-900 border border-white/10 rounded-md p-2 text-xs text-zinc-200 placeholder:text-zinc-600 focus:outline-none focus:border-white/30" />
                   <div className="space-y-1.5">
                     {r.questions.map((q, qi) => (
                       <div key={qi} className="flex items-start gap-2">
                         <textarea value={q} onChange={e => setRoundQuestion(ri, qi, e.target.value)} rows={1}
-                          placeholder={`Question ${qi + 1} you were askedÃ¢â‚¬Â¦`}
+                          placeholder={`Question ${qi + 1} you were asked…`}
                           className="flex-1 bg-zinc-900 border border-white/10 rounded-md p-2 text-sm text-zinc-100 placeholder:text-zinc-600 focus:outline-none focus:border-white/30 resize-y" />
                         {r.questions.length > 1 && (
                           <button type="button" onClick={() => removeRoundQuestion(ri, qi)} className="mt-2 text-zinc-600 hover:text-red-400"><Trash2 size={13} /></button>
@@ -190,7 +190,7 @@ export const ExperienceModal = ({ open, onOpenChange, onSubmitted, userId, defau
                     <button type="button" onClick={() => addRoundQuestion(ri)} className="font-mono text-[11px] text-zinc-500 hover:text-zinc-300">+ add question</button>
                   </div>
                   <input value={r.notes} onChange={e => setRound(ri, 'notes', e.target.value)}
-                    placeholder="round notes (optional) Ã¢â‚¬â€ vibe, format, what they focused on"
+                    placeholder="round notes (optional) — vibe, format, what they focused on"
                     className="w-full mt-2 bg-zinc-900 border border-white/10 rounded-md p-2 text-xs text-zinc-200 placeholder:text-zinc-600 focus:outline-none focus:border-white/30" />
                 </div>
               ))}
@@ -201,7 +201,7 @@ export const ExperienceModal = ({ open, onOpenChange, onSubmitted, userId, defau
           <div>
             <div className="font-mono text-[10px] uppercase tracking-[0.18em] text-zinc-500 mb-1.5">additional notes</div>
             <textarea value={form.notes} onChange={e => set('notes', e.target.value)} rows={3}
-              placeholder="Overall experience, prep advice, timeline, anything that would help the next candidateÃ¢â‚¬Â¦"
+              placeholder="Overall experience, prep advice, timeline, anything that would help the next candidate…"
               className="w-full bg-zinc-900 border border-white/10 rounded-md p-3 text-sm text-zinc-100 placeholder:text-zinc-600 focus:outline-none focus:border-white/30 resize-y" />
           </div>
 
@@ -234,7 +234,7 @@ export const ExperienceModal = ({ open, onOpenChange, onSubmitted, userId, defau
               className="inline-flex items-center gap-2 font-mono text-sm font-semibold uppercase tracking-[0.14em] px-4 py-2 rounded-md text-white hover:opacity-90 transition-opacity disabled:opacity-50"
               style={{ background: '#7C3AED' }}>
               {submitting && <Loader2 size={14} className="animate-spin" />}
-              {submitting ? 'SubmittingÃ¢â‚¬Â¦' : 'Submit experience'}
+              {submitting ? 'Submitting…' : 'Submit experience'}
             </button>
             <button type="button" onClick={() => onOpenChange(false)}
               className="font-mono text-sm px-3 py-2 rounded-md border border-white/10 bg-zinc-900 hover:bg-zinc-800 text-zinc-100">Cancel</button>

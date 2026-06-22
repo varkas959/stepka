@@ -15,12 +15,12 @@ const COMPANY_OPTS = COMPANIES.map(c => ({ id: c.id, label: c.name }));
 const ROLE_OPTS = ROLES.map(r => ({ id: r, label: r }));
 const DIFF_OPTS = DIFFICULTIES.map(d => ({ id: d, label: d }));
 const ROUND_OPTS = ROUND_TYPES.map(r => ({ id: r, label: r }));
-const EXP_OPTS = ['0Ã¢â‚¬â€œ2 Years', '2Ã¢â‚¬â€œ5 Years', '5Ã¢â‚¬â€œ8 Years', '8Ã¢â‚¬â€œ12 Years', '12+ Years'].map(e => ({ id: e, label: e }));
+const EXP_OPTS = ['0–2 Years', '2–5 Years', '5–8 Years', '8–12 Years', '12+ Years'].map(e => ({ id: e, label: e }));
 const SOURCE_OPTS = ['Community Report', 'My Interview', 'Glassdoor', 'LinkedIn', 'Other'].map(s => ({ id: s, label: s }));
 
 const PROFILE_OPTIONS = [
   { id: 'anonymous', label: 'Remain anonymous',  desc: 'Your name and role are hidden' },
-  { id: 'role',      label: 'Show my role only', desc: 'e.g. "Senior SDE, 5Ã¢â‚¬â€œ8 years"' },
+  { id: 'role',      label: 'Show my role only', desc: 'e.g. "Senior SDE, 5–8 years"' },
   { id: 'name',      label: 'Show my name',       desc: 'Your display name is visible' },
 ];
 
@@ -28,7 +28,7 @@ export const AddQuestionModal = ({ open, onOpenChange, onAdded, userId }) => {
   const [form, setForm] = useState({
     company: 'amazon', role: 'SDE2', topic: 'arrays',
     difficulty: 'Medium', round: 'Technical', body: '',
-    experience: '2Ã¢â‚¬â€œ5 Years', source: 'Community Report',
+    experience: '2–5 Years', source: 'Community Report',
   });
   const [profile, setProfile] = useState('anonymous');
   const [submitting, setSubmitting] = useState(false);
@@ -75,7 +75,7 @@ export const AddQuestionModal = ({ open, onOpenChange, onAdded, userId }) => {
         isUserSubmitted: true,
       };
 
-      // Save to Supabase (fire and forget Ã¢â‚¬â€ show immediately regardless)
+      // Save to Supabase (fire and forget — show immediately regardless)
       saveUserQuestion(newQuestion, userId).then(saved => {
         if (saved?.id) newQuestion.id = saved.id;
       });
@@ -83,7 +83,7 @@ export const AddQuestionModal = ({ open, onOpenChange, onAdded, userId }) => {
       onAdded?.(newQuestion);
       onOpenChange(false);
       toast.success('Question added! It\'s now live in the question bank. +40 XP', { duration: 4000 });
-      setForm({ company: 'amazon', role: 'SDE2', topic: 'arrays', difficulty: 'Medium', round: 'Technical', body: '', experience: '2Ã¢â‚¬â€œ5 Years', source: 'Community Report' });
+      setForm({ company: 'amazon', role: 'SDE2', topic: 'arrays', difficulty: 'Medium', round: 'Technical', body: '', experience: '2–5 Years', source: 'Community Report' });
       setProfile('anonymous');
     } catch (err) {
       toast.error(err?.response?.data?.detail || err.message || 'Submission failed. Try again.');
@@ -151,7 +151,7 @@ export const AddQuestionModal = ({ open, onOpenChange, onAdded, userId }) => {
               className="w-full bg-zinc-900 border border-white/10 rounded-md p-3 text-sm font-mono text-zinc-100 placeholder:text-zinc-600 focus:outline-none focus:border-white/30 transition-colors resize-y"
             />
             <div className="font-mono text-[11px] text-zinc-600 mt-1.5 flex justify-between">
-              <span>// min 30 chars Ã‚Â· no URLs Ã‚Â· keep it interview-relevant</span>
+              <span>// min 30 chars · no URLs · keep it interview-relevant</span>
               <span className={form.body.length < 30 ? 'text-red-400' : 'text-emerald-400'}>{form.body.length} chars</span>
             </div>
           </div>
@@ -178,7 +178,7 @@ export const AddQuestionModal = ({ open, onOpenChange, onAdded, userId }) => {
           )}
 
           <div className="rounded-md border border-emerald-500/30 bg-emerald-500/[0.04] p-3 font-mono text-xs text-zinc-300">
-            <span className="text-emerald-400">// reward</span> &nbsp;Your question goes live immediately Ã¢â€ â€™ earn +40 XP.
+            <span className="text-emerald-400">// reward</span> &nbsp;Your question goes live immediately → earn +40 XP.
           </div>
 
           <div className="flex items-center gap-2 pt-1">
@@ -186,7 +186,7 @@ export const AddQuestionModal = ({ open, onOpenChange, onAdded, userId }) => {
               className="inline-flex items-center gap-2 font-mono text-sm font-semibold uppercase tracking-[0.14em] px-4 py-2 rounded-md text-white hover:opacity-90 transition-opacity disabled:opacity-50"
               style={{ background: 'var(--accent)' }}>
               {submitting && <Loader2 size={14} className="animate-spin" />}
-              {submitting ? 'AddingÃ¢â‚¬Â¦' : 'Add question'}
+              {submitting ? 'Adding…' : 'Add question'}
             </button>
             <button type="button" onClick={() => onOpenChange(false)}
               className="font-mono text-sm px-3 py-2 rounded-md border border-white/10 bg-zinc-900 hover:bg-zinc-800 text-zinc-100">Cancel</button>

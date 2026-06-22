@@ -5,9 +5,9 @@ import { ArrowLeft, Star, CheckCircle } from 'lucide-react';
 import { supabase } from '../lib/supabaseClient';
 
 const CATEGORIES = [
-  { id: 'bug',     label: 'ðŸ› Report a Bug' },
-  { id: 'feature', label: 'ðŸ’¡ Suggest a Feature' },
-  { id: 'question', label: 'â“ Ask a Question' },
+  { id: 'bug',     label: '🐛 Report a Bug' },
+  { id: 'feature', label: '💡 Suggest a Feature' },
+  { id: 'question', label: '❓ Ask a Question' },
 ];
 
 export default function FeedbackPage() {
@@ -45,7 +45,7 @@ export default function FeedbackPage() {
   if (done) {
     return (
       <div className="min-h-screen bg-zinc-950 text-zinc-50 flex flex-col items-center justify-center px-4">
-        <Helmet><title>Feedback Â· Stepkai</title></Helmet>
+        <Helmet><title>Feedback · Stepkai</title></Helmet>
         <CheckCircle size={48} className="text-emerald-400 mb-5" strokeWidth={1.5} />
         <h1 className="text-2xl font-semibold text-zinc-50 mb-2">Thanks for the feedback!</h1>
         <p className="text-zinc-400 text-sm mb-8 text-center max-w-sm">We read every submission and use it to improve Stepkai.</p>
@@ -59,7 +59,7 @@ export default function FeedbackPage() {
   return (
     <div className="min-h-screen bg-zinc-950 text-zinc-50">
       <Helmet>
-        <title>Feedback Â· Stepkai</title>
+        <title>Feedback · Stepkai</title>
         <meta name="description" content="Send feedback, report a bug, or suggest a feature for Stepkai." />
       </Helmet>
 
@@ -113,8 +113,8 @@ export default function FeedbackPage() {
               onChange={e => { setMessage(e.target.value); setError(''); }}
               rows={6}
               placeholder={
-                category === 'bug' ? 'Describe the bug â€” what happened, what did you expect, steps to reproduceâ€¦' :
-                category === 'feature' ? 'What would you like to see in Stepkai? The more detail the betterâ€¦' :
+                category === 'bug' ? 'Describe the bug — what happened, what did you expect, steps to reproduce…' :
+                category === 'feature' ? 'What would you like to see in Stepkai? The more detail the better…' :
                 'What would you like to know?'
               }
               className="w-full bg-zinc-900 border border-white/10 rounded-lg px-4 py-3 text-sm text-zinc-100 placeholder:text-zinc-600 focus:outline-none focus:border-blue-500/40 resize-y font-mono"
@@ -165,7 +165,7 @@ export default function FeedbackPage() {
             className="w-full font-mono text-sm font-semibold uppercase tracking-[0.14em] px-5 py-3 rounded-md text-white hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
             style={{ background: 'var(--accent)' }}
           >
-            {submitting ? 'Sendingâ€¦' : 'Send feedback'}
+            {submitting ? 'Sending…' : 'Send feedback'}
           </button>
         </form>
       </main>

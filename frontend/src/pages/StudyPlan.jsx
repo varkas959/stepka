@@ -41,7 +41,7 @@ export default function StudyPlan({ isGuest = false }) {
 
   const companyName = COMPANIES.find(c => c.id === company)?.name || company;
 
-  // Ã¢â€â‚¬Ã¢â€â‚¬ Step 1: Extract competencies + generate screening questions Ã¢â€â‚¬Ã¢â€â‚¬
+  // ── Step 1: Extract competencies + generate screening questions ──
   const startAssessment = async () => {
     if (isGuest) { window.location.href = '/signin'; return; }
     if (!jd.trim()) { toast.error('Paste a job description first.'); return; }
@@ -64,7 +64,7 @@ export default function StudyPlan({ isGuest = false }) {
     }
   };
 
-  // Ã¢â€â‚¬Ã¢â€â‚¬ Step 2: Record answer and advance Ã¢â€â‚¬Ã¢â€â‚¬
+  // ── Step 2: Record answer and advance ──
   const recordAndAdvance = (answerPayload) => {
     const q = questions[currentQ];
     const newAnswers = { ...answers, [q.id]: { ...answerPayload, competency: q.competency, question: q.question, type: q.type, correctAnswer: q.correctAnswer, correctOrder: q.correctOrder, evaluation_criteria: q.evaluation_criteria } };
@@ -76,7 +76,7 @@ export default function StudyPlan({ isGuest = false }) {
     }
   };
 
-  // Ã¢â€â‚¬Ã¢â€â‚¬ Step 3: Evaluate screening answers Ã¢â€â‚¬Ã¢â€â‚¬
+  // ── Step 3: Evaluate screening answers ──
   const runEvaluation = async (finalAnswers, phase) => {
     setStep('evaluating');
     try {
@@ -100,7 +100,7 @@ export default function StudyPlan({ isGuest = false }) {
     }
   };
 
-  // Ã¢â€â‚¬Ã¢â€â‚¬ Step 4a: Skip deep-dive, go straight to gap analysis Ã¢â€â‚¬Ã¢â€â‚¬
+  // ── Step 4a: Skip deep-dive, go straight to gap analysis ──
   const skipDeepDive = () => {
     const r = screeningResult;
     setHeatmap(r.heatmap || []);
@@ -112,7 +112,7 @@ export default function StudyPlan({ isGuest = false }) {
     setStep('gaps');
   };
 
-  // Ã¢â€â‚¬Ã¢â€â‚¬ Step 4b: Start deep-dive Ã¢â€â‚¬Ã¢â€â‚¬
+  // ── Step 4b: Start deep-dive ──
   const startDeepDive = async () => {
     setStep('deep-generating');
     try {
@@ -145,7 +145,7 @@ export default function StudyPlan({ isGuest = false }) {
     }
   };
 
-  // Ã¢â€â‚¬Ã¢â€â‚¬ Step 4c: Gap Intelligence Ã¢â‚¬â€ classify + fetch per-skill deep cards Ã¢â€â‚¬Ã¢â€â‚¬
+  // ── Step 4c: Gap Intelligence — classify + fetch per-skill deep cards ──
   const runGapIntelligence = async () => {
     const classified = classifySkills(heatmap, { companyId: company, role });
     setGapIntel(classified);
@@ -173,7 +173,7 @@ export default function StudyPlan({ isGuest = false }) {
     }
   };
 
-  // Ã¢â€â‚¬Ã¢â€â‚¬ Step 5: Generate plan Ã¢â€â‚¬Ã¢â€â‚¬
+  // ── Step 5: Generate plan ──
   const buildPlan = async () => {
     setStep('generating');
     try {
@@ -213,18 +213,18 @@ export default function StudyPlan({ isGuest = false }) {
       )}
       {step !== 'input' && (
         <>
-          <h1 className="text-3xl md:text-4xl font-semibold tracking-tight text-zinc-50 mt-1">JD Ã¢â€ â€™ assess Ã¢â€ â€™ plan</h1>
+          <h1 className="text-3xl md:text-4xl font-semibold tracking-tight text-zinc-50 mt-1">JD → assess → plan</h1>
           <p className="text-zinc-300 mt-2 text-base max-w-xl leading-loose">
             Paste a JD, complete a mixed-format assessment, then get a personalised roadmap built on your actual gaps.
           </p>
           <Stepper step={step} />
         </>
       )}
-      {(step === 'extracting') && <LoadingCard color="emerald" text="Extracting competenciesÃ¢â‚¬Â¦" sub="Generating 10 mixed-format questions" />}
-      {(step === 'evaluating') && <LoadingCard color="amber" text="Evaluating your answersÃ¢â‚¬Â¦" sub="Applying confidence-weighted scoring" />}
-      {(step === 'deep-generating') && <LoadingCard color="amber" text="Preparing deep-dive questionsÃ¢â‚¬Â¦" sub={`Targeting your ${screeningResult?.deepDiveSkills?.length} weak areas`} />}
-      {(step === 'generating') && <LoadingCard color="amber" text="Building your personalised roadmapÃ¢â‚¬Â¦" sub="Tailoring every task to your gaps" />}
-      {(step === 'gap-intel-loading') && <LoadingCard color="amber" text="Running Gap IntelligenceÃ¢â‚¬Â¦" sub="Cross-checking your answers against real interview data" />}
+      {(step === 'extracting') && <LoadingCard color="emerald" text="Extracting competencies…" sub="Generating 10 mixed-format questions" />}
+      {(step === 'evaluating') && <LoadingCard color="amber" text="Evaluating your answers…" sub="Applying confidence-weighted scoring" />}
+      {(step === 'deep-generating') && <LoadingCard color="amber" text="Preparing deep-dive questions…" sub={`Targeting your ${screeningResult?.deepDiveSkills?.length} weak areas`} />}
+      {(step === 'generating') && <LoadingCard color="amber" text="Building your personalised roadmap…" sub="Tailoring every task to your gaps" />}
+      {(step === 'gap-intel-loading') && <LoadingCard color="amber" text="Running Gap Intelligence…" sub="Cross-checking your answers against real interview data" />}
 
       {(step === 'screening' || step === 'deep-dive') && (
         <AssessmentQuiz
@@ -264,7 +264,7 @@ export default function StudyPlan({ isGuest = false }) {
   );
 }
 
-// Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ Input step Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+// ─── Input step ──────────────────────────────────────────────────────────────
 const InputStep = ({ jd, setJd, company, setCompany, role, setRole, onStart }) => (
   <div className="mt-4 animate-fade-up">
     {/* Page title */}
@@ -286,7 +286,7 @@ const InputStep = ({ jd, setJd, company, setCompany, role, setRole, onStart }) =
           ].map(({ label, desc }) => (
             <li key={label} className="flex items-start gap-3">
               <span className="mt-0.5 w-5 h-5 rounded-full flex items-center justify-center shrink-0 text-[11px]"
-                style={{ background: 'rgba(34,197,94,0.12)', color: '#22c55e' }}>Ã¢Å“â€œ</span>
+                style={{ background: 'rgba(34,197,94,0.12)', color: '#22c55e' }}>✓</span>
               <div>
                 <div className="text-sm font-medium text-zinc-100">{label}</div>
                 <div className="text-[12px] text-zinc-500 mt-0.5 leading-relaxed">{desc}</div>
@@ -300,7 +300,7 @@ const InputStep = ({ jd, setJd, company, setCompany, role, setRole, onStart }) =
           <div className="space-y-2.5">
             {[
               { n: '1', t: 'Paste job description', d: 'Any JD from LinkedIn, Naukri, company sites' },
-              { n: '2', t: 'Answer 10 questions',   d: 'Mixed format Ã¢â‚¬â€ scenario, MCQ, ranking, free-text' },
+              { n: '2', t: 'Answer 10 questions',   d: 'Mixed format — scenario, MCQ, ranking, free-text' },
               { n: '3', t: 'Get your roadmap',      d: 'Gap-prioritised 14-day plan built on your answers' },
             ].map(({ n, t, d }) => (
               <div key={n} className="flex items-start gap-3">
@@ -328,17 +328,17 @@ const InputStep = ({ jd, setJd, company, setCompany, role, setRole, onStart }) =
         {/* Textarea */}
         <textarea value={jd} onChange={e => setJd(e.target.value)} rows={10}
           className="w-full bg-transparent border-0 px-5 py-4 text-sm font-mono text-zinc-100 placeholder:text-zinc-600 focus:outline-none resize-y leading-relaxed"
-          placeholder={"// Paste the full job description hereÃ¢â‚¬Â¦\n//\n// Tip: include the requirements section\n// for the most accurate gap analysis."} />
+          placeholder={"// Paste the full job description here…\n//\n// Tip: include the requirements section\n// for the most accurate gap analysis."} />
 
         {/* Company + Role */}
         <div className="px-5 pb-4 grid grid-cols-1 sm:grid-cols-2 gap-3 border-t border-white/6 pt-4">
           <div>
             <Select label="Target company" value={company} onChange={setCompany}
-              options={ACTIVE_COMPANIES.map(c => ({ id: c.id, label: c.name }))} placeholder="Search companyÃ¢â‚¬Â¦" />
+              options={ACTIVE_COMPANIES.map(c => ({ id: c.id, label: c.name }))} placeholder="Search company…" />
           </div>
           <div>
             <Select label="Target role" value={role} onChange={setRole}
-              options={ACTIVE_ROLES.map(r => ({ id: r, label: r }))} placeholder="Search roleÃ¢â‚¬Â¦" />
+              options={ACTIVE_ROLES.map(r => ({ id: r, label: r }))} placeholder="Search role…" />
           </div>
         </div>
 
@@ -346,7 +346,7 @@ const InputStep = ({ jd, setJd, company, setCompany, role, setRole, onStart }) =
         <div className="mx-5 mb-4 rounded-lg border border-white/8 overflow-hidden" style={{ background: 'var(--page)' }}>
           <div className="px-4 py-2.5 border-b border-white/6 flex items-center gap-2" style={{ background: 'var(--inset)' }}>
             <span className="w-1.5 h-1.5 rounded-full bg-zinc-600 inline-block" />
-            <span className="font-mono text-[11px] uppercase tracking-[0.14em] text-zinc-500">Sample output Ã‚Â· Business Analyst at Google</span>
+            <span className="font-mono text-[11px] uppercase tracking-[0.14em] text-zinc-500">Sample output · Business Analyst at Google</span>
           </div>
           <div className="px-4 py-4 grid grid-cols-2 sm:grid-cols-4 gap-4">
             <div>
@@ -354,7 +354,7 @@ const InputStep = ({ jd, setJd, company, setCompany, role, setRole, onStart }) =
               <div className="space-y-1">
                 {['SQL', 'Stakeholder Mgmt', 'Requirements'].map(s => (
                   <div key={s} className="flex items-center gap-1.5">
-                    <span className="text-[11px]" style={{ color: '#22c55e' }}>Ã¢Å“â€œ</span>
+                    <span className="text-[11px]" style={{ color: '#22c55e' }}>✓</span>
                     <span className="font-mono text-[12px] text-zinc-300">{s}</span>
                   </div>
                 ))}
@@ -370,7 +370,7 @@ const InputStep = ({ jd, setJd, company, setCompany, role, setRole, onStart }) =
               <div className="space-y-1">
                 {['Process Mapping', 'Data Analysis', 'Reporting'].map(g => (
                   <div key={g} className="flex items-center gap-1.5">
-                    <span className="text-[11px] text-zinc-600">Ã¢â‚¬Â¢</span>
+                    <span className="text-[11px] text-zinc-600">•</span>
                     <span className="font-mono text-[12px] text-zinc-400">{g}</span>
                   </div>
                 ))}
@@ -387,7 +387,7 @@ const InputStep = ({ jd, setJd, company, setCompany, role, setRole, onStart }) =
         {/* Footer */}
         <div className="px-5 py-4 border-t border-white/6 flex items-center justify-between gap-3" style={{ background: 'var(--inset)' }}>
           <div className="text-[12px] font-mono text-zinc-500">
-            {jd.length > 0 ? <span>{jd.length} chars Ã‚Â· <span style={{ color: jd.length > 200 ? '#22c55e' : '#f59e0b' }}>{jd.length > 200 ? 'Good length' : 'Add more for best results'}</span></span> : 'No JD pasted yet'}
+            {jd.length > 0 ? <span>{jd.length} chars · <span style={{ color: jd.length > 200 ? '#22c55e' : '#f59e0b' }}>{jd.length > 200 ? 'Good length' : 'Add more for best results'}</span></span> : 'No JD pasted yet'}
           </div>
           <button onClick={onStart} disabled={!jd.trim()}
             className="inline-flex items-center gap-2 text-sm font-semibold px-5 py-2.5 rounded-lg text-white hover:opacity-90 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
@@ -400,7 +400,7 @@ const InputStep = ({ jd, setJd, company, setCompany, role, setRole, onStart }) =
   </div>
 );
 
-// Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ Loading card Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+// ─── Loading card ─────────────────────────────────────────────────────────────
 const LoadingCard = ({ color, text, sub }) => (
   <div className="mt-7 rounded-lg border border-white/10 bg-zinc-950 p-14 flex flex-col items-center animate-fade-up">
     <Loader2 size={28} className={`animate-spin ${color === 'emerald' ? 'text-emerald-400' : 'text-blue-400'}`} />
@@ -409,7 +409,7 @@ const LoadingCard = ({ color, text, sub }) => (
   </div>
 );
 
-// Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ Assessment quiz (dispatches to question-type components) Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+// ─── Assessment quiz (dispatches to question-type components) ─────────────────
 const AssessmentQuiz = ({ questions, currentQ, onAnswer, label }) => {
   const [selected, setSelected] = useState(null);      // MCQ/Scenario: 'A'|'B'|'C'|'D'
   const [rankOrder, setRankOrder] = useState([]);       // Ranking: string[]
@@ -446,7 +446,7 @@ const AssessmentQuiz = ({ questions, currentQ, onAnswer, label }) => {
   return (
     <div className="mt-7 animate-fade-up">
       <div className="flex items-center justify-between mb-2 font-mono text-sm text-zinc-400">
-        <span>{label} Ã‚Â· question <span className="text-zinc-100 font-semibold">{currentQ + 1}</span> of {total}</span>
+        <span>{label} · question <span className="text-zinc-100 font-semibold">{currentQ + 1}</span> of {total}</span>
         <span className="font-mono text-[10px] px-2 py-0.5 rounded border shrink-0 ml-2 {TYPE_COLOR[q.type]}"
           style={{ color: q.type === 'mcq' ? '#60a5fa' : q.type === 'scenario_selection' ? '#c084fc' : q.type === 'ranking' ? '#fbbf24' : '#34d399' }}>
           {TYPE_LABEL[q.type]}
@@ -477,7 +477,7 @@ const AssessmentQuiz = ({ questions, currentQ, onAnswer, label }) => {
         <div className="border-t border-white/5 p-4 flex items-center justify-between gap-3">
           <button onClick={handleSkip}
             className="font-mono text-sm px-4 py-2 rounded-md border border-white/10 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 hover:text-zinc-100 transition-colors">
-            Skip Ã¢â€ â€™
+            Skip →
           </button>
           <button onClick={handleNext} disabled={!canSubmit() && q.type !== 'free_text'}
             className="inline-flex items-center gap-2 font-mono text-sm font-semibold uppercase tracking-[0.14em] px-5 py-2.5 rounded-md text-white hover:opacity-90 transition-opacity disabled:opacity-40"
@@ -533,7 +533,7 @@ const RankingPicker = ({ items, order, setOrder }) => {
             <div key={item} className="flex items-center gap-2 p-2 rounded-md border border-emerald-500/25 bg-emerald-500/[0.04]">
               <span className="font-mono text-sm text-emerald-400 w-4 shrink-0">{i + 1}.</span>
               <span className="font-mono text-sm text-zinc-200 flex-1">{item}</span>
-              <button onClick={() => removeItem(item)} className="font-mono text-[12px] text-zinc-500 hover:text-red-400 transition-colors">Ã¢Å“â€¢</button>
+              <button onClick={() => removeItem(item)} className="font-mono text-[12px] text-zinc-500 hover:text-red-400 transition-colors">✕</button>
             </div>
           ))}
         </div>
@@ -551,17 +551,17 @@ const FreeTextInput = ({ value, onChange, criteria }) => (
       <div className="mb-3 p-3 rounded-md border border-zinc-800 bg-zinc-900/50">
         <div className="font-mono text-[12px] uppercase tracking-[0.18em] text-zinc-400 mb-1.5">Strong answers cover:</div>
         <ul className="space-y-0.5">
-          {criteria.map((c, i) => <li key={i} className="font-mono text-sm text-zinc-300 leading-relaxed">Ã‚Â· {c}</li>)}
+          {criteria.map((c, i) => <li key={i} className="font-mono text-sm text-zinc-300 leading-relaxed">· {c}</li>)}
         </ul>
       </div>
     )}
     <textarea value={value} onChange={e => onChange(e.target.value)} rows={5}
-      placeholder="Type your answerÃ¢â‚¬Â¦ or skip if you don't know."
+      placeholder="Type your answer… or skip if you don't know."
       className="w-full bg-zinc-900 border border-white/10 rounded-md p-4 text-base font-mono text-zinc-100 placeholder:text-zinc-500 focus:outline-none focus:border-white/30 resize-y leading-loose" />
   </div>
 );
 
-// Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ Screening results Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+// ─── Screening results ────────────────────────────────────────────────────────
 const ScreeningResults = ({ result, onSkip, onDeepDive }) => {
   const { heatmap, gaps, readiness, summary, needsDeepDive, deepDiveCount, deepDiveSkills } = result;
   const rc = readiness < 40 ? '#ef4444' : readiness < 60 ? '#f97316' : readiness < 75 ? '#f59e0b' : '#22c55e';
@@ -613,7 +613,7 @@ const ScreeningResults = ({ result, onSkip, onDeepDive }) => {
                 </button>
                 <button onClick={onSkip}
                   className="font-mono text-sm px-4 py-2.5 rounded-md border border-white/10 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 hover:text-zinc-100 transition-colors">
-                  Skip Ã¢â€ â€™ Generate plan now
+                  Skip → Generate plan now
                 </button>
               </div>
             </div>
@@ -632,7 +632,7 @@ const ScreeningResults = ({ result, onSkip, onDeepDive }) => {
   );
 };
 
-// Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ Final gap view Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+// ─── Final gap view ───────────────────────────────────────────────────────────
 const GapView = ({ heatmap, gaps, readiness, summary, company, role, onContinue, onBack }) => {
   const rc = readiness < 40 ? '#ef4444' : readiness < 60 ? '#f97316' : readiness < 75 ? '#f59e0b' : '#22c55e';
   return (
@@ -640,7 +640,7 @@ const GapView = ({ heatmap, gaps, readiness, summary, company, role, onContinue,
       <div className="rounded-lg border border-white/10 bg-zinc-950 p-6">
         <div className="flex items-start justify-between gap-4 flex-wrap">
           <div>
-            <div className="font-mono text-[12px] uppercase tracking-[0.22em] text-zinc-400 mb-2">Final readiness Ã‚Â· {company} {role}</div>
+            <div className="font-mono text-[12px] uppercase tracking-[0.22em] text-zinc-400 mb-2">Final readiness · {company} {role}</div>
             <div className="font-mono text-6xl font-semibold" style={{ color: rc }}>{readiness}<span className="text-2xl text-zinc-500">%</span></div>
           </div>
           <div className="flex-1 min-w-[200px]">
@@ -674,10 +674,10 @@ const GapView = ({ heatmap, gaps, readiness, summary, company, role, onContinue,
 
       {(gaps.critical?.length > 0 || gaps.weak?.length > 0 || gaps.moderate?.length > 0 || gaps.strong?.length > 0) && (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          {gaps.critical?.length > 0 && <GapBucket color="#ef4444" label="Critical gaps" items={gaps.critical} desc="Front-loaded days 1Ã¢â‚¬â€œ7 with maximum effort." />}
-          {gaps.weak?.length > 0 && <GapBucket color="#f97316" label="Weak areas" items={gaps.weak} desc="Covered days 5Ã¢â‚¬â€œ10 with targeted exercises." />}
+          {gaps.critical?.length > 0 && <GapBucket color="#ef4444" label="Critical gaps" items={gaps.critical} desc="Front-loaded days 1–7 with maximum effort." />}
+          {gaps.weak?.length > 0 && <GapBucket color="#f97316" label="Weak areas" items={gaps.weak} desc="Covered days 5–10 with targeted exercises." />}
           {gaps.moderate?.length > 0 && <GapBucket color="#f59e0b" label="Moderate" items={gaps.moderate} desc="Reinforced in mid-plan revision sessions." />}
-          {gaps.strong?.length > 0 && <GapBucket color="#22c55e" label="Strengths" items={gaps.strong} desc="Maintenance cadence Ã¢â‚¬â€ minimal prep needed." />}
+          {gaps.strong?.length > 0 && <GapBucket color="#22c55e" label="Strengths" items={gaps.strong} desc="Maintenance cadence — minimal prep needed." />}
         </div>
       )}
 
@@ -706,7 +706,7 @@ const GapBucket = ({ color, label, items, desc }) => (
   </div>
 );
 
-// Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ Gap Intelligence view Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+// ─── Gap Intelligence view ────────────────────────────────────────────────────
 // The differentiator: classifies skills into 4 evidence-backed categories and
 // surfaces per-skill "why it matters / what they test / mistakes / activities".
 const GapIntelligenceView = ({ intel, cards, company, role, onChallenge, onContinue, onBack }) => {
@@ -716,7 +716,7 @@ const GapIntelligenceView = ({ intel, cards, company, role, onChallenge, onConti
 
   const CATS = [
     { key: 'highRisk',  items: highRisk,        Icon: Flame,        color: '#ef4444', label: 'High interview risk',
-      blurb: 'Weak AND frequently asked at this company/role. Fix these first Ã¢â‚¬â€ highest expected impact.' },
+      blurb: 'Weak AND frequently asked at this company/role. Fix these first — highest expected impact.' },
     { key: 'falseConf', items: falseConfidence, Icon: Eye,          color: '#a855f7', label: 'False confidence',
       blurb: 'You recognised correct answers but could not recall or articulate them. The interview tests recall, not recognition.' },
     { key: 'weak',      items: weak,            Icon: AlertTriangle,color: '#f97316', label: 'Weak skills',
@@ -733,7 +733,7 @@ const GapIntelligenceView = ({ intel, cards, company, role, onChallenge, onConti
           <div className="font-mono text-[12px] uppercase tracking-[0.22em] text-zinc-300">Gap Intelligence</div>
         </div>
         <p className="font-mono text-sm text-zinc-400 leading-loose mt-1">
-          Not a generic skill list Ã¢â‚¬â€ this is built from <span className="text-zinc-200">your actual answers</span> cross-checked against <span className="text-zinc-200">real reported {company} interview questions</span>.
+          Not a generic skill list — this is built from <span className="text-zinc-200">your actual answers</span> cross-checked against <span className="text-zinc-200">real reported {company} interview questions</span>.
         </p>
       </div>
 
@@ -775,14 +775,14 @@ const GapIntelligenceView = ({ intel, cards, company, role, onChallenge, onConti
               <span className="font-mono text-sm text-zinc-100 font-semibold">{h.skill}</span>
               <span className="font-mono text-[10px] px-1.5 py-0.5 rounded border border-white/10 text-zinc-400">risk {h.riskScore}</span>
               {h.frequency?.questionCount > 0 && (
-                <span className="font-mono text-[10px] text-zinc-500 hidden sm:inline">asked ~{h.frequency.askCount}Ãƒâ€” Ã‚Â· {h.frequency.questionCount} reported</span>
+                <span className="font-mono text-[10px] text-zinc-500 hidden sm:inline">asked ~{h.frequency.askCount}× · {h.frequency.questionCount} reported</span>
               )}
               <ChevronDown size={15} className={`ml-auto text-zinc-500 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
             </button>
             {isOpen && (
               <div className="px-5 pb-5 border-t border-white/5 pt-4 space-y-4">
                 {!card ? (
-                  <div className="flex items-center gap-2 font-mono text-xs text-zinc-500"><Loader2 size={13} className="animate-spin" /> Generating intelligence for this skillÃ¢â‚¬Â¦</div>
+                  <div className="flex items-center gap-2 font-mono text-xs text-zinc-500"><Loader2 size={13} className="animate-spin" /> Generating intelligence for this skill…</div>
                 ) : (
                   <>
                     <Field label="Why it matters in interviews" text={card.whyItMatters} />
@@ -791,7 +791,7 @@ const GapIntelligenceView = ({ intel, cards, company, role, onChallenge, onConti
                       <div>
                         <div className="font-mono text-[11px] uppercase tracking-[0.18em] text-zinc-500 mb-1.5">Most common mistakes</div>
                         <ul className="space-y-1">
-                          {card.commonMistakes.map((m, i) => <li key={i} className="font-mono text-[13px] text-zinc-300 leading-relaxed flex gap-2"><span className="text-red-400">Ã¢Å“â€¢</span>{m}</li>)}
+                          {card.commonMistakes.map((m, i) => <li key={i} className="font-mono text-[13px] text-zinc-300 leading-relaxed flex gap-2"><span className="text-red-400">✕</span>{m}</li>)}
                         </ul>
                       </div>
                     )}
@@ -806,7 +806,7 @@ const GapIntelligenceView = ({ intel, cards, company, role, onChallenge, onConti
                                 <span className="font-mono text-[13px] text-zinc-100 font-medium">{a.title}</span>
                                 {a.time && <span className="ml-auto font-mono text-[10px] text-zinc-500">{a.time}</span>}
                               </div>
-                              {a.outcome && <div className="font-mono text-[12px] text-zinc-400 mt-1 leading-relaxed">Ã¢â€ â€™ {a.outcome}</div>}
+                              {a.outcome && <div className="font-mono text-[12px] text-zinc-400 mt-1 leading-relaxed">→ {a.outcome}</div>}
                             </div>
                           ))}
                         </div>
@@ -844,7 +844,7 @@ const Field = ({ label, text }) => text ? (
   </div>
 ) : null;
 
-// Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ Challenge My Readiness Ã¢â‚¬â€ adaptive interviewer Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+// ─── Challenge My Readiness — adaptive interviewer ─────────────────────────────
 const ChallengeMode = ({ company, role, skill, onExit }) => {
   const [transcript, setTranscript] = useState([]);   // [{ q, a }]
   const [current, setCurrent] = useState(null);        // { nextQuestion, probeReason, gapDetected, depthReached, confidence }
@@ -891,7 +891,7 @@ const ChallengeMode = ({ company, role, skill, onExit }) => {
       <div className="rounded-lg p-5" style={{ border: '1px solid rgba(124,58,237,0.35)', background: 'rgba(124,58,237,0.06)' }}>
         <div className="flex items-center gap-2">
           <Brain size={16} style={{ color: '#a855f7' }} />
-          <div className="font-mono text-[12px] uppercase tracking-[0.2em] text-zinc-200">Challenge mode Ã‚Â· {skill}</div>
+          <div className="font-mono text-[12px] uppercase tracking-[0.2em] text-zinc-200">Challenge mode · {skill}</div>
           <button onClick={onExit} className="ml-auto font-mono text-xs text-zinc-400 hover:text-zinc-100 border border-white/10 rounded px-2.5 py-1">Exit</button>
         </div>
         <p className="font-mono text-[12px] text-zinc-400 mt-2 leading-loose">
@@ -903,7 +903,7 @@ const ChallengeMode = ({ company, role, skill, onExit }) => {
       {transcript.map((t, i) => (
         <div key={i} className="space-y-2">
           <div className="rounded-md border border-white/8 bg-zinc-950 p-4">
-            <div className="font-mono text-[10px] uppercase tracking-[0.18em] text-zinc-500 mb-1">Interviewer Ã‚Â· Q{i + 1}</div>
+            <div className="font-mono text-[10px] uppercase tracking-[0.18em] text-zinc-500 mb-1">Interviewer · Q{i + 1}</div>
             <p className="text-[14px] text-zinc-100 leading-relaxed">{t.q}</p>
           </div>
           <div className="rounded-md border border-white/5 bg-zinc-900/40 p-4 ml-4">
@@ -914,7 +914,7 @@ const ChallengeMode = ({ company, role, skill, onExit }) => {
       ))}
 
       {loading && (
-        <div className="flex items-center gap-2 font-mono text-sm text-zinc-400 px-1"><Loader2 size={14} className="animate-spin" /> Interviewer is thinkingÃ¢â‚¬Â¦</div>
+        <div className="flex items-center gap-2 font-mono text-sm text-zinc-400 px-1"><Loader2 size={14} className="animate-spin" /> Interviewer is thinking…</div>
       )}
 
       {/* Active question */}
@@ -926,16 +926,16 @@ const ChallengeMode = ({ company, role, skill, onExit }) => {
               <span className="font-mono text-[12px] text-zinc-300">{current.gapDetected}</span>
             </div>
           )}
-          <div className="font-mono text-[10px] uppercase tracking-[0.18em] text-zinc-500 mb-1">Interviewer Ã‚Â· Q{transcript.length + 1}</div>
+          <div className="font-mono text-[10px] uppercase tracking-[0.18em] text-zinc-500 mb-1">Interviewer · Q{transcript.length + 1}</div>
           <p className="text-[15px] text-zinc-100 leading-relaxed mb-1">{current.nextQuestion}</p>
           {current.probeReason && <p className="font-mono text-[11px] text-zinc-500 italic mb-3">why this: {current.probeReason}</p>}
           <textarea value={answer} onChange={e => setAnswer(e.target.value)} rows={4}
-            placeholder="Answer in your own words. Be specific Ã¢â‚¬â€ vague answers get probed harder."
+            placeholder="Answer in your own words. Be specific — vague answers get probed harder."
             className="w-full bg-zinc-900 border border-white/10 rounded-md p-3 text-[14px] text-zinc-100 placeholder:text-zinc-600 focus:outline-none focus:border-white/30 resize-y leading-relaxed" />
           <div className="flex items-center justify-between mt-3 gap-3">
             <div className="flex items-center gap-3 font-mono text-[11px] text-zinc-500">
               <span>depth {current.depthReached}/5</span>
-              <span>Ã‚Â·</span>
+              <span>·</span>
               <span style={{ color: cc(current.confidence) }}>confidence {current.confidence}%</span>
             </div>
             <button onClick={submit}
@@ -949,10 +949,10 @@ const ChallengeMode = ({ company, role, skill, onExit }) => {
       {/* Verdict */}
       {done && verdict && (
         <div className="rounded-lg border border-white/10 bg-zinc-950 p-6">
-          <div className="font-mono text-[12px] uppercase tracking-[0.2em] text-zinc-300 mb-3">Verdict Ã‚Â· {skill}</div>
+          <div className="font-mono text-[12px] uppercase tracking-[0.2em] text-zinc-300 mb-3">Verdict · {skill}</div>
           <div className="flex items-end gap-4 mb-3 flex-wrap">
             <div className="font-mono text-4xl font-semibold" style={{ color: cc(verdict.confidence) }}>{verdict.depthReached}<span className="text-lg text-zinc-500">/5</span></div>
-            <div className="font-mono text-sm text-zinc-400 pb-1">demonstrated depth Ã‚Â· interviewer confidence {verdict.confidence}%</div>
+            <div className="font-mono text-sm text-zinc-400 pb-1">demonstrated depth · interviewer confidence {verdict.confidence}%</div>
           </div>
           {verdict.verdict && <p className="text-[14px] text-zinc-200 leading-loose">{verdict.verdict}</p>}
           <button onClick={onExit} className="mt-4 inline-flex items-center gap-2 font-mono text-sm font-semibold px-4 py-2 rounded-md text-white hover:opacity-90 transition-opacity" style={{ background: 'var(--accent)' }}>
@@ -964,7 +964,7 @@ const ChallengeMode = ({ company, role, skill, onExit }) => {
   );
 };
 
-// Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ Share panel Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+// ─── Share panel ─────────────────────────────────────────────────────────────
 const SharePanel = ({ slug }) => {
   const [copied, setCopied] = React.useState(false);
   if (!slug) return null;
@@ -1001,7 +1001,7 @@ const SharePanel = ({ slug }) => {
   );
 };
 
-// Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ Plan calendar Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+// ─── Plan calendar ────────────────────────────────────────────────────────────
 const PlanCalendar = ({ plan, expandedDay, setExpandedDay, state, onReset, reportSlug }) => {
   const company = COMPANIES.find(c => c.id === state.activePlan?.company) || COMPANIES[0];
   const days = plan?.days || [];
@@ -1014,8 +1014,8 @@ const PlanCalendar = ({ plan, expandedDay, setExpandedDay, state, onReset, repor
       <Breadcrumb segments={['study-plan', `${company.id}-${state.activePlan?.role?.toLowerCase()}`, '14-day-plan']} />
       <div className="flex items-start justify-between gap-4 mt-1 mb-4 flex-wrap">
         <div>
-          <h1 className="text-3xl md:text-5xl font-semibold tracking-tight text-zinc-50">{company.name} Ã‚Â· {state.activePlan?.role}</h1>
-          <p className="font-mono text-sm text-zinc-300 mt-2">Tap any day Ã‚Â· mock interviews in blue Ã‚Â· today in green</p>
+          <h1 className="text-3xl md:text-5xl font-semibold tracking-tight text-zinc-50">{company.name} · {state.activePlan?.role}</h1>
+          <p className="font-mono text-sm text-zinc-300 mt-2">Tap any day · mock interviews in blue · today in green</p>
         </div>
         <div className="flex items-center gap-2 flex-wrap">
           {plan?.successProbability && (
@@ -1050,7 +1050,7 @@ const PlanCalendar = ({ plan, expandedDay, setExpandedDay, state, onReset, repor
               <div className="font-mono text-[9px] text-zinc-500">d{d.day}</div>
               <div className="font-mono text-base font-semibold text-zinc-50">{d.day}</div>
               {isMock && <div className="font-mono text-[8px] text-blue-400 mt-0.5">mock</div>}
-              <div className="mt-0.5 font-mono text-[8px] text-zinc-500 truncate">{d.focus?.split('Ã‚Â·')[0]?.trim()}</div>
+              <div className="mt-0.5 font-mono text-[8px] text-zinc-500 truncate">{d.focus?.split('·')[0]?.trim()}</div>
             </button>
           );
         })}
@@ -1060,23 +1060,23 @@ const PlanCalendar = ({ plan, expandedDay, setExpandedDay, state, onReset, repor
         <div className="mt-4 rounded-lg border border-white/10 bg-zinc-950 p-5 sm:p-6 animate-fade-up">
           <div className="flex items-center gap-3 mb-5 flex-wrap">
             <span className="font-mono text-[12px] uppercase tracking-[0.18em] text-zinc-400">day {expandedData.day}</span>
-            <span className="text-zinc-500">Ã‚Â·</span>
+            <span className="text-zinc-500">·</span>
             <span className="font-mono text-base text-zinc-100 font-semibold">{expandedData.focus}</span>
             {expandedData.theme && <span className="font-mono text-[12px] text-zinc-400 hidden sm:block">{expandedData.theme}</span>}
             {expandedData.mockInterview && (
               <span className="font-mono text-[10px] px-2 py-0.5 rounded border border-blue-500/40 bg-blue-500/[0.08] text-blue-400">
-                {expandedData.mockInterview.type} Ã‚Â· {expandedData.mockInterview.duration}
+                {expandedData.mockInterview.type} · {expandedData.mockInterview.duration}
               </span>
             )}
           </div>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <div>
-              {/* New structured day model Ã¢â‚¬â€ outcome / task / success / avoid / time */}
+              {/* New structured day model — outcome / task / success / avoid / time */}
               {(expandedData.outcome || expandedData.task) ? (
                 <div className="space-y-3.5">
                   {expandedData.estimatedTime && (
                     <div className="inline-flex items-center gap-1.5 font-mono text-[11px] px-2 py-1 rounded border border-white/10 text-zinc-400">
-                      Ã¢ÂÂ± {expandedData.estimatedTime}
+                      ⏱ {expandedData.estimatedTime}
                     </div>
                   )}
                   {expandedData.outcome && (
@@ -1122,9 +1122,9 @@ const PlanCalendar = ({ plan, expandedDay, setExpandedDay, state, onReset, repor
           </div>
           {expandedData.mockInterview && (
             <div className="mt-5 rounded-md border border-blue-500/30 bg-blue-500/[0.05] p-4">
-              <div className="font-mono text-[12px] uppercase tracking-[0.18em] text-blue-400 mb-1">Mock interview Ã‚Â· {expandedData.mockInterview.type}</div>
+              <div className="font-mono text-[12px] uppercase tracking-[0.18em] text-blue-400 mb-1">Mock interview · {expandedData.mockInterview.type}</div>
               <p className="font-mono text-sm text-zinc-200">Topics: {expandedData.mockInterview.topics?.join(', ')}</p>
-              <p className="font-mono text-sm text-zinc-400 mt-1">Duration: {expandedData.mockInterview.duration} Ã‚Â· score honestly and note weaknesses</p>
+              <p className="font-mono text-sm text-zinc-400 mt-1">Duration: {expandedData.mockInterview.duration} · score honestly and note weaknesses</p>
             </div>
           )}
         </div>
@@ -1148,7 +1148,7 @@ const PlanCalendar = ({ plan, expandedDay, setExpandedDay, state, onReset, repor
   );
 };
 
-// Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ Day field (structured plan day) Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+// ─── Day field (structured plan day) ──────────────────────────────────────────
 const DayField = ({ color, label, text }) => (
   <div className="border-l-2 pl-3" style={{ borderColor: color }}>
     <div className="font-mono text-[11px] uppercase tracking-[0.18em] mb-0.5" style={{ color }}>{label}</div>
@@ -1156,7 +1156,7 @@ const DayField = ({ color, label, text }) => (
   </div>
 );
 
-// Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ Stepper Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+// ─── Stepper ──────────────────────────────────────────────────────────────────
 const Stepper = ({ step }) => {
   const steps = [{ id: 'input', label: 'JD input' }, { id: 'screening', label: 'assessment' }, { id: 'gaps', label: 'gap analysis' }, { id: 'plan', label: 'roadmap' }];
   const loadingMap = { extracting: 'input', evaluating: 'screening', 'screening-results': 'screening', 'deep-generating': 'screening', 'deep-dive': 'screening', 'deep-evaluating': 'screening', 'gap-intel': 'gaps', 'gap-intel-loading': 'gaps', challenge: 'gaps', generating: 'gaps' };
@@ -1168,7 +1168,7 @@ const Stepper = ({ step }) => {
         <div key={s.id} className="flex items-center gap-2">
           <div className={`w-5 h-5 rounded flex items-center justify-center text-[10px] transition-colors ${i < idx ? 'bg-emerald-500 text-zinc-950 font-semibold' : i === idx ? 'text-white font-semibold' : 'bg-zinc-900 text-zinc-600 border border-white/10'}`}
                style={i === idx ? { background: 'var(--accent)' } : {}}>
-            {i < idx ? 'Ã¢Å“â€œ' : i + 1}
+            {i < idx ? '✓' : i + 1}
           </div>
           <div className={i <= idx ? 'text-zinc-100' : 'text-zinc-500'}>{s.label}</div>
           {i < steps.length - 1 && <div className="w-5 h-px bg-white/10 mx-0.5" />}
@@ -1178,8 +1178,8 @@ const Stepper = ({ step }) => {
   );
 };
 
-// Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ Select Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
-const Select = ({ label, value, onChange, options, placeholder = 'Type or selectÃ¢â‚¬Â¦' }) => {
+// ─── Select ──────────────────────────────────────────────────────────────────
+const Select = ({ label, value, onChange, options, placeholder = 'Type or select…' }) => {
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState('');
   const ref = React.useRef(null);
@@ -1219,7 +1219,7 @@ const Select = ({ label, value, onChange, options, placeholder = 'Type or select
   );
 };
 
-// Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ Breadcrumb Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+// ─── Breadcrumb ──────────────────────────────────────────────────────────────
 const Breadcrumb = ({ segments }) => (
   <div className="font-mono text-sm mb-4" style={{ color: '#6B7280' }}>
     <span style={{ color: 'var(--accent)' }}>~</span>

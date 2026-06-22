@@ -13,7 +13,7 @@ export default function PublicQuestions() {
             <span className="font-mono font-semibold tracking-tight">Stepkai</span>
           </Link>
           <div className="font-mono text-xs text-zinc-500 hidden sm:block">
-            <span className="text-emerald-400">$</span> browsing as guest Â· sign in to unlock progress
+            <span className="text-emerald-400">$</span> browsing as guest · sign in to unlock progress
           </div>
           <div className="flex items-center gap-2">
             <Link to="/signin" data-testid="public-signin" className="font-mono text-sm text-zinc-300 hover:text-zinc-50 px-3 py-1.5">Sign in</Link>

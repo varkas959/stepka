@@ -1,4 +1,4 @@
-﻿import { useMemo, useState, useEffect, useRef } from 'react';
+import { useMemo, useState, useEffect, useRef } from 'react';
 import { Plus, X, ArrowUp, ArrowUpRight, Info } from 'lucide-react';
 import { toast } from 'sonner';
 import { Link } from 'react-router-dom';
@@ -239,6 +239,25 @@ export default function QuestionBank({ isGuest = false, userId }) {
         </div>
       </div>
 
+      {/* Mobile action buttons — desktop row is hidden on small screens */}
+      <div className="flex md:hidden items-center gap-2 mb-5">
+        <button
+          data-testid="report-experience-mobile"
+          onClick={handleReportExperience}
+          className="flex-1 inline-flex items-center justify-center gap-2 text-sm font-medium px-4 py-2.5 rounded-md text-white hover:opacity-90 transition-opacity"
+          style={{ background: '#7C3AED' }}
+        >
+          <Plus size={14} strokeWidth={2.25} /> Report Experience
+        </button>
+        <button
+          data-testid="add-question-mobile"
+          onClick={handleAddQuestion}
+          className="flex-1 inline-flex items-center justify-center gap-2 text-sm font-medium px-4 py-2.5 rounded-md border border-white/10 bg-zinc-900 hover:bg-zinc-800 text-zinc-100 transition-colors"
+        >
+          <Plus size={14} strokeWidth={2.25} /> Add Question
+        </button>
+      </div>
+
       {/* Inline filter bar - search + chips on one row */}
       <div className="mb-5 flex flex-wrap items-center gap-1.5" data-testid="filter-row">
         {/* Search */}
@@ -358,7 +377,7 @@ export default function QuestionBank({ isGuest = false, userId }) {
         </div>
         <span className="font-mono text-xs uppercase tracking-[0.18em] text-emerald-400 inline-flex items-center gap-1 shrink-0">
           submit <ArrowUpRight size={14} strokeWidth={2.25} />
-          <span className="hidden sm:inline">Â· unlock</span>
+          <span className="hidden sm:inline">· unlock</span>
         </span>
       </button>
 
@@ -371,7 +390,7 @@ export default function QuestionBank({ isGuest = false, userId }) {
   );
 }
 
-// â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€ Sort chip â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€
+// ───────────────────── Sort chip ─────────────────────
 const SortChip = ({ value, onChange }) => {
   const opt = SORTS.find(s => s.id === value);
   return (
@@ -398,7 +417,7 @@ const SortChip = ({ value, onChange }) => {
   );
 };
 
-// â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€ Card â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€
+// ───────────────────── Card ─────────────────────
 // Calm, low-saturation palette. Difficulty is the one chip that carries a real
 // signal, so it keeps colour — but muted ~15% so it reads without glowing.
 const NEUTRAL = { border: 'var(--chip-border)', bg: 'var(--chip-bg)', text: 'var(--chip-text)' };
@@ -483,7 +502,7 @@ const QuestionCard = ({ q, expanded, onToggleExpand, upvoted, newUpvote, asked, 
 
         {/* bottom row: chips + actions — each group wraps as a unit so mobile stays tidy.
             All pills share the same height (py-1, text-[11px]) so the row reads as one line. */}
-        <div className="flex flex-wrap items-center justify-between gap-x-2 gap-y-2">
+        <div className="flex flex-wrap items-center justify-start md:justify-between gap-x-2 gap-y-2">
           {/* chips */}
           <div className="flex flex-wrap items-center gap-1.5">
             {/* Company — uniform neutral so dark brand colours stay legible */}
@@ -541,7 +560,7 @@ const QuestionCard = ({ q, expanded, onToggleExpand, upvoted, newUpvote, asked, 
   );
 };
 
-// â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€ Blueprint modal â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€
+// ───────────────────── Blueprint modal ─────────────────────
 const BlueprintModal = ({ companyId, onClose }) => {
   if (!companyId) return null;
   const bp = COMPANY_BLUEPRINTS[companyId];
@@ -560,7 +579,7 @@ const BlueprintModal = ({ companyId, onClose }) => {
             </div>
             <div>
               <DialogTitle className="text-2xl font-semibold tracking-tight">{company.name} interview blueprint</DialogTitle>
-              <DialogDescription className="text-zinc-400 mt-1 font-mono text-xs">rounds Â· topic frequency Â· question types</DialogDescription>
+              <DialogDescription className="text-zinc-400 mt-1 font-mono text-xs">rounds · topic frequency · question types</DialogDescription>
             </div>
           </div>
         </DialogHeader>

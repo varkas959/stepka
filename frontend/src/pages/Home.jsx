@@ -70,7 +70,7 @@ export default function Home() {
   );
 }
 
-// â”€â”€â”€ Nav â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── Nav ─────────────────────────────────────────────────────────────────────
 const HomeNav = ({ session }) => (
   <header className="sticky top-0 z-30 backdrop-blur-sm" style={{ borderBottom: `1px solid ${C.border}`, background: 'var(--surface-blur)' }}>
     <div className="max-w-6xl mx-auto px-6 h-14 flex items-center justify-between">
@@ -101,7 +101,7 @@ const HomeNav = ({ session }) => (
   </header>
 );
 
-// â”€â”€â”€ Rotating report card â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── Rotating report card ─────────────────────────────────────────────────────
 const ReadinessReport = () => {
   const [idx, setIdx]       = useState(0);
   const [visible, setVisible] = useState(true);
@@ -141,7 +141,7 @@ const ReadinessReport = () => {
           <div className="flex items-start justify-between gap-4">
             <div>
               <div className="text-lg font-semibold" style={{ color: C.text1 }}>{p.company}</div>
-              <div className="font-mono text-xs mt-1" style={{ color: C.text3 }}>{p.role} Â· Technical loop</div>
+              <div className="font-mono text-xs mt-1" style={{ color: C.text3 }}>{p.role} · Technical loop</div>
             </div>
             <div className="text-right shrink-0">
               <div className="font-mono font-semibold leading-none" style={{ fontSize: 48, color: scoreClr }}>
@@ -192,11 +192,11 @@ const ReadinessReport = () => {
             <Clock size={12} style={{ color: C.text3 }} />
             <div>
               <div className="font-mono text-[10px] uppercase tracking-[0.15em]" style={{ color: C.text3 }}>Estimated Preparation</div>
-              <div className="font-mono text-sm font-semibold mt-0.5" style={{ color: C.text1 }}>{p.weeks} weeks Â· 45 min/day</div>
+              <div className="font-mono text-sm font-semibold mt-0.5" style={{ color: C.text1 }}>{p.weeks} weeks · 45 min/day</div>
             </div>
           </div>
           <Link to="/app/plan" className="font-mono text-xs hover:opacity-80 transition-opacity" style={{ color: C.accent }}>
-            Start assessment â†’
+            Start assessment →
           </Link>
         </div>
       </div>
@@ -213,7 +213,7 @@ const ReadinessReport = () => {
   );
 };
 
-// â”€â”€â”€ Hero â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── Hero ─────────────────────────────────────────────────────────────────────
 const Hero = () => (
   <section className="px-6 pt-14 pb-20">
     <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-12 lg:gap-20 items-center">
@@ -221,7 +221,7 @@ const Hero = () => (
       {/* Left */}
       <div>
         <div className="font-mono text-[10px] uppercase tracking-[0.2em] mb-6" style={{ color: C.text3 }}>
-          {QUESTIONS.length}+ questions Â· {ACTIVE_COMPANIES.length} companies
+          {QUESTIONS.length}+ questions · {ACTIVE_COMPANIES.length} companies
         </div>
 
         <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold leading-[1.06] tracking-tight"
@@ -255,7 +255,7 @@ const Hero = () => (
         </div>
       </div>
 
-      {/* Right â€” rotating report card */}
+      {/* Right — rotating report card */}
       <ReadinessReport />
     </div>
   </section>
@@ -268,7 +268,7 @@ const Stat = ({ value, label }) => (
   </div>
 );
 
-// â”€â”€â”€ How it works â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── How it works ─────────────────────────────────────────────────────────────
 const PROCESS = [
   {
     action: 'Paste a job description',
@@ -276,7 +276,7 @@ const PROCESS = [
   },
   {
     action: 'Take the assessment',
-    outcome: '30 mixed-format questions â€” MCQ, scenario, ranking, free-text â€” calibrated to the actual interview loop.',
+    outcome: '30 mixed-format questions — MCQ, scenario, ranking, free-text — calibrated to the actual interview loop.',
   },
   {
     action: 'Review your gap report',
@@ -311,7 +311,7 @@ const HowItWorks = () => (
   </section>
 );
 
-// â”€â”€â”€ Companies â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── Companies ───────────────────────────────────────────────────────────────
 const CompaniesStrip = () => (
   <section id="companies" className="px-6 py-16" style={{ borderTop: `1px solid ${C.border}` }}>
     <div className="max-w-6xl mx-auto">
@@ -334,7 +334,7 @@ const CompaniesStrip = () => (
   </section>
 );
 
-// â”€â”€â”€ Final CTA â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── Final CTA ───────────────────────────────────────────────────────────────
 const FinalCTA = () => (
   <section className="px-6 py-24" style={{ borderTop: `1px solid ${C.border}` }}>
     <div className="max-w-2xl mx-auto">
@@ -347,7 +347,7 @@ const FinalCTA = () => (
       <ul className="space-y-3 mb-10">
         {[
           `${QUESTIONS.length}+ verified questions across ${ACTIVE_COMPANIES.length} companies`,
-          'Readiness score calculated from your actual assessment â€” not self-reported',
+          'Readiness score calculated from your actual assessment — not self-reported',
           'Your data stays private. We never sell it.',
         ].map(item => (
           <li key={item} className="flex items-start gap-3 text-sm" style={{ color: C.text2 }}>
@@ -365,13 +365,13 @@ const FinalCTA = () => (
   </section>
 );
 
-// â”€â”€â”€ Footer â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── Footer ──────────────────────────────────────────────────────────────────
 const Footer = () => (
   <footer className="mt-auto px-6 py-8 text-sm" style={{ borderTop: `1px solid ${C.border}`, color: C.text3 }}>
     <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
       <div className="flex items-center gap-2">
         <div className="w-5 h-5 rounded text-[10px] font-bold flex items-center justify-center text-white" style={{ background: C.accent }}>S</div>
-        <span>Stepkai Â· Â© 2026</span>
+        <span>Stepkai · © 2026</span>
       </div>
       <div className="flex items-center gap-6">
         <Link to="/feedback" className="hover:opacity-80 transition-opacity">Feedback</Link>

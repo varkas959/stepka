@@ -6,7 +6,7 @@ import { XP_EVENTS, XP_BREAKDOWN, TOPIC_MASTERY, COMPANIES } from '../lib/mockDa
 import { toast } from 'sonner';
 import { ResponsiveContainer, BarChart, Bar, XAxis, Tooltip, Cell } from 'recharts';
 
-export default function Progress({ isGuest = false }) {
+export default function Progress() {
   const { state, consumeFreeze } = useAppState();
   const company = COMPANIES.find(c => c.id === state.activePlan?.company);
   const xpPct = Math.round((state.xp / state.xpToNext) * 100);
@@ -20,13 +20,6 @@ export default function Progress({ isGuest = false }) {
 
   return (
     <div className="px-4 md:px-10 py-6 md:py-10 max-w-7xl mx-auto" data-testid="progress-page">
-      {isGuest && (
-        <div className="mb-6 rounded-lg p-4 flex items-center justify-between gap-3"
-             style={{ border: '1px solid rgba(59,111,212,0.3)', background: 'rgba(59,111,212,0.06)' }}>
-          <span className="font-mono text-sm" style={{ color: 'rgba(59,111,212,0.85)' }}>Sign in to track your real progress, streaks, and XP</span>
-          <a href="/signin" className="shrink-0 font-mono text-xs font-semibold uppercase tracking-[0.14em] px-3 py-1.5 rounded-md text-white hover:opacity-90 transition-opacity" style={{ background: 'var(--accent)' }}>Sign in</a>
-        </div>
-      )}
       <Breadcrumb segments={['progress', 'dashboard']} />
       <div className="mt-1 mb-7">
         <h1 className="text-4xl md:text-5xl font-semibold tracking-tight text-zinc-50">Where you stand</h1>
@@ -66,10 +59,10 @@ export default function Progress({ isGuest = false }) {
         <Card className="md:col-span-2" testid="xp-level">
           <div className="flex items-start justify-between">
             <div>
-              <Eyebrow>Level Â· XP</Eyebrow>
+              <Eyebrow>Level · XP</Eyebrow>
               <div className="flex items-baseline gap-2 mt-3">
                 <div className="font-mono text-4xl font-semibold text-zinc-50">Lvl {state.level}</div>
-                <div className="font-mono text-sm text-zinc-500">Â· {state.xp.toLocaleString()} XP</div>
+                <div className="font-mono text-sm text-zinc-500">· {state.xp.toLocaleString()} XP</div>
               </div>
               <div className="font-mono text-xs text-zinc-500 mt-1">{(state.xpToNext - state.xp).toLocaleString()} XP to Lvl {state.level + 1}</div>
             </div>
@@ -79,7 +72,7 @@ export default function Progress({ isGuest = false }) {
             <PixelBar value={xpPct} height={12} color="var(--accent)" />
           </div>
           <div className="mt-5">
-            <div className="font-mono text-[10px] uppercase tracking-[0.18em] text-zinc-600 mb-2">XP by source Â· last 30 days</div>
+            <div className="font-mono text-[10px] uppercase tracking-[0.18em] text-zinc-600 mb-2">XP by source · last 30 days</div>
             <div className="h-24">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={XP_BREAKDOWN} margin={{ top: 0, right: 0, bottom: 0, left: 0 }}>
@@ -116,7 +109,7 @@ export default function Progress({ isGuest = false }) {
         {/* Heatmap */}
         <Card className="md:col-span-3 lg:col-span-3" testid="mastery-heatmap-card">
           <div className="flex items-center justify-between">
-            <Eyebrow>Daily activity Â· last 8 weeks</Eyebrow>
+            <Eyebrow>Daily activity · last 8 weeks</Eyebrow>
             <div className="font-mono text-xs text-emerald-400 inline-flex items-center gap-1.5">
               <TrendingUp size={12} strokeWidth={2.25} /> +18% vs prior 8w
             </div>
@@ -128,7 +121,7 @@ export default function Progress({ isGuest = false }) {
 
         {/* Topic mastery */}
         <Card className="md:col-span-3 lg:col-span-2" testid="topic-mastery-card">
-          <Eyebrow>Topic mastery Â· active plan</Eyebrow>
+          <Eyebrow>Topic mastery · active plan</Eyebrow>
           <div className="mt-4 space-y-3">
             {TOPIC_MASTERY.map(t => {
               const color = t.level >= 4 ? '#22c55e' : t.level === 3 ? '#f59e0b' : '#ef4444';
@@ -156,7 +149,7 @@ export default function Progress({ isGuest = false }) {
                 }`} />
                 <div className="flex-1 min-w-0">
                   <div className="text-zinc-100 truncate">{e.label}</div>
-                  <div className="text-[10px] uppercase tracking-[0.18em] text-zinc-600">{e.source} Â· {e.ago}</div>
+                  <div className="text-[10px] uppercase tracking-[0.18em] text-zinc-600">{e.source} · {e.ago}</div>
                 </div>
                 <div className="text-emerald-400">+{e.amount}</div>
               </div>

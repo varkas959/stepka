@@ -44,7 +44,7 @@ function GuestBanner() {
     <div className="border-b px-4 sm:px-6 py-2.5 flex items-center justify-between gap-3"
          style={{ borderColor: 'rgba(59,111,212,0.2)', background: 'rgba(59,111,212,0.05)' }}>
       <span className="font-mono text-xs" style={{ color: 'rgba(59,111,212,0.8)' }}>
-        Browsing as guest â€” sign in to track progress, upvote, and use Study Plan &amp; Practice
+        Browsing as guest — sign in to track progress, upvote, and use Study Plan &amp; Practice
       </span>
       <a href="/signin"
         className="shrink-0 font-mono text-xs font-semibold uppercase tracking-[0.14em] px-3 py-1.5 rounded-md text-white hover:opacity-90 transition-opacity"
@@ -101,7 +101,7 @@ function App() {
           <Route path="/questions/topic/:slug" element={<SEOPage kind="topic" />} />
           <Route path="/questions/tech/:slug" element={<SEOPage kind="tech" />} />
 
-          {/* App shell â€” visible to all, actions gated by sign-in */}
+          {/* App shell — visible to all, actions gated by sign-in */}
           <Route path="/app/questions" element={
             <AppShell session={session} onSignOut={() => setSession(null)}>
               <QuestionBank isGuest={!session} userId={session?.user?.id} />

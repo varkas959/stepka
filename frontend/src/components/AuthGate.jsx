@@ -40,7 +40,7 @@ export const AuthGate = () => {
           </h1>
           <p className="mt-6 text-zinc-400 leading-relaxed max-w-sm">
             Stepkai is the question bank, study plan, and rep system for engineers preparing to switch companies.
-            No fluff, no filler â€” just signal.
+            No fluff, no filler — just signal.
           </p>
           <div className="mt-10 flex gap-8 font-mono text-xs">
             <div>
@@ -68,7 +68,7 @@ export const AuthGate = () => {
 
           <div className="mb-8">
             <h2 className="text-2xl font-semibold tracking-tight text-zinc-50">Sign in to continue</h2>
-            <p className="text-sm text-zinc-400 mt-2">Pick a provider. We use your name only â€” no spam, ever.</p>
+            <p className="text-sm text-zinc-400 mt-2">Pick a provider. We use your name only — no spam, ever.</p>
           </div>
 
           <div className="space-y-2.5">
@@ -108,7 +108,7 @@ export const AuthGate = () => {
           </p>
 
           <p className="text-xs text-zinc-600 mt-10 font-mono">
-            stepkai.com Â· v1.0
+            stepkai.com · v1.0
           </p>
         </div>
       </div>
