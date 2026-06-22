@@ -4,7 +4,8 @@ import { toast } from 'sonner';
 import { Link } from 'react-router-dom';
 import { QUESTIONS, COMPANIES, ROLES, ROLE_MAP, CATEGORIES, CATEGORY_MAP, TOPIC_TREE, DIFFICULTIES, ROUND_TYPES, COMPANY_BLUEPRINTS, TECH_STACK } from '../lib/mockData';
 import { loadUserQuestions } from '../lib/questions';
-import { verifyQuestion, markAsked, loadContributionCounts, loadExperienceLinkCounts } from '../lib/experiences';
+import { verifyQuestion, markAsked, unmarkAsked, loadUserActions, loadContributionCounts, loadExperienceLinkCounts } from '../lib/experiences';
+import { supabase } from '../lib/supabaseClient';
 import { ExperienceModal } from '../components/ExperienceModal';
 
 const slugify = (s) => s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
@@ -65,6 +66,9 @@ export default function QuestionBank({ isGuest = false, userId }) {
   const [expandedId, setExpandedId] = useState(null);
   const [askedMap, setAskedMap] = useState({});
   const [upvoteMap, setUpvoteMap] = useState({});
+  // Track which IDs were already verified/asked when the page loaded (for optimistic count display)
+  const loadedUpvotes = useRef(new Set());
+  const loadedAsked   = useRef(new Set());
   const [blueprintCompany, setBlueprintCompany] = useState(null);
   const [signInOpen, setSignInOpen] = useState(false);
   const [signInAction, setSignInAction] = useState('continue');
@@ -79,6 +83,20 @@ export default function QuestionBank({ isGuest = false, userId }) {
       .then(qs => setUserQuestions(qs))
       .finally(() => setLoadingQ(false));
   }, []);
+
+  // Hydrate upvoteMap and askedMap from DB so state survives page refresh
+  useEffect(() => {
+    if (!userId) return;
+    loadUserActions(userId).then(({ verifiedIds, askedIds }) => {
+      loadedUpvotes.current = verifiedIds;
+      loadedAsked.current   = askedIds;
+      const upvotes = {}, asked = {};
+      verifiedIds.forEach(id => { upvotes[id] = true; });
+      askedIds.forEach(id    => { asked[id]   = true; });
+      setUpvoteMap(upvotes);
+      setAskedMap(asked);
+    }).catch(() => {});
+  }, [userId]);
 
   // Overlay real community verify/ask counts + interview-report frequency on the seed numbers
   useEffect(() => {
@@ -137,15 +155,32 @@ export default function QuestionBank({ isGuest = false, userId }) {
 
   const handleAsked = (q) => {
     if (isGuest) return promptSignIn('mark "I was asked this"');
+    if (askedMap[q.id]) return; // already marked
     setAskedMap(m => ({ ...m, [q.id]: true }));
-    markAsked(q.id, userId).catch(() => {});   // persist "I was asked this"
-    toast.success(`Thanks! You've unlocked 10 new questions`);
+    markAsked(q.id, userId).catch(() => {});
+    toast('Marked — thanks for confirming!', {
+      duration: 5000,
+      action: {
+        label: 'Undo',
+        onClick: () => {
+          setAskedMap(m => ({ ...m, [q.id]: false }));
+          loadedAsked.current.delete(q.id);
+          unmarkAsked(q.id, userId).catch(() => {});
+        },
+      },
+    });
   };
   const handleUpvote = (q) => {
     if (isGuest) return promptSignIn('verify this question');
     const next = !upvoteMap[q.id];
     setUpvoteMap(m => ({ ...m, [q.id]: next }));
-    if (next) verifyQuestion(q.id, userId).catch(() => {});  // persist verification
+    if (next) {
+      verifyQuestion(q.id, userId).catch(() => {});
+    } else {
+      // un-verify: remove from DB and from loaded set
+      loadedUpvotes.current.delete(q.id);
+      supabase.from('question_verifications').delete().match({ question_id: q.id, user_id: userId }).then(() => {});
+    }
   };
   const handleAddQuestion = () => {
     if (isGuest) return promptSignIn('submit a question');
@@ -299,6 +334,7 @@ export default function QuestionBank({ isGuest = false, userId }) {
             expanded={expandedId === q.id}
             onToggleExpand={() => setExpandedId(expandedId === q.id ? null : q.id)}
             upvoted={!!upvoteMap[q.id]}
+            newUpvote={!!upvoteMap[q.id] && !loadedUpvotes.current.has(q.id)}
             asked={!!askedMap[q.id]}
             onUpvote={() => handleUpvote(q)}
             onAsked={() => handleAsked(q)}
@@ -395,7 +431,7 @@ const TagPill = ({ children, kind = 'default', testid }) => {
   );
 };
 
-const QuestionCard = ({ q, expanded, onToggleExpand, upvoted, asked, onUpvote, onAsked, onCompanyClick }) => {
+const QuestionCard = ({ q, expanded, onToggleExpand, upvoted, newUpvote, asked, onUpvote, onAsked, onCompanyClick }) => {
   const accent = accentForQ(q);
   const isVerified = q.verifyCount >= 3;
   const company = COMPANIES.find(c => c.id === q.company);
@@ -463,7 +499,7 @@ const QuestionCard = ({ q, expanded, onToggleExpand, upvoted, asked, onUpvote, o
             }`}
           >
             <ArrowUp size={13} strokeWidth={2.25} />
-            <span>{q.upvotes + (upvoted ? 1 : 0)}</span>
+            <span>{q.verifyCount + (newUpvote ? 1 : 0)}</span>
           </button>
           {/* I was asked this */}
           <button

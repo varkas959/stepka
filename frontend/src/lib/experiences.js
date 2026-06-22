@@ -227,6 +227,27 @@ export async function markAsked(questionId, userId) {
   return true;
 }
 
+export async function unmarkAsked(questionId, userId) {
+  if (!userId) throw new Error('Sign in required');
+  const { error } = await supabase.from('question_asks').delete().match({ question_id: questionId, user_id: userId });
+  if (error) throw error;
+  return true;
+}
+
+// Which question IDs has this user already verified / marked as asked?
+// Used to seed upvoteMap and askedMap on page load so state survives refresh.
+export async function loadUserActions(userId) {
+  if (!userId) return { verifiedIds: new Set(), askedIds: new Set() };
+  const [{ data: v }, { data: a }] = await Promise.all([
+    supabase.from('question_verifications').select('question_id').eq('user_id', userId),
+    supabase.from('question_asks').select('question_id').eq('user_id', userId),
+  ]);
+  return {
+    verifiedIds: new Set((v || []).map(r => r.question_id)),
+    askedIds:    new Set((a || []).map(r => r.question_id)),
+  };
+}
+
 // Counts for a set of question ids (so the bank can show real verify/ask totals)
 export async function loadContributionCounts(questionIds = []) {
   if (!questionIds.length) return { verifications: {}, asks: {} };
