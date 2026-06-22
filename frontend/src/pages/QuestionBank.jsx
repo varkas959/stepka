@@ -409,74 +409,52 @@ const QuestionCard = ({ q, expanded, onToggleExpand, upvoted, asked, onUpvote, o
   return (
     <article
       data-testid={`question-card-${q.id}`}
-      className="relative rounded-lg animate-fade-up overflow-hidden transition-colors"
+      className="rounded-lg animate-fade-up transition-colors"
       style={{ border: '1px solid #272B3F', background: '#141720' }}
       onMouseEnter={e => e.currentTarget.style.borderColor = '#323752'}
       onMouseLeave={e => e.currentTarget.style.borderColor = '#272B3F'}
     >
-      <div className="absolute left-0 top-0 bottom-0 w-[2px]" style={{ background: accent }} />
-      <div className="pl-6 pr-6 py-5">
-        {/* Primary metadata row — role first so users instantly know relevance */}
-        <div className="flex items-center flex-wrap gap-1.5 mb-3">
-          {/* Role — most prominent, larger text */}
-          <span className="inline-flex items-center font-mono text-[12px] font-semibold px-2.5 py-0.5 rounded-[4px] whitespace-nowrap"
-            style={{ border: '1px solid rgba(59,111,212,0.45)', background: 'rgba(59,111,212,0.12)', color: '#93C5FD' }}>
-            {role}
-          </span>
-          {/* Category */}
-          <span className="inline-flex items-center font-mono text-[11px] px-2 py-0.5 rounded-[4px] whitespace-nowrap"
-            style={{ border: `1px solid ${catStyle.border}`, background: catStyle.bg, color: catStyle.text }}>
-            {category}
-          </span>
-          {/* Difficulty */}
-          <TagPill kind={q.difficulty}>{q.difficulty}</TagPill>
-          {/* Company — secondary, right-aligned visually by flex wrap */}
+      <div className="px-6 py-5">
+        {/* Body */}
+        {expanded ? (
+          <div className="text-zinc-100 text-base leading-relaxed space-y-2 mb-3"
+               style={{ color: '#F2F2F4' }}>
+            {q.body.split('\n').map((line, i) => <p key={i}>{line}</p>)}
+          </div>
+        ) : (
+          <p className="text-zinc-100 text-base leading-relaxed line-clamp-3 mb-3"
+             style={{ color: '#F2F2F4' }}>
+            {q.body.replace(/\n/g, ' ')}
+          </p>
+        )}
+        {q.body.length > 180 && (
+          <button onClick={onToggleExpand} className="font-mono text-sm text-emerald-400 hover:text-emerald-300 mb-4 block" data-testid={`expand-${q.id}`}>
+            {expanded ? '- show less' : '+ show more'}
+          </button>
+        )}
+
+        {/* bottom row: chips + actions */}
+        <div className="flex items-center flex-wrap gap-2">
+          {/* Company */}
           <button onClick={onCompanyClick} data-testid={`open-blueprint-${q.company}`}>
             <span className="inline-flex items-center gap-1 font-mono text-[11px] px-2 py-0.5 rounded-[4px] whitespace-nowrap"
               style={{ border: `1px solid ${companyColor}44`, background: `${companyColor}18`, color: companyColor }}>
               {companyName}
             </span>
           </button>
-          {isVerified && <TagPill kind={'verified'}>&#10003; Verified</TagPill>}
-        </div>
-
-        {/* Body */}
-        {expanded ? (
-          <div className="text-zinc-100 text-base leading-relaxed space-y-2"
-               style={{ color: '#F2F2F4' }}>
-            {q.body.split('\n').map((line, i) => <p key={i}>{line}</p>)}
-          </div>
-        ) : (
-          <p className="text-zinc-100 text-base leading-relaxed line-clamp-3"
-             style={{ color: '#F2F2F4' }}>
-            {q.body.replace(/\n/g, ' ')}
-          </p>
-        )}
-        {q.body.length > 180 && (
-          <button onClick={onToggleExpand} className="font-mono text-sm text-emerald-400 hover:text-emerald-300 mt-3" data-testid={`expand-${q.id}`}>
-            {expanded ? '- show less' : '+ show more'}
-          </button>
-        )}
-
-        {/* divider */}
-        <div className="my-4 border-t border-white/5" />
-
-        {/* meta row */}
-        <div className="flex items-center flex-wrap gap-x-5 gap-y-2 text-xs font-mono text-zinc-500">
-          <span><span className="text-zinc-600">Asked in</span> <span className="text-zinc-300">{companyName}</span></span>
-          <span><span className="text-zinc-600">Role</span> <span className="text-zinc-300">{role}</span></span>
-          {q.experience && <span><span className="text-zinc-600">Exp</span> <span className="text-zinc-300">{q.experience}</span></span>}
-          <span><span className="text-zinc-600">Source</span> <span className="text-zinc-300">{q.source || 'Community Report'}</span></span>
-          <span><span className="text-zinc-600">reported</span> <span className="text-zinc-300">{q.daysAgo === 0 ? 'Today' : `${q.daysAgo}d ago`}</span></span>
-          <span className="inline-flex items-center gap-2">
-            <span className="text-zinc-600">Popularity:</span>
-            <PixelBar value={popularity} width={70} height={12} color="#22c55e" />
-            <span className="text-zinc-300">{q.asked + (asked ? 1 : 0)}</span>
+          {/* Role */}
+          <span className="inline-flex items-center font-mono text-[11px] px-2 py-0.5 rounded-[4px] whitespace-nowrap"
+            style={{ border: '1px solid rgba(59,111,212,0.35)', background: 'rgba(59,111,212,0.10)', color: '#93C5FD' }}>
+            {role}
           </span>
-        </div>
+          {/* Difficulty */}
+          <TagPill kind={q.difficulty}>{q.difficulty}</TagPill>
+          {/* Verified */}
+          {isVerified && <TagPill kind={'verified'}>&#10003; Verified</TagPill>}
 
-        {/* buttons */}
-        <div className="flex items-center gap-2 mt-4">
+          <div className="flex-1" />
+
+          {/* Upvote */}
           <button
             data-testid={`upvote-${q.id}`}
             onClick={onUpvote}
@@ -487,6 +465,7 @@ const QuestionCard = ({ q, expanded, onToggleExpand, upvoted, asked, onUpvote, o
             <ArrowUp size={13} strokeWidth={2.25} />
             <span>{q.upvotes + (upvoted ? 1 : 0)}</span>
           </button>
+          {/* I was asked this */}
           <button
             data-testid={`asked-${q.id}`}
             onClick={onAsked}
