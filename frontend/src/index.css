@@ -4,9 +4,56 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+    /* dark (default) */
+    --page:      #0C0E14;
+    --surface:   #181B24;
+    --surface-2: #1C2030;
+    --inset:     #13161D;
+    --border:    #262B3A;
+    --border-2:  #343A4D;
+    --text-1:    #F2F2F4;
+    --text-2:    #8B8FA8;
+    --text-3:    #4B5270;
+    --accent:    #3B6FD4;
+    --accent-12: rgba(59,111,212,0.12);
+    --accent-20: rgba(59,111,212,0.20);
+    --accent-35: rgba(59,111,212,0.38);
+    --surface-blur: rgba(12,14,20,0.90);
+    --chip-bg:     rgba(148,163,184,0.08);
+    --chip-border: rgba(148,163,184,0.22);
+    --chip-text:   #CBD5E1;
+    --diff-easy:   #7FC9A0;
+    --diff-medium: #D6B36B;
+    --diff-hard:   #DD9B9B;
+}
+
+html.light {
+    --page:      #F6F7F9;
+    --surface:   #FFFFFF;
+    --surface-2: #F0F2F6;
+    --inset:     #F0F2F6;
+    --border:    #E3E6EC;
+    --border-2:  #CFD4DE;
+    --text-1:    #1A1D26;
+    --text-2:    #5B6273;
+    --text-3:    #8A90A0;
+    --accent:    #2E5FC0;
+    --accent-12: rgba(46,95,192,0.10);
+    --accent-20: rgba(46,95,192,0.16);
+    --accent-35: rgba(46,95,192,0.30);
+    --surface-blur: rgba(246,247,249,0.85);
+    --chip-bg:     rgba(100,116,139,0.10);
+    --chip-border: rgba(100,116,139,0.24);
+    --chip-text:   #475569;
+    --diff-easy:   #2F8A5E;
+    --diff-medium: #9A6B12;
+    --diff-hard:   #B4504F;
+}
+
 html, body, #root {
-    background-color: #0C0E14;
-    color: #F2F2F4;
+    background-color: var(--page);
+    color: var(--text-1);
 }
 
 body {
@@ -29,9 +76,23 @@ body {
 
 /* scrollbar */
 ::-webkit-scrollbar { width: 10px; height: 10px; }
-::-webkit-scrollbar-track { background: #0C0E14; }
-::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 8px; }
-::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.16); }
+::-webkit-scrollbar-track { background: var(--page); }
+::-webkit-scrollbar-thumb { background: rgba(127,127,140,0.28); border-radius: 8px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(127,127,140,0.45); }
+
+/* ── Light-mode overrides for the raw Tailwind utilities used app-wide ──
+   The app was authored dark-only with zinc/white utilities that compile to
+   fixed hex. Under html.light we remap the common ones so pages flip cleanly. */
+html.light .bg-zinc-950, html.light .bg-zinc-900 { background-color: var(--surface) !important; }
+html.light .bg-zinc-800 { background-color: var(--surface-2) !important; }
+html.light .text-zinc-50, html.light .text-zinc-100, html.light .text-zinc-200, html.light .text-zinc-300 { color: var(--text-1) !important; }
+html.light .text-zinc-400, html.light .text-zinc-500 { color: var(--text-2) !important; }
+html.light .text-zinc-600, html.light .text-zinc-700 { color: var(--text-3) !important; }
+html.light .border-white\/5, html.light .border-white\/10, html.light .border-white\/8, html.light .border-white\/20 { border-color: var(--border) !important; }
+html.light .border-white\/25 { border-color: var(--border-2) !important; }
+html.light .bg-white\/5, html.light .bg-white\/\[0\.04\], html.light .bg-white\/\[0\.08\] { background-color: rgba(15,23,42,0.04) !important; }
+html.light .hover\:bg-white\/5:hover, html.light .hover\:bg-white\/\[0\.04\]:hover { background-color: rgba(15,23,42,0.05) !important; }
+html.light ::selection { background: #1A1D26; color: #fff; }
 
 @layer base {
     :root {

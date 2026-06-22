@@ -3,7 +3,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Sparkles } from 'lucide-react';
 
 // Shown when an anonymous visitor tries to do something that needs an account.
-// Routes to /signin (top-level page) where the real OAuth handshake happens —
+// Routes to /signin (top-level page) where the real OAuth handshake happens â€”
 // avoids iframe / preview-pane redirect issues.
 export const SignInRequiredModal = ({ open, onOpenChange, action = 'continue' }) => {
   const navigate = useNavigate();
@@ -14,11 +14,11 @@ export const SignInRequiredModal = ({ open, onOpenChange, action = 'continue' })
       <DialogContent data-testid="signin-required-modal" className="max-w-md bg-zinc-950 border border-white/10 text-zinc-50">
         <DialogHeader>
           <div className="flex items-center gap-2 mb-2">
-            <div className="w-8 h-8 rounded-md flex items-center justify-center font-mono font-bold text-white text-sm" style={{ background: '#3B6FD4' }}>S</div>
+            <div className="w-8 h-8 rounded-md flex items-center justify-center font-mono font-bold text-white text-sm" style={{ background: 'var(--accent)' }}>S</div>
             <DialogTitle className="text-lg font-semibold tracking-tight">Sign in to {action}</DialogTitle>
           </div>
           <DialogDescription className="text-zinc-400 mt-1">
-            Sign in with Google or LinkedIn — Stepkai uses Supabase Auth, we never see your password.
+            Sign in with Google or LinkedIn â€” Stepkai uses Supabase Auth, we never see your password.
           </DialogDescription>
         </DialogHeader>
 
@@ -36,7 +36,7 @@ export const SignInRequiredModal = ({ open, onOpenChange, action = 'continue' })
         </div>
 
         <div className="mt-5 pt-4 border-t border-white/5 font-mono text-[11px] text-zinc-500 leading-relaxed">
-          <Sparkles size={11} className="inline -mt-0.5 mr-1" style={{ color: '#3B6FD4' }} />
+          <Sparkles size={11} className="inline -mt-0.5 mr-1" style={{ color: 'var(--accent)' }} />
           You'll get: progress saved across devices, AI-graded practice, JD-driven study plans, and the SRS rep queue.
         </div>
       </DialogContent>

@@ -18,7 +18,7 @@ function twoSum(nums, target) {
   return null;
 }`;
 
-const ACC = '#3B6FD4';
+const ACC = 'var(--accent)';
 function SignInPrompt() {
   return (
     <div className="mb-6 rounded-lg p-4 flex items-center justify-between gap-3"
@@ -79,17 +79,17 @@ export default function Practice({ isGuest = false }) {
 
       <div className="flex items-start justify-between gap-4 flex-wrap mb-6 mt-1">
         <div>
-          <h1 className="text-3xl md:text-4xl font-semibold tracking-tight" style={{ color: '#F2F2F4' }}>
-            <span style={{ color: '#4B5270' }}>$</span> practice · ai graded
+          <h1 className="text-3xl md:text-4xl font-semibold tracking-tight" style={{ color: 'var(--text-1)' }}>
+            <span style={{ color: 'var(--text-3)' }}>$</span> practice Â· ai graded
           </h1>
-          <p className="font-mono text-sm mt-2" style={{ color: '#8B8FA8' }}>Submit → 1.5s grade → rubric. Honest, specific, no fluff.</p>
+          <p className="font-mono text-sm mt-2" style={{ color: 'var(--text-2)' }}>Submit â†’ 1.5s grade â†’ rubric. Honest, specific, no fluff.</p>
         </div>
         <div className="flex items-center gap-2 font-mono text-xs">
           <button onClick={() => setQIdx(i => (i - 1 + QUESTIONS.length) % QUESTIONS.length)}
-            className="border border-white/10 rounded-md px-2.5 py-1.5 text-zinc-300 hover:bg-white/5" data-testid="prev-question">← prev</button>
+            className="border border-white/10 rounded-md px-2.5 py-1.5 text-zinc-300 hover:bg-white/5" data-testid="prev-question">â† prev</button>
           <span className="text-zinc-500">{qIdx + 1} / {QUESTIONS.length}</span>
           <button onClick={() => setQIdx(i => (i + 1) % QUESTIONS.length)}
-            className="border border-white/10 rounded-md px-2.5 py-1.5 text-zinc-300 hover:bg-white/5" data-testid="next-question">next →</button>
+            className="border border-white/10 rounded-md px-2.5 py-1.5 text-zinc-300 hover:bg-white/5" data-testid="next-question">next â†’</button>
         </div>
       </div>
 
@@ -108,7 +108,7 @@ export default function Practice({ isGuest = false }) {
             <div className="text-zinc-100 text-base md:text-lg leading-relaxed" style={{ fontFamily: 'inherit' }}>
               {q.body}
             </div>
-            <div className="mt-4 font-mono text-xs text-zinc-500">{q.topicPath} · {q.round} round</div>
+            <div className="mt-4 font-mono text-xs text-zinc-500">{q.topicPath} Â· {q.round} round</div>
           </div>
         </section>
 
@@ -120,12 +120,12 @@ export default function Practice({ isGuest = false }) {
             <div className="ml-auto inline-flex items-center gap-0.5 border border-white/10 rounded-md p-0.5">
               <button data-testid="mode-text" onClick={() => setMode('text')}
                 className="px-2 py-1 rounded-sm text-[11px] inline-flex items-center gap-1 transition-colors"
-                style={mode === 'text' ? { background: ACC, color: '#fff', fontWeight: 600 } : { color: '#8B8FA8' }}>
+                style={mode === 'text' ? { background: ACC, color: '#fff', fontWeight: 600 } : { color: 'var(--text-2)' }}>
                 <FileText size={11} /> text
               </button>
               <button data-testid="mode-code" onClick={() => setMode('code')}
                 className="px-2 py-1 rounded-sm text-[11px] inline-flex items-center gap-1 transition-colors"
-                style={mode === 'code' ? { background: ACC, color: '#fff', fontWeight: 600 } : { color: '#8B8FA8' }}>
+                style={mode === 'code' ? { background: ACC, color: '#fff', fontWeight: 600 } : { color: 'var(--text-2)' }}>
                 <Code2 size={11} /> code
               </button>
             </div>
@@ -145,7 +145,7 @@ export default function Practice({ isGuest = false }) {
                 className="inline-flex items-center gap-2 font-mono text-sm font-semibold uppercase tracking-[0.14em] px-4 py-2 rounded-md text-white hover:opacity-90 transition-opacity disabled:opacity-50"
                 style={{ background: ACC }}>
                 {submitting && <Loader2 size={14} className="animate-spin" />}
-                {submitting ? 'Grading…' : <>Submit <ArrowRight size={14} strokeWidth={2.5} /></>}
+                {submitting ? 'Gradingâ€¦' : <>Submit <ArrowRight size={14} strokeWidth={2.5} /></>}
               </button>
             ) : (
               <button data-testid="try-again" onClick={reset}
@@ -199,7 +199,7 @@ const FeedbackPanel = ({ feedback }) => {
 
           <div className="mt-5 rounded-md p-4 flex items-center gap-4"
                style={{ border: '1px solid rgba(59,111,212,0.3)', background: 'rgba(59,111,212,0.04)' }}>
-            <div className="font-mono text-xs" style={{ color: '#F2F2F4' }}>
+            <div className="font-mono text-xs" style={{ color: 'var(--text-1)' }}>
               Suggested SRS rating: <span style={{ color: '#7AA9F7' }}>"{feedback.suggestedLabel} ({feedback.suggestedRating})"</span>
             </div>
             <button data-testid="apply-srs" onClick={applyToSrs}
@@ -215,12 +215,12 @@ const FeedbackPanel = ({ feedback }) => {
 };
 
 const Breadcrumb = ({ segments }) => (
-  <div className="font-mono text-sm mb-4" style={{ color: '#4B5270' }}>
+  <div className="font-mono text-sm mb-4" style={{ color: 'var(--text-3)' }}>
     <span style={{ color: ACC }}>~</span>
     {segments.map((s, i) => (
       <span key={i}>
         <span className="mx-1.5">/</span>
-        <span style={{ color: i === segments.length - 1 ? '#8B8FA8' : '#4B5270' }}>{s}</span>
+        <span style={{ color: i === segments.length - 1 ? 'var(--text-2)' : 'var(--text-3)' }}>{s}</span>
       </span>
     ))}
   </div>

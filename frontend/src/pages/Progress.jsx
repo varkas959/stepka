@@ -24,7 +24,7 @@ export default function Progress({ isGuest = false }) {
         <div className="mb-6 rounded-lg p-4 flex items-center justify-between gap-3"
              style={{ border: '1px solid rgba(59,111,212,0.3)', background: 'rgba(59,111,212,0.06)' }}>
           <span className="font-mono text-sm" style={{ color: 'rgba(59,111,212,0.85)' }}>Sign in to track your real progress, streaks, and XP</span>
-          <a href="/signin" className="shrink-0 font-mono text-xs font-semibold uppercase tracking-[0.14em] px-3 py-1.5 rounded-md text-white hover:opacity-90 transition-opacity" style={{ background: '#3B6FD4' }}>Sign in</a>
+          <a href="/signin" className="shrink-0 font-mono text-xs font-semibold uppercase tracking-[0.14em] px-3 py-1.5 rounded-md text-white hover:opacity-90 transition-opacity" style={{ background: 'var(--accent)' }}>Sign in</a>
         </div>
       )}
       <Breadcrumb segments={['progress', 'dashboard']} />
@@ -66,20 +66,20 @@ export default function Progress({ isGuest = false }) {
         <Card className="md:col-span-2" testid="xp-level">
           <div className="flex items-start justify-between">
             <div>
-              <Eyebrow>Level · XP</Eyebrow>
+              <Eyebrow>Level Â· XP</Eyebrow>
               <div className="flex items-baseline gap-2 mt-3">
                 <div className="font-mono text-4xl font-semibold text-zinc-50">Lvl {state.level}</div>
-                <div className="font-mono text-sm text-zinc-500">· {state.xp.toLocaleString()} XP</div>
+                <div className="font-mono text-sm text-zinc-500">Â· {state.xp.toLocaleString()} XP</div>
               </div>
               <div className="font-mono text-xs text-zinc-500 mt-1">{(state.xpToNext - state.xp).toLocaleString()} XP to Lvl {state.level + 1}</div>
             </div>
-            <Zap size={20} style={{ color: '#3B6FD4' }} />
+            <Zap size={20} style={{ color: 'var(--accent)' }} />
           </div>
           <div className="mt-4">
-            <PixelBar value={xpPct} height={12} color="#3B6FD4" />
+            <PixelBar value={xpPct} height={12} color="var(--accent)" />
           </div>
           <div className="mt-5">
-            <div className="font-mono text-[10px] uppercase tracking-[0.18em] text-zinc-600 mb-2">XP by source · last 30 days</div>
+            <div className="font-mono text-[10px] uppercase tracking-[0.18em] text-zinc-600 mb-2">XP by source Â· last 30 days</div>
             <div className="h-24">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={XP_BREAKDOWN} margin={{ top: 0, right: 0, bottom: 0, left: 0 }}>
@@ -116,7 +116,7 @@ export default function Progress({ isGuest = false }) {
         {/* Heatmap */}
         <Card className="md:col-span-3 lg:col-span-3" testid="mastery-heatmap-card">
           <div className="flex items-center justify-between">
-            <Eyebrow>Daily activity · last 8 weeks</Eyebrow>
+            <Eyebrow>Daily activity Â· last 8 weeks</Eyebrow>
             <div className="font-mono text-xs text-emerald-400 inline-flex items-center gap-1.5">
               <TrendingUp size={12} strokeWidth={2.25} /> +18% vs prior 8w
             </div>
@@ -128,7 +128,7 @@ export default function Progress({ isGuest = false }) {
 
         {/* Topic mastery */}
         <Card className="md:col-span-3 lg:col-span-2" testid="topic-mastery-card">
-          <Eyebrow>Topic mastery · active plan</Eyebrow>
+          <Eyebrow>Topic mastery Â· active plan</Eyebrow>
           <div className="mt-4 space-y-3">
             {TOPIC_MASTERY.map(t => {
               const color = t.level >= 4 ? '#22c55e' : t.level === 3 ? '#f59e0b' : '#ef4444';
@@ -156,7 +156,7 @@ export default function Progress({ isGuest = false }) {
                 }`} />
                 <div className="flex-1 min-w-0">
                   <div className="text-zinc-100 truncate">{e.label}</div>
-                  <div className="text-[10px] uppercase tracking-[0.18em] text-zinc-600">{e.source} · {e.ago}</div>
+                  <div className="text-[10px] uppercase tracking-[0.18em] text-zinc-600">{e.source} Â· {e.ago}</div>
                 </div>
                 <div className="text-emerald-400">+{e.amount}</div>
               </div>
@@ -179,12 +179,12 @@ const Eyebrow = ({ children }) => (
 );
 
 const Breadcrumb = ({ segments }) => (
-  <div className="font-mono text-sm mb-4" style={{ color: '#4B5270' }}>
-    <span style={{ color: '#3B6FD4' }}>~</span>
+  <div className="font-mono text-sm mb-4" style={{ color: 'var(--text-3)' }}>
+    <span style={{ color: 'var(--accent)' }}>~</span>
     {segments.map((s, i) => (
       <span key={i}>
         <span className="mx-1.5">/</span>
-        <span style={{ color: i === segments.length - 1 ? '#8B8FA8' : '#4B5270' }}>{s}</span>
+        <span style={{ color: i === segments.length - 1 ? 'var(--text-2)' : 'var(--text-3)' }}>{s}</span>
       </span>
     ))}
   </div>

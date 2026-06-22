@@ -15,12 +15,12 @@ const COMPANY_OPTS = COMPANIES.map(c => ({ id: c.id, label: c.name }));
 const ROLE_OPTS = ROLES.map(r => ({ id: r, label: r }));
 const DIFF_OPTS = DIFFICULTIES.map(d => ({ id: d, label: d }));
 const ROUND_OPTS = ROUND_TYPES.map(r => ({ id: r, label: r }));
-const EXP_OPTS = ['0â€“2 Years', '2â€“5 Years', '5â€“8 Years', '8â€“12 Years', '12+ Years'].map(e => ({ id: e, label: e }));
+const EXP_OPTS = ['0Ã¢â‚¬â€œ2 Years', '2Ã¢â‚¬â€œ5 Years', '5Ã¢â‚¬â€œ8 Years', '8Ã¢â‚¬â€œ12 Years', '12+ Years'].map(e => ({ id: e, label: e }));
 const SOURCE_OPTS = ['Community Report', 'My Interview', 'Glassdoor', 'LinkedIn', 'Other'].map(s => ({ id: s, label: s }));
 
 const PROFILE_OPTIONS = [
   { id: 'anonymous', label: 'Remain anonymous',  desc: 'Your name and role are hidden' },
-  { id: 'role',      label: 'Show my role only', desc: 'e.g. "Senior SDE, 5â€“8 years"' },
+  { id: 'role',      label: 'Show my role only', desc: 'e.g. "Senior SDE, 5Ã¢â‚¬â€œ8 years"' },
   { id: 'name',      label: 'Show my name',       desc: 'Your display name is visible' },
 ];
 
@@ -28,7 +28,7 @@ export const AddQuestionModal = ({ open, onOpenChange, onAdded, userId }) => {
   const [form, setForm] = useState({
     company: 'amazon', role: 'SDE2', topic: 'arrays',
     difficulty: 'Medium', round: 'Technical', body: '',
-    experience: '2â€“5 Years', source: 'Community Report',
+    experience: '2Ã¢â‚¬â€œ5 Years', source: 'Community Report',
   });
   const [profile, setProfile] = useState('anonymous');
   const [submitting, setSubmitting] = useState(false);
@@ -75,7 +75,7 @@ export const AddQuestionModal = ({ open, onOpenChange, onAdded, userId }) => {
         isUserSubmitted: true,
       };
 
-      // Save to Supabase (fire and forget â€” show immediately regardless)
+      // Save to Supabase (fire and forget Ã¢â‚¬â€ show immediately regardless)
       saveUserQuestion(newQuestion, userId).then(saved => {
         if (saved?.id) newQuestion.id = saved.id;
       });
@@ -83,7 +83,7 @@ export const AddQuestionModal = ({ open, onOpenChange, onAdded, userId }) => {
       onAdded?.(newQuestion);
       onOpenChange(false);
       toast.success('Question added! It\'s now live in the question bank. +40 XP', { duration: 4000 });
-      setForm({ company: 'amazon', role: 'SDE2', topic: 'arrays', difficulty: 'Medium', round: 'Technical', body: '', experience: '2â€“5 Years', source: 'Community Report' });
+      setForm({ company: 'amazon', role: 'SDE2', topic: 'arrays', difficulty: 'Medium', round: 'Technical', body: '', experience: '2Ã¢â‚¬â€œ5 Years', source: 'Community Report' });
       setProfile('anonymous');
     } catch (err) {
       toast.error(err?.response?.data?.detail || err.message || 'Submission failed. Try again.');
@@ -97,7 +97,7 @@ export const AddQuestionModal = ({ open, onOpenChange, onAdded, userId }) => {
       <DialogContent data-testid="add-question-modal" className="max-w-2xl bg-zinc-950 border border-white/10 text-zinc-50 max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <div className="flex items-center gap-2 mb-2">
-            <Plus size={16} strokeWidth={2.25} style={{ color: '#3B6FD4' }} />
+            <Plus size={16} strokeWidth={2.25} style={{ color: 'var(--accent)' }} />
             <DialogTitle className="text-xl font-semibold tracking-tight">Submit an interview question</DialogTitle>
           </div>
           <DialogDescription className="text-zinc-400 mt-1">
@@ -117,17 +117,17 @@ export const AddQuestionModal = ({ open, onOpenChange, onAdded, userId }) => {
           </div>
 
           {/* Contributor profile */}
-          <div className="rounded-md border border-white/8 p-4" style={{ background: '#13161D' }}>
+          <div className="rounded-md border border-white/8 p-4" style={{ background: 'var(--inset)' }}>
             <div className="font-mono text-[10px] uppercase tracking-[0.18em] text-zinc-500 mb-3">Your profile on this question</div>
             <div className="space-y-2">
               {PROFILE_OPTIONS.map(opt => (
                 <label key={opt.id} className="flex items-start gap-3 cursor-pointer group">
                   <div className="mt-0.5 w-4 h-4 rounded-full border flex items-center justify-center shrink-0 transition-colors"
                     style={{
-                      borderColor: profile === opt.id ? '#3B6FD4' : 'rgba(255,255,255,0.15)',
+                      borderColor: profile === opt.id ? 'var(--accent)' : 'rgba(255,255,255,0.15)',
                       background: profile === opt.id ? 'rgba(59,111,212,0.15)' : 'transparent',
                     }}>
-                    {profile === opt.id && <div className="w-1.5 h-1.5 rounded-full" style={{ background: '#3B6FD4' }} />}
+                    {profile === opt.id && <div className="w-1.5 h-1.5 rounded-full" style={{ background: 'var(--accent)' }} />}
                   </div>
                   <input type="radio" name="profile" value={opt.id} checked={profile === opt.id}
                     onChange={() => setProfile(opt.id)} className="sr-only" />
@@ -151,7 +151,7 @@ export const AddQuestionModal = ({ open, onOpenChange, onAdded, userId }) => {
               className="w-full bg-zinc-900 border border-white/10 rounded-md p-3 text-sm font-mono text-zinc-100 placeholder:text-zinc-600 focus:outline-none focus:border-white/30 transition-colors resize-y"
             />
             <div className="font-mono text-[11px] text-zinc-600 mt-1.5 flex justify-between">
-              <span>// min 30 chars Â· no URLs Â· keep it interview-relevant</span>
+              <span>// min 30 chars Ã‚Â· no URLs Ã‚Â· keep it interview-relevant</span>
               <span className={form.body.length < 30 ? 'text-red-400' : 'text-emerald-400'}>{form.body.length} chars</span>
             </div>
           </div>
@@ -178,15 +178,15 @@ export const AddQuestionModal = ({ open, onOpenChange, onAdded, userId }) => {
           )}
 
           <div className="rounded-md border border-emerald-500/30 bg-emerald-500/[0.04] p-3 font-mono text-xs text-zinc-300">
-            <span className="text-emerald-400">// reward</span> &nbsp;Your question goes live immediately â†’ earn +40 XP.
+            <span className="text-emerald-400">// reward</span> &nbsp;Your question goes live immediately Ã¢â€ â€™ earn +40 XP.
           </div>
 
           <div className="flex items-center gap-2 pt-1">
             <button type="submit" data-testid="aq-submit" disabled={submitting}
               className="inline-flex items-center gap-2 font-mono text-sm font-semibold uppercase tracking-[0.14em] px-4 py-2 rounded-md text-white hover:opacity-90 transition-opacity disabled:opacity-50"
-              style={{ background: '#3B6FD4' }}>
+              style={{ background: 'var(--accent)' }}>
               {submitting && <Loader2 size={14} className="animate-spin" />}
-              {submitting ? 'Addingâ€¦' : 'Add question'}
+              {submitting ? 'AddingÃ¢â‚¬Â¦' : 'Add question'}
             </button>
             <button type="button" onClick={() => onOpenChange(false)}
               className="font-mono text-sm px-3 py-2 rounded-md border border-white/10 bg-zinc-900 hover:bg-zinc-800 text-zinc-100">Cancel</button>

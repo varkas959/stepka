@@ -1,15 +1,16 @@
 import { NavLink, Link } from 'react-router-dom';
-import { BookOpen, RotateCcw, LayoutGrid, Terminal, BarChart2, Flame, Check, Menu, X, MessageSquare } from 'lucide-react';
+import { BookOpen, RotateCcw, LayoutGrid, Terminal, BarChart2, Flame, Check, Menu, X, MessageSquare, Sun, Moon } from 'lucide-react';
 import { useState } from 'react';
 import { useAppState } from '../lib/appState';
+import { useTheme } from '../lib/theme';
 
-const BG  = '#0C0E14';
-const BG2 = '#181B24';
-const BDR = '#262B3A';
-const T1  = '#F2F2F4';
-const T2  = '#8B8FA8';
-const T3  = '#4B5270';
-const ACC = '#3B6FD4';
+const BG  = 'var(--page)';
+const BG2 = 'var(--surface)';
+const BDR = 'var(--border)';
+const T1  = 'var(--text-1)';
+const T2  = 'var(--text-2)';
+const T3  = 'var(--text-3)';
+const ACC = 'var(--accent)';
 
 const navItems = [
   { to: '/app/plan',      label: 'Study Plan',    icon: LayoutGrid, key: 'plan' },
@@ -21,6 +22,7 @@ const navItems = [
 
 export const Sidebar = ({ user, isGuest }) => {
   const { state } = useAppState();
+  const { theme, toggle } = useTheme();
   const [mobileOpen, setMobileOpen] = useState(false);
 
   const progressPct = Math.min(100, Math.round((state.xp / state.xpToNext) * 100));
@@ -59,7 +61,7 @@ export const Sidebar = ({ user, isGuest }) => {
                   }`
                 }
                 style={({ isActive }) => ({
-                  background: isActive ? `${ACC}18` : 'transparent',
+                  background: isActive ? 'var(--accent-12)' : 'transparent',
                   color: isActive ? T1 : T2,
                 })}
               >
@@ -70,7 +72,7 @@ export const Sidebar = ({ user, isGuest }) => {
                     {item.badge && state.dueToday > 0 && (
                       <span data-testid="review-badge"
                             className="text-[10px] px-1.5 py-0.5 rounded font-mono"
-                            style={{ background: `${ACC}20`, color: ACC, border: `1px solid ${ACC}40` }}>
+                            style={{ background: 'var(--accent-20)', color: ACC, border: '1px solid var(--accent-35)' }}>
                         {state.dueToday}
                       </span>
                     )}
@@ -82,14 +84,20 @@ export const Sidebar = ({ user, isGuest }) => {
         </nav>
       </div>
 
-      {/* Feedback */}
+      {/* Feedback + theme toggle */}
       <div className="px-3 pb-2">
         <NavLink to="/feedback" onClick={() => setMobileOpen(false)}
           className="flex items-center gap-3 px-3 py-2 rounded-md text-sm transition-colors"
-          style={({ isActive }) => ({ color: isActive ? T1 : T3, background: isActive ? `${ACC}18` : 'transparent' })}>
+          style={({ isActive }) => ({ color: isActive ? T1 : T3, background: isActive ? 'var(--accent-12)' : 'transparent' })}>
           <MessageSquare size={15} strokeWidth={1.75} />
           <span>Feedback</span>
         </NavLink>
+        <button onClick={toggle} data-testid="theme-toggle"
+          className="flex items-center gap-3 px-3 py-2 rounded-md text-sm transition-colors w-full hover:bg-white/5"
+          style={{ color: T3 }}>
+          {theme === 'dark' ? <Sun size={15} strokeWidth={1.75} /> : <Moon size={15} strokeWidth={1.75} />}
+          <span>{theme === 'dark' ? 'Light mode' : 'Dark mode'}</span>
+        </button>
       </div>
 
       {/* User / Sign in */}
@@ -105,7 +113,7 @@ export const Sidebar = ({ user, isGuest }) => {
             <Link to="/app/profile" onClick={() => setMobileOpen(false)} data-testid="sidebar-user"
               className="flex items-start gap-3 p-2 rounded-md transition-colors hover:bg-white/5">
               <div className="w-8 h-8 rounded flex items-center justify-center text-xs font-semibold shrink-0"
-                style={{ background: `${ACC}20`, color: ACC, border: `1px solid ${ACC}30` }}>
+                style={{ background: 'var(--accent-20)', color: ACC, border: '1px solid var(--accent-35)' }}>
                 {user?.avatarInitials || 'U'}
               </div>
               <div className="flex-1 min-w-0">
@@ -148,7 +156,7 @@ export const Sidebar = ({ user, isGuest }) => {
     <>
       {/* Mobile top bar */}
       <div className="md:hidden fixed top-0 left-0 right-0 z-40 backdrop-blur-sm h-14 flex items-center justify-between px-4"
-           style={{ background: `${BG}F0`, borderBottom: `1px solid ${BDR}` }}>
+           style={{ background: 'var(--surface-blur)', borderBottom: `1px solid ${BDR}` }}>
         <div className="flex items-center gap-3">
           <button onClick={() => setMobileOpen(true)} data-testid="mobile-menu" style={{ color: T2 }}><Menu size={20} /></button>
           <div className="text-sm font-semibold" style={{ color: T1 }}>Stepkai</div>

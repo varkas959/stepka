@@ -1,4 +1,4 @@
-﻿﻿import { useMemo, useState, useEffect, useRef } from 'react';
+﻿import { useMemo, useState, useEffect, useRef } from 'react';
 import { Plus, X, ArrowUp, ArrowUpRight, Info } from 'lucide-react';
 import { toast } from 'sonner';
 import { Link } from 'react-router-dom';
@@ -55,7 +55,7 @@ const FILTER_DEFS = [
 const accentForQ = (q) => {
   if (q.difficulty === 'Hard') return '#EF4444';
   if (q.difficulty === 'Easy') return '#22C55E';
-  return '#3B6FD4';
+  return 'var(--accent)';
 };
 
 
@@ -196,8 +196,8 @@ export default function QuestionBank({ isGuest = false, userId }) {
   return (
     <div className="px-4 md:px-10 py-6 md:py-10 max-w-[1200px] mx-auto">
       {/* Breadcrumb */}
-      <div className="font-mono text-sm mb-4" style={{ color: '#4B5270' }} data-testid="breadcrumb">
-        <span style={{ color: '#3B6FD4' }}>~</span>
+      <div className="font-mono text-sm mb-4" style={{ color: 'var(--text-3)' }} data-testid="breadcrumb">
+        <span style={{ color: 'var(--accent)' }}>~</span>
         <span className="mx-1.5">/</span>
         <span className="text-zinc-400">{breadcrumbPath}</span>
         <span className="mx-1.5">/</span>
@@ -290,7 +290,7 @@ export default function QuestionBank({ isGuest = false, userId }) {
         className={`md:hidden fixed bottom-6 right-5 z-50 inline-flex items-center gap-2 font-mono text-sm font-semibold px-4 py-3 rounded-full text-zinc-950 shadow-lg transition-all duration-200 ${
           scrolled ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'
         }`}
-        style={{ background: '#3B6FD4' }}
+        style={{ background: 'var(--accent)' }}
       >
         <Plus size={16} strokeWidth={2.5} />
         <span>Add Question</span>
@@ -300,14 +300,14 @@ export default function QuestionBank({ isGuest = false, userId }) {
       {Object.values(filters).some(v => v !== ALL) || search ? (
         <div className="mb-4 flex items-center justify-between rounded-md px-4 py-2.5"
              style={{ border: '1px solid rgba(59,111,212,0.25)', background: 'rgba(59,111,212,0.06)' }}>
-          <span className="font-mono text-sm" style={{ color: '#8B8FA8' }}>
-            Showing <span className="font-semibold" style={{ color: '#F2F2F4' }}>{filtered.length}</span> of{' '}
-            <span className="font-semibold" style={{ color: '#F2F2F4' }}>{allQuestions.length}</span> questions
+          <span className="font-mono text-sm" style={{ color: 'var(--text-2)' }}>
+            Showing <span className="font-semibold" style={{ color: 'var(--text-1)' }}>{filtered.length}</span> of{' '}
+            <span className="font-semibold" style={{ color: 'var(--text-1)' }}>{allQuestions.length}</span> questions
           </span>
           <button
             onClick={() => { setSearch(''); setFilters({ company: ALL, role: ALL, category: ALL, topic: ALL, tech: ALL, difficulty: ALL, round: ALL }); }}
             className="font-mono text-xs underline ml-4 transition-opacity hover:opacity-70"
-            style={{ color: '#3B6FD4' }}
+            style={{ color: 'var(--accent)' }}
           >
             clear all
           </button>
@@ -348,9 +348,9 @@ export default function QuestionBank({ isGuest = false, userId }) {
         data-testid="submit-unlock"
         onClick={handleAddQuestion}
         className="w-full text-left mt-6 rounded-md p-5 flex items-center gap-4 transition-colors"
-      style={{ border: '1px solid #262B3A', background: '#181B24' }}
+      style={{ border: '1px solid var(--border)', background: 'var(--surface)' }}
       onMouseEnter={e => { e.currentTarget.style.borderColor = '#3B6FD430'; e.currentTarget.style.background = 'rgba(59,111,212,0.04)'; }}
-      onMouseLeave={e => { e.currentTarget.style.borderColor = '#262B3A'; e.currentTarget.style.background = '#181B24'; }}
+      onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.background = 'var(--surface)'; }}
       >
         <Plus size={18} className="text-emerald-400 shrink-0" strokeWidth={2.25} />
         <div className="flex-1 font-mono text-sm text-zinc-400">
@@ -401,14 +401,14 @@ const SortChip = ({ value, onChange }) => {
 // â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€ Card â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€
 // Calm, low-saturation palette. Difficulty is the one chip that carries a real
 // signal, so it keeps colour — but muted ~15% so it reads without glowing.
-const NEUTRAL = { border: 'rgba(148,163,184,0.22)', bg: 'rgba(148,163,184,0.08)', text: '#9AA3B8' };
+const NEUTRAL = { border: 'var(--chip-border)', bg: 'var(--chip-bg)', text: 'var(--chip-text)' };
 const TAG_PALETTE = {
   company: NEUTRAL,
   default: NEUTRAL,
-  Easy:    { border: 'rgba(34,197,94,0.22)',  bg: 'rgba(34,197,94,0.05)',  text: '#7FC9A0' },
-  Medium:  { border: 'rgba(217,162,74,0.22)', bg: 'rgba(217,162,74,0.05)', text: '#D6B36B' },
-  Hard:    { border: 'rgba(225,128,128,0.24)', bg: 'rgba(225,128,128,0.05)', text: '#DD9B9B' },
-  verified:{ border: 'rgba(127,201,160,0.20)', bg: 'transparent',          text: '#7FC9A0' },
+  Easy:    { border: 'rgba(34,197,94,0.22)',  bg: 'rgba(34,197,94,0.05)',  text: 'var(--diff-easy)' },
+  Medium:  { border: 'rgba(217,162,74,0.22)', bg: 'rgba(217,162,74,0.05)', text: 'var(--diff-medium)' },
+  Hard:    { border: 'rgba(225,128,128,0.24)', bg: 'rgba(225,128,128,0.05)', text: 'var(--diff-hard)' },
+  verified:{ border: 'rgba(127,201,160,0.20)', bg: 'transparent',          text: 'var(--diff-easy)' },
 };
 
 const CATEGORY_STYLE = {
@@ -458,20 +458,20 @@ const QuestionCard = ({ q, expanded, onToggleExpand, upvoted, newUpvote, asked, 
     <article
       data-testid={`question-card-${q.id}`}
       className="rounded-lg animate-fade-up transition-colors"
-      style={{ border: '1px solid #262B3A', background: '#181B24' }}
-      onMouseEnter={e => e.currentTarget.style.borderColor = '#343A4D'}
-      onMouseLeave={e => e.currentTarget.style.borderColor = '#262B3A'}
+      style={{ border: '1px solid var(--border)', background: 'var(--surface)' }}
+      onMouseEnter={e => e.currentTarget.style.borderColor = 'var(--border-2)'}
+      onMouseLeave={e => e.currentTarget.style.borderColor = 'var(--border)'}
     >
       <div className="px-6 py-5">
         {/* Body */}
         {expanded ? (
           <div className="text-zinc-100 text-base leading-relaxed space-y-2 mb-3"
-               style={{ color: '#F2F2F4' }}>
+               style={{ color: 'var(--text-1)' }}>
             {q.body.split('\n').map((line, i) => <p key={i}>{line}</p>)}
           </div>
         ) : (
           <p ref={bodyRef} className="text-zinc-100 text-base leading-relaxed line-clamp-3 mb-3"
-             style={{ color: '#F2F2F4' }}>
+             style={{ color: 'var(--text-1)' }}>
             {q.body.replace(/\n/g, ' ')}
           </p>
         )}
@@ -489,13 +489,13 @@ const QuestionCard = ({ q, expanded, onToggleExpand, upvoted, newUpvote, asked, 
             {/* Company — uniform neutral so dark brand colours stay legible */}
             <button onClick={onCompanyClick} data-testid={`open-blueprint-${q.company}`}>
               <span className="inline-flex items-center gap-1 font-mono text-[11px] leading-none px-2.5 py-1 rounded-[5px] whitespace-nowrap"
-                style={{ border: '1px solid rgba(148,163,184,0.22)', background: 'rgba(148,163,184,0.08)', color: '#CBD5E1' }}>
+                style={{ border: '1px solid var(--chip-border)', background: 'var(--chip-bg)', color: 'var(--chip-text)' }}>
                 {companyName}
               </span>
             </button>
             {/* Role */}
             <span className="inline-flex items-center font-mono text-[11px] leading-none px-2.5 py-1 rounded-[5px] whitespace-nowrap"
-              style={{ border: '1px solid rgba(148,163,184,0.22)', background: 'rgba(148,163,184,0.08)', color: '#9AA3B8' }}>
+              style={{ border: '1px solid var(--chip-border)', background: 'var(--chip-bg)', color: 'var(--chip-text)' }}>
               {role}
             </span>
             {/* Difficulty — the one chip that carries a real signal, so it keeps colour */}
@@ -514,7 +514,7 @@ const QuestionCard = ({ q, expanded, onToggleExpand, upvoted, newUpvote, asked, 
               className="inline-flex items-center gap-1.5 font-mono text-[11px] leading-none px-2.5 py-1 rounded-[5px] border transition-colors"
               style={upvoted
                 ? { border: '1px solid rgba(34,197,94,0.30)', background: 'rgba(34,197,94,0.07)', color: '#7FC9A0' }
-                : { border: '1px solid rgba(148,163,184,0.22)', background: 'rgba(148,163,184,0.08)', color: '#CBD5E1' }}
+                : { border: '1px solid var(--chip-border)', background: 'var(--chip-bg)', color: 'var(--chip-text)' }}
             >
               <ArrowUp size={12} strokeWidth={2.25} />
               <span>{q.verifyCount + (newUpvote ? 1 : 0)}</span>
@@ -529,7 +529,7 @@ const QuestionCard = ({ q, expanded, onToggleExpand, upvoted, newUpvote, asked, 
               }`}
               style={asked
                 ? { border: '1px solid rgba(34,197,94,0.30)', background: 'rgba(34,197,94,0.07)', color: 'rgba(110,231,160,0.9)' }
-                : { border: '1px solid rgba(148,163,184,0.22)', background: 'rgba(148,163,184,0.08)', color: '#CBD5E1' }}
+                : { border: '1px solid var(--chip-border)', background: 'var(--chip-bg)', color: 'var(--chip-text)' }}
             >
               <Check size={12} strokeWidth={2.5} />
               <span>{asked ? 'Marked' : 'Asked this'}</span>
@@ -551,7 +551,7 @@ const BlueprintModal = ({ companyId, onClose }) => {
 
   return (
     <Dialog open={true} onOpenChange={(v) => !v && onClose()}>
-      <DialogContent data-testid="blueprint-modal" className="max-w-2xl" style={{ background: '#181B24', border: '1px solid #262B3A', color: '#F2F2F4' }}>
+      <DialogContent data-testid="blueprint-modal" className="max-w-2xl" style={{ background: 'var(--surface)', border: '1px solid var(--border)', color: 'var(--text-1)' }}>
         <DialogHeader>
           <div className="flex items-center gap-3 mb-2">
             <div className="w-10 h-10 rounded-md flex items-center justify-center font-mono font-bold text-sm"

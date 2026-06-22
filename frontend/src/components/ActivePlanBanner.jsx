@@ -33,18 +33,18 @@ export const ActivePlanBanner = () => {
 
         <div className="hidden md:flex flex-1 min-w-0 items-center text-sm text-zinc-300 font-mono">
           <span className="text-zinc-50 font-medium truncate">{company?.name} {plan.role}</span>
-          <span className="text-zinc-600 mx-1.5">·</span>
+          <span className="text-zinc-600 mx-1.5">Â·</span>
           <span className="text-zinc-500">prep</span>
-          <span className="text-zinc-600 mx-1.5">·</span>
+          <span className="text-zinc-600 mx-1.5">Â·</span>
           <span className="text-zinc-50">{plan.dueQuestions}</span>
-          <span className="text-zinc-500 ml-1 truncate">question{plan.dueQuestions === 1 ? '' : 's'} due…</span>
+          <span className="text-zinc-500 ml-1 truncate">question{plan.dueQuestions === 1 ? '' : 's'} dueâ€¦</span>
         </div>
 
         <button
           data-testid="start-plan-day"
           onClick={() => navigate('/app/plan')}
           className="ml-auto shrink-0 inline-flex items-center gap-2 font-mono text-[10px] sm:text-sm font-semibold uppercase tracking-[0.14em] px-3 sm:px-5 py-2 sm:py-2.5 rounded-md text-white hover:opacity-90 transition-opacity"
-          style={{ background: '#3B6FD4' }}
+          style={{ background: 'var(--accent)' }}
         >
           <span className="hidden sm:inline">Begin session</span><span className="sm:hidden">Begin</span> <ArrowRight size={14} strokeWidth={2.5} />
         </button>

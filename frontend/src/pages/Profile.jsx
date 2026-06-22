@@ -24,7 +24,7 @@ export default function Profile({ session, onSignOut }) {
   };
 
   const dangerDelete = () => {
-    toast('Account deletion is manual for now — email hi@stepkai.com and we will purge your data within 30 days.', { duration: 6000 });
+    toast('Account deletion is manual for now â€” email hi@stepkai.com and we will purge your data within 30 days.', { duration: 6000 });
   };
 
   return (
@@ -37,13 +37,13 @@ export default function Profile({ session, onSignOut }) {
       <Section icon={User} title="Identity">
         <div className="flex items-center gap-4 mb-5">
           <div className="w-12 h-12 rounded-md flex items-center justify-center font-mono text-base font-semibold"
-               style={{ background: 'rgba(59,111,212,0.12)', color: '#3B6FD4', border: '1px solid rgba(59,111,212,0.25)' }}>
+               style={{ background: 'rgba(59,111,212,0.12)', color: 'var(--accent)', border: '1px solid rgba(59,111,212,0.25)' }}>
             {user.avatarInitials || 'U'}
           </div>
           <div>
             <div className="text-zinc-100 text-sm font-medium">{user.email || 'unknown'}</div>
             <div className="font-mono text-[10px] uppercase tracking-[0.18em] text-zinc-600 mt-0.5">
-              signed in via {user.provider || 'oauth'} · level {state.level}
+              signed in via {user.provider || 'oauth'} Â· level {state.level}
             </div>
           </div>
         </div>
@@ -78,7 +78,7 @@ export default function Profile({ session, onSignOut }) {
       <div className="flex items-center gap-2 mt-6">
         <button data-testid="save-settings" onClick={save}
           className="inline-flex items-center gap-2 font-mono text-sm font-semibold uppercase tracking-[0.14em] px-4 py-2.5 rounded-md text-zinc-950 hover:brightness-110 transition-all"
-          style={{ background: '#3B6FD4' }}>
+          style={{ background: 'var(--accent)' }}>
           <Save size={14} strokeWidth={2.5} /> Save changes
         </button>
         <button data-testid="profile-signout" onClick={handleSignOut}
@@ -106,7 +106,7 @@ export default function Profile({ session, onSignOut }) {
 const Section = ({ icon: Icon, title, children }) => (
   <div className="mt-7 rounded-lg border border-white/10 bg-zinc-950 p-5">
     <div className="flex items-center gap-2 mb-4">
-      <Icon size={14} strokeWidth={1.75} style={{ color: '#3B6FD4' }} />
+      <Icon size={14} strokeWidth={1.75} style={{ color: 'var(--accent)' }} />
       <div className="font-mono text-[10px] uppercase tracking-[0.22em] text-zinc-600">{title}</div>
     </div>
     {children}
@@ -132,7 +132,7 @@ const Toggle = ({ label, hint, value, onChange, testid }) => (
         value ? 'border-blue-500/50' : 'bg-zinc-900 border-white/10'
       }`} style={value ? { background: 'rgba(59,111,212,0.2)' } : {}}>
       <span className={`w-4 h-4 rounded-full transition-transform ml-1 ${value ? 'translate-x-4' : 'bg-zinc-500'}`}
-            style={value ? { background: '#3B6FD4' } : {}} />
+            style={value ? { background: 'var(--accent)' } : {}} />
     </button>
   </div>
 );
@@ -144,12 +144,12 @@ const LegalLink = ({ to, children }) => (
 );
 
 const Breadcrumb = ({ segments }) => (
-  <div className="font-mono text-sm mb-4" style={{ color: '#4B5270' }}>
-    <span style={{ color: '#3B6FD4' }}>~</span>
+  <div className="font-mono text-sm mb-4" style={{ color: 'var(--text-3)' }}>
+    <span style={{ color: 'var(--accent)' }}>~</span>
     {segments.map((s, i) => (
       <span key={i}>
         <span className="mx-1.5">/</span>
-        <span style={{ color: i === segments.length - 1 ? '#8B8FA8' : '#4B5270' }}>{s}</span>
+        <span style={{ color: i === segments.length - 1 ? 'var(--text-2)' : 'var(--text-3)' }}>{s}</span>
       </span>
     ))}
   </div>

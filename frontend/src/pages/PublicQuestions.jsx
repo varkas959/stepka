@@ -9,17 +9,17 @@ export default function PublicQuestions() {
       <header className="border-b border-white/5 sticky top-0 z-30 bg-zinc-950/90 backdrop-blur">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2.5" data-testid="public-home-logo">
-            <div className="w-8 h-8 rounded-md flex items-center justify-center font-mono font-bold text-white text-sm" style={{ background: '#3B6FD4' }}>S</div>
+            <div className="w-8 h-8 rounded-md flex items-center justify-center font-mono font-bold text-white text-sm" style={{ background: 'var(--accent)' }}>S</div>
             <span className="font-mono font-semibold tracking-tight">Stepkai</span>
           </Link>
           <div className="font-mono text-xs text-zinc-500 hidden sm:block">
-            <span className="text-emerald-400">$</span> browsing as guest · sign in to unlock progress
+            <span className="text-emerald-400">$</span> browsing as guest Â· sign in to unlock progress
           </div>
           <div className="flex items-center gap-2">
             <Link to="/signin" data-testid="public-signin" className="font-mono text-sm text-zinc-300 hover:text-zinc-50 px-3 py-1.5">Sign in</Link>
             <Link to="/signin" data-testid="public-cta"
               className="font-mono text-xs sm:text-sm font-semibold uppercase tracking-[0.14em] px-3 sm:px-4 py-2 rounded-md text-white hover:opacity-90 transition-opacity"
-              style={{ background: '#3B6FD4' }}>
+              style={{ background: 'var(--accent)' }}>
               Get started <ArrowRight size={12} className="inline -mt-0.5" strokeWidth={2.5} />
             </Link>
           </div>

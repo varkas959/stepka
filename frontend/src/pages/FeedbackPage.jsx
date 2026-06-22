@@ -5,9 +5,9 @@ import { ArrowLeft, Star, CheckCircle } from 'lucide-react';
 import { supabase } from '../lib/supabaseClient';
 
 const CATEGORIES = [
-  { id: 'bug',     label: '🐛 Report a Bug' },
-  { id: 'feature', label: '💡 Suggest a Feature' },
-  { id: 'question', label: '❓ Ask a Question' },
+  { id: 'bug',     label: 'ðŸ› Report a Bug' },
+  { id: 'feature', label: 'ðŸ’¡ Suggest a Feature' },
+  { id: 'question', label: 'â“ Ask a Question' },
 ];
 
 export default function FeedbackPage() {
@@ -45,11 +45,11 @@ export default function FeedbackPage() {
   if (done) {
     return (
       <div className="min-h-screen bg-zinc-950 text-zinc-50 flex flex-col items-center justify-center px-4">
-        <Helmet><title>Feedback · Stepkai</title></Helmet>
+        <Helmet><title>Feedback Â· Stepkai</title></Helmet>
         <CheckCircle size={48} className="text-emerald-400 mb-5" strokeWidth={1.5} />
         <h1 className="text-2xl font-semibold text-zinc-50 mb-2">Thanks for the feedback!</h1>
         <p className="text-zinc-400 text-sm mb-8 text-center max-w-sm">We read every submission and use it to improve Stepkai.</p>
-        <Link to="/app/questions" className="font-mono text-sm font-semibold uppercase tracking-[0.14em] px-5 py-2.5 rounded-md text-white hover:opacity-90 transition-opacity" style={{ background: '#3B6FD4' }}>
+        <Link to="/app/questions" className="font-mono text-sm font-semibold uppercase tracking-[0.14em] px-5 py-2.5 rounded-md text-white hover:opacity-90 transition-opacity" style={{ background: 'var(--accent)' }}>
           Back to questions
         </Link>
       </div>
@@ -59,7 +59,7 @@ export default function FeedbackPage() {
   return (
     <div className="min-h-screen bg-zinc-950 text-zinc-50">
       <Helmet>
-        <title>Feedback · Stepkai</title>
+        <title>Feedback Â· Stepkai</title>
         <meta name="description" content="Send feedback, report a bug, or suggest a feature for Stepkai." />
       </Helmet>
 
@@ -67,7 +67,7 @@ export default function FeedbackPage() {
       <header className="border-b border-white/5 sticky top-0 z-30 bg-zinc-950/90 backdrop-blur">
         <div className="max-w-2xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2">
-            <div className="w-7 h-7 rounded flex items-center justify-center font-mono font-bold text-white text-xs" style={{ background: '#3B6FD4' }}>S</div>
+            <div className="w-7 h-7 rounded flex items-center justify-center font-mono font-bold text-white text-xs" style={{ background: 'var(--accent)' }}>S</div>
             <span className="font-mono font-semibold text-sm">Stepkai</span>
           </Link>
         </div>
@@ -106,15 +106,15 @@ export default function FeedbackPage() {
           {/* Message */}
           <div>
             <label className="block font-mono text-xs uppercase tracking-[0.18em] text-zinc-500 mb-3">
-              Message <span style={{ color: '#3B6FD4' }}>*</span>
+              Message <span style={{ color: 'var(--accent)' }}>*</span>
             </label>
             <textarea
               value={message}
               onChange={e => { setMessage(e.target.value); setError(''); }}
               rows={6}
               placeholder={
-                category === 'bug' ? 'Describe the bug — what happened, what did you expect, steps to reproduce…' :
-                category === 'feature' ? 'What would you like to see in Stepkai? The more detail the better…' :
+                category === 'bug' ? 'Describe the bug â€” what happened, what did you expect, steps to reproduceâ€¦' :
+                category === 'feature' ? 'What would you like to see in Stepkai? The more detail the betterâ€¦' :
                 'What would you like to know?'
               }
               className="w-full bg-zinc-900 border border-white/10 rounded-lg px-4 py-3 text-sm text-zinc-100 placeholder:text-zinc-600 focus:outline-none focus:border-blue-500/40 resize-y font-mono"
@@ -163,9 +163,9 @@ export default function FeedbackPage() {
             type="submit"
             disabled={submitting || !message.trim()}
             className="w-full font-mono text-sm font-semibold uppercase tracking-[0.14em] px-5 py-3 rounded-md text-white hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
-            style={{ background: '#3B6FD4' }}
+            style={{ background: 'var(--accent)' }}
           >
-            {submitting ? 'Sending…' : 'Send feedback'}
+            {submitting ? 'Sendingâ€¦' : 'Send feedback'}
           </button>
         </form>
       </main>

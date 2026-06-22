@@ -9,7 +9,7 @@ export const CreatableSelect = ({
   value,
   onChange,
   options = [],       // [{id, label}]
-  placeholder = 'select or type…',
+  placeholder = 'select or typeâ€¦',
   testid,
 }) => {
   const [open, setOpen] = useState(false);
@@ -56,7 +56,7 @@ export const CreatableSelect = ({
               onKeyDown={(e) => {
                 if (e.key === 'Enter' && q.trim()) { e.preventDefault(); commit(q.trim()); }
               }}
-              placeholder={`type ${label}…`}
+              placeholder={`type ${label}â€¦`}
               className="flex-1 bg-transparent border-0 outline-none font-mono text-xs text-zinc-100 placeholder:text-zinc-600 px-1"
             />
             {q && (
@@ -77,7 +77,7 @@ export const CreatableSelect = ({
             {q.trim() && !exists && (
               <button type="button" data-testid={`creatable-add-${testid}`}
                 onClick={() => commit(q.trim())}
-                className="w-full flex items-center gap-2 px-3 py-2 font-mono text-sm text-left hover:bg-white/5 border-t border-white/5" style={{ color: '#3B6FD4' }}>
+                className="w-full flex items-center gap-2 px-3 py-2 font-mono text-sm text-left hover:bg-white/5 border-t border-white/5" style={{ color: 'var(--accent)' }}>
                 <Plus size={12} /> <span>add custom: "{q.trim()}"</span>
               </button>
             )}

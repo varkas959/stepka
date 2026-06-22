@@ -8,7 +8,7 @@ export default function LegalPage({ kind = 'privacy' }) {
       <header className="border-b border-white/5">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2.5" data-testid="legal-home-link">
-            <div className="w-7 h-7 rounded-md flex items-center justify-center font-mono font-bold text-white text-xs" style={{ background: '#3B6FD4' }}>S</div>
+            <div className="w-7 h-7 rounded-md flex items-center justify-center font-mono font-bold text-white text-xs" style={{ background: 'var(--accent)' }}>S</div>
             <span className="font-mono font-semibold tracking-tight text-sm">Stepkai</span>
           </Link>
           <Link to="/" className="font-mono text-xs text-zinc-400 hover:text-zinc-50 inline-flex items-center gap-1.5">
@@ -81,12 +81,12 @@ const PRIVACY = {
     { h: '4. Third parties',
       p: ['Stepkai relies on a small number of trusted services to operate:'],
       list: [
-        'Supabase — authentication and database hosting',
-        'Google (Gemini) — AI grading and JD analysis',
-        'LinkedIn / Google — OAuth identity',
+        'Supabase â€” authentication and database hosting',
+        'Google (Gemini) â€” AI grading and JD analysis',
+        'LinkedIn / Google â€” OAuth identity',
       ] },
     { h: '5. Your rights',
-      p: ['You can request a full export or deletion of your data at any time. Email hi@stepkai.com and we will respond within 30 days. Signed-in users can delete their account from Profile → Settings → Danger zone.'] },
+      p: ['You can request a full export or deletion of your data at any time. Email hi@stepkai.com and we will respond within 30 days. Signed-in users can delete their account from Profile â†’ Settings â†’ Danger zone.'] },
     { h: '6. Contact',
       p: ['Privacy questions: hi@stepkai.com. Data controller: Stepkai Inc.'] },
   ],
@@ -117,9 +117,9 @@ const TERMS = {
     { h: '7. Payment & subscriptions',
       p: ['The current MVP is free. When we launch paid tiers, the pricing and refund policy will be presented at the point of purchase and added here.'] },
     { h: '8. Termination',
-      p: ['We may suspend or terminate your account for violations of these Terms. You can close your account at any time from Profile → Settings.'] },
+      p: ['We may suspend or terminate your account for violations of these Terms. You can close your account at any time from Profile â†’ Settings.'] },
     { h: '9. Liability',
-      p: ['Stepkai is provided "as is." We are not liable for any indirect damages — including missed interview offers — arising from your use of the service.'] },
+      p: ['Stepkai is provided "as is." We are not liable for any indirect damages â€” including missed interview offers â€” arising from your use of the service.'] },
     { h: '10. Changes',
       p: ['We may update these Terms. Material changes will be announced in-app at least 14 days before they take effect.'] },
   ],

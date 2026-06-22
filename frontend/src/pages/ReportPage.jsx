@@ -5,18 +5,18 @@ import { Check, X, Clock, ArrowRight, Share2, Copy } from 'lucide-react';
 import { toast } from 'sonner';
 
 const C = {
-  bg: '#0C0E14', bg2: '#181B24', bg3: '#1C2030',
-  border: '#262B3A', border2: '#343A4D',
-  text1: '#F2F2F4', text2: '#8B8FA8', text3: '#4B5270',
-  accent: '#3B6FD4', green: '#22C55E', amber: '#F59E0B', red: '#EF4444',
+  bg: 'var(--page)', bg2: 'var(--surface)', bg3: 'var(--surface-2)',
+  border: 'var(--border)', border2: 'var(--border-2)',
+  text1: 'var(--text-1)', text2: 'var(--text-2)', text3: 'var(--text-3)',
+  accent: 'var(--accent)', green: '#22C55E', amber: '#F59E0B', red: '#EF4444',
 };
 
 function scoreColor(s) { return s >= 75 ? C.green : s >= 50 ? C.amber : C.red; }
 function scoreLabel(s) { return s >= 75 ? 'Loop Ready' : s >= 50 ? 'Interview Ready' : 'Needs Prep'; }
 function prepLabel(weeks) {
-  if (!weeks) return '3–5 weeks';
-  if (weeks === 1) return '1 week · 30 min/day';
-  return `${weeks} weeks · 45 min/day`;
+  if (!weeks) return '3â€“5 weeks';
+  if (weeks === 1) return '1 week Â· 30 min/day';
+  return `${weeks} weeks Â· 45 min/day`;
 }
 
 export default function ReportPage() {
@@ -44,7 +44,7 @@ export default function ReportPage() {
   if (loading) {
     return (
       <div style={{ background: C.bg, minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <span className="font-mono text-sm" style={{ color: C.text3 }}>Loading report…</span>
+        <span className="font-mono text-sm" style={{ color: C.text3 }}>Loading reportâ€¦</span>
       </div>
     );
   }
@@ -64,7 +64,7 @@ export default function ReportPage() {
   const gaps = (report.heatmap || []).filter(h => h.score < 50).sort((a, b) => a.score - b.score).slice(0, 4);
   const scoreClr = scoreColor(report.readiness);
   const date = new Date(report.created_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
-  const ogTitle = `${report.company} ${report.role} · ${report.readiness}% Readiness · Stepkai`;
+  const ogTitle = `${report.company} ${report.role} Â· ${report.readiness}% Readiness Â· Stepkai`;
   const ogDesc = [
     strengths.length ? `Strengths: ${strengths.map(s => s.skill).join(', ')}.` : '',
     gaps.length ? `Gaps: ${gaps.map(g => g.skill).join(', ')}.` : '',
@@ -79,7 +79,7 @@ export default function ReportPage() {
       </Helmet>
 
       {/* Nav */}
-      <header className="sticky top-0 z-10 backdrop-blur-sm" style={{ borderBottom: `1px solid ${C.border}`, background: `${C.bg}E6` }}>
+      <header className="sticky top-0 z-10 backdrop-blur-sm" style={{ borderBottom: `1px solid ${C.border}`, background: 'var(--surface-blur)' }}>
         <div className="max-w-2xl mx-auto px-6 h-14 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2.5">
             <div className="w-6 h-6 rounded text-xs font-bold text-white flex items-center justify-center font-mono" style={{ background: C.accent }}>S</div>
@@ -110,7 +110,7 @@ export default function ReportPage() {
             <div className="flex items-start justify-between gap-4">
               <div>
                 <div className="text-lg font-semibold" style={{ color: C.text1 }}>{report.company}</div>
-                <div className="font-mono text-xs mt-0.5" style={{ color: C.text3 }}>{report.role} · Technical loop</div>
+                <div className="font-mono text-xs mt-0.5" style={{ color: C.text3 }}>{report.role} Â· Technical loop</div>
               </div>
               <div className="text-right">
                 <div className="font-mono font-semibold leading-none" style={{ fontSize: 44, color: scoreClr }}>

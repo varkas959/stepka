@@ -104,7 +104,7 @@ export default function InterviewIntelligence({ kind }) {
         {intel.total === 0 ? (
           <div className="rounded-lg border border-white/10 bg-zinc-950 p-10 text-center">
             <p className="text-zinc-300 text-lg font-medium">No reports yet for {scope.companyName || scope.role}.</p>
-            <p className="text-zinc-500 text-sm mt-2">Be the first to report — your experience becomes the baseline others learn from.</p>
+            <p className="text-zinc-500 text-sm mt-2">Be the first to report â€” your experience becomes the baseline others learn from.</p>
             <button onClick={() => setModalOpen(true)} className="mt-5 inline-flex items-center gap-2 font-mono text-sm font-semibold px-4 py-2.5 rounded-md text-white" style={{ background: '#7C3AED' }}>
               <FileText size={14} /> Report the first experience
             </button>
@@ -114,7 +114,7 @@ export default function InterviewIntelligence({ kind }) {
             {/* Stat row */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
               <Stat label="Reported interviews" value={intel.total} />
-              <Stat label="Avg difficulty" value={intel.avgDifficulty ? `${intel.avgDifficulty}/5` : '—'} sub={intel.avgDifficulty ? DIFF_LABEL[Math.round(intel.avgDifficulty) - 1] : ''} />
+              <Stat label="Avg difficulty" value={intel.avgDifficulty ? `${intel.avgDifficulty}/5` : 'â€”'} sub={intel.avgDifficulty ? DIFF_LABEL[Math.round(intel.avgDifficulty) - 1] : ''} />
               <Stat label="Selected" value={intel.outcomeFreq.Selected} color="#22c55e" />
               <Stat label="Rejected" value={intel.outcomeFreq.Rejected} color="#ef4444" />
             </div>
@@ -141,7 +141,7 @@ export default function InterviewIntelligence({ kind }) {
                 <div className="flex flex-wrap gap-2">
                   {intel.commonRounds.map(r => (
                     <span key={r.name} className="font-mono text-xs px-2.5 py-1 rounded border border-white/10 text-zinc-300">
-                      {r.name} <span className="text-zinc-600">· {r.count}</span>
+                      {r.name} <span className="text-zinc-600">Â· {r.count}</span>
                     </span>
                   ))}
                 </div>
@@ -168,7 +168,7 @@ export default function InterviewIntelligence({ kind }) {
                 <ol className="space-y-2.5">
                   {intel.topQuestions.map((q, i) => (
                     <li key={i} className="flex items-start gap-3">
-                      <span className="font-mono text-[11px] text-purple-400 mt-0.5 shrink-0">{q.count > 1 ? `${q.count}×` : ''}</span>
+                      <span className="font-mono text-[11px] text-purple-400 mt-0.5 shrink-0">{q.count > 1 ? `${q.count}Ã—` : ''}</span>
                       <span className="text-zinc-200 text-sm leading-relaxed">{q.body}</span>
                     </li>
                   ))}
@@ -196,8 +196,8 @@ export default function InterviewIntelligence({ kind }) {
               <p className="text-zinc-300 text-sm leading-relaxed mb-3">
                 Test yourself against {scope.companyName || scope.role} interview patterns and get a readiness score with a gap-driven study plan.
               </p>
-              <Link to="/app/plan" className="inline-flex items-center gap-2 font-mono text-sm font-semibold px-4 py-2.5 rounded-md text-white hover:opacity-90 transition-opacity" style={{ background: '#3B6FD4' }}>
-                Take the assessment →
+              <Link to="/app/plan" className="inline-flex items-center gap-2 font-mono text-sm font-semibold px-4 py-2.5 rounded-md text-white hover:opacity-90 transition-opacity" style={{ background: 'var(--accent)' }}>
+                Take the assessment â†’
               </Link>
             </div>
 
@@ -210,13 +210,13 @@ export default function InterviewIntelligence({ kind }) {
                   return (
                     <div key={exp.id} className="rounded-md border border-white/8 bg-zinc-950 p-4">
                       <div className="flex items-center gap-2 flex-wrap mb-1.5">
-                        {kind !== 'companyRole' && <span className="font-mono text-xs text-zinc-300">{exp.company} · {exp.role}</span>}
+                        {kind !== 'companyRole' && <span className="font-mono text-xs text-zinc-300">{exp.company} Â· {exp.role}</span>}
                         {Icon && <span className="inline-flex items-center gap-1 font-mono text-[11px]" style={{ color: om.color }}><Icon size={11} /> {exp.outcome}</span>}
                         {exp.difficulty && <span className="font-mono text-[11px] text-zinc-500">difficulty {exp.difficulty}/5</span>}
                         {exp.experienceYears && <span className="font-mono text-[11px] text-zinc-500">{exp.experienceYears}</span>}
                         <span className="ml-auto font-mono text-[11px] text-zinc-600">{exp.daysAgo === 0 ? 'Today' : `${exp.daysAgo}d ago`}</span>
                       </div>
-                      <div className="font-mono text-[11px] text-zinc-500 mb-2">{exp.numRounds} round{exp.numRounds > 1 ? 's' : ''} · Reported by {attribution(exp)}</div>
+                      <div className="font-mono text-[11px] text-zinc-500 mb-2">{exp.numRounds} round{exp.numRounds > 1 ? 's' : ''} Â· Reported by {attribution(exp)}</div>
                       {exp.notes && <p className="text-zinc-300 text-sm leading-relaxed">{exp.notes}</p>}
                     </div>
                   );
