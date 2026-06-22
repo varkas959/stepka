@@ -478,52 +478,57 @@ const QuestionCard = ({ q, expanded, onToggleExpand, upvoted, newUpvote, asked, 
           </button>
         )}
 
-        {/* bottom row: chips + actions */}
-        <div className="flex items-center flex-wrap gap-2">
-          {/* Company */}
-          <button onClick={onCompanyClick} data-testid={`open-blueprint-${q.company}`}>
-            <span className="inline-flex items-center gap-1 font-mono text-[11px] px-2 py-0.5 rounded-[4px] whitespace-nowrap"
-              style={{ border: `1px solid ${companyColor}44`, background: `${companyColor}18`, color: companyColor }}>
-              {companyName}
+        {/* bottom row: chips + actions — each group wraps as a unit so mobile stays tidy */}
+        <div className="flex flex-wrap items-center justify-between gap-x-2 gap-y-3">
+          {/* chips */}
+          <div className="flex flex-wrap items-center gap-1.5">
+            {/* Company — uniform neutral so dark brand colours stay legible */}
+            <button onClick={onCompanyClick} data-testid={`open-blueprint-${q.company}`}>
+              <span className="inline-flex items-center gap-1 font-mono text-[11px] px-2 py-0.5 rounded-[4px] whitespace-nowrap"
+                style={{ border: '1px solid rgba(148,163,184,0.22)', background: 'rgba(148,163,184,0.08)', color: '#CBD5E1' }}>
+                {companyName}
+              </span>
+            </button>
+            {/* Role */}
+            <span className="inline-flex items-center font-mono text-[11px] px-2 py-0.5 rounded-[4px] whitespace-nowrap"
+              style={{ border: '1px solid rgba(148,163,184,0.22)', background: 'rgba(148,163,184,0.08)', color: '#9AA3B8' }}>
+              {role}
             </span>
-          </button>
-          {/* Role */}
-          <span className="inline-flex items-center font-mono text-[11px] px-2 py-0.5 rounded-[4px] whitespace-nowrap"
-            style={{ border: '1px solid rgba(59,111,212,0.35)', background: 'rgba(59,111,212,0.10)', color: '#93C5FD' }}>
-            {role}
-          </span>
-          {/* Difficulty */}
-          <TagPill kind={q.difficulty}>{q.difficulty}</TagPill>
-          {/* Verified */}
-          {isVerified && <TagPill kind={'verified'}>&#10003; Verified</TagPill>}
+            {/* Difficulty — the one chip that carries a real signal, so it keeps colour */}
+            <TagPill kind={q.difficulty}>{q.difficulty}</TagPill>
+            {/* Verified */}
+            {isVerified && <TagPill kind={'verified'}>&#10003; Verified</TagPill>}
+          </div>
 
-          <div className="flex-1" />
-
-          {/* Upvote */}
-          <button
-            data-testid={`upvote-${q.id}`}
-            onClick={onUpvote}
-            className={`inline-flex items-center gap-1.5 font-mono text-sm px-3 py-1.5 rounded-md border transition-colors ${
-              upvoted ? 'border-emerald-500/40 bg-emerald-500/[0.08] text-emerald-400' : 'border-white/10 text-zinc-300 hover:bg-white/5'
-            }`}
-          >
-            <ArrowUp size={13} strokeWidth={2.25} />
-            <span>{q.verifyCount + (newUpvote ? 1 : 0)}</span>
-          </button>
-          {/* I was asked this */}
-          <button
-            data-testid={`asked-${q.id}`}
-            onClick={onAsked}
-            disabled={asked}
-            className={`inline-flex items-center gap-1.5 font-mono text-sm px-3 py-1.5 rounded-md transition-colors ${
-              asked
-                ? 'bg-emerald-500/15 border border-emerald-500/40 text-emerald-300'
-                : 'bg-emerald-500/[0.08] border border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/15'
-            }`}
-          >
-            <DollarSign size={13} strokeWidth={2.25} />
-            <span>{asked ? 'marked' : 'i-was-asked-this'}</span>
-          </button>
+          {/* actions */}
+          <div className="flex items-center gap-2">
+            {/* Upvote */}
+            <button
+              data-testid={`upvote-${q.id}`}
+              onClick={onUpvote}
+              aria-label="Verify this question"
+              className={`inline-flex items-center gap-1.5 font-mono text-xs px-2.5 py-1.5 rounded-md border transition-colors ${
+                upvoted ? 'border-emerald-500/40 bg-emerald-500/[0.08] text-emerald-400' : 'border-white/10 text-zinc-300 hover:bg-white/5'
+              }`}
+            >
+              <ArrowUp size={13} strokeWidth={2.25} />
+              <span>{q.verifyCount + (newUpvote ? 1 : 0)}</span>
+            </button>
+            {/* I was asked this */}
+            <button
+              data-testid={`asked-${q.id}`}
+              onClick={onAsked}
+              disabled={asked}
+              className={`inline-flex items-center gap-1.5 font-mono text-xs px-2.5 py-1.5 rounded-md transition-colors whitespace-nowrap ${
+                asked
+                  ? 'bg-emerald-500/15 border border-emerald-500/40 text-emerald-300'
+                  : 'bg-emerald-500/[0.08] border border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/15'
+              }`}
+            >
+              <DollarSign size={13} strokeWidth={2.25} />
+              <span>{asked ? 'Marked' : 'Asked this'}</span>
+            </button>
+          </div>
         </div>
       </div>
     </article>
