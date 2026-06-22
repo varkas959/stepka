@@ -4,8 +4,8 @@ import { useState } from 'react';
 import { useAppState } from '../lib/appState';
 
 const BG  = '#0C0E14';
-const BG2 = '#141720';
-const BDR = '#272B3F';
+const BG2 = '#181B24';
+const BDR = '#262B3A';
 const T1  = '#F2F2F4';
 const T2  = '#8B8FA8';
 const T3  = '#4B5270';

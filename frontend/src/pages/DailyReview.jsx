@@ -1,4 +1,4 @@
-﻿import { useState } from 'react';
+import { useState } from 'react';
 import { SRS_CARDS } from '../lib/mockData';
 import { useAppState } from '../lib/appState';
 import { PixelBar } from '../components/PixelBar';
@@ -7,10 +7,10 @@ import { useNavigate } from 'react-router-dom';
 
 const C = {
   bg:     '#0C0E14',
-  bg2:    '#141720',
+  bg2:    '#181B24',
   bg3:    '#1C2030',
-  border: '#272B3F',
-  border2:'#323752',
+  border: '#262B3A',
+  border2:'#343A4D',
   text1:  '#F2F2F4',
   text2:  '#8B8FA8',
   text3:  '#4B5270',

@@ -1,4 +1,4 @@
-﻿import { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Check, X, Clock } from 'lucide-react';
 import { COMPANIES, QUESTIONS } from '../lib/mockData';
@@ -6,10 +6,10 @@ import { getSession } from '../lib/auth';
 
 const C = {
   bg:      '#0C0E14',
-  bg2:     '#141720',
+  bg2:     '#181B24',
   bg3:     '#1C2030',
-  border:  '#272B3F',
-  border2: '#323752',
+  border:  '#262B3A',
+  border2: '#343A4D',
   text1:   '#F2F2F4',
   text2:   '#8B8FA8',
   text3:   '#4B5270',
