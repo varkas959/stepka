@@ -1,5 +1,5 @@
 import { useMemo, useState, useEffect, useRef } from 'react';
-import { Plus, X, ArrowUp, ArrowUpRight, Info } from 'lucide-react';
+import { Plus, X, ArrowUp, ArrowUpRight, SlidersHorizontal } from 'lucide-react';
 import { toast } from 'sonner';
 import { Link } from 'react-router-dom';
 import { QUESTIONS, COMPANIES, ROLES, ROLE_MAP, CATEGORIES, CATEGORY_MAP, TOPIC_TREE, DIFFICULTIES, ROUND_TYPES, COMPANY_BLUEPRINTS, TECH_STACK } from '../lib/mockData';
@@ -51,11 +51,11 @@ const FILTER_DEFS = [
   { key: 'round',      label: 'round',      options: ROUND_TYPES.map(r => ({ id: r, label: r })) },
 ];
 
-const accentForQ = (q) => {
-  if (q.difficulty === 'Hard') return '#EF4444';
-  if (q.difficulty === 'Easy') return '#22C55E';
-  return 'var(--accent)';
-};
+// Company / Role / Difficulty are the filters people actually reach for first;
+// everything else lives behind a "More filters" drawer.
+const PRIMARY_KEYS = ['company', 'role', 'difficulty'];
+const PRIMARY_FILTERS = PRIMARY_KEYS.map(k => FILTER_DEFS.find(d => d.key === k));
+const SECONDARY_FILTERS = FILTER_DEFS.filter(d => !PRIMARY_KEYS.includes(d.key));
 
 
 export default function QuestionBank({ isGuest = false, userId }) {
@@ -116,6 +116,7 @@ export default function QuestionBank({ isGuest = false, userId }) {
   };
   const [contributeOpen, setContributeOpen] = useState(false);
   const [contributeMode, setContributeMode] = useState('quick');
+  const [moreFiltersOpen, setMoreFiltersOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
   const openContribute = (mode = 'quick') => {
@@ -206,7 +207,7 @@ export default function QuestionBank({ isGuest = false, userId }) {
         <div>
           <h1 className="text-3xl md:text-4xl font-semibold tracking-tight text-zinc-50">Real interview questions</h1>
           <p className="text-zinc-400 mt-1.5 text-sm max-w-xl">
-            <span className="text-zinc-200 font-medium">{allQuestions.length} verified questions</span> from engineers at top companies.
+            Verified by the community, from engineers at top companies.
           </p>
           {filters.company !== ALL && (
             <Link to={`/company/${slugify(COMPANIES.find(c => c.id === filters.company)?.name || filters.company)}`}
@@ -260,8 +261,8 @@ export default function QuestionBank({ isGuest = false, userId }) {
           )}
         </div>
 
-        {/* Filter chips - selected show value + x, unselected show + label */}
-        {FILTER_DEFS.map(def => (
+        {/* Primary filter chips — Company, Role, Difficulty */}
+        {PRIMARY_FILTERS.map(def => (
           <SearchableFilterChip
             key={def.key}
             label={def.label}
@@ -272,6 +273,24 @@ export default function QuestionBank({ isGuest = false, userId }) {
             testid={def.key}
           />
         ))}
+
+        {/* More filters toggle — the rest (category, topic, tech, round) live here */}
+        {(() => {
+          const activeSecondary = SECONDARY_FILTERS.filter(d => filters[d.key] !== ALL).length;
+          return (
+            <button
+              data-testid="more-filters"
+              onClick={() => setMoreFiltersOpen(o => !o)}
+              className="inline-flex items-center gap-1.5 font-mono text-xs px-2.5 py-1.5 rounded-md border transition-colors"
+              style={{ borderColor: moreFiltersOpen || activeSecondary ? 'var(--accent)' : 'rgba(255,255,255,0.10)',
+                       color: moreFiltersOpen || activeSecondary ? 'var(--text-1)' : 'var(--text-2)',
+                       background: activeSecondary ? 'var(--accent-12)' : 'transparent' }}
+            >
+              <SlidersHorizontal size={13} /> More filters
+              {activeSecondary > 0 && <span className="font-semibold" style={{ color: 'var(--accent)' }}>{activeSecondary}</span>}
+            </button>
+          );
+        })()}
         <SortChip value={sortBy} onChange={setSortBy} />
 
         {/* Clear all - only shown when any filter is active */}
@@ -284,6 +303,25 @@ export default function QuestionBank({ isGuest = false, userId }) {
           </button>
         )}
       </div>
+
+      {/* Secondary filters drawer */}
+      {moreFiltersOpen && (
+        <div className="mb-5 -mt-2 flex flex-wrap items-center gap-1.5 rounded-md border p-3 animate-fade-up"
+             style={{ borderColor: 'var(--border)', background: 'var(--surface)' }} data-testid="more-filters-panel">
+          <span className="font-mono text-[10px] uppercase tracking-[0.16em] mr-1" style={{ color: 'var(--text-3)' }}>More</span>
+          {SECONDARY_FILTERS.map(def => (
+            <SearchableFilterChip
+              key={def.key}
+              label={def.label}
+              value={filters[def.key] === ALL ? null : filters[def.key]}
+              options={def.options}
+              onChange={(v) => setF(def.key, v)}
+              onClear={() => clearOne(def.key)}
+              testid={def.key}
+            />
+          ))}
+        </div>
+      )}
 
       {/* Mobile FAB - appears when scrolled */}
       <button
@@ -322,7 +360,7 @@ export default function QuestionBank({ isGuest = false, userId }) {
       )}
 
       {/* Cards */}
-      <div className="space-y-4" data-testid="question-feed">
+      <div className="space-y-2.5" data-testid="question-feed">
         {filtered.length === 0 && (
           <div className="border border-white/10 rounded-md p-10 text-center font-mono text-sm" data-testid="empty-state">
             <div className="text-zinc-400">// no questions match your filters yet</div>
@@ -420,17 +458,6 @@ const TAG_PALETTE = {
   verified:{ border: 'rgba(127,201,160,0.20)', bg: 'transparent',          text: 'var(--diff-easy)' },
 };
 
-const CATEGORY_STYLE = {
-  'DSA':           { border: 'rgba(59,111,212,0.30)', bg: 'rgba(59,111,212,0.07)', text: '#7BA7F5' },
-  'System Design': { border: 'rgba(139,92,246,0.30)', bg: 'rgba(139,92,246,0.07)', text: '#C4B5FD' },
-  'Behavioral':    { border: 'rgba(245,158,11,0.30)', bg: 'rgba(245,158,11,0.07)', text: '#FCD34D' },
-  'Technical':     { border: 'rgba(255,255,255,0.12)', bg: 'rgba(255,255,255,0.04)', text: '#A1A1AA' },
-  'Domain':        { border: 'rgba(20,184,166,0.30)', bg: 'rgba(20,184,166,0.07)', text: '#5EEAD4' },
-  'Agile':         { border: 'rgba(34,197,94,0.30)',  bg: 'rgba(34,197,94,0.07)',  text: '#4ade80' },
-  'Testing':       { border: 'rgba(249,115,22,0.30)', bg: 'rgba(249,115,22,0.07)', text: '#FCA5A5' },
-  'DevOps':        { border: 'rgba(14,165,233,0.30)', bg: 'rgba(14,165,233,0.07)', text: '#7DD3FC' },
-};
-
 const TagPill = ({ children, kind = 'default', testid }) => {
   const p = TAG_PALETTE[kind] || TAG_PALETTE.default;
   return (
@@ -444,15 +471,10 @@ const TagPill = ({ children, kind = 'default', testid }) => {
 };
 
 const QuestionCard = ({ q, expanded, onToggleExpand, upvoted, newUpvote, asked, onUpvote, onAsked, onCompanyClick }) => {
-  const accent = accentForQ(q);
   const isVerified = q.verifyCount >= 3;
   const company = COMPANIES.find(c => c.id === q.company);
   const companyName = company?.name || q.company;
-  const companyColor = company?.color || '#94a3b8';
-  const popularity = Math.min(100, q.asked * 2);
   const role = canonicalRole(q.role);
-  const category = deriveCategory(q);
-  const catStyle = CATEGORY_STYLE[category] || TAG_PALETTE.default;
 
   // Detect whether line-clamp is actually cutting off text (viewport-aware).
   const bodyRef = useRef(null);
@@ -463,6 +485,9 @@ const QuestionCard = ({ q, expanded, onToggleExpand, upvoted, newUpvote, asked, 
     setOverflows(el.scrollHeight > el.clientHeight + 2);
   }, [q.body, expanded]);
 
+  const diffColor = q.difficulty === 'Hard' ? 'var(--diff-hard)'
+    : q.difficulty === 'Easy' ? 'var(--diff-easy)' : 'var(--diff-medium)';
+
   return (
     <article
       data-testid={`question-card-${q.id}`}
@@ -471,56 +496,46 @@ const QuestionCard = ({ q, expanded, onToggleExpand, upvoted, newUpvote, asked, 
       onMouseEnter={e => e.currentTarget.style.borderColor = 'var(--border-2)'}
       onMouseLeave={e => e.currentTarget.style.borderColor = 'var(--border)'}
     >
-      <div className="px-6 py-5">
-        {/* Body */}
+      <div className="px-4 py-3">
+        {/* Body — click to expand/collapse, tight 2-line clamp for scan speed */}
         {expanded ? (
-          <div className="text-zinc-100 text-base leading-relaxed space-y-2 mb-3"
-               style={{ color: 'var(--text-1)' }}>
+          <div className="text-sm leading-snug space-y-1.5 mb-2 cursor-pointer"
+               style={{ color: 'var(--text-1)' }} onClick={onToggleExpand}>
             {q.body.split('\n').map((line, i) => <p key={i}>{line}</p>)}
           </div>
         ) : (
-          <p ref={bodyRef} className="text-zinc-100 text-base leading-relaxed line-clamp-3 mb-3"
+          <p ref={bodyRef} onClick={() => overflows && onToggleExpand()}
+             className={`text-sm leading-snug line-clamp-2 mb-2 ${overflows ? 'cursor-pointer' : ''}`}
              style={{ color: 'var(--text-1)' }}>
             {q.body.replace(/\n/g, ' ')}
           </p>
         )}
-        {(overflows || expanded) && (
-          <button onClick={onToggleExpand} className="font-mono text-sm text-emerald-400 hover:text-emerald-300 mb-4 block" data-testid={`expand-${q.id}`}>
-            {expanded ? '- show less' : '+ show more'}
-          </button>
-        )}
 
-        {/* bottom row: chips + actions — each group wraps as a unit so mobile stays tidy.
-            All pills share the same height (py-1, text-[11px]) so the row reads as one line. */}
-        <div className="flex flex-wrap items-center justify-start md:justify-between gap-x-2 gap-y-2">
-          {/* chips */}
-          <div className="flex flex-wrap items-center gap-1.5">
-            {/* Company — uniform neutral so dark brand colours stay legible */}
-            <button onClick={onCompanyClick} data-testid={`open-blueprint-${q.company}`}>
-              <span className="inline-flex items-center gap-1 font-mono text-[11px] leading-none px-2.5 py-1 rounded-[5px] whitespace-nowrap"
-                style={{ border: '1px solid var(--chip-border)', background: 'var(--chip-bg)', color: 'var(--chip-text)' }}>
-                {companyName}
-              </span>
-            </button>
-            {/* Role */}
-            <span className="inline-flex items-center font-mono text-[11px] leading-none px-2.5 py-1 rounded-[5px] whitespace-nowrap"
-              style={{ border: '1px solid var(--chip-border)', background: 'var(--chip-bg)', color: 'var(--chip-text)' }}>
-              {role}
-            </span>
-            {/* Difficulty — the one chip that carries a real signal, so it keeps colour */}
-            <TagPill kind={q.difficulty}>{q.difficulty}</TagPill>
-            {/* Verified */}
-            {isVerified && <TagPill kind={'verified'}>&#10003; Verified</TagPill>}
+        {/* Single compact line: metadata (left) + actions (right) */}
+        <div className="flex items-center justify-between gap-2">
+          {/* metadata — Company • Role • Difficulty • Verified */}
+          <div className="flex items-center flex-wrap gap-x-1.5 gap-y-0.5 font-mono text-[11px] leading-none min-w-0"
+               style={{ color: 'var(--text-3)' }}>
+            <button onClick={onCompanyClick} data-testid={`open-blueprint-${q.company}`}
+              className="hover:underline truncate" style={{ color: 'var(--chip-text)' }}>{companyName}</button>
+            <span aria-hidden>·</span>
+            <span style={{ color: 'var(--text-2)' }} className="truncate">{role}</span>
+            <span aria-hidden>·</span>
+            <span style={{ color: diffColor }}>{q.difficulty}</span>
+            {isVerified && (<><span aria-hidden>·</span>
+              <span className="inline-flex items-center gap-0.5" style={{ color: 'var(--diff-easy)' }}>&#10003; Verified</span></>)}
+            {overflows && !expanded && (
+              <button onClick={onToggleExpand} className="text-emerald-400 hover:text-emerald-300 ml-0.5" data-testid={`expand-${q.id}`}>more</button>
+            )}
           </div>
 
-          {/* actions — neutral at rest (match chips), quiet emerald only once acted on */}
-          <div className="flex items-center gap-1.5">
-            {/* Upvote */}
+          {/* actions — compact, neutral at rest */}
+          <div className="flex items-center gap-1.5 shrink-0">
             <button
               data-testid={`upvote-${q.id}`}
               onClick={onUpvote}
               aria-label="Verify this question"
-              className="inline-flex items-center gap-1.5 font-mono text-[11px] leading-none px-2.5 py-1 rounded-[5px] border transition-colors"
+              className="inline-flex items-center gap-1 font-mono text-[11px] leading-none px-2 py-1 rounded-[5px] border transition-colors"
               style={upvoted
                 ? { border: '1px solid rgba(34,197,94,0.30)', background: 'rgba(34,197,94,0.07)', color: '#7FC9A0' }
                 : { border: '1px solid var(--chip-border)', background: 'var(--chip-bg)', color: 'var(--chip-text)' }}
@@ -528,12 +543,12 @@ const QuestionCard = ({ q, expanded, onToggleExpand, upvoted, newUpvote, asked, 
               <ArrowUp size={12} strokeWidth={2.25} />
               <span>{q.verifyCount + (newUpvote ? 1 : 0)}</span>
             </button>
-            {/* I was asked this — neutral like the company chip, not a neon call-to-action */}
             <button
               data-testid={`asked-${q.id}`}
               onClick={onAsked}
               disabled={asked}
-              className={`inline-flex items-center gap-1.5 font-mono text-[11px] leading-none px-2.5 py-1 rounded-[5px] border transition-colors whitespace-nowrap ${
+              aria-label="I was asked this"
+              className={`inline-flex items-center gap-1 font-mono text-[11px] leading-none px-2 py-1 rounded-[5px] border transition-colors whitespace-nowrap ${
                 asked ? '' : 'hover:bg-white/[0.04]'
               }`}
               style={asked
@@ -541,7 +556,7 @@ const QuestionCard = ({ q, expanded, onToggleExpand, upvoted, newUpvote, asked, 
                 : { border: '1px solid var(--chip-border)', background: 'var(--chip-bg)', color: 'var(--chip-text)' }}
             >
               <Check size={12} strokeWidth={2.5} />
-              <span>{asked ? 'Marked' : 'Asked this'}</span>
+              <span className="hidden sm:inline">{asked ? 'Marked' : 'Asked this'}</span>
             </button>
           </div>
         </div>
