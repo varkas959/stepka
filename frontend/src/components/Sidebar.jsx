@@ -176,8 +176,8 @@ export const Sidebar = ({ user, isGuest }) => {
       {/* Mobile drawer */}
       {mobileOpen && (
         <div className="md:hidden fixed inset-0 z-50">
-          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setMobileOpen(false)} />
-          <aside className="absolute inset-y-0 left-0 w-60 flex flex-col animate-fade-up"
+          <div className="absolute inset-0" style={{ background: 'rgba(6,8,12,0.92)' }} onClick={() => setMobileOpen(false)} />
+          <aside className="absolute inset-y-0 left-0 w-[82%] max-w-[300px] flex flex-col animate-fade-up"
                  style={{ background: BG2, borderRight: `1px solid ${BDR}` }}>
             {content}
           </aside>

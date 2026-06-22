@@ -1,5 +1,5 @@
 import { useMemo, useState, useEffect, useRef } from 'react';
-import { Plus, X, ArrowUp, ArrowUpRight, SlidersHorizontal } from 'lucide-react';
+import { Plus, X, ArrowUp, ArrowUpRight, SlidersHorizontal, Search } from 'lucide-react';
 import { toast } from 'sonner';
 import { Link } from 'react-router-dom';
 import { QUESTIONS, COMPANIES, ROLES, ROLE_MAP, CATEGORIES, CATEGORY_MAP, TOPIC_TREE, DIFFICULTIES, ROUND_TYPES, COMPANY_BLUEPRINTS, TECH_STACK } from '../lib/mockData';
@@ -185,24 +185,9 @@ export default function QuestionBank({ isGuest = false, userId }) {
   };
   const handleAddQuestion = () => openContribute('quick');
 
-  const breadcrumbParts = [
-    filters.company !== ALL ? filters.company : null,
-    filters.role !== ALL ? filters.role.toLowerCase() : null,
-  ].filter(Boolean);
-  const breadcrumbPath = breadcrumbParts.length ? breadcrumbParts.join('-') : 'all';
-
   return (
     <div className="px-4 md:px-10 py-6 md:py-10 max-w-[1200px] mx-auto">
-      {/* Breadcrumb */}
-      <div className="font-mono text-sm mb-4" style={{ color: 'var(--text-3)' }} data-testid="breadcrumb">
-        <span style={{ color: 'var(--accent)' }}>~</span>
-        <span className="mx-1.5">/</span>
-        <span className="text-zinc-400">{breadcrumbPath}</span>
-        <span className="mx-1.5">/</span>
-        <span className="text-zinc-200">question-bank</span>
-      </div>
-
-      {/* Heading + Add Question (desktop only) */}
+      {/* Heading + Contribute (secondary) */}
       <div className="flex items-start justify-between gap-4 mb-5">
         <div>
           <h1 className="text-3xl md:text-4xl font-semibold tracking-tight text-zinc-50">Real interview questions</h1>
@@ -217,50 +202,40 @@ export default function QuestionBank({ isGuest = false, userId }) {
             </Link>
           )}
         </div>
-        {/* Desktop action button — single entry, toggle inside */}
-        <div className="hidden md:flex shrink-0 items-center">
-          <button
-            data-testid="contribute"
-            onClick={() => openContribute('quick')}
-            className="inline-flex items-center gap-2 text-sm font-medium px-4 py-2.5 rounded-md text-white hover:opacity-90 transition-opacity"
-            style={{ background: 'var(--accent)' }}
-          >
-            <Plus size={14} strokeWidth={2.25} /> Contribute
-          </button>
-        </div>
-      </div>
-
-      {/* Mobile action button — desktop row is hidden on small screens */}
-      <div className="flex md:hidden mb-5">
+        {/* Contribute — secondary, so it doesn't out-shout the search */}
         <button
-          data-testid="contribute-mobile"
+          data-testid="contribute"
           onClick={() => openContribute('quick')}
-          className="flex-1 inline-flex items-center justify-center gap-2 text-sm font-medium px-4 py-2.5 rounded-md text-white hover:opacity-90 transition-opacity"
-          style={{ background: 'var(--accent)' }}
+          className="shrink-0 inline-flex items-center gap-2 text-sm font-medium px-3.5 py-2 rounded-md border transition-colors hover:bg-white/[0.04]"
+          style={{ borderColor: 'var(--border-2)', color: 'var(--accent)', background: 'transparent' }}
         >
-          <Plus size={14} strokeWidth={2.25} /> Contribute a question or experience
+          <Plus size={14} strokeWidth={2.25} /> <span className="hidden sm:inline">Contribute</span>
         </button>
       </div>
 
-      {/* Inline filter bar - search + chips on one row */}
-      <div className="mb-5 flex flex-wrap items-center gap-1.5" data-testid="filter-row">
-        {/* Search */}
-        <div className="flex items-center gap-1.5 border border-white/10 bg-zinc-950 rounded-md px-3 py-1.5 focus-within:border-emerald-500/40 transition-colors min-w-[160px] flex-1 md:flex-none md:w-56">
-          <span className="font-mono text-emerald-400 text-sm select-none">&gt;</span>
+      {/* Search — the dominant element on the page */}
+      <div className="mb-3">
+        <div className="flex items-center gap-2.5 rounded-lg px-4 h-12 transition-colors focus-within:border-[var(--accent)]"
+             style={{ border: '1px solid var(--border)', background: 'var(--surface)' }}>
+          <Search size={18} style={{ color: 'var(--text-3)' }} />
           <input
             data-testid="question-search"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="search..."
-            className="flex-1 bg-transparent border-0 outline-none font-mono text-sm text-zinc-100 placeholder:text-zinc-600 w-full"
+            placeholder={`Search ${allQuestions.length} interview questions…`}
+            className="flex-1 bg-transparent border-0 outline-none text-base w-full"
+            style={{ color: 'var(--text-1)' }}
           />
           {search && (
-            <button onClick={() => setSearch('')} className="text-zinc-600 hover:text-zinc-300">
-              <X size={12} />
+            <button onClick={() => setSearch('')} aria-label="Clear search" className="hover:opacity-70" style={{ color: 'var(--text-3)' }}>
+              <X size={16} />
             </button>
           )}
         </div>
+      </div>
 
+      {/* Filter chips row */}
+      <div className="mb-5 flex flex-wrap items-center gap-1.5" data-testid="filter-row">
         {/* Primary filter chips — Company, Role, Difficulty */}
         {PRIMARY_FILTERS.map(def => (
           <SearchableFilterChip
@@ -485,8 +460,7 @@ const QuestionCard = ({ q, expanded, onToggleExpand, upvoted, newUpvote, asked, 
     setOverflows(el.scrollHeight > el.clientHeight + 2);
   }, [q.body, expanded]);
 
-  const diffColor = q.difficulty === 'Hard' ? 'var(--diff-hard)'
-    : q.difficulty === 'Easy' ? 'var(--diff-easy)' : 'var(--diff-medium)';
+  const diffPalette = TAG_PALETTE[q.difficulty] || TAG_PALETTE.default;
 
   return (
     <article
@@ -497,35 +471,42 @@ const QuestionCard = ({ q, expanded, onToggleExpand, upvoted, newUpvote, asked, 
       onMouseLeave={e => e.currentTarget.style.borderColor = 'var(--border)'}
     >
       <div className="px-4 py-3">
-        {/* Body — click to expand/collapse, tight 2-line clamp for scan speed */}
+        {/* Body — the scan entry point: larger + a touch heavier than metadata */}
         {expanded ? (
-          <div className="text-sm leading-snug space-y-1.5 mb-2 cursor-pointer"
+          <div className="text-[15px] font-medium leading-snug space-y-1.5 mb-2 cursor-pointer"
                style={{ color: 'var(--text-1)' }} onClick={onToggleExpand}>
             {q.body.split('\n').map((line, i) => <p key={i}>{line}</p>)}
           </div>
         ) : (
           <p ref={bodyRef} onClick={() => overflows && onToggleExpand()}
-             className={`text-sm leading-snug line-clamp-2 mb-2 ${overflows ? 'cursor-pointer' : ''}`}
+             className={`text-[15px] font-medium leading-snug line-clamp-2 mb-1.5 ${overflows ? 'cursor-pointer' : ''}`}
              style={{ color: 'var(--text-1)' }}>
             {q.body.replace(/\n/g, ' ')}
           </p>
         )}
+        {overflows && (
+          <button onClick={onToggleExpand} data-testid={`expand-${q.id}`}
+            className="text-emerald-400 hover:text-emerald-300 text-xs mb-2 block">
+            {expanded ? 'Show less' : 'Show more'}
+          </button>
+        )}
 
         {/* Single compact line: metadata (left) + actions (right) */}
         <div className="flex items-center justify-between gap-2">
-          {/* metadata — Company • Role • Difficulty • Verified */}
-          <div className="flex items-center flex-wrap gap-x-1.5 gap-y-0.5 font-mono text-[11px] leading-none min-w-0"
+          {/* metadata — Company · Role, then a colour-coded difficulty pill + verified */}
+          <div className="flex items-center flex-wrap gap-x-1.5 gap-y-1 text-[11px] leading-none min-w-0"
                style={{ color: 'var(--text-3)' }}>
             <button onClick={onCompanyClick} data-testid={`open-blueprint-${q.company}`}
-              className="hover:underline truncate" style={{ color: 'var(--chip-text)' }}>{companyName}</button>
+              className="font-medium hover:underline truncate" style={{ color: 'var(--text-2)' }}>{companyName}</button>
             <span aria-hidden>·</span>
-            <span style={{ color: 'var(--text-2)' }} className="truncate">{role}</span>
-            <span aria-hidden>·</span>
-            <span style={{ color: diffColor }}>{q.difficulty}</span>
-            {isVerified && (<><span aria-hidden>·</span>
-              <span className="inline-flex items-center gap-0.5" style={{ color: 'var(--diff-easy)' }}>&#10003; Verified</span></>)}
-            {overflows && !expanded && (
-              <button onClick={onToggleExpand} className="text-emerald-400 hover:text-emerald-300 ml-0.5" data-testid={`expand-${q.id}`}>more</button>
+            <span className="truncate" style={{ color: 'var(--text-3)' }}>{role}</span>
+            {/* Difficulty — colour-coded pill, the one high-value scan signal */}
+            <span className="inline-flex items-center px-1.5 py-0.5 rounded font-medium leading-none ml-0.5"
+              style={{ border: `1px solid ${diffPalette.border}`, background: diffPalette.bg, color: diffPalette.text }}>
+              {q.difficulty}
+            </span>
+            {isVerified && (
+              <span className="inline-flex items-center gap-0.5" style={{ color: 'var(--diff-easy)' }}>&#10003; Verified</span>
             )}
           </div>
 

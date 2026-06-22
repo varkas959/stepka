@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Check, X, Clock } from 'lucide-react';
+import { ArrowRight, Check, X, Clock, Target, ArrowUp } from 'lucide-react';
 import { COMPANIES, QUESTIONS } from '../lib/mockData';
 import { getSession } from '../lib/auth';
 
@@ -21,6 +21,45 @@ const C = {
 
 const ACTIVE_COMPANY_IDS = new Set(QUESTIONS.map(q => q.company));
 const ACTIVE_COMPANIES = COMPANIES.filter(c => ACTIVE_COMPANY_IDS.has(c.id));
+
+// ─── Brand motif: ascending "steps" = readiness climbing ─────────────────────
+const StepMark = ({ size = 28 }) => (
+  <svg width={size} height={size} viewBox="0 0 28 28" fill="none" aria-hidden="true">
+    <rect x="3"  y="17" width="6" height="8"  rx="1.5" fill="var(--accent)" opacity="0.45" />
+    <rect x="11" y="11" width="6" height="14" rx="1.5" fill="var(--accent)" opacity="0.72" />
+    <rect x="19" y="4"  width="6" height="21" rx="1.5" fill="var(--accent)" />
+  </svg>
+);
+
+// ─── Scroll-reveal wrapper (delight) ─────────────────────────────────────────
+const Reveal = ({ children, delay = 0, className = '' }) => {
+  const ref = useRef(null);
+  const [shown, setShown] = useState(false);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const io = new IntersectionObserver(([e]) => {
+      if (e.isIntersecting) { setShown(true); io.disconnect(); }
+    }, { threshold: 0.12 });
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+  return (
+    <div ref={ref} className={className}
+      style={{ opacity: shown ? 1 : 0, transform: shown ? 'none' : 'translateY(18px)',
+               transition: `opacity .6s ease ${delay}ms, transform .6s cubic-bezier(.4,0,.2,1) ${delay}ms` }}>
+      {children}
+    </div>
+  );
+};
+
+// Section eyebrow with the step motif — a small repeated visual signature
+const Eyebrow = ({ children }) => (
+  <div className="flex items-center gap-2 mb-3">
+    <StepMark size={16} />
+    <span className="font-mono text-[10px] uppercase tracking-[0.2em]" style={{ color: 'var(--text-3)' }}>{children}</span>
+  </div>
+);
 
 const PROFILES = [
   {
@@ -62,6 +101,8 @@ export default function Home() {
     <div className="min-h-screen flex flex-col" style={{ background: C.bg, color: C.text1 }}>
       <HomeNav session={session} />
       <Hero />
+      <TrustBar />
+      <ProductShowcase />
       <HowItWorks />
       <CompaniesStrip />
       <FinalCTA />
@@ -74,8 +115,8 @@ export default function Home() {
 const HomeNav = ({ session }) => (
   <header className="sticky top-0 z-30 backdrop-blur-sm" style={{ borderBottom: `1px solid ${C.border}`, background: 'var(--surface-blur)' }}>
     <div className="max-w-6xl mx-auto px-6 h-14 flex items-center justify-between">
-      <Link to="/" className="flex items-center gap-2.5" data-testid="home-logo">
-        <div className="w-7 h-7 rounded flex items-center justify-center text-xs font-bold text-white" style={{ background: C.accent }}>S</div>
+      <Link to="/" className="flex items-center gap-2" data-testid="home-logo">
+        <StepMark size={24} />
         <span className="font-semibold text-sm tracking-tight" style={{ color: C.text1 }}>Stepkai</span>
       </Link>
       <nav className="hidden sm:flex items-center gap-6 text-sm" style={{ color: C.text2 }}>
@@ -288,24 +329,39 @@ const PROCESS = [
   },
 ];
 
+// Each step indents further right — the brand "steps" motif made literal,
+// so the section reads as a climb toward readiness.
+const STEP_INDENT = ['', 'sm:ml-10', 'sm:ml-20', 'sm:ml-32'];
 const HowItWorks = () => (
-  <section id="how-it-works" className="px-6 py-20" style={{ borderTop: `1px solid ${C.border}` }}>
-    <div className="max-w-6xl mx-auto">
-      <div className="font-mono text-[10px] uppercase tracking-[0.2em] mb-3" style={{ color: C.text3 }}>How it works</div>
-      <h2 className="text-3xl font-bold tracking-tight mb-14" style={{ color: C.text1, letterSpacing: '-0.02em' }}>
-        Assessment before practice.
-      </h2>
-      <div style={{ borderTop: `1px solid ${C.border}`, borderBottom: `1px solid ${C.border}` }}>
-        {PROCESS.map((step, i) => (
-          <div key={i} className="flex gap-8 sm:gap-12 py-6 items-start"
-               style={{ borderBottom: i < PROCESS.length - 1 ? `1px solid ${C.border}` : 'none' }}>
-            <div className="font-mono text-xs shrink-0 w-6 mt-0.5" style={{ color: C.text3 }}>0{i + 1}</div>
-            <div className="w-44 sm:w-56 shrink-0">
-              <div className="font-semibold text-sm leading-snug" style={{ color: C.text1 }}>{step.action}</div>
-            </div>
-            <div className="text-sm leading-relaxed" style={{ color: C.text2 }}>{step.outcome}</div>
-          </div>
-        ))}
+  <section id="how-it-works" className="px-6 py-24" style={{ borderTop: `1px solid ${C.border}`, background: C.bg2 }}>
+    <div className="max-w-5xl mx-auto">
+      <Reveal>
+        <Eyebrow>How it works</Eyebrow>
+        <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-12" style={{ color: C.text1, letterSpacing: '-0.02em' }}>
+          Four steps to interview-ready.
+        </h2>
+      </Reveal>
+      <div className="space-y-3">
+        {PROCESS.map((step, i) => {
+          const last = i === PROCESS.length - 1;
+          return (
+            <Reveal key={i} delay={i * 90} className={STEP_INDENT[i]}>
+              <div className="flex gap-4 items-start rounded-xl p-4 sm:p-5 transition-colors hover:border-[var(--border-2)]"
+                   style={{ background: C.bg, border: `1px solid ${C.border}` }}>
+                <div className="shrink-0 w-10 h-10 rounded-lg flex items-center justify-center font-mono text-sm font-bold"
+                     style={last
+                       ? { background: 'var(--accent)', color: '#fff' }
+                       : { background: 'var(--accent-12)', color: C.accent, border: '1px solid var(--accent-35)' }}>
+                  0{i + 1}
+                </div>
+                <div className="min-w-0">
+                  <div className="font-semibold text-base leading-snug mb-1" style={{ color: C.text1 }}>{step.action}</div>
+                  <div className="text-sm leading-relaxed" style={{ color: C.text2 }}>{step.outcome}</div>
+                </div>
+              </div>
+            </Reveal>
+          );
+        })}
       </div>
     </div>
   </section>
@@ -336,31 +392,189 @@ const CompaniesStrip = () => (
 
 // ─── Final CTA ───────────────────────────────────────────────────────────────
 const FinalCTA = () => (
-  <section className="px-6 py-24" style={{ borderTop: `1px solid ${C.border}` }}>
-    <div className="max-w-2xl mx-auto">
-      <h2 className="text-4xl font-bold tracking-tight mb-4" style={{ color: C.text1, letterSpacing: '-0.02em' }}>
-        You can't improve<br />what you haven't measured.
-      </h2>
-      <p className="text-lg mb-10" style={{ color: C.text2 }}>
-        Free to start. Takes 15 minutes. No credit card.
-      </p>
-      <ul className="space-y-3 mb-10">
-        {[
-          `${QUESTIONS.length}+ verified questions across ${ACTIVE_COMPANIES.length} companies`,
-          'Readiness score calculated from your actual assessment — not self-reported',
-          'Your data stays private. We never sell it.',
-        ].map(item => (
-          <li key={item} className="flex items-start gap-3 text-sm" style={{ color: C.text2 }}>
-            <Check size={14} className="shrink-0 mt-0.5" style={{ color: C.green }} />
-            {item}
-          </li>
+  <section className="px-6 py-24" style={{ borderTop: '1px solid var(--accent-35)', background: 'var(--accent-20)' }}>
+    <div className="max-w-3xl mx-auto relative">
+      {/* large faint steps motif — brand signature watermark */}
+      <div className="absolute -top-6 right-0 opacity-[0.5] pointer-events-none hidden sm:block">
+        <svg width="120" height="120" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+          <rect x="3"  y="17" width="6" height="8"  rx="1.5" fill="var(--accent)" opacity="0.18" />
+          <rect x="11" y="11" width="6" height="14" rx="1.5" fill="var(--accent)" opacity="0.28" />
+          <rect x="19" y="4"  width="6" height="21" rx="1.5" fill="var(--accent)" opacity="0.4" />
+        </svg>
+      </div>
+      <Reveal>
+        <h2 className="text-4xl md:text-5xl font-bold tracking-tight mb-4" style={{ color: C.text1, letterSpacing: '-0.02em' }}>
+          You can't improve<br />what you haven't measured.
+        </h2>
+        <p className="text-lg mb-9" style={{ color: C.text2 }}>
+          Free to start. Takes 15 minutes. No credit card.
+        </p>
+        <ul className="space-y-3 mb-10">
+          {[
+            `${QUESTIONS.length}+ verified questions across ${ACTIVE_COMPANIES.length} companies`,
+            'Readiness score from your actual assessment — not self-reported',
+            'Your data stays private. We never sell it.',
+          ].map(item => (
+            <li key={item} className="flex items-start gap-3 text-sm" style={{ color: C.text2 }}>
+              <Check size={14} className="shrink-0 mt-0.5" style={{ color: C.green }} />
+              {item}
+            </li>
+          ))}
+        </ul>
+        <Link to="/app/plan" data-testid="final-cta"
+          className="inline-flex items-center gap-2 font-semibold px-7 py-3.5 rounded-lg transition-transform hover:-translate-y-0.5 text-white shadow-lg"
+          style={{ background: C.accent, fontSize: '16px', boxShadow: '0 8px 24px -8px var(--accent)' }}>
+          Start the assessment <ArrowRight size={16} strokeWidth={2.5} />
+        </Link>
+      </Reveal>
+    </div>
+  </section>
+);
+
+// ─── Trust bar ───────────────────────────────────────────────────────────────
+const TRUST_STATS = [
+  { value: `${QUESTIONS.length}+`, label: 'Verified questions' },
+  { value: `${ACTIVE_COMPANIES.length}`, label: 'Companies tracked' },
+  { value: '4', label: 'Question formats' },
+  { value: '15 min', label: 'To your first score' },
+];
+const TrustBar = () => (
+  <section style={{ borderTop: `1px solid ${C.border}`, borderBottom: `1px solid ${C.border}`, background: C.bg2 }}>
+    <div className="max-w-6xl mx-auto px-6 py-7 grid grid-cols-2 md:grid-cols-4 gap-6">
+      {TRUST_STATS.map(s => (
+        <div key={s.label} className="text-center md:text-left">
+          <div className="text-2xl md:text-3xl font-bold tracking-tight" style={{ color: C.text1 }}>{s.value}</div>
+          <div className="text-xs mt-1" style={{ color: C.text3 }}>{s.label}</div>
+        </div>
+      ))}
+    </div>
+  </section>
+);
+
+// ─── Product showcase — "show the product earlier" ───────────────────────────
+const ShowcaseFrame = ({ tag, children }) => (
+  <div className="rounded-xl overflow-hidden transition-transform hover:-translate-y-1"
+       style={{ border: `1px solid ${C.border}`, background: C.bg2 }}>
+    <div className="px-4 py-2.5 flex items-center gap-2" style={{ borderBottom: `1px solid ${C.border}`, background: C.bg }}>
+      <div className="flex gap-1.5">
+        <span className="w-2 h-2 rounded-full" style={{ background: C.border2 }} />
+        <span className="w-2 h-2 rounded-full" style={{ background: C.border2 }} />
+        <span className="w-2 h-2 rounded-full" style={{ background: C.border2 }} />
+      </div>
+      <span className="font-mono text-[10px] uppercase tracking-[0.16em] ml-1" style={{ color: C.text3 }}>{tag}</span>
+    </div>
+    <div className="p-4">{children}</div>
+  </div>
+);
+
+const PlanPreview = () => {
+  const days = [
+    { d: 'Day 1', t: 'System design fundamentals', done: true },
+    { d: 'Day 2', t: 'Caching & load balancing', done: true },
+    { d: 'Day 3', t: 'Design a rate limiter', done: false },
+  ];
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-3">
+        <span className="text-sm font-semibold" style={{ color: C.text1 }}>3-week plan</span>
+        <span className="font-mono text-[10px]" style={{ color: C.accent }}>40% done</span>
+      </div>
+      <div className="space-y-2">
+        {days.map(x => (
+          <div key={x.d} className="flex items-center gap-2.5 rounded-md px-2.5 py-2" style={{ background: C.bg }}>
+            <span className="w-4 h-4 rounded flex items-center justify-center shrink-0"
+              style={{ background: x.done ? C.green : 'transparent', border: x.done ? 'none' : `1px solid ${C.border2}` }}>
+              {x.done && <Check size={11} strokeWidth={3} color="#fff" />}
+            </span>
+            <span className="font-mono text-[10px] shrink-0" style={{ color: C.text3 }}>{x.d}</span>
+            <span className="text-xs truncate" style={{ color: x.done ? C.text3 : C.text1 }}>{x.t}</span>
+          </div>
         ))}
-      </ul>
-      <Link to="/app/plan" data-testid="final-cta"
-        className="inline-flex items-center gap-2 font-medium px-6 py-3 rounded-lg transition-opacity hover:opacity-90 text-white"
-        style={{ background: C.accent, fontSize: '15px' }}>
-        Start the assessment <ArrowRight size={15} strokeWidth={2} />
-      </Link>
+      </div>
+      <div className="mt-3 h-1.5 rounded-full overflow-hidden" style={{ background: C.bg3 }}>
+        <div className="h-full rounded-full" style={{ width: '40%', background: C.accent }} />
+      </div>
+    </div>
+  );
+};
+
+const FeedbackPreview = () => (
+  <div>
+    <div className="flex items-end justify-between mb-3">
+      <span className="text-sm font-semibold" style={{ color: C.text1 }}>AI feedback</span>
+      <div className="text-right">
+        <span className="font-mono text-2xl font-bold leading-none" style={{ color: C.amber }}>72</span>
+        <span className="font-mono text-xs" style={{ color: C.text3 }}>/100</span>
+      </div>
+    </div>
+    <div className="h-1.5 rounded-full overflow-hidden mb-3" style={{ background: C.bg3 }}>
+      <div className="h-full rounded-full" style={{ width: '72%', background: C.amber }} />
+    </div>
+    <div className="space-y-2 text-xs">
+      <div className="flex items-start gap-2" style={{ color: C.text2 }}>
+        <Check size={12} className="shrink-0 mt-0.5" style={{ color: C.green }} /> Correctly identified the consistency trade-off
+      </div>
+      <div className="flex items-start gap-2" style={{ color: C.text2 }}>
+        <X size={12} className="shrink-0 mt-0.5" style={{ color: C.red }} /> Missed the hot-partition failure mode
+      </div>
+      <div className="flex items-start gap-2" style={{ color: C.text2 }}>
+        <Target size={12} className="shrink-0 mt-0.5" style={{ color: C.accent }} /> Tighten your write-throughput estimate
+      </div>
+    </div>
+  </div>
+);
+
+const QuestionPreview = () => (
+  <div>
+    <p className="text-[15px] font-medium leading-snug mb-3" style={{ color: C.text1 }}>
+      Design a rate limiter for a distributed API gateway handling 50k requests/second.
+    </p>
+    <div className="flex items-center justify-between gap-2">
+      <div className="flex items-center flex-wrap gap-x-1.5 text-[11px]" style={{ color: C.text3 }}>
+        <span style={{ color: C.text2 }} className="font-medium">Amazon</span>
+        <span>·</span>
+        <span>Senior SDE</span>
+        <span className="inline-flex items-center px-1.5 py-0.5 rounded font-medium ml-0.5"
+          style={{ border: `1px solid ${C.red}40`, background: `${C.red}10`, color: '#DD9B9B' }}>Hard</span>
+        <span className="inline-flex items-center gap-0.5" style={{ color: '#7FC9A0' }}>&#10003; Verified</span>
+      </div>
+      <span className="inline-flex items-center gap-1 font-mono text-[11px] px-2 py-1 rounded-[5px]"
+        style={{ border: `1px solid ${C.border2}`, color: C.text2 }}>
+        <ArrowUp size={12} strokeWidth={2.25} /> 24
+      </span>
+    </div>
+  </div>
+);
+
+const SHOWCASE = [
+  { tag: 'Study plan', title: 'A plan built around your gaps', desc: 'Not a generic checklist — days are generated from exactly the skills your assessment flagged.', node: <PlanPreview /> },
+  { tag: 'AI feedback', title: 'Graded answers, not praise', desc: 'Calibrated scoring with specific misses and fixes — the feedback an honest interviewer would give.', node: <FeedbackPreview /> },
+  { tag: 'Question bank', title: 'Real, community-verified questions', desc: 'Tagged by company, role and difficulty, with social proof on the ones that actually get asked.', node: <QuestionPreview /> },
+];
+
+const ProductShowcase = () => (
+  <section className="px-6 py-24" style={{ borderTop: `1px solid ${C.border}` }}>
+    <div className="max-w-6xl mx-auto">
+      <Reveal>
+        <Eyebrow>See exactly what you get</Eyebrow>
+        <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-3 max-w-2xl" style={{ color: C.text1, letterSpacing: '-0.02em' }}>
+          The product, before you sign up.
+        </h2>
+        <p className="text-base mb-14 max-w-xl" style={{ color: C.text2 }}>
+          No vague promises. Here's the actual output — a plan, a graded answer, and a question card.
+        </p>
+      </Reveal>
+      <div className="grid md:grid-cols-3 gap-5">
+        {SHOWCASE.map((s, i) => (
+          <Reveal key={s.tag} delay={i * 120}>
+            <ShowcaseFrame tag={s.tag}>{s.node}</ShowcaseFrame>
+            <div className="mt-4">
+              <div className="font-semibold text-sm mb-1" style={{ color: C.text1 }}>{s.title}</div>
+              <div className="text-sm leading-relaxed" style={{ color: C.text2 }}>{s.desc}</div>
+            </div>
+          </Reveal>
+        ))}
+      </div>
     </div>
   </section>
 );
