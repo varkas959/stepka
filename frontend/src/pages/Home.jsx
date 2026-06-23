@@ -163,7 +163,7 @@ const ReadinessReport = () => {
   const scoreLabel = p.readiness >= 75 ? 'Loop Ready' : p.readiness >= 50 ? 'Interview Ready' : 'Needs Prep';
 
   return (
-    <div className="hidden md:flex flex-col rounded-xl overflow-hidden"
+    <div className="flex flex-col rounded-xl overflow-hidden"
          style={{ border: `1px solid ${C.border}`, background: C.bg2, minWidth: 0 }}>
 
       {/* Header */}
@@ -256,13 +256,24 @@ const ReadinessReport = () => {
 
 // ─── Hero ─────────────────────────────────────────────────────────────────────
 const Hero = () => (
-  <section className="px-6 pt-14 pb-20">
-    <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-12 lg:gap-20 items-center">
+  <section className="px-6 pt-14 pb-20 relative overflow-hidden">
+    {/* Steps motif watermark — brand signature, faint */}
+    <div className="absolute -right-10 -top-6 pointer-events-none hidden lg:block" style={{ opacity: 0.5 }}>
+      <svg width="320" height="320" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+        <rect x="3"  y="17" width="6" height="8"  rx="1.5" fill="var(--accent)" opacity="0.05" />
+        <rect x="11" y="11" width="6" height="14" rx="1.5" fill="var(--accent)" opacity="0.07" />
+        <rect x="19" y="4"  width="6" height="21" rx="1.5" fill="var(--accent)" opacity="0.09" />
+      </svg>
+    </div>
+    <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-12 lg:gap-20 items-center relative">
 
       {/* Left */}
       <div>
-        <div className="font-mono text-[10px] uppercase tracking-[0.2em] mb-6" style={{ color: C.text3 }}>
-          {QUESTIONS.length}+ questions · {ACTIVE_COMPANIES.length} companies
+        <div className="flex items-center gap-2 mb-6">
+          <StepMark size={15} />
+          <span className="font-mono text-[10px] uppercase tracking-[0.2em]" style={{ color: C.text3 }}>
+            {QUESTIONS.length}+ questions · {ACTIVE_COMPANIES.length} companies
+          </span>
         </div>
 
         <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold leading-[1.06] tracking-tight"
@@ -272,15 +283,15 @@ const Hero = () => (
           <span style={{ color: C.text3 }}>Prepare what the<br />interview actually<br />requires.</span>
         </h1>
 
-        <p className="mt-6 text-base leading-relaxed max-w-md" style={{ color: C.text2 }}>
-          Upload a job description, discover your skill gaps, and get a personalised preparation plan based on your target role.
+        <p className="mt-6 text-lg leading-relaxed max-w-md" style={{ color: C.text2 }}>
+          Walk into your next interview knowing <span style={{ color: C.text1, fontWeight: 500 }}>exactly what to study</span> — not everything, just what this role actually tests.
         </p>
 
         <div className="flex items-center gap-4 mt-9 flex-wrap">
           <Link to="/app/plan" data-testid="hero-cta"
-            className="inline-flex items-center gap-2 font-semibold px-6 py-3 rounded-lg transition-opacity hover:opacity-90 text-white"
-            style={{ background: C.accent, fontSize: '15px' }}>
-            Start Free Assessment <ArrowRight size={15} strokeWidth={2.5} />
+            className="inline-flex items-center gap-2 font-semibold px-6 py-3.5 rounded-lg transition-transform hover:-translate-y-0.5 text-white"
+            style={{ background: C.accent, fontSize: '15px', boxShadow: '0 8px 24px -10px var(--accent)' }}>
+            Analyze my JD — free <ArrowRight size={15} strokeWidth={2.5} />
           </Link>
           <Link to="/app/questions"
             className="text-sm transition-opacity hover:opacity-80"
@@ -296,8 +307,14 @@ const Hero = () => (
         </div>
       </div>
 
-      {/* Right — rotating report card */}
-      <ReadinessReport />
+      {/* Right — live product preview (rotating readiness report) */}
+      <div>
+        <div className="flex items-center gap-1.5 mb-2.5 justify-center md:justify-start">
+          <span className="w-1.5 h-1.5 rounded-full animate-pulse-soft" style={{ background: C.green }} />
+          <span className="font-mono text-[10px] uppercase tracking-[0.18em]" style={{ color: C.text3 }}>Live product preview</span>
+        </div>
+        <ReadinessReport />
+      </div>
     </div>
   </section>
 );
@@ -368,23 +385,36 @@ const HowItWorks = () => (
 );
 
 // ─── Companies ───────────────────────────────────────────────────────────────
-const CompaniesStrip = () => (
-  <section id="companies" className="px-6 py-16" style={{ borderTop: `1px solid ${C.border}` }}>
-    <div className="max-w-6xl mx-auto">
-      <div className="font-mono text-[10px] uppercase tracking-[0.2em] mb-8 text-center" style={{ color: C.text3 }}>
-        Questions from engineers at
+const CompanyCard = ({ c }) => {
+  const [hover, setHover] = useState(false);
+  return (
+    <div className="flex items-center gap-2.5 shrink-0 px-3.5 py-2.5 rounded-xl transition-all duration-200"
+         onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}
+         style={{ background: C.bg2, border: `1px solid ${hover ? c.color + '66' : C.border}`,
+                  transform: hover ? 'translateY(-2px)' : 'none',
+                  boxShadow: hover ? `0 8px 22px -12px ${c.color}` : 'none' }}>
+      <div className="w-8 h-8 rounded-lg text-[11px] font-bold flex items-center justify-center shrink-0 transition-colors"
+           style={{ background: hover ? c.color : c.color + '1f', color: hover ? '#fff' : c.color }}>
+        {c.initials}
       </div>
-      <div className="flex items-center gap-3 overflow-x-auto pb-2 sm:pb-0 sm:flex-wrap sm:justify-center sm:gap-4 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-        {ACTIVE_COMPANIES.map(c => (
-          <div key={c.id} className="flex items-center gap-2 shrink-0 px-3 py-2 rounded-lg"
-               style={{ background: C.bg2, border: `1px solid ${C.border}` }}>
-            <div className="w-5 h-5 rounded text-[10px] font-bold flex items-center justify-center"
-                 style={{ background: c.color + '20', color: c.color }}>
-              {c.initials[0]}
-            </div>
-            <span className="text-sm whitespace-nowrap" style={{ color: C.text2 }}>{c.name}</span>
-          </div>
-        ))}
+      <span className="text-sm font-medium whitespace-nowrap" style={{ color: hover ? C.text1 : C.text2 }}>{c.name}</span>
+    </div>
+  );
+};
+
+const CompaniesStrip = () => (
+  <section id="companies" className="px-6 py-20" style={{ borderTop: `1px solid ${C.border}` }}>
+    <div className="max-w-6xl mx-auto">
+      <Reveal>
+        <div className="flex items-center justify-center gap-2 mb-10">
+          <StepMark size={15} />
+          <span className="font-mono text-[10px] uppercase tracking-[0.2em]" style={{ color: C.text3 }}>
+            Questions from engineers at
+          </span>
+        </div>
+      </Reveal>
+      <div className="flex items-center gap-3 overflow-x-auto pb-2 sm:pb-0 sm:flex-wrap sm:justify-center sm:gap-3 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+        {ACTIVE_COMPANIES.map(c => <CompanyCard key={c.id} c={c} />)}
       </div>
     </div>
   </section>
@@ -424,7 +454,7 @@ const FinalCTA = () => (
         <Link to="/app/plan" data-testid="final-cta"
           className="inline-flex items-center gap-2 font-semibold px-7 py-3.5 rounded-lg transition-transform hover:-translate-y-0.5 text-white shadow-lg"
           style={{ background: C.accent, fontSize: '16px', boxShadow: '0 8px 24px -8px var(--accent)' }}>
-          Start the assessment <ArrowRight size={16} strokeWidth={2.5} />
+          Generate my interview plan <ArrowRight size={16} strokeWidth={2.5} />
         </Link>
       </Reveal>
     </div>
