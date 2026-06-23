@@ -41,28 +41,37 @@ const canonicalRole = (role) => ROLE_MAP[role] || role;
 const deriveCategory = (q) =>
   CATEGORY_MAP[q.topic] || (q.round === 'System Design' ? 'System Design' : q.round === 'HR' ? 'Behavioral' : 'Technical');
 
+// Experience-years options derived from the actual question data.
+const EXP_OPTIONS = [...new Set(QUESTIONS.map(q => q.experience).filter(Boolean))]
+  .sort((a, b) => (parseInt(a, 10) || 0) - (parseInt(b, 10) || 0))
+  .map(e => ({ id: e, label: e }));
+
 const FILTER_DEFS = [
   { key: 'role',       label: 'role',       options: ROLES.map(r => ({ id: r, label: r })) },
   { key: 'category',   label: 'category',   options: CATEGORIES.map(c => ({ id: c, label: c })) },
   { key: 'difficulty', label: 'difficulty', options: DIFFICULTIES.map(d => ({ id: d, label: d })) },
   { key: 'company',    label: 'company',    options: COMPANIES.map(c => ({ id: c.id, label: c.name })) },
+  { key: 'experience', label: 'experience', options: EXP_OPTIONS },
   { key: 'topic',      label: 'topic',      options: TOPIC_OPTIONS },
   { key: 'tech',       label: 'technology', options: TECH_STACK.map(t => ({ id: t, label: t })) },
   { key: 'round',      label: 'round',      options: ROUND_TYPES.map(r => ({ id: r, label: r })) },
 ];
 
-// Company / Role / Difficulty are the filters people actually reach for first;
-// everything else lives behind a "More filters" drawer.
+// Desktop: Company / Role / Difficulty up front, the rest in a "More filters" drawer.
 const PRIMARY_KEYS = ['company', 'role', 'difficulty'];
 const PRIMARY_FILTERS = PRIMARY_KEYS.map(k => FILTER_DEFS.find(d => d.key === k));
 const SECONDARY_FILTERS = FILTER_DEFS.filter(d => !PRIMARY_KEYS.includes(d.key));
 
+// Mobile: everything in one horizontal-scroll row (Reddit-style), ordered for relevance.
+const MOBILE_FILTER_KEYS = ['company', 'role', 'difficulty', 'experience', 'category', 'topic', 'tech', 'round'];
+const MOBILE_FILTERS = MOBILE_FILTER_KEYS.map(k => FILTER_DEFS.find(d => d.key === k));
+const EMPTY_FILTERS = { company: ALL, role: ALL, category: ALL, topic: ALL, tech: ALL, difficulty: ALL, round: ALL, experience: ALL };
+
 
 export default function QuestionBank({ isGuest = false, userId }) {
-  const [filters, setFilters] = useState({ company: ALL, role: ALL, category: ALL, topic: ALL, tech: ALL, difficulty: ALL, round: ALL });
+  const [filters, setFilters] = useState(EMPTY_FILTERS);
   const [sortBy, setSortBy] = useState('recent');
   const [search, setSearch] = useState('');
-  const [expandedId, setExpandedId] = useState(null);
   const [askedMap, setAskedMap] = useState({});
   const [upvoteMap, setUpvoteMap] = useState({});
   // Track which IDs were already verified/asked when the page loaded (for optimistic count display)
@@ -112,7 +121,6 @@ export default function QuestionBank({ isGuest = false, userId }) {
 
   const handleQuestionAdded = (newQ) => {
     setUserQuestions(prev => [newQ, ...prev]);
-    setExpandedId(newQ.id);
   };
   const [contributeOpen, setContributeOpen] = useState(false);
   const [contributeMode, setContributeMode] = useState('quick');
@@ -141,6 +149,7 @@ export default function QuestionBank({ isGuest = false, userId }) {
       if (filters.topic !== ALL && q.topic !== filters.topic) return false;
       if (filters.tech !== ALL && !(q.tech || []).includes(filters.tech)) return false;
       if (filters.difficulty !== ALL && q.difficulty !== filters.difficulty) return false;
+      if (filters.experience !== ALL && q.experience !== filters.experience) return false;
       if (filters.round !== ALL && q.round !== filters.round) return false;
       if (search && !q.body.toLowerCase().includes(search.toLowerCase())) return false;
       return true;
@@ -187,8 +196,8 @@ export default function QuestionBank({ isGuest = false, userId }) {
 
   return (
     <div className="px-4 md:px-10 py-6 md:py-10 max-w-[1200px] mx-auto">
-      {/* Heading + Contribute (secondary) */}
-      <div className="flex items-start justify-between gap-4 mb-5">
+      {/* Heading — desktop only; mobile goes straight to search (Reddit-style) */}
+      <div className="hidden md:flex items-start justify-between gap-4 mb-5">
         <div>
           <h1 className="text-3xl md:text-4xl font-semibold tracking-tight text-zinc-50">Real interview questions</h1>
           <p className="text-zinc-400 mt-1.5 text-sm max-w-xl">
@@ -209,7 +218,7 @@ export default function QuestionBank({ isGuest = false, userId }) {
           className="shrink-0 inline-flex items-center gap-2 text-sm font-medium px-3.5 py-2 rounded-md border transition-colors hover:bg-white/[0.04]"
           style={{ borderColor: 'var(--border-2)', color: 'var(--accent)', background: 'transparent' }}
         >
-          <Plus size={14} strokeWidth={2.25} /> <span className="hidden sm:inline">Contribute</span>
+          <Plus size={14} strokeWidth={2.25} /> Contribute
         </button>
       </div>
 
@@ -222,7 +231,7 @@ export default function QuestionBank({ isGuest = false, userId }) {
             data-testid="question-search"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search interview questions…"
+            placeholder="Search questions, companies, roles…"
             className="flex-1 bg-transparent border-0 outline-none text-base w-full"
             style={{ color: 'var(--text-1)' }}
           />
@@ -234,8 +243,31 @@ export default function QuestionBank({ isGuest = false, userId }) {
         </div>
       </div>
 
-      {/* Filter chips row */}
-      <div className="mb-5 flex flex-wrap items-center gap-1.5" data-testid="filter-row">
+      {/* Mobile filter row — single horizontal-scroll line (Reddit-style) */}
+      <div className="md:hidden mb-4 flex items-center gap-2 overflow-x-auto pb-1 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]" data-testid="filter-row-mobile">
+        {MOBILE_FILTERS.map(def => (
+          <div className="shrink-0" key={def.key}>
+            <SearchableFilterChip
+              label={def.label}
+              value={filters[def.key] === ALL ? null : filters[def.key]}
+              options={def.options}
+              onChange={(v) => setF(def.key, v)}
+              onClear={() => clearOne(def.key)}
+              testid={def.key}
+            />
+          </div>
+        ))}
+        <div className="shrink-0"><SortChip value={sortBy} onChange={setSortBy} /></div>
+        {(search || Object.values(filters).some(v => v !== ALL)) && (
+          <button onClick={() => { setSearch(''); setFilters(EMPTY_FILTERS); }}
+            className="shrink-0 font-mono text-xs px-2 py-1.5 transition-colors" style={{ color: 'var(--text-3)' }}>
+            clear
+          </button>
+        )}
+      </div>
+
+      {/* Desktop filter chips row */}
+      <div className="hidden md:flex mb-5 flex-wrap items-center gap-1.5" data-testid="filter-row">
         {/* Primary filter chips — Company, Role, Difficulty */}
         {PRIMARY_FILTERS.map(def => (
           <SearchableFilterChip
@@ -271,7 +303,7 @@ export default function QuestionBank({ isGuest = false, userId }) {
         {/* Clear all - only shown when any filter is active */}
         {(search || Object.values(filters).some(v => v !== ALL)) && (
           <button
-            onClick={() => { setSearch(''); setFilters({ company: ALL, role: ALL, category: ALL, topic: ALL, tech: ALL, difficulty: ALL, round: ALL }); }}
+            onClick={() => { setSearch(''); setFilters(EMPTY_FILTERS); }}
             className="font-mono text-xs text-zinc-600 hover:text-zinc-300 px-2 py-1.5 transition-colors"
           >
             clear all
@@ -320,7 +352,7 @@ export default function QuestionBank({ isGuest = false, userId }) {
             <span className="font-semibold" style={{ color: 'var(--text-1)' }}>{allQuestions.length}</span> questions
           </span>
           <button
-            onClick={() => { setSearch(''); setFilters({ company: ALL, role: ALL, category: ALL, topic: ALL, tech: ALL, difficulty: ALL, round: ALL }); }}
+            onClick={() => { setSearch(''); setFilters(EMPTY_FILTERS); }}
             className="font-mono text-xs underline ml-4 transition-opacity hover:opacity-70"
             style={{ color: 'var(--accent)' }}
           >
@@ -328,14 +360,13 @@ export default function QuestionBank({ isGuest = false, userId }) {
           </button>
         </div>
       ) : (
-        <div className="font-mono text-sm mb-4">
-          <span className="text-zinc-50 font-semibold">{filtered.length}</span>
-          <span className="text-zinc-500"> of {allQuestions.length} questions</span>
+        <div className="text-sm font-semibold mb-3" style={{ color: 'var(--text-1)' }}>
+          {allQuestions.length} Questions
         </div>
       )}
 
-      {/* Cards */}
-      <div className="space-y-2.5" data-testid="question-feed">
+      {/* Question list — light rows separated by thin dividers (scan-optimised) */}
+      <div className="divide-y divide-[color:var(--border)] border-y border-[color:var(--border)]" data-testid="question-feed">
         {filtered.length === 0 && (
           <div className="border border-white/10 rounded-md p-10 text-center font-mono text-sm" data-testid="empty-state">
             <div className="text-zinc-400">// no questions match your filters yet</div>
@@ -346,8 +377,6 @@ export default function QuestionBank({ isGuest = false, userId }) {
           <QuestionCard
             key={q.id}
             q={q}
-            expanded={expandedId === q.id}
-            onToggleExpand={() => setExpandedId(expandedId === q.id ? null : q.id)}
             upvoted={!!upvoteMap[q.id]}
             newUpvote={!!upvoteMap[q.id] && !loadedUpvotes.current.has(q.id)}
             asked={!!askedMap[q.id]}
@@ -444,51 +473,27 @@ const TagPill = ({ children, kind = 'default', testid }) => {
   );
 };
 
-const QuestionCard = ({ q, expanded, onToggleExpand, upvoted, newUpvote, asked, onUpvote, onAsked, onCompanyClick }) => {
+const QuestionCard = ({ q, upvoted, newUpvote, asked, onUpvote, onAsked, onCompanyClick }) => {
   const isVerified = q.verifyCount >= 3;
   const company = COMPANIES.find(c => c.id === q.company);
   const companyName = company?.name || q.company;
   const role = canonicalRole(q.role);
-
-  // Detect whether line-clamp is actually cutting off text (viewport-aware).
-  const bodyRef = useRef(null);
-  const [overflows, setOverflows] = useState(false);
-  useEffect(() => {
-    const el = bodyRef.current;
-    if (!el || expanded) return;
-    setOverflows(el.scrollHeight > el.clientHeight + 2);
-  }, [q.body, expanded]);
-
   const diffPalette = TAG_PALETTE[q.difficulty] || TAG_PALETTE.default;
 
   return (
     <article
       data-testid={`question-card-${q.id}`}
-      className="rounded-lg animate-fade-up transition-colors"
-      style={{ border: '1px solid var(--border)', background: 'var(--surface)' }}
-      onMouseEnter={e => e.currentTarget.style.borderColor = 'var(--border-2)'}
-      onMouseLeave={e => e.currentTarget.style.borderColor = 'var(--border)'}
+      className="group animate-fade-up transition-colors rounded-md"
+      onMouseEnter={e => e.currentTarget.style.background = 'var(--surface)'}
+      onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
     >
-      <div className="px-4 py-3">
-        {/* Body — the scan entry point: larger + a touch heavier than metadata */}
-        {expanded ? (
-          <div className="text-[15px] font-medium leading-snug space-y-1.5 mb-2 cursor-pointer"
-               style={{ color: 'var(--text-1)' }} onClick={onToggleExpand}>
-            {q.body.split('\n').map((line, i) => <p key={i}>{line}</p>)}
-          </div>
-        ) : (
-          <p ref={bodyRef} onClick={() => overflows && onToggleExpand()}
-             className={`text-[15px] font-medium leading-snug line-clamp-2 mb-1.5 ${overflows ? 'cursor-pointer' : ''}`}
-             style={{ color: 'var(--text-1)' }}>
-            {q.body.replace(/\n/g, ' ')}
-          </p>
-        )}
-        {overflows && (
-          <button onClick={onToggleExpand} data-testid={`expand-${q.id}`}
-            className="text-emerald-400 hover:text-emerald-300 text-xs mb-2 block">
-            {expanded ? 'Show less' : 'Show more'}
-          </button>
-        )}
+      <div className="px-2 sm:px-3 py-4">
+        {/* Body — links to the full question page; the line-clamp "…" signals more */}
+        <Link to={`/app/question/${q.id}`} data-testid={`open-question-${q.id}`}
+          className="block text-[15px] font-medium leading-snug line-clamp-2 mb-2 transition-colors group-hover:text-[var(--accent)]"
+          style={{ color: 'var(--text-1)' }}>
+          {q.body.replace(/\n/g, ' ')}
+        </Link>
 
         {/* Single compact line: metadata (left) + actions (right) */}
         <div className="flex items-center justify-between gap-2">

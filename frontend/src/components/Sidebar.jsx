@@ -162,9 +162,6 @@ export const Sidebar = ({ user, isGuest }) => {
           <button onClick={() => setMobileOpen(true)} data-testid="mobile-menu" style={{ color: T2 }}><Menu size={20} /></button>
           <div className="text-sm font-semibold" style={{ color: T1 }}>Stepkai</div>
         </div>
-        <div className="flex items-center gap-3 text-xs font-mono" style={{ color: T2 }}>
-          <span className="flex items-center gap-1"><Flame size={11} style={{ color: '#F59E0B' }} />{state.streak}</span>
-        </div>
       </div>
 
       {/* Desktop sidebar */}

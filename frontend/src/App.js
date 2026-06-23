@@ -12,6 +12,7 @@ import { Sidebar } from './components/Sidebar';
 
 import Home from './pages/Home';
 import QuestionBank from './pages/QuestionBank';
+import QuestionDetail from './pages/QuestionDetail';
 import PublicQuestions from './pages/PublicQuestions';
 import DailyReview from './pages/DailyReview';
 import StudyPlan from './pages/StudyPlan';
@@ -103,6 +104,11 @@ function App() {
           <Route path="/app/questions" element={
             <AppShell session={session} onSignOut={() => setSession(null)}>
               <QuestionBank isGuest={!session} userId={session?.user?.id} />
+            </AppShell>
+          } />
+          <Route path="/app/question/:id" element={
+            <AppShell session={session} onSignOut={() => setSession(null)}>
+              <QuestionDetail isGuest={!session} userId={session?.user?.id} />
             </AppShell>
           } />
           <Route path="/app/review" element={
