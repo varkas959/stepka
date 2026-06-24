@@ -286,14 +286,21 @@ const JdImport = ({ onExtract }) => {
 
     setBusy(true); setProgress(0);
     try {
-      const Tesseract = await import('tesseract.js');
+      // Self-hosted engine/data (see public/tesseract) so nothing loads from a CDN.
+      const { createWorker } = await import('tesseract.js');
+      const worker = await createWorker('eng', 1, {
+        workerPath: '/tesseract/worker.min.js',
+        corePath: '/tesseract/tesseract-core-simd-lstm.wasm.js',
+        langPath: '/tesseract',
+        workerBlobURL: false,
+        logger: m => { if (m.status === 'recognizing text') setProgress(Math.round(m.progress * 100)); },
+      });
       let text = '';
       for (let i = 0; i < take.length; i++) {
-        const { data } = await Tesseract.recognize(take[i], 'eng', {
-          logger: m => { if (m.status === 'recognizing text') setProgress(Math.round(((i + m.progress) / take.length) * 100)); },
-        });
+        const { data } = await worker.recognize(take[i]);
         text += (data?.text || '') + '\n\n';
       }
+      await worker.terminate();
       const clean = text.replace(/\n{3,}/g, '\n\n').trim();
       if (clean.length < 40) {
         toast.error("Couldn't read enough text — try a sharper, higher-contrast screenshot.");
@@ -302,7 +309,8 @@ const JdImport = ({ onExtract }) => {
         setUsed(u => u + take.length);
         toast.success(`Added text from ${take.length} screenshot${take.length > 1 ? 's' : ''}. Review it before continuing.`);
       }
-    } catch {
+    } catch (err) {
+      console.error('[OCR] failed:', err);
       toast.error('Could not read the image. Paste the text instead.');
     } finally {
       setBusy(false);
