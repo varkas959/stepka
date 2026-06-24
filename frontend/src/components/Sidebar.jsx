@@ -1,5 +1,5 @@
-import { NavLink, Link } from 'react-router-dom';
-import { BookOpen, RotateCcw, LayoutGrid, Terminal, BarChart2, Flame, Check, Menu, X, MessageSquare, Sun, Moon } from 'lucide-react';
+import { NavLink, Link, useLocation } from 'react-router-dom';
+import { BookOpen, RotateCcw, LayoutGrid, Terminal, BarChart2, Flame, Check, Menu, X, MessageSquare, Sun, Moon, Plus } from 'lucide-react';
 import { useState } from 'react';
 import { useAppState } from '../lib/appState';
 import { useTheme } from 'next-themes';
@@ -25,6 +25,8 @@ export const Sidebar = ({ user, isGuest }) => {
   const { theme, setTheme } = useTheme();
   const toggle = () => setTheme(theme === 'light' ? 'dark' : 'light');
   const [mobileOpen, setMobileOpen] = useState(false);
+  const location = useLocation();
+  const onQuestions = location.pathname === '/app/questions';
 
   const progressPct = Math.min(100, Math.round((state.xp / state.xpToNext) * 100));
 
@@ -162,6 +164,14 @@ export const Sidebar = ({ user, isGuest }) => {
           <button onClick={() => setMobileOpen(true)} data-testid="mobile-menu" style={{ color: T2 }}><Menu size={20} /></button>
           <div className="text-sm font-semibold" style={{ color: T1 }}>Stepkai</div>
         </div>
+        {onQuestions && (
+          <button data-testid="topbar-contribute" aria-label="Contribute a question"
+            onClick={() => window.dispatchEvent(new CustomEvent('stepkai:contribute'))}
+            className="w-8 h-8 inline-flex items-center justify-center rounded-md text-white"
+            style={{ background: ACC }}>
+            <Plus size={18} strokeWidth={2.5} />
+          </button>
+        )}
       </div>
 
       {/* Desktop sidebar */}

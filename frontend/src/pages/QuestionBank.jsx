@@ -125,7 +125,6 @@ export default function QuestionBank({ isGuest = false, userId }) {
   const [contributeOpen, setContributeOpen] = useState(false);
   const [contributeMode, setContributeMode] = useState('quick');
   const [moreFiltersOpen, setMoreFiltersOpen] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
 
   const openContribute = (mode = 'quick') => {
     if (isGuest) return promptSignIn('contribute to the question bank');
@@ -133,11 +132,12 @@ export default function QuestionBank({ isGuest = false, userId }) {
     setContributeOpen(true);
   };
 
+  // The mobile top-bar "+" (in Sidebar) fires this to open Contribute.
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 200);
-    window.addEventListener('scroll', onScroll, { passive: true });
-    return () => window.removeEventListener('scroll', onScroll);
-  }, []);
+    const h = () => openContribute('quick');
+    window.addEventListener('stepkai:contribute', h);
+    return () => window.removeEventListener('stepkai:contribute', h);
+  }, [isGuest]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const promptSignIn = (action) => { setSignInAction(action); setSignInOpen(true); };
 
@@ -329,19 +329,6 @@ export default function QuestionBank({ isGuest = false, userId }) {
           ))}
         </div>
       )}
-
-      {/* Mobile FAB - appears when scrolled */}
-      <button
-        data-testid="contribute-fab"
-        onClick={() => openContribute('quick')}
-        className={`md:hidden fixed bottom-6 right-5 z-50 inline-flex items-center gap-2 font-mono text-sm font-semibold px-4 py-3 rounded-full text-white shadow-lg transition-all duration-200 ${
-          scrolled ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'
-        }`}
-        style={{ background: 'var(--accent)' }}
-      >
-        <Plus size={16} strokeWidth={2.5} />
-        <span>Contribute</span>
-      </button>
 
       {/* Count + active filter banner */}
       {Object.values(filters).some(v => v !== ALL) || search ? (

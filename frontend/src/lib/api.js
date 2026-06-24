@@ -46,6 +46,12 @@ export async function challengeTurn({ company, role, skill, transcript }) {
   return data;
 }
 
+// Depth Intelligence — level-based depth probe (mode: 'depth'); transcript carries levels
+export async function depthProbe({ company, role, skill, transcript }) {
+  const { data } = await api.post('/challenge', { mode: 'depth', company, role, skill, transcript });
+  return data;
+}
+
 export async function generateAssessment({ company, role, competencies, weakSkills, mode }) {
   const { data } = await api.post('/generate-assessment', { company, role, competencies, weakSkills, mode });
   return data;

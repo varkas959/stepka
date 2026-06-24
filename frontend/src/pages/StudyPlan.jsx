@@ -1,13 +1,15 @@
-import React, { useState } from 'react';
-import { Loader2, Sparkles, ChevronDown, ArrowRight, ArrowLeft, CheckCircle2, AlertTriangle, XCircle, Trophy, Brain, Eye, Flame, Target, Send } from 'lucide-react';
+import React, { useState, useRef } from 'react';
+import { Loader2, Sparkles, ChevronDown, ArrowRight, ArrowLeft, ArrowDown, CheckCircle2, AlertTriangle, XCircle, Trophy, Brain, Eye, Flame, Target, Send, Upload } from 'lucide-react';
 import { toast } from 'sonner';
 import { COMPANIES, QUESTIONS } from '../lib/mockData';
 import { useAppState } from '../lib/appState';
 import { extractSkills, generateAssessment, evaluateAssessment, generatePlan, saveReport, getGapIntelligence, challengeTurn } from '../lib/api';
 import { classifySkills, prioritizedGapSkills } from '../lib/gapIntelligence';
+import { coverageDepth, depthColor } from '../lib/depthIntelligence';
 import { track } from '../lib/analytics';
 import { supabase } from '../lib/supabaseClient';
 import { PixelBar } from '../components/PixelBar';
+import { DepthChallenge } from '../components/DepthChallenge';
 
 const ACTIVE_COMPANY_IDS = [...new Set(QUESTIONS.map(q => q.company))];
 const ACTIVE_COMPANIES = COMPANIES.filter(c => ACTIVE_COMPANY_IDS.includes(c.id));
@@ -206,8 +208,6 @@ export default function StudyPlan({ isGuest = false }) {
 
   return (
     <div className="px-4 md:px-8 py-6 md:py-8 max-w-5xl mx-auto">
-      <Breadcrumb segments={['study-plan', step]} />
-
       {step === 'input' && (
         <InputStep jd={jd} setJd={setJd} company={company} setCompany={setCompany} role={role} setRole={setRole} onStart={startAssessment} />
       )}
@@ -263,6 +263,67 @@ export default function StudyPlan({ isGuest = false }) {
     </div>
   );
 }
+
+// ─── JD screenshot import (on-device OCR) ────────────────────────────────────
+// For job sites that block text selection. OCR runs in the browser (tesseract.js,
+// lazy-loaded) — no image leaves the device, so no LLM/vision cost and no upload
+// to moderate. Only the extracted text flows into the existing skill extraction.
+const MAX_SHOTS = 3;
+const JdImport = ({ onExtract }) => {
+  const inputRef = useRef(null);
+  const [busy, setBusy] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const [used, setUsed] = useState(0);
+
+  const handle = async (e) => {
+    const files = Array.from(e.target.files || []);
+    e.target.value = '';
+    if (!files.length) return;
+    const remaining = MAX_SHOTS - used;
+    if (remaining <= 0) { toast.error(`Up to ${MAX_SHOTS} screenshots — paste any extra text directly.`); return; }
+    const take = files.slice(0, remaining);
+    if (take.some(f => f.size > 6 * 1024 * 1024)) { toast.error('Each image must be under 6 MB.'); return; }
+
+    setBusy(true); setProgress(0);
+    try {
+      const Tesseract = await import('tesseract.js');
+      let text = '';
+      for (let i = 0; i < take.length; i++) {
+        const { data } = await Tesseract.recognize(take[i], 'eng', {
+          logger: m => { if (m.status === 'recognizing text') setProgress(Math.round(((i + m.progress) / take.length) * 100)); },
+        });
+        text += (data?.text || '') + '\n\n';
+      }
+      const clean = text.replace(/\n{3,}/g, '\n\n').trim();
+      if (clean.length < 40) {
+        toast.error("Couldn't read enough text — try a sharper, higher-contrast screenshot.");
+      } else {
+        onExtract(clean);
+        setUsed(u => u + take.length);
+        toast.success(`Added text from ${take.length} screenshot${take.length > 1 ? 's' : ''}. Review it before continuing.`);
+      }
+    } catch {
+      toast.error('Could not read the image. Paste the text instead.');
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <div className="px-5 pb-3 -mt-1 flex items-center gap-3 flex-wrap">
+      <input ref={inputRef} type="file" accept="image/*" multiple hidden onChange={handle} />
+      <button type="button" onClick={() => inputRef.current?.click()} disabled={busy || used >= MAX_SHOTS}
+        className="inline-flex items-center gap-2 font-mono text-xs px-3 py-2 rounded-md border transition-colors hover:bg-white/[0.04] disabled:opacity-50"
+        style={{ borderColor: 'var(--border-2)', color: 'var(--text-2)' }}>
+        {busy ? <Loader2 size={13} className="animate-spin" /> : <Upload size={13} />}
+        {busy ? `Reading… ${progress}%` : "Can't copy? Upload screenshot(s)"}
+      </button>
+      <span className="font-mono text-[11px]" style={{ color: 'var(--text-3)' }}>
+        Reads on your device · up to {MAX_SHOTS}{used > 0 ? ` · ${used}/${MAX_SHOTS} used` : ''}
+      </span>
+    </div>
+  );
+};
 
 // ─── Input step ──────────────────────────────────────────────────────────────
 const InputStep = ({ jd, setJd, company, setCompany, role, setRole, onStart }) => (
@@ -328,7 +389,10 @@ const InputStep = ({ jd, setJd, company, setCompany, role, setRole, onStart }) =
         {/* Textarea */}
         <textarea value={jd} onChange={e => setJd(e.target.value)} rows={10}
           className="w-full bg-transparent border-0 px-5 py-4 text-sm font-mono text-zinc-100 placeholder:text-zinc-600 focus:outline-none resize-y leading-relaxed"
-          placeholder={"// Paste the full job description here…\n//\n// Tip: include the requirements section\n// for the most accurate gap analysis."} />
+          placeholder={"// Paste the full job description here…\n//\n// Can't copy from the job site? Upload a screenshot below.\n// Or just type the role + key responsibilities."} />
+
+        {/* Screenshot → on-device OCR (for sites that block copy) */}
+        <JdImport onExtract={(t) => setJd(prev => (prev ? prev.trim() + '\n\n' : '') + t)} />
 
         {/* Company + Role */}
         <div className="px-5 pb-4 grid grid-cols-1 sm:grid-cols-2 gap-3 border-t border-white/6 pt-4">
@@ -713,6 +777,8 @@ const GapIntelligenceView = ({ intel, cards, company, role, onChallenge, onConti
   const { strong, weak, falseConfidence, highRisk } = intel;
   const cardBySkill = Object.fromEntries((cards || []).map(c => [c.skill, c]));
   const [openSkill, setOpenSkill] = useState(null);
+  const [depthSkill, setDepthSkill] = useState(null);       // skill being depth-probed
+  const [depthBySkill, setDepthBySkill] = useState({});     // skill -> deepest level passed
 
   const CATS = [
     { key: 'highRisk',  items: highRisk,        Icon: Flame,        color: '#ef4444', label: 'High interview risk',
@@ -781,6 +847,17 @@ const GapIntelligenceView = ({ intel, cards, company, role, onChallenge, onConti
             </button>
             {isOpen && (
               <div className="px-5 pb-5 border-t border-white/5 pt-4 space-y-4">
+                {/* Coverage vs Depth — the core Depth Intelligence signal */}
+                {(() => {
+                  const { coverage, depth } = coverageDepth(h, depthBySkill[h.skill]);
+                  const probed = typeof depthBySkill[h.skill] === 'number';
+                  return (
+                    <div className="grid grid-cols-2 gap-3">
+                      <CovDepthBar label="Coverage" sub="Do you know it?" value={coverage} color="#7AA9F7" />
+                      <CovDepthBar label="Depth" sub={probed ? `Level ${depthBySkill[h.skill]}/5 · probed` : 'How deep can you defend it?'} value={depth} color={depthColor(depth)} />
+                    </div>
+                  );
+                })()}
                 {!card ? (
                   <div className="flex items-center gap-2 font-mono text-xs text-zinc-500"><Loader2 size={13} className="animate-spin" /> Generating intelligence for this skill…</div>
                 ) : (
@@ -814,16 +891,27 @@ const GapIntelligenceView = ({ intel, cards, company, role, onChallenge, onConti
                     )}
                   </>
                 )}
-                <button onClick={() => onChallenge(h.skill)}
-                  className="inline-flex items-center gap-2 font-mono text-xs font-semibold px-3 py-2 rounded-md text-white hover:opacity-90 transition-opacity"
-                  style={{ background: '#7C3AED' }}>
-                  <Brain size={13} /> Challenge my depth on {h.skill}
-                </button>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <button onClick={() => setDepthSkill(h.skill)}
+                    className="inline-flex items-center gap-2 font-mono text-xs font-semibold px-3 py-2 rounded-md text-white hover:opacity-90 transition-opacity"
+                    style={{ background: 'var(--accent)' }}>
+                    <ArrowDown size={13} /> Challenge my understanding
+                  </button>
+                  <button onClick={() => onChallenge(h.skill)}
+                    className="inline-flex items-center gap-2 font-mono text-xs font-semibold px-3 py-2 rounded-md border transition-colors hover:bg-white/[0.04]"
+                    style={{ borderColor: 'var(--border-2)', color: 'var(--text-2)' }}>
+                    <Brain size={13} /> Full adaptive interview
+                  </button>
+                </div>
               </div>
             )}
           </div>
         );
       })}
+
+      <DepthChallenge open={!!depthSkill} onOpenChange={(v) => !v && setDepthSkill(null)}
+        skill={depthSkill} company={company} role={role}
+        onComplete={(lvl) => setDepthBySkill(m => ({ ...m, [depthSkill]: lvl }))} />
 
       <div className="flex items-center justify-between gap-3 flex-wrap pt-1">
         <button onClick={onBack} className="inline-flex items-center gap-1.5 font-mono text-sm px-3 py-2 rounded-md border border-white/10 bg-zinc-900 hover:bg-zinc-800 text-zinc-100">
@@ -843,6 +931,20 @@ const Field = ({ label, text }) => text ? (
     <p className="text-[14px] text-zinc-200 leading-loose">{text}</p>
   </div>
 ) : null;
+
+// Coverage vs Depth mini-bar for the Gap Intelligence skill cards.
+const CovDepthBar = ({ label, sub, value, color }) => (
+  <div className="rounded-md border border-white/8 bg-white/[0.02] p-3">
+    <div className="flex items-baseline justify-between mb-1">
+      <span className="font-mono text-[11px] uppercase tracking-[0.14em] text-zinc-400">{label}</span>
+      <span className="font-mono text-sm font-semibold" style={{ color }}>{value}%</span>
+    </div>
+    <div className="h-1.5 rounded-full overflow-hidden mb-1.5" style={{ background: 'var(--surface-2)' }}>
+      <div className="h-full rounded-full transition-all" style={{ width: `${value}%`, background: color }} />
+    </div>
+    <div className="font-mono text-[10px] text-zinc-500">{sub}</div>
+  </div>
+);
 
 // ─── Challenge My Readiness — adaptive interviewer ─────────────────────────────
 const ChallengeMode = ({ company, role, skill, onExit }) => {
@@ -1074,11 +1176,19 @@ const PlanCalendar = ({ plan, expandedDay, setExpandedDay, state, onReset, repor
               {/* New structured day model — outcome / task / success / avoid / time */}
               {(expandedData.outcome || expandedData.task) ? (
                 <div className="space-y-3.5">
-                  {expandedData.estimatedTime && (
-                    <div className="inline-flex items-center gap-1.5 font-mono text-[11px] px-2 py-1 rounded border border-white/10 text-zinc-400">
-                      ⏱ {expandedData.estimatedTime}
-                    </div>
-                  )}
+                  <div className="flex items-center gap-2 flex-wrap">
+                    {expandedData.estimatedTime && (
+                      <div className="inline-flex items-center gap-1.5 font-mono text-[11px] px-2 py-1 rounded border border-white/10 text-zinc-400">
+                        ⏱ {expandedData.estimatedTime}
+                      </div>
+                    )}
+                    {expandedData.depthTarget && (
+                      <div className="inline-flex items-center gap-1.5 font-mono text-[11px] px-2 py-1 rounded border"
+                        style={{ borderColor: 'var(--accent-35)', background: 'var(--accent-12)', color: 'var(--accent)' }}>
+                        ↓ Depth target: Level {expandedData.depthTarget}/5
+                      </div>
+                    )}
+                  </div>
                   {expandedData.outcome && (
                     <DayField color="#22c55e" label="Outcome" text={expandedData.outcome} />
                   )}
@@ -1090,6 +1200,9 @@ const PlanCalendar = ({ plan, expandedDay, setExpandedDay, state, onReset, repor
                   )}
                   {expandedData.avoid && (
                     <DayField color="#ef4444" label="Avoid" text={expandedData.avoid} />
+                  )}
+                  {expandedData.commonFailure && (
+                    <DayField color="#a855f7" label="Common failure" text={expandedData.commonFailure} />
                   )}
                 </div>
               ) : (

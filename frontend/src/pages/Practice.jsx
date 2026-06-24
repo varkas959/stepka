@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react';
 import { QUESTIONS, COMPANIES } from '../lib/mockData';
 import { useAppState } from '../lib/appState';
-import { Loader2, Code2, FileText, Timer, RotateCw, ArrowRight } from 'lucide-react';
+import { Loader2, Code2, FileText, Timer, RotateCw, ArrowRight, ArrowDown } from 'lucide-react';
 import { toast } from 'sonner';
 import { gradeAnswer } from '../lib/api';
 import { PixelBar } from '../components/PixelBar';
+import { DepthChallenge } from '../components/DepthChallenge';
 
 const BEHAVIORAL_TOPICS = ['behavioral'];
 const SAMPLE_CODE = `// two-sum O(n)
@@ -29,8 +30,10 @@ export default function Practice({ isGuest = false }) {
   const [seconds, setSeconds] = useState(0);
   const [submitting, setSubmitting] = useState(false);
   const [feedback, setFeedback] = useState(null);
+  const [depthOpen, setDepthOpen] = useState(false);
   const { addXp } = useAppState();
   const company = COMPANIES.find(c => c.id === q.company);
+  const probeSkill = q.topicPath || q.topic || q.role;
 
   useEffect(() => {
     setMode(isBehavioral ? 'text' : 'code');
@@ -148,6 +151,26 @@ export default function Practice({ isGuest = false }) {
       </div>
 
       {feedback && <FeedbackPanel feedback={feedback} />}
+
+      {/* Interviewer probing — the question doesn't end at one answer */}
+      {feedback && (
+        <button data-testid="go-deeper" onClick={() => { if (isGuest) { window.location.href = '/signin'; return; } setDepthOpen(true); }}
+          className="mt-4 w-full rounded-lg p-5 flex items-center gap-4 text-left transition-colors hover:bg-white/[0.02]"
+          style={{ border: '1px solid var(--accent-35)', background: 'var(--accent-12)' }}>
+          <ArrowDown size={18} className="shrink-0" style={{ color: 'var(--accent)' }} />
+          <div className="flex-1">
+            <div className="font-semibold text-sm" style={{ color: 'var(--text-1)' }}>The interviewer follows up</div>
+            <div className="font-mono text-xs mt-0.5" style={{ color: 'var(--text-2)' }}>
+              Defend <span style={{ color: 'var(--text-1)' }}>{probeSkill}</span> through escalating "why?" follow-ups — see how deep you really go.
+            </div>
+          </div>
+          <span className="font-mono text-xs font-semibold uppercase tracking-[0.14em] shrink-0" style={{ color: 'var(--accent)' }}>Go deeper →</span>
+        </button>
+      )}
+
+      <DepthChallenge open={depthOpen} onOpenChange={setDepthOpen}
+        skill={probeSkill} company={company?.name} role={q.role}
+        onComplete={(lvl) => { addXp(40); toast.success(`Reached depth Level ${lvl}/5`); }} />
     </div>
   );
 }
