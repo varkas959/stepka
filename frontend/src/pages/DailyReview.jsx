@@ -37,19 +37,26 @@ const toneStyle = (tone, active) => {
   return map[tone];
 };
 
+const shuffle = (a) => {
+  const x = [...a];
+  for (let i = x.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [x[i], x[j]] = [x[j], x[i]]; }
+  return x;
+};
+
 export default function DailyReview() {
   const [phase, setPhase] = useState('queue');
   const [idx, setIdx] = useState(0);
+  const [order, setOrder] = useState(() => SRS_CARDS.map((_, i) => i));
   const [flipped, setFlipped] = useState(false);
   const [ratings, setRatings] = useState([]);
   const { state, bumpReview, addXp, recordRating } = useAppState();
   const navigate = useNavigate();
 
   const breakdown = SRS_CARDS.reduce((acc, c) => { acc[c.kind] = (acc[c.kind] || 0) + 1; return acc; }, {});
-  const startSession = () => { setPhase('session'); setIdx(0); setFlipped(false); setRatings([]); };
+  const startSession = () => { setOrder(shuffle(SRS_CARDS.map((_, i) => i))); setPhase('session'); setIdx(0); setFlipped(false); setRatings([]); };
 
   const handleRate = (r) => {
-    const card = SRS_CARDS[idx];
+    const card = SRS_CARDS[order[idx]];
     setRatings(prev => [...prev, { cardId: card.id, rating: r }]);
     bumpReview();
     addXp(10 + r.key * 2);
@@ -59,7 +66,7 @@ export default function DailyReview() {
   };
 
   if (phase === 'queue') return <QueueView state={state} breakdown={breakdown} total={SRS_CARDS.length} onStart={startSession} />;
-  if (phase === 'session') return <SessionView idx={idx} flipped={flipped} setFlipped={setFlipped} onRate={handleRate} onExit={() => setPhase('queue')} />;
+  if (phase === 'session') return <SessionView card={SRS_CARDS[order[idx]]} idx={idx} flipped={flipped} setFlipped={setFlipped} onRate={handleRate} onExit={() => setPhase('queue')} />;
   return <DoneView ratings={ratings} state={state} onContinue={() => navigate('/app/progress')} onAgain={() => setPhase('queue')} />;
 }
 
@@ -109,8 +116,7 @@ const KindCard = ({ kind, value }) => (
   </div>
 );
 
-const SessionView = ({ idx, flipped, setFlipped, onRate, onExit }) => {
-  const card = SRS_CARDS[idx];
+const SessionView = ({ card, idx, flipped, setFlipped, onRate, onExit }) => {
   return (
     <div className="px-4 md:px-10 py-6 md:py-10 max-w-3xl mx-auto" data-testid="srs-session">
       <Breadcrumb segments={['daily-review', 'card-' + (idx + 1) + '-of-' + SRS_CARDS.length]} />

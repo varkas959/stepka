@@ -335,7 +335,7 @@ const JdImport = ({ onExtract }) => {
 
 // ─── Input step ──────────────────────────────────────────────────────────────
 const InputStep = ({ jd, setJd, company, setCompany, role, setRole, onStart }) => (
-  <div className="mt-4 animate-fade-up">
+  <div className="animate-fade-up">
     {/* Page title */}
     <div className="mb-6">
       <h1 className="text-2xl md:text-3xl font-semibold tracking-tight text-zinc-50">Find out exactly what to prepare.</h1>
@@ -541,7 +541,9 @@ const AssessmentQuiz = ({ questions, currentQ, onAnswer, label }) => {
           {q.type === 'ranking' && (
             <RankingPicker items={q.items || []} order={rankOrder} setOrder={setRankOrder} />
           )}
-          {q.type === 'free_text' && (
+          {/* free_text OR any unrecognised/missing type → always give a text input
+              so a question can never be un-answerable (which would force a 0-score skip). */}
+          {!['mcq', 'scenario_selection', 'ranking'].includes(q.type) && (
             <FreeTextInput value={freeText} onChange={setFreeText} criteria={q.evaluation_criteria} />
           )}
         </div>
