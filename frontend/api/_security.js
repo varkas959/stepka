@@ -208,6 +208,23 @@ export async function callOpenAI(apiKey, system, user, { temperature = 0.3, max_
   return data.choices?.[0]?.message?.content || '';
 }
 
+// Batched embeddings (text-embedding-3-small, 1536 dims). One call for many texts.
+export async function embedBatch(apiKey, texts) {
+  const input = (Array.isArray(texts) ? texts : [texts]).map(t => String(t || '').slice(0, 8000));
+  const res = await fetch('https://api.openai.com/v1/embeddings', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` },
+    body: JSON.stringify({ model: 'text-embedding-3-small', input }),
+  });
+  const data = await res.json();
+  if (!res.ok) {
+    if (res.status === 429) throw new Error('QUOTA_EXCEEDED');
+    throw new Error(`OpenAI embed ${res.status}: ${data?.error?.message || ''}`);
+  }
+  // Return one vector (as a pgvector literal string) per input, in order.
+  return (data.data || []).sort((a, b) => a.index - b.index).map(d => `[${d.embedding.join(',')}]`);
+}
+
 export function extractJson(text) {
   text = text.trim();
   const fence = text.match(/```(?:json)?\s*(\{[\s\S]*?\})\s*```/);

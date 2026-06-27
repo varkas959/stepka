@@ -1,4 +1,4 @@
-import { checkOrigin, checkRateLimit, sanitize, redactPII, detectInjection, callOpenAI, extractJson, safeForLLM, wrapUntrusted } from './_security.js';
+import { checkOrigin, checkRateLimit, sanitize, redactPII, detectInjection, callOpenAI, extractJson, safeForLLM, wrapUntrusted, embedBatch } from './_security.js';
 import { createClient } from '@supabase/supabase-js';
 
 const admin = createClient(
@@ -208,6 +208,25 @@ async function handlePipeline(req, res, user) {
     user_id: user.id, created_at: new Date().toISOString(),
   })).filter(r => r.body.length >= 8);
 
+  // 5. Phase 2: embed every draft and attach its nearest PUBLISHED duplicate,
+  //    BEFORE a moderator sees it. One batched embed call; matching is DB-side.
+  const dupInfo = drafts.map(() => null);
+  if (drafts.length && process.env.OPENAI_API_KEY) {
+    try {
+      const vectors = await embedBatch(process.env.OPENAI_API_KEY, drafts.map(d => d.body));
+      for (let i = 0; i < drafts.length; i++) {
+        drafts[i].embedding = vectors[i];
+        const { data: matches } = await admin.rpc('match_questions', { query_embedding: vectors[i], match_count: 1 });
+        const top = matches && matches[0];
+        if (top && top.similarity != null) {
+          drafts[i].dup_match_id = top.id;
+          drafts[i].dup_similarity = top.similarity;
+          dupInfo[i] = { id: top.id, body: top.body, similarity: top.similarity };
+        }
+      }
+    } catch (e) { console.warn('[pipeline] embedding/dedup skipped:', e.message); }
+  }
+
   if (drafts.length) {
     const { error: qErr } = await admin.from('questions').insert(drafts);
     if (qErr) console.warn('[pipeline] drafts failed:', qErr.message);
@@ -217,7 +236,11 @@ async function handlePipeline(req, res, user) {
   return res.status(200).json({
     submissionId: sub.id,
     metadata: { company, role, experience: payload.experience || '', interviewDate: payload.interviewDate || '', outcome: payload.outcome || '' },
-    questions: drafts.map((r, i) => ({ body: r.body, round: r.round, topic: r.topic, category: r.category, difficulty: r.difficulty, skills: r.skills, questionType: r.question_type, confidence: r.confidence, followUp: !!qs[i]?.followUp })),
+    questions: drafts.map((r, i) => ({
+      body: r.body, round: r.round, topic: r.topic, category: r.category, difficulty: r.difficulty,
+      skills: r.skills, questionType: r.question_type, confidence: r.confidence, followUp: !!qs[i]?.followUp,
+      duplicate: dupInfo[i],   // { id, body, similarity } or null
+    })),
     count: drafts.length,
   });
 }

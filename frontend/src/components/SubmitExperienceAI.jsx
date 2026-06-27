@@ -91,6 +91,12 @@ export const SubmitExperienceAI = ({ onClose }) => {
                   {q.category && <span>· {q.category}</span>}
                   {typeof q.confidence === 'number' && <span>· {Math.round(q.confidence * 100)}% conf</span>}
                 </div>
+                {q.duplicate && q.duplicate.similarity >= 0.8 && (
+                  <div className="mt-1.5 text-[11px] rounded px-2 py-1 leading-snug"
+                    style={{ background: 'rgba(217,162,74,0.08)', border: '1px solid rgba(217,162,74,0.25)', color: 'var(--diff-medium)' }}>
+                    Likely duplicate · {Math.round(q.duplicate.similarity * 100)}% — “{q.duplicate.body.length > 90 ? q.duplicate.body.slice(0, 89) + '…' : q.duplicate.body}”
+                  </div>
+                )}
               </div>
             </div>
           ))}
