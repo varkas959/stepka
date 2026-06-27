@@ -333,6 +333,20 @@ async function handleAdmin(req, res, user) {
     return res.status(200).json({ ok: true });
   }
 
+  // Phase 4: refresh the static SEO surface (company/role/guide pages + sitemap)
+  // after a batch of approvals. Triggers a Vercel rebuild via a deploy hook.
+  if (action === 'rebuild') {
+    const hook = process.env.VERCEL_DEPLOY_HOOK_URL;
+    if (!hook) return res.status(503).json({ error: 'Deploy hook not configured (set VERCEL_DEPLOY_HOOK_URL).' });
+    try {
+      const r = await fetch(hook, { method: 'POST' });
+      await admin.from('moderation_log').insert({ moderator_id: user.id, action: 'rebuild' });
+      return res.status(200).json({ ok: r.ok });
+    } catch {
+      return res.status(502).json({ error: 'Could not trigger rebuild.' });
+    }
+  }
+
   return res.status(400).json({ error: 'Unknown action.' });
 }
 

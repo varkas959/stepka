@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
-import { Loader2, Check, X, GitMerge, Pencil, ShieldCheck } from 'lucide-react';
+import { Loader2, Check, X, GitMerge, Pencil, ShieldCheck, RefreshCw, Rocket } from 'lucide-react';
 import { toast } from 'sonner';
 import { loadMyRole, adminAction } from '../lib/pipeline';
 
@@ -58,6 +58,14 @@ export default function AdminReview() {
 
   const toggle = (id) => setSelected(s => { const n = new Set(s); n.has(id) ? n.delete(id) : n.add(id); return n; });
 
+  const publishSite = async () => {
+    if (!window.confirm('Trigger a site rebuild so company / role / guide SEO pages pick up the newly approved questions?')) return;
+    setBusy(true);
+    try { await adminAction('rebuild'); toast.success('Rebuild triggered — SEO pages refresh in a minute or two.'); }
+    catch (e) { toast.error(e.message); }
+    finally { setBusy(false); }
+  };
+
   if (loading && role === null) {
     return <div className="min-h-screen flex items-center justify-center" style={{ background: 'var(--page)', color: 'var(--text-3)' }}><Loader2 className="animate-spin" /></div>;
   }
@@ -89,7 +97,13 @@ export default function AdminReview() {
               <Check size={14} /> Approve {selected.size}
             </button>
           )}
-          <button onClick={refresh} disabled={busy} className="text-sm px-3 py-2 rounded-md border" style={{ borderColor: 'var(--border-2)', color: 'var(--text-2)' }}>Refresh</button>
+          <button onClick={publishSite} disabled={busy} title="Refresh static SEO pages with approved questions"
+            className="inline-flex items-center gap-1.5 text-sm px-3 py-2 rounded-md border" style={{ borderColor: 'var(--border-2)', color: 'var(--text-2)' }}>
+            <Rocket size={13} /> <span className="hidden sm:inline">Publish to site</span>
+          </button>
+          <button onClick={refresh} disabled={busy} className="inline-flex items-center gap-1.5 text-sm px-3 py-2 rounded-md border" style={{ borderColor: 'var(--border-2)', color: 'var(--text-2)' }}>
+            <RefreshCw size={13} /> <span className="hidden sm:inline">Refresh</span>
+          </button>
         </div>
       </header>
 
