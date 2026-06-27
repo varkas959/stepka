@@ -189,23 +189,21 @@ async function handlePipeline(req, res, user) {
     status: 'draft',
   }).select('id').single();
 
+  const expBand = sanitize(payload.experience, 40) || null;
   const qs = Array.isArray(payload.questions) ? payload.questions.slice(0, 40) : [];
-  const drafts = qs.map((q, i) => ({
-    id: `draft-${sub.id.slice(0, 8)}-${i}`,
-    company: company || 'unknown', role,
-    topic: sanitize(q.topic, 60) || 'domain',
-    topic_path: sanitize(q.topic, 120) || null,
-    difficulty: ['Easy', 'Medium', 'Hard'].includes(q.difficulty) ? q.difficulty : 'Medium',
-    round: sanitize(q.round, 60) || 'Technical',
+  const drafts = qs.map((q) => ({
+    submission_id: sub.id, extraction_id: ext?.id || null, interview_id: interview?.id || null,
     body: redactPII(sanitize(q.body, 2000)).clean,
+    round: sanitize(q.round, 60) || 'Technical',
+    topic: sanitize(q.topic, 60) || 'domain',
     category: sanitize(q.category, 60) || null,
+    difficulty: ['Easy', 'Medium', 'Hard'].includes(q.difficulty) ? q.difficulty : 'Medium',
     skills: Array.isArray(q.skills) ? q.skills.map(s => sanitize(s, 40)).slice(0, 8) : [],
     question_type: sanitize(q.questionType, 40) || null,
+    is_follow_up: !!q.followUp,
     confidence: typeof q.confidence === 'number' ? Math.max(0, Math.min(1, q.confidence)) : null,
-    status: 'draft',
-    submission_id: sub.id, extraction_id: ext?.id || null, interview_id: interview?.id || null,
-    tech: [], upvotes: 0, asked: 1, verify_count: 1, days_ago: 0,
-    user_id: user.id, created_at: new Date().toISOString(),
+    company, role, experience: expBand,
+    review_status: 'pending',
   })).filter(r => r.body.length >= 8);
 
   // 5. Phase 2: embed every draft and attach its nearest PUBLISHED duplicate,
@@ -228,7 +226,7 @@ async function handlePipeline(req, res, user) {
   }
 
   if (drafts.length) {
-    const { error: qErr } = await admin.from('questions').insert(drafts);
+    const { error: qErr } = await admin.from('extracted_questions').insert(drafts);  // STAGING, not the live bank
     if (qErr) console.warn('[pipeline] drafts failed:', qErr.message);
   }
   await admin.from('submissions').update({ status: 'extracted' }).eq('id', sub.id);
@@ -238,11 +236,104 @@ async function handlePipeline(req, res, user) {
     metadata: { company, role, experience: payload.experience || '', interviewDate: payload.interviewDate || '', outcome: payload.outcome || '' },
     questions: drafts.map((r, i) => ({
       body: r.body, round: r.round, topic: r.topic, category: r.category, difficulty: r.difficulty,
-      skills: r.skills, questionType: r.question_type, confidence: r.confidence, followUp: !!qs[i]?.followUp,
+      skills: r.skills, questionType: r.question_type, confidence: r.confidence, followUp: r.is_follow_up,
       duplicate: dupInfo[i],   // { id, body, similarity } or null
     })),
     count: drafts.length,
   });
+}
+
+// ─── Phase 3: moderation (role-gated) ────────────────────────────────────────
+// Promote ONE approved staging row into the live published bank.
+async function promote(eq, userId) {
+  const newId = `q-pipe-${eq.id.slice(0, 8)}`;
+  const now = new Date().toISOString();
+  const row = {
+    id: newId, company: eq.company || 'unknown', role: eq.role || null,
+    topic: eq.topic || 'domain', topic_path: eq.topic || null,
+    difficulty: eq.difficulty || 'Medium', round: eq.round || 'Technical',
+    body: eq.body, status: 'published', source: 'Interview Experience',
+    category: eq.category || null, skills: eq.skills || [], question_type: eq.question_type || null,
+    confidence: eq.confidence ?? null, embedding: eq.embedding || null, experience: eq.experience || null,
+    submission_id: eq.submission_id, extraction_id: eq.extraction_id, interview_id: eq.interview_id,
+    tech: [], upvotes: 0, asked: 1, verify_count: 1, days_ago: 0,
+    created_at: now, published_at: now,
+  };
+  const { error } = await admin.from('questions').insert(row);
+  if (error && !error.message.includes('duplicate')) throw new Error(error.message);
+  await admin.from('extracted_questions').update({ review_status: 'approved', reviewed_by: userId, reviewed_at: now, published_question_id: newId }).eq('id', eq.id);
+  await admin.from('moderation_log').insert({ question_id: newId, submission_id: eq.submission_id, moderator_id: userId, action: 'approve', after: { body: eq.body } });
+  return newId;
+}
+
+async function handleAdmin(req, res, user) {
+  const { data: prof } = await admin.from('profiles').select('role').eq('id', user.id).single();
+  const role = prof?.role || 'user';
+  if (!['admin', 'moderator'].includes(role)) return res.status(403).json({ error: 'Admin access required.' });
+
+  const { action, id, ids, fields, targetId } = req.body || {};
+
+  if (action === 'list') {
+    const { data: rows } = await admin.from('extracted_questions')
+      .select('*').eq('review_status', 'pending').order('created_at', { ascending: false }).limit(150);
+    const dupIds = [...new Set((rows || []).map(r => r.dup_match_id).filter(Boolean))];
+    let dupMap = {};
+    if (dupIds.length) {
+      const { data: dq } = await admin.from('questions').select('id, body').in('id', dupIds);
+      dupMap = Object.fromEntries((dq || []).map(d => [d.id, d.body]));
+    }
+    const pending = (rows || []).map(r => ({
+      id: r.id, body: r.body, round: r.round, topic: r.topic, category: r.category, difficulty: r.difficulty,
+      skills: r.skills, questionType: r.question_type, isFollowUp: r.is_follow_up, confidence: r.confidence,
+      company: r.company, role: r.role, experience: r.experience, submissionId: r.submission_id,
+      dupMatchId: r.dup_match_id, dupSimilarity: r.dup_similarity, dupBody: r.dup_match_id ? (dupMap[r.dup_match_id] || null) : null,
+      createdAt: r.created_at,
+    }));
+    return res.status(200).json({ pending, count: pending.length, role });
+  }
+
+  if (action === 'approve') {
+    const { data: eq } = await admin.from('extracted_questions').select('*').eq('id', id).single();
+    if (!eq) return res.status(404).json({ error: 'Not found.' });
+    try { const publishedId = await promote(eq, user.id); return res.status(200).json({ ok: true, publishedId }); }
+    catch (e) { return res.status(500).json({ error: e.message }); }
+  }
+
+  if (action === 'batch_approve') {
+    const list = Array.isArray(ids) ? ids.slice(0, 100) : [];
+    const { data: eqs } = await admin.from('extracted_questions').select('*').in('id', list).eq('review_status', 'pending');
+    let approved = 0;
+    for (const eq of (eqs || [])) { try { await promote(eq, user.id); approved++; } catch { /* skip */ } }
+    return res.status(200).json({ ok: true, approved });
+  }
+
+  if (action === 'reject') {
+    await admin.from('extracted_questions').update({ review_status: 'rejected', reviewed_by: user.id, reviewed_at: new Date().toISOString() }).eq('id', id);
+    await admin.from('moderation_log').insert({ moderator_id: user.id, action: 'reject' });
+    return res.status(200).json({ ok: true });
+  }
+
+  if (action === 'merge') {
+    const tgt = sanitize(targetId, 60) || null;
+    await admin.from('extracted_questions').update({ review_status: 'merged', published_question_id: tgt, reviewed_by: user.id, reviewed_at: new Date().toISOString() }).eq('id', id);
+    await admin.from('moderation_log').insert({ question_id: tgt, moderator_id: user.id, action: 'merge' });
+    return res.status(200).json({ ok: true });
+  }
+
+  if (action === 'edit') {
+    const upd = {};
+    if (typeof fields?.body === 'string')              upd.body = redactPII(sanitize(fields.body, 2000)).clean;
+    if (['Easy', 'Medium', 'Hard'].includes(fields?.difficulty)) upd.difficulty = fields.difficulty;
+    if (typeof fields?.topic === 'string')             upd.topic = sanitize(fields.topic, 60);
+    if (typeof fields?.round === 'string')             upd.round = sanitize(fields.round, 60);
+    if (typeof fields?.category === 'string')          upd.category = sanitize(fields.category, 60);
+    if (!Object.keys(upd).length) return res.status(400).json({ error: 'Nothing to edit.' });
+    await admin.from('extracted_questions').update(upd).eq('id', id);
+    await admin.from('moderation_log').insert({ moderator_id: user.id, action: 'edit', after: upd });
+    return res.status(200).json({ ok: true });
+  }
+
+  return res.status(400).json({ error: 'Unknown action.' });
 }
 
 export default async function handler(req, res) {
@@ -258,5 +349,6 @@ export default async function handler(req, res) {
   if (type === 'experience') return handleExperience(req, res, user);
   if (type === 'question')   return handleQuestion(req, res, user);
   if (type === 'pipeline')   return handlePipeline(req, res, user);
-  return res.status(400).json({ error: 'type must be experience, question, or pipeline' });
+  if (type === 'admin')      return handleAdmin(req, res, user);
+  return res.status(400).json({ error: 'type must be experience, question, pipeline, or admin' });
 }

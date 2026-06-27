@@ -13,6 +13,7 @@ import { Sidebar } from './components/Sidebar';
 import Home from './pages/Home';
 import QuestionBank from './pages/QuestionBank';
 import QuestionDetail from './pages/QuestionDetail';
+import AdminReview from './pages/AdminReview';
 import PublicQuestions from './pages/PublicQuestions';
 import DailyReview from './pages/DailyReview';
 import StudyPlan from './pages/StudyPlan';
@@ -136,6 +137,8 @@ function App() {
               <Profile session={session} onSignOut={() => setSession(null)} isGuest={!session} />
             </AppShell>
           } />
+          {/* Hidden admin — role-gated server-side; not in any nav */}
+          <Route path="/admin/review" element={<AdminReview />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </BrowserRouter>

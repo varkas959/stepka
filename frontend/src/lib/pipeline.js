@@ -18,3 +18,26 @@ export async function extractInterview({ rawText, sourceType = 'text', sourceMet
   }
   return resp.json();
 }
+
+// ── Moderation (admin/moderator only) ──
+export async function loadMyRole() {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return 'guest';
+  const { data } = await supabase.from('profiles').select('role').eq('id', user.id).single();
+  return data?.role || 'user';
+}
+
+export async function adminAction(action, payload = {}) {
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session) throw new Error('Sign in required');
+  const resp = await fetch('/api/submit', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session.access_token}` },
+    body: JSON.stringify({ type: 'admin', action, ...payload }),
+  });
+  if (!resp.ok) {
+    const e = await resp.json().catch(() => ({}));
+    throw new Error(e.error || 'Action failed');
+  }
+  return resp.json();
+}
