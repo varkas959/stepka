@@ -1,10 +1,13 @@
 import { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from './ui/dialog';
-import { Zap, FileText } from 'lucide-react';
+import { Zap, FileText, Sparkles } from 'lucide-react';
 import { AddQuestionModal } from './AddQuestionModal';
 import { ExperienceModal } from './ExperienceModal';
+import { SubmitExperienceAI } from './SubmitExperienceAI';
 
 const MODES = [
+  { id: 'paste', label: 'Paste & auto-extract', icon: Sparkles,
+    desc: 'Paste a LinkedIn/Reddit post, write-up, or screenshot — AI splits it into questions.' },
   { id: 'quick', label: 'Quick question', icon: Zap,
     desc: 'Add one question you were asked. Takes 30 seconds.' },
   { id: 'full',  label: 'Full experience', icon: FileText,
@@ -26,7 +29,7 @@ export const ContributeModal = ({ open, onOpenChange, onAdded, onSubmitted, user
         </DialogHeader>
 
         {/* Mode toggle */}
-        <div className="grid grid-cols-2 gap-2 mt-3" role="tablist">
+        <div className="grid grid-cols-3 gap-2 mt-3" role="tablist">
           {MODES.map(m => {
             const Icon = m.icon;
             const on = mode === m.id;
@@ -51,9 +54,9 @@ export const ContributeModal = ({ open, onOpenChange, onAdded, onSubmitted, user
 
         {/* Chosen form (embedded — no inner Dialog) */}
         <div className="mt-1">
-          {mode === 'quick'
-            ? <AddQuestionModal embedded open onOpenChange={onOpenChange} onAdded={onAdded} userId={userId} />
-            : <ExperienceModal embedded open onOpenChange={onOpenChange} onSubmitted={onSubmitted} userId={userId} defaultCompany={defaultCompany} defaultRole={defaultRole} />}
+          {mode === 'paste' && <SubmitExperienceAI onClose={() => onOpenChange(false)} />}
+          {mode === 'quick' && <AddQuestionModal embedded open onOpenChange={onOpenChange} onAdded={onAdded} userId={userId} />}
+          {mode === 'full'  && <ExperienceModal embedded open onOpenChange={onOpenChange} onSubmitted={onSubmitted} userId={userId} defaultCompany={defaultCompany} defaultRole={defaultRole} />}
         </div>
       </DialogContent>
     </Dialog>
