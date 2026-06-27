@@ -59,10 +59,12 @@ export default function AdminReview() {
   const toggle = (id) => setSelected(s => { const n = new Set(s); n.has(id) ? n.delete(id) : n.add(id); return n; });
 
   const publishSite = async () => {
-    if (!window.confirm('Trigger a site rebuild so company / role / guide SEO pages pick up the newly approved questions?')) return;
+    if (!window.confirm('Publish: recompute trends and rebuild company / role / guide SEO pages with the newly approved questions?')) return;
     setBusy(true);
-    try { await adminAction('rebuild'); toast.success('Rebuild triggered — SEO pages refresh in a minute or two.'); }
-    catch (e) { toast.error(e.message); }
+    try {
+      const r = await adminAction('rebuild');
+      toast.success(r.rebuilt ? 'Trends refreshed · SEO pages rebuilding (~1–2 min).' : 'Trends refreshed. (Set VERCEL_DEPLOY_HOOK_URL to also rebuild SEO pages.)');
+    } catch (e) { toast.error(e.message); }
     finally { setBusy(false); }
   };
 

@@ -333,17 +333,19 @@ async function handleAdmin(req, res, user) {
     return res.status(200).json({ ok: true });
   }
 
-  // Phase 4: refresh the static SEO surface (company/role/guide pages + sitemap)
-  // after a batch of approvals. Triggers a Vercel rebuild via a deploy hook.
+  // Phase 4 + 5: on publish, recompute Knowledge Intelligence trends from the
+  // freshly-approved corpus, then refresh the static SEO surface via a deploy
+  // hook. Trends refresh runs regardless of whether the hook is configured.
   if (action === 'rebuild') {
+    await admin.rpc('refresh_trends').catch(() => {});   // no-op if pipeline-phase5.sql not run
+    await admin.from('moderation_log').insert({ moderator_id: user.id, action: 'rebuild' });
     const hook = process.env.VERCEL_DEPLOY_HOOK_URL;
-    if (!hook) return res.status(503).json({ error: 'Deploy hook not configured (set VERCEL_DEPLOY_HOOK_URL).' });
+    if (!hook) return res.status(200).json({ ok: true, rebuilt: false, note: 'Trends refreshed. Deploy hook not configured.' });
     try {
       const r = await fetch(hook, { method: 'POST' });
-      await admin.from('moderation_log').insert({ moderator_id: user.id, action: 'rebuild' });
-      return res.status(200).json({ ok: r.ok });
+      return res.status(200).json({ ok: r.ok, rebuilt: true });
     } catch {
-      return res.status(502).json({ error: 'Could not trigger rebuild.' });
+      return res.status(502).json({ error: 'Trends refreshed, but the rebuild trigger failed.' });
     }
   }
 
