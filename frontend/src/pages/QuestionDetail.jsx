@@ -3,8 +3,8 @@ import { useParams, Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { ArrowLeft, Share2, Check, ArrowUpRight, Sparkles } from 'lucide-react';
 import { toast } from 'sonner';
-import { QUESTIONS, COMPANIES, ROLE_MAP } from '../lib/mockData';
-import { loadUserQuestions } from '../lib/questions';
+import { COMPANIES, ROLE_MAP } from '../lib/mockData';
+import { loadAllQuestions } from '../lib/questionStore';
 
 const canonicalRole = (role) => ROLE_MAP[role] || role;
 const slugify = s => String(s || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
@@ -13,15 +13,14 @@ const diffBg = d => d === 'Hard' ? 'rgba(225,128,128,0.06)' : d === 'Easy' ? 'rg
 
 export default function QuestionDetail() {
   const { id } = useParams();
-  const [extra, setExtra] = useState([]);
+  const [pool, setPool] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    loadUserQuestions().then(setExtra).catch(() => {}).finally(() => setLoading(false));
+    loadAllQuestions().then(setPool).catch(() => {}).finally(() => setLoading(false));
     window.scrollTo(0, 0);
   }, [id]);
 
-  const pool = useMemo(() => [...extra, ...QUESTIONS], [extra]);
   const q = useMemo(() => pool.find(x => x.id === id), [pool, id]);
 
   const related = useMemo(() => {

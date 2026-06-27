@@ -3,7 +3,7 @@ import { Plus, X, ArrowUp, ArrowUpRight, SlidersHorizontal, Search } from 'lucid
 import { toast } from 'sonner';
 import { Link } from 'react-router-dom';
 import { QUESTIONS, COMPANIES, ROLES, ROLE_MAP, CATEGORIES, CATEGORY_MAP, TOPIC_TREE, DIFFICULTIES, ROUND_TYPES, COMPANY_BLUEPRINTS, TECH_STACK } from '../lib/mockData';
-import { loadUserQuestions } from '../lib/questions';
+import { loadAllQuestions } from '../lib/questionStore';
 import { verifyQuestion, markAsked, unmarkAsked, loadUserActions, loadContributionCounts, loadExperienceLinkCounts } from '../lib/experiences';
 import { supabase } from '../lib/supabaseClient';
 import { ContributeModal } from '../components/ContributeModal';
@@ -85,9 +85,9 @@ export default function QuestionBank({ isGuest = false, userId }) {
   const [contribCounts, setContribCounts] = useState({ verifications: {}, asks: {} });
   const [reportCounts, setReportCounts] = useState({});   // experience-report frequency per question
 
-  // Load persisted user-submitted questions from Supabase on mount
+  // Load ALL questions from the canonical store (Supabase, seed fallback) on mount
   useEffect(() => {
-    loadUserQuestions()
+    loadAllQuestions()
       .then(qs => setUserQuestions(qs))
       .finally(() => setLoadingQ(false));
   }, []);
@@ -108,12 +108,12 @@ export default function QuestionBank({ isGuest = false, userId }) {
 
   // Overlay real community verify/ask counts + interview-report frequency on the seed numbers
   useEffect(() => {
-    const ids = [...userQuestions.map(q => q.id), ...QUESTIONS.map(q => q.id)];
+    const ids = userQuestions.map(q => q.id);
     loadContributionCounts(ids).then(setContribCounts).catch(() => {});
     loadExperienceLinkCounts(ids).then(setReportCounts).catch(() => {});
   }, [userQuestions]);
 
-  const allQuestions = useMemo(() => [...userQuestions, ...QUESTIONS].map(q => ({
+  const allQuestions = useMemo(() => userQuestions.map(q => ({
     ...q,
     asked: (q.asked || 0) + (contribCounts.asks[q.id] || 0) + (reportCounts[q.id] || 0),
     verifyCount: (q.verifyCount || 0) + (contribCounts.verifications[q.id] || 0),

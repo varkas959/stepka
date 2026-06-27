@@ -29,9 +29,9 @@ function questionMatchesSkill(q, skillTokens) {
 
 // Build a frequency index: how often is each competency asked at company+role?
 // Returns { askCount, questionCount, sampleQuestions } per skill.
-export function computeMarketFrequency(skills, { companyId, role }) {
+export function computeMarketFrequency(skills, { companyId, role, corpus = QUESTIONS }) {
   const co = COMPANIES.find(c => c.id === companyId || c.name === companyId);
-  const pool = QUESTIONS.filter(q => {
+  const pool = corpus.filter(q => {
     const companyOk = !co || q.company === co.id;
     return companyOk;
   });
@@ -55,9 +55,9 @@ export function computeMarketFrequency(skills, { companyId, role }) {
 
 // Classify every skill into the four Gap Intelligence categories.
 // A skill can appear in more than one list (e.g. weak AND high-risk).
-export function classifySkills(heatmap, { companyId, role } = {}) {
+export function classifySkills(heatmap, { companyId, role, corpus } = {}) {
   const skills = heatmap.map(h => h.skill);
-  const freq = computeMarketFrequency(skills, { companyId, role });
+  const freq = computeMarketFrequency(skills, { companyId, role, corpus });
   const maxAsk = Math.max(1, ...Object.values(freq).map(f => f.askCount));
 
   const enriched = heatmap.map(h => {

@@ -1,10 +1,11 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Loader2, Sparkles, ChevronDown, ArrowRight, ArrowLeft, ArrowDown, CheckCircle2, AlertTriangle, XCircle, Trophy, Brain, Eye, Flame, Target, Send, Upload } from 'lucide-react';
 import { toast } from 'sonner';
 import { COMPANIES, QUESTIONS } from '../lib/mockData';
 import { useAppState } from '../lib/appState';
 import { extractSkills, generateAssessment, evaluateAssessment, generatePlan, saveReport, getGapIntelligence, challengeTurn } from '../lib/api';
 import { classifySkills, prioritizedGapSkills } from '../lib/gapIntelligence';
+import { loadAllQuestions } from '../lib/questionStore';
 import { coverageDepth, depthColor } from '../lib/depthIntelligence';
 import { track } from '../lib/analytics';
 import { supabase } from '../lib/supabaseClient';
@@ -39,7 +40,10 @@ export default function StudyPlan({ isGuest = false }) {
   const [generatedPlan, setGeneratedPlan] = useState(null);
   const [expandedDay, setExpandedDay] = useState(null);
   const [reportSlug, setReportSlug] = useState(null);
+  const [corpus, setCorpus] = useState([]);   // canonical question store, for market-frequency
   const { state, setActivePlan, setReadiness } = useAppState();
+
+  useEffect(() => { loadAllQuestions().then(setCorpus).catch(() => {}); }, []);
 
   const companyName = COMPANIES.find(c => c.id === company)?.name || company;
 
@@ -149,7 +153,7 @@ export default function StudyPlan({ isGuest = false }) {
 
   // ── Step 4c: Gap Intelligence — classify + fetch per-skill deep cards ──
   const runGapIntelligence = async () => {
-    const classified = classifySkills(heatmap, { companyId: company, role });
+    const classified = classifySkills(heatmap, { companyId: company, role, corpus: corpus.length ? corpus : undefined });
     setGapIntel(classified);
     setStep('gap-intel');
     track('gap_intelligence_viewed', {
