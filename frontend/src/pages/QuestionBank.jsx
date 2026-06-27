@@ -7,6 +7,7 @@ import { loadAllQuestions } from '../lib/questionStore';
 import { verifyQuestion, markAsked, unmarkAsked, loadUserActions, loadContributionCounts, loadExperienceLinkCounts } from '../lib/experiences';
 import { supabase } from '../lib/supabaseClient';
 import { ContributeModal } from '../components/ContributeModal';
+import { TrendsPanel } from '../components/TrendsPanel';
 
 const slugify = (s) => s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
 const ACTIVE_COMPANIES = COMPANIES.filter(c => QUESTIONS.some(q => q.company === c.id));
@@ -351,6 +352,9 @@ export default function QuestionBank({ isGuest = false, userId }) {
           {allQuestions.length} Questions
         </div>
       )}
+
+      {/* Knowledge Intelligence — trending skills/tech/topics (nightly aggregation) */}
+      <TrendsPanel />
 
       {/* Question list — light rows separated by thin dividers (scan-optimised) */}
       <div className="divide-y divide-[color:var(--border)] border-y border-[color:var(--border)]" data-testid="question-feed">
