@@ -28,9 +28,8 @@ export default function Profile({ session, onSignOut }) {
   };
 
   return (
-    <div className="px-4 md:px-10 py-6 md:py-10 max-w-3xl mx-auto" data-testid="profile-page">
-      <Breadcrumb segments={['profile', 'settings']} />
-      <h1 className="text-3xl md:text-4xl font-semibold tracking-tight text-zinc-50 mt-1">Profile &amp; settings</h1>
+    <div className="px-4 md:px-10 py-4 md:py-6 max-w-3xl mx-auto" data-testid="profile-page">
+      <h1 className="text-3xl md:text-4xl font-semibold tracking-tight text-zinc-50">Profile &amp; settings</h1>
       <p className="font-mono text-sm text-zinc-400 mt-3">Account info, daily goal, notifications, legal.</p>
 
       {/* Identity */}

@@ -128,20 +128,6 @@ export default function QuestionBank({ isGuest = false, userId }) {
     verifyCount: (q.verifyCount || 0) + (contribCounts.verifications[q.id] || 0),
   })), [userQuestions, contribCounts, reportCounts]);
 
-  // Intelligence data derived from filtered questions
-  const intelligence = useMemo(() => {
-    const topicCounts = {}, companyCounts = {};
-    filtered.forEach(q => {
-      const name = TOPIC_LABELS.find(t => t.id === q.topic)?.name || q.topic;
-      if (name) topicCounts[name] = (topicCounts[name] || 0) + 1;
-      if (q.company) companyCounts[q.company] = (companyCounts[q.company] || 0) + 1;
-    });
-    const topTopics    = Object.entries(topicCounts).sort((a, b) => b[1] - a[1]).slice(0, 6);
-    const topCompanies = Object.entries(companyCounts).sort((a, b) => b[1] - a[1]).slice(0, 6)
-      .map(([id, count]) => ({ id, count, name: COMPANIES.find(c => c.id === id)?.name || id }));
-    return { topTopics, topCompanies };
-  }, [filtered]);
-
   // Filtered + sorted
   const filtered = useMemo(() => {
     let list = allQuestions.filter(q => {
@@ -162,6 +148,20 @@ export default function QuestionBank({ isGuest = false, userId }) {
     else list = [...list].sort((a, b) => (a.daysAgo || 0) - (b.daysAgo || 0));
     return list;
   }, [filters, search, activeTab, allQuestions]);
+
+  // Intelligence data derived from filtered questions (must come after filtered)
+  const intelligence = useMemo(() => {
+    const topicCounts = {}, companyCounts = {};
+    filtered.forEach(q => {
+      const name = TOPIC_LABELS.find(t => t.id === q.topic)?.name || q.topic;
+      if (name) topicCounts[name] = (topicCounts[name] || 0) + 1;
+      if (q.company) companyCounts[q.company] = (companyCounts[q.company] || 0) + 1;
+    });
+    const topTopics    = Object.entries(topicCounts).sort((a, b) => b[1] - a[1]).slice(0, 6);
+    const topCompanies = Object.entries(companyCounts).sort((a, b) => b[1] - a[1]).slice(0, 6)
+      .map(([id, count]) => ({ id, count, name: COMPANIES.find(c => c.id === id)?.name || id }));
+    return { topTopics, topCompanies };
+  }, [filtered]);
 
   const totalPages = Math.ceil(filtered.length / PAGE_SIZE);
   const paginatedQ = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);

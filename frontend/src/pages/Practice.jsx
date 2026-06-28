@@ -66,10 +66,8 @@ export default function Practice({ isGuest = false }) {
   const reset = () => { setFeedback(null); setAnswer(''); setSeconds(0); };
 
   return (
-    <div className="px-4 md:px-10 py-6 md:py-10 max-w-7xl mx-auto" data-testid="practice-page">
-      <Breadcrumb segments={['practice', `${q.company}-${q.role.toLowerCase()}`, `q-${qIdx + 1}`]} />
-
-      <div className="flex items-start justify-between gap-4 flex-wrap mb-6 mt-1">
+    <div className="px-4 md:px-10 py-4 md:py-6 max-w-7xl mx-auto" data-testid="practice-page">
+      <div className="flex items-start justify-between gap-4 flex-wrap mb-6">
         <div>
           <h1 className="text-3xl md:text-4xl font-semibold tracking-tight" style={{ color: 'var(--text-1)' }}>
             <span style={{ color: 'var(--text-3)' }}>$</span> practice · ai graded
