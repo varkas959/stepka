@@ -1,5 +1,5 @@
 import { NavLink, Link, useLocation } from 'react-router-dom';
-import { BookOpen, RotateCcw, LayoutGrid, Terminal, BarChart2, Flame, Check, Menu, X, MessageSquare, Sun, Moon, Plus, Home, User } from 'lucide-react';
+import { BookOpen, RotateCcw, LayoutGrid, Terminal, BarChart2, Flame, Check, Menu, X, MessageSquare, Sun, Moon, Plus, Home, CircleUser, Zap } from 'lucide-react';
 import { useState } from 'react';
 import { useAppState } from '../lib/appState';
 import { useTheme } from 'next-themes';
@@ -27,6 +27,12 @@ export const Sidebar = ({ user, isGuest }) => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const location = useLocation();
   const onQuestions = location.pathname === '/app/questions';
+
+  useEffect(() => {
+    const h = () => setMobileOpen(true);
+    window.addEventListener('stepkai:open-menu', h);
+    return () => window.removeEventListener('stepkai:open-menu', h);
+  }, []);
 
   const progressPct = Math.min(100, Math.round((state.xp / state.xpToNext) * 100));
 
@@ -157,22 +163,17 @@ export const Sidebar = ({ user, isGuest }) => {
 
   return (
     <>
-      {/* Mobile top bar */}
-      <div className="md:hidden fixed top-0 left-0 right-0 z-40 backdrop-blur-sm h-14 flex items-center justify-between px-4"
-           style={{ background: 'var(--surface-blur)', borderBottom: `1px solid ${BDR}` }}>
-        <div className="flex items-center gap-3">
-          <button onClick={() => setMobileOpen(true)} data-testid="mobile-menu" style={{ color: T2 }}><Menu size={20} /></button>
-          <div className="text-sm font-semibold" style={{ color: T1 }}>Stepkai</div>
+      {/* Mobile top bar — hidden on questions page (QuestionBank provides its own) */}
+      {!onQuestions && (
+        <div className="md:hidden fixed top-0 left-0 right-0 z-40 backdrop-blur-sm h-14 flex items-center justify-between px-4"
+             style={{ background: 'var(--surface-blur)', borderBottom: `1px solid ${BDR}` }}>
+          <div className="flex items-center gap-3">
+            <button onClick={() => setMobileOpen(true)} data-testid="mobile-menu" style={{ color: T2 }}><Menu size={20} /></button>
+            <div className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold text-white"
+                 style={{ background: ACC }}>S</div>
+          </div>
         </div>
-        {onQuestions && (
-          <button data-testid="topbar-contribute" aria-label="Contribute a question"
-            onClick={() => window.dispatchEvent(new CustomEvent('stepkai:contribute'))}
-            className="w-8 h-8 inline-flex items-center justify-center rounded-md text-white"
-            style={{ background: ACC }}>
-            <Plus size={18} strokeWidth={2.5} />
-          </button>
-        )}
-      </div>
+      )}
 
       {/* Desktop sidebar */}
       <aside className="hidden md:flex w-60 flex-col fixed inset-y-0 left-0 z-40"
@@ -192,26 +193,29 @@ export const Sidebar = ({ user, isGuest }) => {
       )}
 
       {/* Mobile bottom nav */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 flex items-stretch h-16"
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 flex items-stretch h-[60px] safe-area-bottom"
            style={{ background: BG2, borderTop: `1px solid ${BDR}` }}
            data-testid="mobile-bottom-nav">
         {[
-          { to: '/app/plan',      label: 'Home',      Icon: Home,       end: true },
-          { to: '/app/questions', label: 'Questions', Icon: BookOpen,   end: true },
-          { to: '/app/practice',  label: 'Prepare',   Icon: LayoutGrid, end: true },
-          { to: '/app/profile',   label: 'Profile',   Icon: User,       end: true },
+          { to: '/app/plan',      label: 'Home',      Icon: Home,        end: true },
+          { to: '/app/questions', label: 'Questions', Icon: BookOpen,    end: true },
+          { to: '/app/practice',  label: 'Prepare',   Icon: Zap,         end: true },
+          { to: '/app/profile',   label: 'Profile',   Icon: CircleUser,  end: true },
         ].map(({ to, label, Icon, end }) => (
           <NavLink
             key={to}
             to={to}
             end={!!end}
-            className="flex-1 flex flex-col items-center justify-center gap-0.5 text-[10px] transition-colors"
+            className="flex-1 flex flex-col items-center justify-center gap-0.5 transition-colors"
             style={({ isActive }) => ({ color: isActive ? ACC : T3 })}
           >
             {({ isActive }) => (
               <>
-                <Icon size={22} strokeWidth={isActive ? 2 : 1.5} />
-                <span className={isActive ? 'font-semibold' : ''}>{label}</span>
+                <div className="flex items-center justify-center w-10 h-7 rounded-2xl transition-colors"
+                     style={{ background: isActive ? `rgba(59,111,212,0.12)` : 'transparent' }}>
+                  <Icon size={20} strokeWidth={isActive ? 2.2 : 1.6} />
+                </div>
+                <span className="text-[10px]" style={{ fontWeight: isActive ? 600 : 400 }}>{label}</span>
               </>
             )}
           </NavLink>

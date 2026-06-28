@@ -1,11 +1,11 @@
 import { useMemo, useState, useEffect, useRef } from 'react';
 import {
-  X, SlidersHorizontal, Search, Star, Check, ArrowUp,
+  X, SlidersHorizontal, Search, Check, ArrowUp, Menu, Plus,
   TrendingUp, Building2, RefreshCw,
   ChevronLeft, ChevronRight,
 } from 'lucide-react';
 import { toast } from 'sonner';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import {
   QUESTIONS, COMPANIES, ROLES, ROLE_MAP, CATEGORIES, CATEGORY_MAP,
   TOPIC_TREE, DIFFICULTIES, ROUND_TYPES, COMPANY_BLUEPRINTS, TECH_STACK,
@@ -58,10 +58,10 @@ const MOBILE_FILTER_KEYS = ['company', 'role', 'difficulty', 'topic'];
 const MOBILE_FILTERS = MOBILE_FILTER_KEYS.map(k => FILTER_DEFS.find(d => d.key === k));
 
 const TABS = [
-  { id: 'latest',   label: 'Latest' },
-  { id: 'trending', label: 'Trending', icon: '🔥' },
-  { id: 'asked',    label: 'Most Asked' },
-  { id: 'recent',   label: 'Recently Added', badge: 'NEW' },
+  { id: 'latest',    label: 'Latest',    type: 'sort' },
+  { id: 'trending',  label: 'Trending',  type: 'sort' },
+  { id: 'companies', label: 'Companies', type: 'link', href: '/companies/' },
+  { id: 'roles',     label: 'Roles',     type: 'link', href: '/roles/'     },
 ];
 
 const DIFF_PALETTE = {
@@ -211,70 +211,123 @@ export default function QuestionBank({ isGuest = false, userId }) {
     }
   };
 
+  const navigate = useNavigate();
+
   return (
     <div className="min-h-screen" style={{ background: 'var(--page)' }}>
 
-      {/* ── Search bar ── */}
-      <div className="px-4 md:px-8 py-3 border-b" style={{ borderColor: 'var(--border)' }}>
-        <div className="max-w-[720px] mx-auto flex items-center gap-3">
-          <div className="flex-1 flex items-center gap-2.5 rounded-lg px-4 h-11 transition-colors focus-within:border-[var(--accent)]"
-               style={{ border: '1px solid var(--border)', background: 'var(--surface)' }}>
-            <Search size={16} style={{ color: 'var(--text-3)', flexShrink: 0 }} />
-            <input
-              data-testid="question-search"
-              value={search}
-              onChange={e => { setSearch(e.target.value); setPage(1); }}
-              placeholder="Search interview questions…"
-              className="flex-1 bg-transparent border-0 outline-none text-sm"
-              style={{ color: 'var(--text-1)' }}
-            />
-            {search
-              ? <button onClick={() => setSearch('')} style={{ color: 'var(--text-3)' }}><X size={15} /></button>
-              : <kbd className="hidden sm:inline-flex items-center font-mono text-[11px] px-1.5 py-0.5 rounded select-none"
-                     style={{ border: '1px solid var(--border-2)', color: 'var(--text-3)', background: 'var(--inset)' }}>/</kbd>
-            }
-          </div>
-          <button
-            data-testid="filters-toggle"
-            onClick={() => setMoreFiltersOpen(o => !o)}
-            className="inline-flex items-center gap-2 text-sm px-4 h-11 rounded-lg border transition-colors"
-            style={{
-              borderColor: moreFiltersOpen ? 'var(--accent)' : 'var(--border)',
-              color: moreFiltersOpen ? 'var(--accent)' : 'var(--text-2)',
-              background: 'var(--surface)',
-            }}
-          >
-            <SlidersHorizontal size={15} />
-            <span className="hidden sm:inline">Filters</span>
-          </button>
+      {/* ── Mobile sticky header (replaces Sidebar top bar on this page) ── */}
+      <div className="md:hidden fixed top-0 left-0 right-0 z-40 backdrop-blur-sm h-14 flex items-center gap-2 px-3"
+           style={{ background: 'var(--surface-blur)', borderBottom: `1px solid var(--border)` }}>
+        <button onClick={() => window.dispatchEvent(new CustomEvent('stepkai:open-menu'))}
+                style={{ color: 'var(--text-2)', flexShrink: 0 }}>
+          <Menu size={20} />
+        </button>
+        <div className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold text-white shrink-0"
+             style={{ background: 'var(--accent)' }}>S</div>
+        {/* Pill search */}
+        <div className="flex-1 flex items-center gap-2 rounded-full px-3 h-9"
+             style={{ border: '1px solid var(--border)', background: 'var(--inset)' }}>
+          <Search size={13} style={{ color: 'var(--text-3)', flexShrink: 0 }} />
+          <input
+            data-testid="question-search"
+            value={search}
+            onChange={e => { setSearch(e.target.value); setPage(1); }}
+            placeholder="Search questions"
+            className="flex-1 bg-transparent border-0 outline-none text-sm"
+            style={{ color: 'var(--text-1)' }}
+          />
+          {search && <button onClick={() => setSearch('')} style={{ color: 'var(--text-3)' }}><X size={13} /></button>}
         </div>
+        <button onClick={() => setMoreFiltersOpen(o => !o)} style={{ color: moreFiltersOpen ? 'var(--accent)' : 'var(--text-2)', flexShrink: 0 }}>
+          <SlidersHorizontal size={18} />
+        </button>
       </div>
 
-      {/* ── Quick filter chips ── */}
-      <div className="border-b" style={{ borderColor: 'var(--border)', background: 'var(--surface)' }}>
-        <div className="max-w-[720px] mx-auto px-4 md:px-8 py-2.5 flex items-center gap-2 overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-          {PRIMARY_FILTERS.map(def => (
-            <div className="shrink-0" key={def.key}>
-              <SearchableFilterChip
-                label={def.label}
-                value={filters[def.key] === ALL ? null : filters[def.key]}
-                options={def.options}
-                onChange={v => setF(def.key, v)}
-                onClear={() => clearOne(def.key)}
-                testid={def.key}
+      {/* ── Desktop: search + filter chips ── */}
+      <div className="hidden md:block">
+        <div className="px-8 py-3 border-b" style={{ borderColor: 'var(--border)' }}>
+          <div className="max-w-[720px] mx-auto flex items-center gap-3">
+            <div className="flex-1 flex items-center gap-2.5 rounded-lg px-4 h-11"
+                 style={{ border: '1px solid var(--border)', background: 'var(--surface)' }}>
+              <Search size={15} style={{ color: 'var(--text-3)', flexShrink: 0 }} />
+              <input
+                data-testid="question-search-desktop"
+                value={search}
+                onChange={e => { setSearch(e.target.value); setPage(1); }}
+                placeholder="Search interview questions…"
+                className="flex-1 bg-transparent border-0 outline-none text-sm"
+                style={{ color: 'var(--text-1)' }}
               />
+              {search
+                ? <button onClick={() => setSearch('')} style={{ color: 'var(--text-3)' }}><X size={15} /></button>
+                : <kbd className="inline-flex items-center font-mono text-[11px] px-1.5 py-0.5 rounded select-none"
+                       style={{ border: '1px solid var(--border-2)', color: 'var(--text-3)', background: 'var(--inset)' }}>/</kbd>
+              }
             </div>
-          ))}
-          {hasActiveFilters && (
-            <button onClick={resetAll} className="shrink-0 font-mono text-xs px-2 py-1 ml-auto hover:opacity-80 transition-opacity"
-                    style={{ color: 'var(--accent)' }}>
-              Reset
+            <button
+              data-testid="filters-toggle"
+              onClick={() => setMoreFiltersOpen(o => !o)}
+              className="inline-flex items-center gap-2 text-sm px-4 h-11 rounded-lg border transition-colors"
+              style={{
+                borderColor: moreFiltersOpen ? 'var(--accent)' : 'var(--border)',
+                color: moreFiltersOpen ? 'var(--accent)' : 'var(--text-2)',
+                background: 'var(--surface)',
+              }}
+            >
+              <SlidersHorizontal size={15} />
+              <span>Filters</span>
             </button>
-          )}
+          </div>
+        </div>
+        {/* Desktop filter chips */}
+        <div className="border-b" style={{ borderColor: 'var(--border)', background: 'var(--surface)' }}>
+          <div className="max-w-[720px] mx-auto px-8 py-2.5 flex items-center gap-2 overflow-x-auto [&::-webkit-scrollbar]:hidden">
+            {PRIMARY_FILTERS.map(def => (
+              <div className="shrink-0" key={def.key}>
+                <SearchableFilterChip
+                  label={def.label}
+                  value={filters[def.key] === ALL ? null : filters[def.key]}
+                  options={def.options}
+                  onChange={v => setF(def.key, v)}
+                  onClear={() => clearOne(def.key)}
+                  testid={def.key}
+                />
+              </div>
+            ))}
+            {hasActiveFilters && (
+              <button onClick={resetAll} className="shrink-0 font-mono text-xs px-2 py-1 ml-auto hover:opacity-80"
+                      style={{ color: 'var(--accent)' }}>Reset</button>
+            )}
+          </div>
         </div>
       </div>
 
-      {/* ── More filters panel ── */}
+      {/* Mobile filter chips (below fixed header, only when filters open or active) */}
+      {(moreFiltersOpen || hasActiveFilters) && (
+        <div className="md:hidden pt-14 border-b" style={{ borderColor: 'var(--border)', background: 'var(--surface)' }}>
+          <div className="px-3 py-2 flex items-center gap-2 overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+            {PRIMARY_FILTERS.map(def => (
+              <div className="shrink-0" key={def.key}>
+                <SearchableFilterChip
+                  label={def.label}
+                  value={filters[def.key] === ALL ? null : filters[def.key]}
+                  options={def.options}
+                  onChange={v => setF(def.key, v)}
+                  onClear={() => clearOne(def.key)}
+                  testid={def.key}
+                />
+              </div>
+            ))}
+            {hasActiveFilters && (
+              <button onClick={resetAll} className="shrink-0 font-mono text-xs px-2 py-1 ml-auto"
+                      style={{ color: 'var(--accent)' }}>Reset</button>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* More filters panel */}
       {moreFiltersOpen && (
         <div className="border-b px-4 md:px-8 py-3" style={{ borderColor: 'var(--border)', background: 'var(--surface)' }}>
           <div className="max-w-[720px] mx-auto flex flex-wrap items-center gap-2">
@@ -295,20 +348,14 @@ export default function QuestionBank({ isGuest = false, userId }) {
       )}
 
       {/* ── Feed ── */}
-      <div className="max-w-[720px] mx-auto px-4 md:px-8 py-4">
+      <div className="max-w-[720px] mx-auto md:px-8 pt-14 md:pt-4 pb-4">
 
-        {/* Header row */}
-        <div className="flex items-center justify-between mb-3">
-          <div>
-            <span className="font-bold text-lg" style={{ color: 'var(--text-1)' }}>
-              <span style={{ color: 'var(--accent)' }}>{filtered.length}</span> verified questions
-            </span>
-            {hasActiveFilters && (
-              <span className="text-xs ml-2" style={{ color: 'var(--text-3)' }}>
-                of {allQuestions.length} total
-              </span>
-            )}
-          </div>
+        {/* Desktop: header row */}
+        <div className="hidden md:flex items-center justify-between mb-3 px-0">
+          <span className="font-bold text-lg" style={{ color: 'var(--text-1)' }}>
+            <span style={{ color: 'var(--accent)' }}>{filtered.length}</span> verified questions
+            {hasActiveFilters && <span className="text-xs ml-2 font-normal" style={{ color: 'var(--text-3)' }}>of {allQuestions.length}</span>}
+          </span>
           <div className="flex items-center gap-1.5 text-xs" style={{ color: 'var(--text-3)' }}>
             <RefreshCw size={11} className={refreshing ? 'animate-spin' : ''} />
             {refreshing ? 'Updating…' : 'Updated daily'}
@@ -316,57 +363,57 @@ export default function QuestionBank({ isGuest = false, userId }) {
         </div>
 
         {/* Tabs */}
-        <div className="flex items-center border-b mb-0" style={{ borderColor: 'var(--border)' }}>
-          {TABS.map(tab => (
-            <button
-              key={tab.id}
-              onClick={() => { setActiveTab(tab.id); setPage(1); }}
-              className="flex items-center gap-1.5 px-3 md:px-4 py-2.5 text-sm font-medium transition-colors"
-              style={{
-                color: activeTab === tab.id ? 'var(--accent)' : 'var(--text-3)',
-                borderBottom: activeTab === tab.id ? '2px solid var(--accent)' : '2px solid transparent',
-                marginBottom: '-1px',
-                whiteSpace: 'nowrap',
-              }}
-            >
-              {tab.icon && <span>{tab.icon}</span>}
-              <span>{tab.label}</span>
-              {tab.badge && (
-                <span className="font-mono text-[9px] px-1.5 py-0.5 rounded font-bold"
-                      style={{ background: 'var(--accent)', color: '#fff' }}>
-                  {tab.badge}
-                </span>
-              )}
-            </button>
-          ))}
+        <div className="flex items-center border-b" style={{ borderColor: 'var(--border)' }}>
+          {TABS.map(tab => {
+            const isActive = tab.type === 'sort' && activeTab === tab.id;
+            return tab.type === 'link' ? (
+              <Link
+                key={tab.id}
+                to={tab.href}
+                className="px-3 md:px-4 py-2.5 text-sm font-medium transition-colors whitespace-nowrap"
+                style={{ color: 'var(--text-3)', borderBottom: '2px solid transparent', marginBottom: '-1px' }}
+              >
+                {tab.label}
+              </Link>
+            ) : (
+              <button
+                key={tab.id}
+                onClick={() => { setActiveTab(tab.id); setPage(1); }}
+                className="px-3 md:px-4 py-2.5 text-sm font-medium transition-colors whitespace-nowrap"
+                style={{
+                  color: isActive ? 'var(--accent)' : 'var(--text-3)',
+                  borderBottom: isActive ? '2px solid var(--accent)' : '2px solid transparent',
+                  marginBottom: '-1px',
+                }}
+              >
+                {tab.label}
+              </button>
+            );
+          })}
         </div>
 
-        {/* Question feed with inline strips */}
+        {/* Question feed */}
         <div data-testid="question-feed">
           {paginatedQ.length === 0 ? (
-            <div className="py-16 text-center font-mono text-sm" data-testid="empty-state"
+            <div className="py-16 text-center font-mono text-sm px-4" data-testid="empty-state"
                  style={{ color: 'var(--text-3)' }}>
               No questions match your filters.{' '}
               <button onClick={resetAll} className="underline" style={{ color: 'var(--accent)' }}>Clear filters</button>
             </div>
           ) : (
             <>
-              {/* First group */}
-              <div className="divide-y" style={{ '--tw-divide-color': 'var(--border)' }}>
-                {paginatedQ.slice(0, 10).map(q => (
-                  <QuestionCard
-                    key={q.id} q={q}
-                    upvoted={!!upvoteMap[q.id]}
-                    newUpvote={!!upvoteMap[q.id] && !loadedUpvotes.current.has(q.id)}
-                    asked={!!askedMap[q.id]}
-                    onUpvote={() => handleUpvote(q)}
-                    onAsked={() => handleAsked(q)}
-                    onCompanyClick={() => setBlueprintCompany(q.company)}
-                  />
-                ))}
-              </div>
+              {paginatedQ.slice(0, 10).map(q => (
+                <QuestionCard
+                  key={q.id} q={q}
+                  upvoted={!!upvoteMap[q.id]}
+                  newUpvote={!!upvoteMap[q.id] && !loadedUpvotes.current.has(q.id)}
+                  asked={!!askedMap[q.id]}
+                  onUpvote={() => handleUpvote(q)}
+                  onAsked={() => handleAsked(q)}
+                  onCompanyClick={() => setBlueprintCompany(q.company)}
+                />
+              ))}
 
-              {/* Interview Intelligence strip */}
               {paginatedQ.length > 10 && intelligence.topTopics.length > 0 && (
                 <IntelligenceStrip topics={intelligence.topTopics} onTopicClick={name => {
                   const t = TOPIC_LABELS.find(x => x.name === name);
@@ -374,24 +421,18 @@ export default function QuestionBank({ isGuest = false, userId }) {
                 }} />
               )}
 
-              {/* Second group */}
-              {paginatedQ.length > 10 && (
-                <div className="divide-y" style={{ '--tw-divide-color': 'var(--border)' }}>
-                  {paginatedQ.slice(10, 20).map(q => (
-                    <QuestionCard
-                      key={q.id} q={q}
-                      upvoted={!!upvoteMap[q.id]}
-                      newUpvote={!!upvoteMap[q.id] && !loadedUpvotes.current.has(q.id)}
-                      asked={!!askedMap[q.id]}
-                      onUpvote={() => handleUpvote(q)}
-                      onAsked={() => handleAsked(q)}
-                      onCompanyClick={() => setBlueprintCompany(q.company)}
-                    />
-                  ))}
-                </div>
-              )}
+              {paginatedQ.length > 10 && paginatedQ.slice(10).map(q => (
+                <QuestionCard
+                  key={q.id} q={q}
+                  upvoted={!!upvoteMap[q.id]}
+                  newUpvote={!!upvoteMap[q.id] && !loadedUpvotes.current.has(q.id)}
+                  asked={!!askedMap[q.id]}
+                  onUpvote={() => handleUpvote(q)}
+                  onAsked={() => handleAsked(q)}
+                  onCompanyClick={() => setBlueprintCompany(q.company)}
+                />
+              ))}
 
-              {/* Companies hiring strip */}
               {paginatedQ.length > 10 && intelligence.topCompanies.length > 1 && (
                 <CompaniesStrip companies={intelligence.topCompanies} onCompanyClick={id => setF('company', id)} />
               )}
@@ -401,18 +442,28 @@ export default function QuestionBank({ isGuest = false, userId }) {
 
         {/* Pagination */}
         {totalPages > 1 && (
-          <div className="flex items-center justify-between mt-5">
+          <div className="flex items-center justify-between mt-5 px-4 md:px-0">
             <Pagination
               page={page}
               totalPages={totalPages}
               onChange={p => { setPage(p); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
             />
-            <span className="font-mono text-xs" style={{ color: 'var(--text-3)' }}>
+            <span className="hidden md:block font-mono text-xs" style={{ color: 'var(--text-3)' }}>
               {PAGE_SIZE} per page
             </span>
           </div>
         )}
       </div>
+
+      {/* Mobile FAB */}
+      <button
+        data-testid="mobile-fab"
+        onClick={() => openContribute('quick')}
+        className="md:hidden fixed z-30 w-14 h-14 rounded-full shadow-xl flex items-center justify-center"
+        style={{ bottom: '80px', right: '16px', background: 'var(--accent)', color: '#fff' }}
+      >
+        <Plus size={22} strokeWidth={2.5} />
+      </button>
 
       {/* Modals */}
       <BlueprintModal companyId={blueprintCompany} onClose={() => setBlueprintCompany(null)} />
@@ -485,111 +536,63 @@ function CompaniesStrip({ companies, onCompanyClick }) {
 
 // ── Question card ─────────────────────────────────────────────────────────────
 function QuestionCard({ q, upvoted, newUpvote, asked, onUpvote, onAsked, onCompanyClick }) {
-  const company    = COMPANIES.find(c => c.id === q.company);
-  const compName   = company?.name || q.company;
-  const role       = canonicalRole(q.role);
-  const topicLabel = TOPIC_LABELS.find(t => t.id === q.topic)?.name || q.topic;
-  const diff       = DIFF_PALETTE[q.difficulty] || DIFF_PALETTE.Medium;
+  const company  = COMPANIES.find(c => c.id === q.company);
+  const compName = company?.name || q.company;
+  const role     = canonicalRole(q.role);
+  const diff     = DIFF_PALETTE[q.difficulty] || DIFF_PALETTE.Medium;
 
   return (
     <article
       data-testid={`question-card-${q.id}`}
-      className="py-4 px-1 transition-colors hover:bg-white/[0.02]"
+      className="py-3 px-4 md:px-0 transition-colors hover:bg-white/[0.015]"
+      style={{ borderBottom: '1px solid var(--border)' }}
     >
-      <div className="flex items-start gap-3">
-        {/* Bookmark icon */}
+      {/* Question body */}
+      <Link
+        to={`/app/question/${q.id}`}
+        data-testid={`open-question-${q.id}`}
+        className="block text-[15px] leading-snug mb-1"
+        style={{ color: 'var(--text-1)' }}
+      >
+        {q.body.replace(/\n/g, ' ')}
+      </Link>
+
+      {/* Meta row: Company • Role • Difficulty */}
+      <div className="flex items-center gap-1 text-xs mb-2" style={{ color: 'var(--text-3)' }}>
         <button
-          className="mt-0.5 shrink-0 transition-opacity opacity-30 hover:opacity-70"
-          style={{ color: 'var(--text-3)' }}
-          aria-label="Bookmark"
+          onClick={onCompanyClick}
+          data-testid={`open-blueprint-${q.company}`}
+          className="hover:underline"
+          style={{ color: 'var(--text-2)' }}
         >
-          <Star size={16} strokeWidth={1.5} />
+          {compName}
         </button>
-
-        {/* Body + meta */}
-        <div className="flex-1 min-w-0">
-          <Link
-            to={`/app/question/${q.id}`}
-            data-testid={`open-question-${q.id}`}
-            className="block text-[15px] font-medium leading-snug mb-2 hover:underline"
-            style={{ color: 'var(--text-1)' }}
-          >
-            {q.body.replace(/\n/g, ' ')}
-          </Link>
-          <div className="flex items-center gap-1.5 text-xs flex-wrap" style={{ color: 'var(--text-3)' }}>
-            <button onClick={onCompanyClick}
-                    data-testid={`open-blueprint-${q.company}`}
-                    className="font-medium hover:underline"
-                    style={{ color: 'var(--text-2)' }}>
-              {compName}
-            </button>
-            <span aria-hidden>•</span>
-            <span style={{ color: 'var(--text-3)' }}>{role}</span>
-            {topicLabel && (
-              <>
-                <span aria-hidden>•</span>
-                <span className="flex items-center gap-0.5" style={{ color: 'var(--text-3)' }}>
-                  <span style={{ fontSize: 9, opacity: 0.7 }}>◇</span>
-                  {topicLabel}
-                </span>
-              </>
-            )}
-          </div>
-        </div>
-
-        {/* Right actions */}
-        <div className="flex items-center gap-1.5 shrink-0">
-          {/* Difficulty badge — desktop */}
-          <span className="hidden sm:inline-flex items-center font-mono text-xs px-2.5 py-1 rounded-lg font-semibold"
-                style={{ border: `1px solid ${diff.border}`, background: diff.bg, color: diff.text }}>
-            {q.difficulty}
-          </span>
-          {/* Upvote */}
-          <button
-            data-testid={`upvote-${q.id}`}
-            onClick={onUpvote}
-            aria-label="Verify this question"
-            className="inline-flex items-center gap-1 font-mono text-xs px-2.5 py-1.5 rounded-lg border transition-colors"
-            style={upvoted
-              ? { border: '1px solid rgba(34,197,94,0.3)', background: 'rgba(34,197,94,0.07)', color: 'var(--diff-easy)' }
-              : { border: '1px solid var(--border)', background: 'var(--surface)', color: 'var(--text-2)' }}
-          >
-            <ArrowUp size={13} strokeWidth={2} />
-            <span>{q.verifyCount + (newUpvote ? 1 : 0)}</span>
-          </button>
-          {/* Asked this — desktop */}
-          <button
-            data-testid={`asked-${q.id}`}
-            onClick={onAsked}
-            disabled={asked}
-            aria-label="I was asked this"
-            className="hidden sm:inline-flex items-center gap-1 font-mono text-xs px-2.5 py-1.5 rounded-lg border transition-colors whitespace-nowrap"
-            style={asked
-              ? { border: '1px solid rgba(34,197,94,0.3)', background: 'rgba(34,197,94,0.07)', color: 'var(--diff-easy)' }
-              : { border: '1px solid var(--border)', background: 'var(--surface)', color: 'var(--text-2)' }}
-          >
-            <Check size={12} strokeWidth={2.5} />
-            <span>{asked ? 'Marked' : 'Asked this'}</span>
-          </button>
-        </div>
+        <span>•</span>
+        <span>{role}</span>
+        <span>•</span>
+        <span style={{ color: diff.text }}>{q.difficulty}</span>
       </div>
 
-      {/* Mobile: difficulty + Asked this below body */}
-      <div className="sm:hidden flex items-center gap-2 mt-2.5 ml-7">
-        <span className="font-mono text-xs px-2 py-0.5 rounded-md font-semibold"
-              style={{ border: `1px solid ${diff.border}`, background: diff.bg, color: diff.text }}>
-          {q.difficulty}
-        </span>
+      {/* Actions row */}
+      <div className="flex items-center justify-between">
         <button
+          data-testid={`asked-${q.id}`}
           onClick={onAsked}
           disabled={asked}
-          className="inline-flex items-center gap-1 font-mono text-xs px-2 py-0.5 rounded-md border transition-colors"
-          style={asked
-            ? { border: '1px solid rgba(34,197,94,0.3)', color: 'var(--diff-easy)' }
-            : { border: '1px solid var(--border)', color: 'var(--text-3)' }}
+          className="flex items-center gap-1 text-xs transition-colors"
+          style={{ color: asked ? 'var(--diff-easy)' : 'var(--text-3)' }}
         >
-          <Check size={11} />
-          <span>{asked ? 'Marked' : 'Asked this'}</span>
+          <Check size={11} strokeWidth={2.5} />
+          <span>Asked this</span>
+        </button>
+        <button
+          data-testid={`upvote-${q.id}`}
+          onClick={onUpvote}
+          className="flex items-center gap-1 text-xs transition-colors"
+          style={{ color: upvoted ? 'var(--diff-easy)' : 'var(--text-3)' }}
+        >
+          <ArrowUp size={11} strokeWidth={2} />
+          <span className="font-mono">{q.verifyCount + (newUpvote ? 1 : 0)}</span>
         </button>
       </div>
     </article>
