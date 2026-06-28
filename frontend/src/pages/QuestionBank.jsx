@@ -247,7 +247,7 @@ export default function QuestionBank({ isGuest = false, userId }) {
             value={search}
             onChange={e => { setSearch(e.target.value); setPage(1); }}
             placeholder="Search questions"
-            className="flex-1 bg-transparent border-0 outline-none text-sm placeholder:opacity-40"
+            className="flex-1 bg-transparent border-0 outline-none text-sm"
             style={{ color: 'var(--text-1)' }}
           />
           {search && <button onClick={() => setSearch('')} style={{ color: 'var(--text-3)' }}><X size={13} /></button>}

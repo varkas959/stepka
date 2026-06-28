@@ -150,7 +150,7 @@ export const Sidebar = ({ user, isGuest, onSignOut }) => {
             value={desktopSearch}
             onChange={e => handleDesktopSearch(e.target.value)}
             placeholder="Search interview questions…"
-            className="flex-1 bg-transparent border-0 outline-none text-sm placeholder:opacity-35"
+            className="flex-1 bg-transparent border-0 outline-none text-sm"
             style={{ color: T1 }}
           />
           {desktopSearch && (
