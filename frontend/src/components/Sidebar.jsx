@@ -1,8 +1,8 @@
 import { NavLink, Link, useLocation, useNavigate } from 'react-router-dom';
 import {
   BookOpen, RotateCcw, LayoutGrid, Terminal, BarChart2,
-  Flame, Check, Menu, X, MessageSquare, Sun, Moon, Plus,
-  Home, CircleUser, Zap, Search, TrendingUp,
+  Menu, X, MessageSquare, Sun, Moon, Plus,
+  Home, CircleUser, Zap, Search, SlidersHorizontal,
 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { useAppState } from '../lib/appState';
@@ -28,6 +28,7 @@ export const Sidebar = ({ user, isGuest, onSignOut }) => {
   const toggle = () => setTheme(theme === 'light' ? 'dark' : 'light');
   const [mobileOpen, setMobileOpen] = useState(false);
   const [desktopSearch, setDesktopSearch] = useState('');
+  const [filterCount, setFilterCount] = useState(0);
   const location = useLocation();
   const navigate = useNavigate();
   const onQuestions = location.pathname === '/app/questions';
@@ -37,6 +38,12 @@ export const Sidebar = ({ user, isGuest, onSignOut }) => {
     const h = () => setMobileOpen(true);
     window.addEventListener('stepkai:open-menu', h);
     return () => window.removeEventListener('stepkai:open-menu', h);
+  }, []);
+
+  useEffect(() => {
+    const h = (e) => setFilterCount(e.detail?.count ?? 0);
+    window.addEventListener('stepkai:filter-count', h);
+    return () => window.removeEventListener('stepkai:filter-count', h);
   }, []);
 
   const handleDesktopSearch = (val) => {
@@ -137,7 +144,7 @@ export const Sidebar = ({ user, isGuest, onSignOut }) => {
 
         {/* Search pill */}
         <div className="flex-1 max-w-[440px] flex items-center gap-2.5 rounded-full h-10 px-4 transition-colors"
-             style={{ border: `1px solid ${BDR}`, background: 'var(--inset)' }}>
+             style={{ border: `1.5px solid var(--border-2)`, background: 'var(--inset)' }}>
           <Search size={14} style={{ color: T3, flexShrink: 0 }} />
           <input
             value={desktopSearch}
@@ -163,12 +170,18 @@ export const Sidebar = ({ user, isGuest, onSignOut }) => {
             Contribute
           </button>
 
-          {/* Trending shortcut */}
-          <Link to="/companies/" title="Companies"
-                className="w-9 h-9 flex items-center justify-center rounded-lg border transition-colors hover:bg-white/5"
-                style={{ borderColor: BDR, color: T3 }}>
-            <TrendingUp size={17} strokeWidth={1.7} />
-          </Link>
+          {/* Filter — only relevant on questions page */}
+          {onQuestions && (
+            <button onClick={() => window.dispatchEvent(new CustomEvent('stepkai:open-filters'))}
+                    title="Filters" className="relative w-9 h-9 flex items-center justify-center rounded-lg border transition-colors hover:bg-white/5"
+                    style={{ borderColor: filterCount > 0 ? ACC : BDR, color: filterCount > 0 ? ACC : T3 }}>
+              <SlidersHorizontal size={17} strokeWidth={1.7} />
+              {filterCount > 0 && (
+                <span className="absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full text-[10px] font-bold flex items-center justify-center text-white"
+                      style={{ background: ACC }}>{filterCount}</span>
+              )}
+            </button>
+          )}
 
           {/* Theme */}
           <button onClick={toggle} title="Toggle theme"

@@ -5,7 +5,7 @@ import {
   ChevronLeft, ChevronRight,
 } from 'lucide-react';
 import { toast } from 'sonner';
-import { Link, useSearchParams } from 'react-router-dom';
+import { Link, useSearchParams, useNavigate } from 'react-router-dom';
 import {
   QUESTIONS, COMPANIES, ROLES, ROLE_MAP, CATEGORIES, CATEGORY_MAP,
   TOPIC_TREE, DIFFICULTIES, ROUND_TYPES, COMPANY_BLUEPRINTS, TECH_STACK,
@@ -27,6 +27,7 @@ const EMPTY_FILTERS = {
 };
 const PAGE_SIZE = 20;
 
+const slugify = s => s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
 const TOPIC_LABELS = TOPIC_TREE.flatMap(n => n.children ? n.children : [n]);
 const canonicalRole = (role) => ROLE_MAP[role] || role;
 const deriveCategory = (q) =>
@@ -98,7 +99,9 @@ export default function QuestionBank({ isGuest = false, userId }) {
   const [signInAction, setSignInAction] = useState('continue');
   const [contributeOpen, setContributeOpen] = useState(false);
   const [contributeMode, setContributeMode] = useState('quick');
-  const [moreFiltersOpen, setMoreFiltersOpen] = useState(false);
+  const [filterSheetOpen, setFilterSheetOpen] = useState(false);
+  const [filterModalOpen, setFilterModalOpen] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     loadAllQuestions().then(qs => setUserQuestions(qs)).finally(() => setRefreshing(false));
@@ -185,6 +188,20 @@ export default function QuestionBank({ isGuest = false, userId }) {
     return () => window.removeEventListener('stepkai:contribute', h);
   }, [isGuest]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  useEffect(() => {
+    const h = () => {
+      if (window.innerWidth >= 768) setFilterModalOpen(true);
+      else setFilterSheetOpen(true);
+    };
+    window.addEventListener('stepkai:open-filters', h);
+    return () => window.removeEventListener('stepkai:open-filters', h);
+  }, []);
+
+  const activeFilterCount = Object.values(filters).filter(v => v !== ALL).length;
+  useEffect(() => {
+    window.dispatchEvent(new CustomEvent('stepkai:filter-count', { detail: { count: activeFilterCount } }));
+  }, [activeFilterCount]);
+
   const handleAsked = q => {
     if (isGuest) return promptSignIn('mark "I was asked this"');
     if (askedMap[q.id]) return;
@@ -223,7 +240,7 @@ export default function QuestionBank({ isGuest = false, userId }) {
           <Menu size={20} />
         </button>
         <div className="flex-1 flex items-center gap-2 rounded-full px-3 h-9"
-             style={{ border: '1px solid var(--border)', background: 'var(--inset)' }}>
+             style={{ border: '1.5px solid var(--border-2)', background: 'var(--inset)' }}>
           <Search size={13} style={{ color: 'var(--text-3)', flexShrink: 0 }} />
           <input
             data-testid="question-search"
@@ -235,63 +252,41 @@ export default function QuestionBank({ isGuest = false, userId }) {
           />
           {search && <button onClick={() => setSearch('')} style={{ color: 'var(--text-3)' }}><X size={13} /></button>}
         </div>
-        <button onClick={() => setMoreFiltersOpen(o => !o)}
-                style={{ color: moreFiltersOpen ? 'var(--accent)' : 'var(--text-3)', flexShrink: 0 }}>
+        <button onClick={() => setFilterSheetOpen(true)} className="relative shrink-0"
+                style={{ color: activeFilterCount > 0 ? 'var(--accent)' : 'var(--text-3)' }}>
           <SlidersHorizontal size={18} />
+          {activeFilterCount > 0 && (
+            <span className="absolute -top-2 -right-2 w-4 h-4 rounded-full text-[10px] font-bold flex items-center justify-center text-white"
+                  style={{ background: 'var(--accent)' }}>{activeFilterCount}</span>
+          )}
         </button>
       </div>
 
-      {/* ── Unified filter chips bar (desktop + mobile when open/active) ── */}
-      <div className="border-b" style={{ borderColor: 'var(--border)', background: 'var(--surface)' }}>
-        <div className="flex items-center gap-2 px-4 md:px-8 py-2 overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-          {/* Desktop only: Filters button first */}
-          <button
-            data-testid="filters-toggle"
-            onClick={() => setMoreFiltersOpen(o => !o)}
-            className="hidden md:inline-flex items-center gap-1.5 text-xs px-3 h-8 rounded-lg border shrink-0 transition-colors"
-            style={{
-              borderColor: moreFiltersOpen ? 'var(--accent)' : 'var(--border)',
-              color: moreFiltersOpen ? 'var(--accent)' : 'var(--text-2)',
-              background: 'var(--surface)',
-            }}
-          >
-            <SlidersHorizontal size={13} />
-            Filters
-          </button>
-          {PRIMARY_FILTERS.map(def => (
-            <div className="shrink-0" key={def.key}>
-              <SearchableFilterChip
-                label={def.label}
-                value={filters[def.key] === ALL ? null : filters[def.key]}
-                options={def.options}
-                onChange={v => setF(def.key, v)}
-                onClear={() => clearOne(def.key)}
-                testid={def.key}
-              />
-            </div>
-          ))}
-          {hasActiveFilters && (
-            <button onClick={resetAll} className="shrink-0 font-mono text-xs px-2 py-1 ml-auto"
-                    style={{ color: 'var(--accent)' }}>Reset</button>
-          )}
-        </div>
-      </div>
-
-      {/* More filters panel */}
-      {moreFiltersOpen && (
-        <div className="border-b" style={{ borderColor: 'var(--border)', background: 'var(--surface)' }}>
-          <div className="px-4 md:px-8 py-3 grid grid-cols-2 md:grid-cols-4 gap-2">
-            {[...PRIMARY_FILTERS, ...SECONDARY_FILTERS].map(def => (
-              <SearchableFilterChip
-                key={def.key}
-                label={def.label}
-                value={filters[def.key] === ALL ? null : filters[def.key]}
-                options={def.options}
-                onChange={v => setF(def.key, v)}
-                onClear={() => clearOne(def.key)}
-                testid={def.key}
-              />
-            ))}
+      {/* ── Active filter chips (only shown when filters are applied) ── */}
+      {hasActiveFilters && (
+        <div className="border-b overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
+             style={{ borderColor: 'var(--border)', background: 'var(--surface)' }}>
+          <div className="flex items-center gap-2 px-4 md:px-8 py-2 min-w-0">
+            {Object.entries(filters).filter(([, v]) => v !== ALL).map(([key, val]) => {
+              const def = FILTER_DEFS.find(d => d.key === key);
+              const opt = def?.options.find(o => o.id === val);
+              return (
+                <button key={key} onClick={() => clearOne(key)}
+                  className="inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full shrink-0 transition-opacity hover:opacity-70"
+                  style={{ background: 'var(--accent-12)', color: 'var(--accent)', border: '1px solid var(--accent-35)' }}>
+                  {opt?.label || val} <X size={11} />
+                </button>
+              );
+            })}
+            {search && (
+              <button onClick={() => setSearch('')}
+                className="inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full shrink-0 transition-opacity hover:opacity-70"
+                style={{ background: 'var(--accent-12)', color: 'var(--accent)', border: '1px solid var(--accent-35)' }}>
+                "{search.length > 16 ? search.slice(0, 16) + '…' : search}" <X size={11} />
+              </button>
+            )}
+            <button onClick={resetAll} className="text-xs shrink-0 ml-auto pl-2"
+                    style={{ color: 'var(--text-3)' }}>Clear all</button>
           </div>
         </div>
       )}
@@ -353,7 +348,7 @@ export default function QuestionBank({ isGuest = false, userId }) {
               {paginatedQ.length > 6 && intelligence.topTopics.length > 0 && (
                 <IntelligenceStrip topics={intelligence.topTopics} onTopicClick={name => {
                   const t = TOPIC_LABELS.find(x => x.name === name);
-                  if (t) { setF('topic', t.id); window.scrollTo({ top: 0, behavior: 'smooth' }); toast(`Filtered by: ${name}`); }
+                  navigate(`/questions/topic/${t ? t.id : slugify(name)}`);
                 }} />
               )}
 
@@ -367,9 +362,7 @@ export default function QuestionBank({ isGuest = false, userId }) {
               {paginatedQ.length > 6 && intelligence.topCompanies.length > 1 && (
                 <CompaniesStrip companies={intelligence.topCompanies} onCompanyClick={id => {
                   const co = COMPANIES.find(c => c.id === id);
-                  setF('company', id);
-                  window.scrollTo({ top: 0, behavior: 'smooth' });
-                  toast(`Filtered by: ${co?.name || id}`);
+                  navigate(`/questions/company/${slugify(co?.name || id)}`);
                 }} />
               )}
 
@@ -421,11 +414,171 @@ export default function QuestionBank({ isGuest = false, userId }) {
           defaultCompany={filters.company !== ALL ? filters.company : undefined}
         />
       )}
+      <FilterSheet
+        open={filterSheetOpen}
+        filters={filters}
+        onApply={draft => { setFilters(draft); setPage(1); }}
+        onClose={() => setFilterSheetOpen(false)}
+      />
+      <FilterModal
+        open={filterModalOpen}
+        filters={filters}
+        onApply={draft => { setFilters(draft); setPage(1); }}
+        onClose={() => setFilterModalOpen(false)}
+      />
     </div>
   );
 }
 
-// ── Interview Intelligence strip ──────────────────────────────────────────────
+// ── Filter Sheet (mobile bottom sheet) ───────────────────────────────────────
+function FilterSheet({ open, filters, onApply, onClose }) {
+  const [draft, setDraft] = useState(filters);
+  useEffect(() => { if (open) setDraft(filters); }, [open]); // eslint-disable-line react-hooks/exhaustive-deps
+  const setD = (k, v) => setDraft(d => ({ ...d, [k]: v === d[k] ? ALL : v }));
+  const draftCount = Object.values(draft).filter(v => v !== ALL).length;
+
+  if (!open) return null;
+  return (
+    <div className="md:hidden fixed inset-0 z-[60] flex flex-col justify-end">
+      <div className="absolute inset-0" style={{ background: 'rgba(0,0,0,0.5)' }} onClick={onClose} />
+      <div className="relative rounded-t-2xl flex flex-col max-h-[88vh]"
+           style={{ background: 'var(--surface)', boxShadow: '0 -8px 32px rgba(0,0,0,0.3)' }}>
+        {/* handle */}
+        <div className="flex justify-center pt-3 pb-1 shrink-0">
+          <div className="w-10 h-1 rounded-full" style={{ background: 'var(--border-2)' }} />
+        </div>
+        {/* header */}
+        <div className="flex items-center justify-between px-5 py-3 shrink-0 border-b" style={{ borderColor: 'var(--border)' }}>
+          <span className="font-semibold text-base" style={{ color: 'var(--text-1)' }}>Filters</span>
+          <button onClick={onClose} style={{ color: 'var(--text-3)' }}><X size={18} /></button>
+        </div>
+        {/* scrollable body */}
+        <div className="flex-1 overflow-y-auto px-5 py-4">
+          {FILTER_DEFS.map(def => (
+            <div key={def.key} className="mb-6">
+              <div className="text-[11px] font-semibold uppercase tracking-wider mb-2.5" style={{ color: 'var(--text-3)' }}>
+                {def.label}
+              </div>
+              {def.key === 'difficulty' ? (
+                <div className="flex gap-2">
+                  {def.options.map(opt => (
+                    <button key={opt.id} onClick={() => setD(def.key, opt.id)}
+                      className="flex-1 py-2.5 rounded-xl text-sm font-medium transition-colors"
+                      style={{
+                        background: draft[def.key] === opt.id ? 'var(--accent)' : 'var(--inset)',
+                        color: draft[def.key] === opt.id ? '#fff' : 'var(--text-2)',
+                        border: `1px solid ${draft[def.key] === opt.id ? 'var(--accent)' : 'var(--border)'}`,
+                      }}>
+                      {opt.label}
+                    </button>
+                  ))}
+                </div>
+              ) : (
+                <div className="flex flex-wrap gap-2">
+                  {def.options.slice(0, 24).map(opt => (
+                    <button key={opt.id} onClick={() => setD(def.key, opt.id)}
+                      className="px-3 py-1.5 rounded-full text-xs transition-colors"
+                      style={{
+                        background: draft[def.key] === opt.id ? 'var(--accent-20)' : 'var(--inset)',
+                        color: draft[def.key] === opt.id ? 'var(--accent)' : 'var(--text-2)',
+                        border: `1px solid ${draft[def.key] === opt.id ? 'var(--accent-35)' : 'var(--border)'}`,
+                      }}>
+                      {opt.label}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+        {/* footer */}
+        <div className="shrink-0 flex gap-3 px-5 py-4 border-t" style={{ borderColor: 'var(--border)', paddingBottom: 'calc(1rem + env(safe-area-inset-bottom))' }}>
+          <button onClick={() => setDraft(EMPTY_FILTERS)}
+            className="flex-1 py-3 rounded-xl text-sm border font-medium"
+            style={{ borderColor: 'var(--border)', color: 'var(--text-2)', background: 'var(--inset)' }}>
+            Reset
+          </button>
+          <button onClick={() => { onApply(draft); onClose(); }}
+            className="flex-1 py-3 rounded-xl text-sm font-semibold text-white"
+            style={{ background: 'var(--accent)' }}>
+            Apply{draftCount > 0 ? ` (${draftCount})` : ''}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Filter Modal (desktop) ────────────────────────────────────────────────────
+function FilterModal({ open, filters, onApply, onClose }) {
+  const [draft, setDraft] = useState(filters);
+  useEffect(() => { if (open) setDraft(filters); }, [open]); // eslint-disable-line react-hooks/exhaustive-deps
+  const setD = (k, v) => setDraft(d => ({ ...d, [k]: v === d[k] ? ALL : v }));
+  const draftCount = Object.values(draft).filter(v => v !== ALL).length;
+
+  return (
+    <Dialog open={open} onOpenChange={v => !v && onClose()}>
+      <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto"
+                     style={{ background: 'var(--surface)', border: '1px solid var(--border)', color: 'var(--text-1)' }}>
+        <DialogHeader>
+          <DialogTitle className="text-lg font-semibold" style={{ color: 'var(--text-1)' }}>Filters</DialogTitle>
+          <DialogDescription style={{ color: 'var(--text-3)' }}>Narrow down interview questions</DialogDescription>
+        </DialogHeader>
+        <div className="grid grid-cols-2 gap-x-8 gap-y-5 mt-2">
+          {FILTER_DEFS.map(def => (
+            <div key={def.key}>
+              <div className="text-[11px] font-semibold uppercase tracking-wider mb-2" style={{ color: 'var(--text-3)' }}>
+                {def.label}
+              </div>
+              {def.key === 'difficulty' ? (
+                <div className="flex gap-2">
+                  {def.options.map(opt => (
+                    <button key={opt.id} onClick={() => setD(def.key, opt.id)}
+                      className="flex-1 py-2 rounded-lg text-xs font-medium transition-colors"
+                      style={{
+                        background: draft[def.key] === opt.id ? 'var(--accent)' : 'var(--inset)',
+                        color: draft[def.key] === opt.id ? '#fff' : 'var(--text-2)',
+                        border: `1px solid ${draft[def.key] === opt.id ? 'var(--accent)' : 'var(--border)'}`,
+                      }}>
+                      {opt.label}
+                    </button>
+                  ))}
+                </div>
+              ) : (
+                <div className="flex flex-wrap gap-1.5">
+                  {def.options.slice(0, 20).map(opt => (
+                    <button key={opt.id} onClick={() => setD(def.key, opt.id)}
+                      className="px-2.5 py-1 rounded-full text-xs transition-colors"
+                      style={{
+                        background: draft[def.key] === opt.id ? 'var(--accent-20)' : 'var(--inset)',
+                        color: draft[def.key] === opt.id ? 'var(--accent)' : 'var(--text-2)',
+                        border: `1px solid ${draft[def.key] === opt.id ? 'var(--accent-35)' : 'var(--border)'}`,
+                      }}>
+                      {opt.label}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+        <div className="flex gap-3 mt-6 pt-4 border-t" style={{ borderColor: 'var(--border)' }}>
+          <button onClick={() => setDraft(EMPTY_FILTERS)}
+            className="flex-1 py-2.5 rounded-lg text-sm border font-medium"
+            style={{ borderColor: 'var(--border)', color: 'var(--text-2)', background: 'var(--inset)' }}>
+            Reset
+          </button>
+          <button onClick={() => { onApply(draft); onClose(); }}
+            className="flex-1 py-2.5 rounded-lg text-sm font-semibold text-white"
+            style={{ background: 'var(--accent)' }}>
+            Apply{draftCount > 0 ? ` (${draftCount})` : ''}
+          </button>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 function IntelligenceStrip({ topics, onTopicClick }) {
   return (
     <div className="my-2 py-4 px-4 md:px-0 rounded-lg" style={{ background: 'var(--surface)', border: '1px solid var(--border)' }}>
