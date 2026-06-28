@@ -1,7 +1,7 @@
 import { useMemo, useState, useEffect, useRef } from 'react';
 import {
   X, SlidersHorizontal, Search, Check, ArrowUp, Menu, Plus,
-  TrendingUp, Building2, RefreshCw,
+  TrendingUp, Building2,
   ChevronLeft, ChevronRight,
 } from 'lucide-react';
 import { toast } from 'sonner';
@@ -239,7 +239,7 @@ export default function QuestionBank({ isGuest = false, userId }) {
                 style={{ color: 'var(--text-2)', flexShrink: 0 }}>
           <Menu size={20} />
         </button>
-        <div className="flex-1 flex items-center gap-2 rounded-full px-3 h-9"
+        <div className="flex items-center gap-2 rounded-full px-3 h-8 w-[52%]"
              style={{ border: '1.5px solid var(--border-2)', background: 'var(--inset)' }}>
           <Search size={13} style={{ color: 'var(--text-3)', flexShrink: 0 }} />
           <input
@@ -296,19 +296,14 @@ export default function QuestionBank({ isGuest = false, userId }) {
 
         {/* Tabs — on mobile appear right at top before count */}
         <div className="flex items-center border-b px-4 md:px-0" style={{ borderColor: 'var(--border)' }}>
-          {/* Desktop: count left of tabs */}
-          <span className="hidden md:block text-sm mr-4 shrink-0" style={{ color: 'var(--text-3)' }}>
-            <span className="font-semibold" style={{ color: 'var(--accent)' }}>{filtered.length}</span>
-            {hasActiveFilters && <span className="ml-1">of {allQuestions.length}</span>}
-            {' '}questions
-          </span>
           {TABS.map(tab => {
             const isActive = tab.type === 'sort' && activeTab === tab.id;
+            const label = tab.id === 'latest' ? `Latest (${filtered.length})` : tab.label;
             return tab.type === 'link' ? (
               <Link key={tab.id} to={tab.href}
                     className="px-3 py-2.5 text-sm font-medium transition-colors whitespace-nowrap"
                     style={{ color: 'var(--text-3)', borderBottom: '2px solid transparent', marginBottom: '-1px' }}>
-                {tab.label}
+                {label}
               </Link>
             ) : (
               <button key={tab.id} onClick={() => { setActiveTab(tab.id); setPage(1); }}
@@ -318,14 +313,10 @@ export default function QuestionBank({ isGuest = false, userId }) {
                         borderBottom: isActive ? '2px solid var(--accent)' : '2px solid transparent',
                         marginBottom: '-1px',
                       }}>
-                {tab.label}
+                {label}
               </button>
             );
           })}
-          <div className="ml-auto hidden md:flex items-center gap-1 text-xs" style={{ color: 'var(--text-3)' }}>
-            <RefreshCw size={11} className={refreshing ? 'animate-spin' : ''} />
-            {refreshing ? 'Updating…' : 'Updated daily'}
-          </div>
         </div>
 
         {/* Question feed */}
@@ -581,7 +572,7 @@ function FilterModal({ open, filters, onApply, onClose }) {
 
 function IntelligenceStrip({ topics, onTopicClick }) {
   return (
-    <div className="my-2 py-4 px-4 md:px-0 rounded-lg" style={{ background: 'var(--surface)', border: '1px solid var(--border)' }}>
+    <div className="py-4 px-4 md:px-0" style={{ background: 'var(--inset)' }}>
       <div className="flex items-center gap-2 mb-3">
         <TrendingUp size={14} style={{ color: 'var(--accent)' }} />
         <span className="font-mono text-[11px] uppercase tracking-[0.18em] font-semibold"
@@ -607,7 +598,7 @@ function IntelligenceStrip({ topics, onTopicClick }) {
 // ── Companies hiring strip ────────────────────────────────────────────────────
 function CompaniesStrip({ companies, onCompanyClick }) {
   return (
-    <div className="my-2 py-4 px-4 md:px-0 rounded-lg" style={{ background: 'var(--surface)', border: '1px solid var(--border)' }}>
+    <div className="py-4 px-4 md:px-0" style={{ background: 'var(--inset)' }}>
       <div className="flex items-center gap-2 mb-3">
         <Building2 size={14} style={{ color: 'var(--accent)' }} />
         <span className="font-mono text-[11px] uppercase tracking-[0.18em] font-semibold"

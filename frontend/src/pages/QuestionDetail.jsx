@@ -97,7 +97,7 @@ export default function QuestionDetail() {
 
       {/* Actions */}
       <div className="flex items-center gap-2.5 mb-8 flex-wrap">
-        <Link to="/app/practice" data-testid="practice-this"
+        <Link to="/app/practice" state={{ question: q }} data-testid="practice-this"
           className="inline-flex items-center gap-2 text-sm font-semibold px-4 py-2.5 rounded-lg text-white transition-transform hover:-translate-y-0.5"
           style={{ background: 'var(--accent)', boxShadow: '0 8px 20px -10px var(--accent)' }}>
           <Sparkles size={15} /> Practice this question

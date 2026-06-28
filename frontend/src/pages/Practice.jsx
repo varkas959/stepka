@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import { QUESTIONS, COMPANIES } from '../lib/mockData';
 import { useAppState } from '../lib/appState';
 import { Loader2, Code2, FileText, Timer, RotateCw, ArrowRight, ArrowDown } from 'lucide-react';
@@ -22,8 +23,12 @@ function twoSum(nums, target) {
 const ACC = 'var(--accent)';
 
 export default function Practice({ isGuest = false }) {
+  const location = useLocation();
+  const pinned = location.state?.question ?? null;
   const [qIdx, setQIdx] = useState(() => Math.floor(Math.random() * QUESTIONS.length));
-  const q = QUESTIONS[qIdx];
+  const [pinnedQ, setPinnedQ] = useState(pinned);
+
+  const q = pinnedQ ?? QUESTIONS[qIdx];
   const isBehavioral = BEHAVIORAL_TOPICS.includes(q.topic);
   const [mode, setMode] = useState(isBehavioral ? 'text' : 'code');
   const [answer, setAnswer] = useState('');
@@ -35,10 +40,12 @@ export default function Practice({ isGuest = false }) {
   const company = COMPANIES.find(c => c.id === q.company);
   const probeSkill = q.topicPath || q.topic || q.role;
 
+  const navTo = (newIdx) => { setPinnedQ(null); setQIdx(newIdx); };
+
   useEffect(() => {
     setMode(isBehavioral ? 'text' : 'code');
     setAnswer(''); setSeconds(0); setFeedback(null);
-  }, [qIdx, isBehavioral]);
+  }, [q.id, isBehavioral]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (feedback) return;
@@ -75,10 +82,10 @@ export default function Practice({ isGuest = false }) {
           <p className="font-mono text-sm mt-2" style={{ color: 'var(--text-2)' }}>Submit → 1.5s grade → rubric. Honest, specific, no fluff.</p>
         </div>
         <div className="flex items-center gap-2 font-mono text-xs">
-          <button onClick={() => setQIdx(i => (i - 1 + QUESTIONS.length) % QUESTIONS.length)}
+          <button onClick={() => navTo((qIdx - 1 + QUESTIONS.length) % QUESTIONS.length)}
             className="border border-white/10 rounded-md px-2.5 py-1.5 text-zinc-300 hover:bg-white/5" data-testid="prev-question">← prev</button>
           <span className="text-zinc-500">{qIdx + 1} / {QUESTIONS.length}</span>
-          <button onClick={() => setQIdx(i => (i + 1) % QUESTIONS.length)}
+          <button onClick={() => navTo((qIdx + 1) % QUESTIONS.length)}
             className="border border-white/10 rounded-md px-2.5 py-1.5 text-zinc-300 hover:bg-white/5" data-testid="next-question">next →</button>
         </div>
       </div>
