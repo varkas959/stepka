@@ -22,6 +22,8 @@ const C = {
 const ACTIVE_COMPANY_IDS = new Set(QUESTIONS.map(q => q.company));
 const ACTIVE_COMPANIES = COMPANIES.filter(c => ACTIVE_COMPANY_IDS.has(c.id));
 
+const slugify = s => s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+
 // ─── Brand motif: ascending "steps" = readiness climbing ─────────────────────
 const StepMark = ({ size = 28 }) => (
   <svg width={size} height={size} viewBox="0 0 28 28" fill="none" aria-hidden="true">
@@ -122,6 +124,7 @@ const HomeNav = ({ session }) => (
       <nav className="hidden sm:flex items-center gap-6 text-sm" style={{ color: C.text2 }}>
         <a href="#how-it-works" className="hover:opacity-80 transition-opacity">How it works</a>
         <a href="#companies" className="hover:opacity-80 transition-opacity">Companies</a>
+        <a href="/questions/" className="hover:opacity-80 transition-opacity">Questions</a>
       </nav>
       <div className="flex items-center gap-3">
         {session ? (
@@ -388,19 +391,34 @@ const HowItWorks = () => (
 const CompanyCard = ({ c }) => {
   const [hover, setHover] = useState(false);
   return (
-    <div className="flex items-center gap-2.5 shrink-0 px-3.5 py-2.5 rounded-xl transition-all duration-200"
+    <Link to={`/questions/company/${slugify(c.name)}`}
+         className="flex items-center gap-2.5 shrink-0 px-3.5 py-2.5 rounded-xl transition-all duration-200"
          onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}
          style={{ background: C.bg2, border: `1px solid ${hover ? c.color + '66' : C.border}`,
                   transform: hover ? 'translateY(-2px)' : 'none',
-                  boxShadow: hover ? `0 8px 22px -12px ${c.color}` : 'none' }}>
+                  boxShadow: hover ? `0 8px 22px -12px ${c.color}` : 'none',
+                  textDecoration: 'none' }}>
       <div className="w-8 h-8 rounded-lg text-[11px] font-bold flex items-center justify-center shrink-0 transition-colors"
            style={{ background: hover ? c.color : c.color + '1f', color: hover ? '#fff' : c.color }}>
         {c.initials}
       </div>
       <span className="text-sm font-medium whitespace-nowrap" style={{ color: hover ? C.text1 : C.text2 }}>{c.name}</span>
-    </div>
+    </Link>
   );
 };
+
+const TOPIC_LINKS = [
+  { label: 'System Design', href: '/questions/topic/system-design' },
+  { label: 'DSA', href: '/questions/topic/dsa' },
+  { label: 'Java', href: '/questions/tech/java' },
+  { label: 'Python', href: '/questions/tech/python' },
+  { label: 'Distributed Systems', href: '/questions/tech/distributed-systems' },
+  { label: 'Kafka', href: '/questions/tech/kafka' },
+  { label: 'AWS', href: '/questions/tech/aws' },
+  { label: 'Spring Boot', href: '/questions/tech/spring-boot' },
+  { label: 'Behavioral', href: '/questions/topic/behavioral' },
+  { label: 'Trending', href: '/questions/trending' },
+];
 
 const CompaniesStrip = () => (
   <section id="companies" className="px-6 py-20" style={{ borderTop: `1px solid ${C.border}` }}>
@@ -416,6 +434,31 @@ const CompaniesStrip = () => (
       <div className="flex items-center gap-3 overflow-x-auto pb-2 sm:pb-0 sm:flex-wrap sm:justify-center sm:gap-3 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
         {ACTIVE_COMPANIES.map(c => <CompanyCard key={c.id} c={c} />)}
       </div>
+
+      {/* Topic / tech browse links — internal links for SEO and user navigation */}
+      <Reveal>
+        <div className="mt-12 pt-10" style={{ borderTop: `1px solid ${C.border}` }}>
+          <div className="flex items-center justify-center gap-2 mb-6">
+            <span className="font-mono text-[10px] uppercase tracking-[0.2em]" style={{ color: C.text3 }}>
+              Browse by topic
+            </span>
+          </div>
+          <div className="flex flex-wrap justify-center gap-2">
+            {TOPIC_LINKS.map(t => (
+              <Link key={t.href} to={t.href}
+                className="font-mono text-xs px-3 py-1.5 rounded-md border transition-colors hover:border-white/25 hover:text-zinc-50"
+                style={{ borderColor: C.border, color: C.text3, textDecoration: 'none' }}>
+                {t.label}
+              </Link>
+            ))}
+            <Link to="/questions"
+              className="font-mono text-xs px-3 py-1.5 rounded-md border transition-colors"
+              style={{ borderColor: 'rgba(59,111,212,0.4)', color: C.accent, textDecoration: 'none' }}>
+              Browse all questions →
+            </Link>
+          </div>
+        </div>
+      </Reveal>
     </div>
   </section>
 );
@@ -611,17 +654,50 @@ const ProductShowcase = () => (
 
 // ─── Footer ──────────────────────────────────────────────────────────────────
 const Footer = () => (
-  <footer className="mt-auto px-6 py-8 text-sm" style={{ borderTop: `1px solid ${C.border}`, color: C.text3 }}>
-    <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-      <div className="flex items-center gap-2">
-        <div className="w-5 h-5 rounded text-[10px] font-bold flex items-center justify-center text-white" style={{ background: C.accent }}>S</div>
-        <span>Stepkai · © 2026</span>
+  <footer className="mt-auto px-6 py-10 text-sm" style={{ borderTop: `1px solid ${C.border}`, color: C.text3 }}>
+    <div className="max-w-6xl mx-auto">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-6 mb-8">
+        <div>
+          <div className="font-mono text-[10px] uppercase tracking-[0.18em] mb-3" style={{ color: C.text3 }}>Questions</div>
+          <div className="flex flex-col gap-2">
+            <a href="/questions/" className="hover:opacity-80 transition-opacity text-xs">All Questions</a>
+            <a href="/questions/trending" className="hover:opacity-80 transition-opacity text-xs">Trending</a>
+            <a href="/questions/company/amazon" className="hover:opacity-80 transition-opacity text-xs">Amazon</a>
+            <a href="/questions/company/google" className="hover:opacity-80 transition-opacity text-xs">Google</a>
+            <a href="/questions/company/tcs" className="hover:opacity-80 transition-opacity text-xs">TCS</a>
+          </div>
+        </div>
+        <div>
+          <div className="font-mono text-[10px] uppercase tracking-[0.18em] mb-3" style={{ color: C.text3 }}>Prepare</div>
+          <div className="flex flex-col gap-2">
+            <a href="/interview-process/" className="hover:opacity-80 transition-opacity text-xs">Interview Process</a>
+            <a href="/companies/" className="hover:opacity-80 transition-opacity text-xs">Companies</a>
+            <a href="/roles/" className="hover:opacity-80 transition-opacity text-xs">Roles</a>
+            <a href="/guide/" className="hover:opacity-80 transition-opacity text-xs">Interview Guides</a>
+          </div>
+        </div>
+        <div>
+          <div className="font-mono text-[10px] uppercase tracking-[0.18em] mb-3" style={{ color: C.text3 }}>Topics</div>
+          <div className="flex flex-col gap-2">
+            <a href="/questions/topic/system-design" className="hover:opacity-80 transition-opacity text-xs">System Design</a>
+            <a href="/questions/tech/java" className="hover:opacity-80 transition-opacity text-xs">Java</a>
+            <a href="/questions/tech/python" className="hover:opacity-80 transition-opacity text-xs">Python</a>
+            <a href="/questions/tech/distributed-systems" className="hover:opacity-80 transition-opacity text-xs">Distributed Systems</a>
+          </div>
+        </div>
+        <div>
+          <div className="font-mono text-[10px] uppercase tracking-[0.18em] mb-3" style={{ color: C.text3 }}>Stepkai</div>
+          <div className="flex flex-col gap-2">
+            <Link to="/feedback" className="hover:opacity-80 transition-opacity text-xs">Feedback</Link>
+            <Link to="/privacy" className="hover:opacity-80 transition-opacity text-xs" data-testid="footer-privacy">Privacy</Link>
+            <Link to="/terms" className="hover:opacity-80 transition-opacity text-xs" data-testid="footer-terms">Terms</Link>
+            <a href="mailto:hi@stepkai.com" className="hover:opacity-80 transition-opacity text-xs">Contact</a>
+          </div>
+        </div>
       </div>
-      <div className="flex items-center gap-6">
-        <Link to="/feedback" className="hover:opacity-80 transition-opacity">Feedback</Link>
-        <Link to="/privacy" className="hover:opacity-80 transition-opacity" data-testid="footer-privacy">Privacy</Link>
-        <Link to="/terms" className="hover:opacity-80 transition-opacity" data-testid="footer-terms">Terms</Link>
-        <a href="mailto:hi@stepkai.com" className="hover:opacity-80 transition-opacity">Contact</a>
+      <div className="flex items-center gap-2 pt-6" style={{ borderTop: `1px solid ${C.border}` }}>
+        <div className="w-5 h-5 rounded text-[10px] font-bold flex items-center justify-center text-white" style={{ background: C.accent }}>S</div>
+        <span className="text-xs">Stepkai · © 2026</span>
       </div>
     </div>
   </footer>

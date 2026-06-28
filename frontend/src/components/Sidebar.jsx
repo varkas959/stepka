@@ -1,5 +1,5 @@
 import { NavLink, Link, useLocation } from 'react-router-dom';
-import { BookOpen, RotateCcw, LayoutGrid, Terminal, BarChart2, Flame, Check, Menu, X, MessageSquare, Sun, Moon, Plus } from 'lucide-react';
+import { BookOpen, RotateCcw, LayoutGrid, Terminal, BarChart2, Flame, Check, Menu, X, MessageSquare, Sun, Moon, Plus, Home, User } from 'lucide-react';
 import { useState } from 'react';
 import { useAppState } from '../lib/appState';
 import { useTheme } from 'next-themes';
@@ -190,6 +190,33 @@ export const Sidebar = ({ user, isGuest }) => {
           </aside>
         </div>
       )}
+
+      {/* Mobile bottom nav */}
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 flex items-stretch h-16"
+           style={{ background: BG2, borderTop: `1px solid ${BDR}` }}
+           data-testid="mobile-bottom-nav">
+        {[
+          { to: '/app',           label: 'Home',      Icon: Home,     end: true },
+          { to: '/app/questions', label: 'Questions', Icon: BookOpen, end: true },
+          { to: '/prepare/',      label: 'Prepare',   Icon: LayoutGrid              },
+          { to: '/app/profile',   label: 'Profile',   Icon: User                    },
+        ].map(({ to, label, Icon, end }) => (
+          <NavLink
+            key={to}
+            to={to}
+            end={!!end}
+            className="flex-1 flex flex-col items-center justify-center gap-0.5 text-[10px] transition-colors"
+            style={({ isActive }) => ({ color: isActive ? ACC : T3 })}
+          >
+            {({ isActive }) => (
+              <>
+                <Icon size={22} strokeWidth={isActive ? 2 : 1.5} />
+                <span className={isActive ? 'font-semibold' : ''}>{label}</span>
+              </>
+            )}
+          </NavLink>
+        ))}
+      </nav>
     </>
   );
 };

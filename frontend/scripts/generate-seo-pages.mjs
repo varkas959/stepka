@@ -1310,7 +1310,7 @@ console.log(`[seo] Generated interview guide pages`);
 // ═══════════════════════════════════════════════════════════════════════════
 const today = new Date().toISOString().split('T')[0];
 const staticPages = [
-  '/', '/app/questions', '/app/plan', '/app/practice', '/app/daily-review',
+  '/', '/questions', '/feedback', '/privacy', '/terms',
   '/questions/', '/interview-process/', '/prepare/', '/tools/', '/compare/',
   '/companies/', '/roles/', '/interview-experience/', '/guide/',
 ];
