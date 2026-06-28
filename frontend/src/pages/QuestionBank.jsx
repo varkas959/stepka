@@ -215,16 +215,13 @@ export default function QuestionBank({ isGuest = false, userId }) {
   return (
     <div className="min-h-screen" style={{ background: 'var(--page)' }}>
 
-      {/* ── Mobile sticky header (replaces Sidebar top bar on this page) ── */}
+      {/* ── Mobile header ── */}
       <div className="md:hidden fixed top-0 left-0 right-0 z-40 backdrop-blur-sm h-14 flex items-center gap-2 px-3"
-           style={{ background: 'var(--surface-blur)', borderBottom: `1px solid var(--border)` }}>
+           style={{ background: 'var(--surface-blur)' }}>
         <button onClick={() => window.dispatchEvent(new CustomEvent('stepkai:open-menu'))}
                 style={{ color: 'var(--text-2)', flexShrink: 0 }}>
           <Menu size={20} />
         </button>
-        <div className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold text-white shrink-0"
-             style={{ background: 'var(--accent)' }}>S</div>
-        {/* Pill search */}
         <div className="flex-1 flex items-center gap-2 rounded-full px-3 h-9"
              style={{ border: '1px solid var(--border)', background: 'var(--inset)' }}>
           <Search size={13} style={{ color: 'var(--text-3)', flexShrink: 0 }} />
@@ -233,105 +230,58 @@ export default function QuestionBank({ isGuest = false, userId }) {
             value={search}
             onChange={e => { setSearch(e.target.value); setPage(1); }}
             placeholder="Search questions"
-            className="flex-1 bg-transparent border-0 outline-none text-sm"
+            className="flex-1 bg-transparent border-0 outline-none text-sm placeholder:opacity-40"
             style={{ color: 'var(--text-1)' }}
           />
           {search && <button onClick={() => setSearch('')} style={{ color: 'var(--text-3)' }}><X size={13} /></button>}
         </div>
-        <button onClick={() => setMoreFiltersOpen(o => !o)} style={{ color: moreFiltersOpen ? 'var(--accent)' : 'var(--text-2)', flexShrink: 0 }}>
+        <button onClick={() => setMoreFiltersOpen(o => !o)}
+                style={{ color: moreFiltersOpen ? 'var(--accent)' : 'var(--text-3)', flexShrink: 0 }}>
           <SlidersHorizontal size={18} />
         </button>
       </div>
 
-      {/* ── Desktop: search + filter chips ── */}
-      <div className="hidden md:block">
-        <div className="px-8 py-3 border-b" style={{ borderColor: 'var(--border)' }}>
-          <div className="max-w-[720px] mx-auto flex items-center gap-3">
-            <div className="flex-1 flex items-center gap-2.5 rounded-lg px-4 h-11"
-                 style={{ border: '1px solid var(--border)', background: 'var(--surface)' }}>
-              <Search size={15} style={{ color: 'var(--text-3)', flexShrink: 0 }} />
-              <input
-                data-testid="question-search-desktop"
-                value={search}
-                onChange={e => { setSearch(e.target.value); setPage(1); }}
-                placeholder="Search interview questions…"
-                className="flex-1 bg-transparent border-0 outline-none text-sm"
-                style={{ color: 'var(--text-1)' }}
+      {/* ── Unified filter chips bar (desktop + mobile when open/active) ── */}
+      <div className="border-b" style={{ borderColor: 'var(--border)', background: 'var(--surface)' }}>
+        <div className="flex items-center gap-2 px-4 md:px-8 py-2 overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+          {/* Desktop only: Filters button first */}
+          <button
+            data-testid="filters-toggle"
+            onClick={() => setMoreFiltersOpen(o => !o)}
+            className="hidden md:inline-flex items-center gap-1.5 text-xs px-3 h-8 rounded-lg border shrink-0 transition-colors"
+            style={{
+              borderColor: moreFiltersOpen ? 'var(--accent)' : 'var(--border)',
+              color: moreFiltersOpen ? 'var(--accent)' : 'var(--text-2)',
+              background: 'var(--surface)',
+            }}
+          >
+            <SlidersHorizontal size={13} />
+            Filters
+          </button>
+          {PRIMARY_FILTERS.map(def => (
+            <div className="shrink-0" key={def.key}>
+              <SearchableFilterChip
+                label={def.label}
+                value={filters[def.key] === ALL ? null : filters[def.key]}
+                options={def.options}
+                onChange={v => setF(def.key, v)}
+                onClear={() => clearOne(def.key)}
+                testid={def.key}
               />
-              {search
-                ? <button onClick={() => setSearch('')} style={{ color: 'var(--text-3)' }}><X size={15} /></button>
-                : <kbd className="inline-flex items-center font-mono text-[11px] px-1.5 py-0.5 rounded select-none"
-                       style={{ border: '1px solid var(--border-2)', color: 'var(--text-3)', background: 'var(--inset)' }}>/</kbd>
-              }
             </div>
-            <button
-              data-testid="filters-toggle"
-              onClick={() => setMoreFiltersOpen(o => !o)}
-              className="inline-flex items-center gap-2 text-sm px-4 h-11 rounded-lg border transition-colors"
-              style={{
-                borderColor: moreFiltersOpen ? 'var(--accent)' : 'var(--border)',
-                color: moreFiltersOpen ? 'var(--accent)' : 'var(--text-2)',
-                background: 'var(--surface)',
-              }}
-            >
-              <SlidersHorizontal size={15} />
-              <span>Filters</span>
-            </button>
-          </div>
-        </div>
-        {/* Desktop filter chips */}
-        <div className="border-b" style={{ borderColor: 'var(--border)', background: 'var(--surface)' }}>
-          <div className="max-w-[720px] mx-auto px-8 py-2.5 flex items-center gap-2 overflow-x-auto [&::-webkit-scrollbar]:hidden">
-            {PRIMARY_FILTERS.map(def => (
-              <div className="shrink-0" key={def.key}>
-                <SearchableFilterChip
-                  label={def.label}
-                  value={filters[def.key] === ALL ? null : filters[def.key]}
-                  options={def.options}
-                  onChange={v => setF(def.key, v)}
-                  onClear={() => clearOne(def.key)}
-                  testid={def.key}
-                />
-              </div>
-            ))}
-            {hasActiveFilters && (
-              <button onClick={resetAll} className="shrink-0 font-mono text-xs px-2 py-1 ml-auto hover:opacity-80"
-                      style={{ color: 'var(--accent)' }}>Reset</button>
-            )}
-          </div>
+          ))}
+          {hasActiveFilters && (
+            <button onClick={resetAll} className="shrink-0 font-mono text-xs px-2 py-1 ml-auto"
+                    style={{ color: 'var(--accent)' }}>Reset</button>
+          )}
         </div>
       </div>
 
-      {/* Mobile filter chips (below fixed header, only when filters open or active) */}
-      {(moreFiltersOpen || hasActiveFilters) && (
-        <div className="md:hidden pt-14 border-b" style={{ borderColor: 'var(--border)', background: 'var(--surface)' }}>
-          <div className="px-3 py-2 flex items-center gap-2 overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-            {PRIMARY_FILTERS.map(def => (
-              <div className="shrink-0" key={def.key}>
-                <SearchableFilterChip
-                  label={def.label}
-                  value={filters[def.key] === ALL ? null : filters[def.key]}
-                  options={def.options}
-                  onChange={v => setF(def.key, v)}
-                  onClear={() => clearOne(def.key)}
-                  testid={def.key}
-                />
-              </div>
-            ))}
-            {hasActiveFilters && (
-              <button onClick={resetAll} className="shrink-0 font-mono text-xs px-2 py-1 ml-auto"
-                      style={{ color: 'var(--accent)' }}>Reset</button>
-            )}
-          </div>
-        </div>
-      )}
-
       {/* More filters panel */}
       {moreFiltersOpen && (
-        <div className="border-b px-4 md:px-8 py-3" style={{ borderColor: 'var(--border)', background: 'var(--surface)' }}>
-          <div className="max-w-[720px] mx-auto flex flex-wrap items-center gap-2">
-            <span className="font-mono text-[10px] uppercase tracking-[0.16em] mr-1" style={{ color: 'var(--text-3)' }}>More</span>
-            {SECONDARY_FILTERS.map(def => (
+        <div className="border-b" style={{ borderColor: 'var(--border)', background: 'var(--surface)' }}>
+          <div className="px-4 md:px-8 py-3 grid grid-cols-2 md:grid-cols-4 gap-2">
+            {[...PRIMARY_FILTERS, ...SECONDARY_FILTERS].map(def => (
               <SearchableFilterChip
                 key={def.key}
                 label={def.label}
@@ -347,48 +297,40 @@ export default function QuestionBank({ isGuest = false, userId }) {
       )}
 
       {/* ── Feed ── */}
-      <div className="max-w-[720px] mx-auto md:px-8 pt-14 md:pt-4 pb-4">
+      <div className="mx-auto md:px-8 md:pt-4 pb-4">
 
-        {/* Desktop: header row */}
-        <div className="hidden md:flex items-center justify-between mb-3 px-0">
-          <span className="font-bold text-lg" style={{ color: 'var(--text-1)' }}>
-            <span style={{ color: 'var(--accent)' }}>{filtered.length}</span> verified questions
-            {hasActiveFilters && <span className="text-xs ml-2 font-normal" style={{ color: 'var(--text-3)' }}>of {allQuestions.length}</span>}
+        {/* Tabs — on mobile appear right at top before count */}
+        <div className="flex items-center border-b px-4 md:px-0" style={{ borderColor: 'var(--border)' }}>
+          {/* Desktop: count left of tabs */}
+          <span className="hidden md:block text-sm mr-4 shrink-0" style={{ color: 'var(--text-3)' }}>
+            <span className="font-semibold" style={{ color: 'var(--accent)' }}>{filtered.length}</span>
+            {hasActiveFilters && <span className="ml-1">of {allQuestions.length}</span>}
+            {' '}questions
           </span>
-          <div className="flex items-center gap-1.5 text-xs" style={{ color: 'var(--text-3)' }}>
-            <RefreshCw size={11} className={refreshing ? 'animate-spin' : ''} />
-            {refreshing ? 'Updating…' : 'Updated daily'}
-          </div>
-        </div>
-
-        {/* Tabs */}
-        <div className="flex items-center border-b" style={{ borderColor: 'var(--border)' }}>
           {TABS.map(tab => {
             const isActive = tab.type === 'sort' && activeTab === tab.id;
             return tab.type === 'link' ? (
-              <Link
-                key={tab.id}
-                to={tab.href}
-                className="px-3 md:px-4 py-2.5 text-sm font-medium transition-colors whitespace-nowrap"
-                style={{ color: 'var(--text-3)', borderBottom: '2px solid transparent', marginBottom: '-1px' }}
-              >
+              <Link key={tab.id} to={tab.href}
+                    className="px-3 py-2.5 text-sm font-medium transition-colors whitespace-nowrap"
+                    style={{ color: 'var(--text-3)', borderBottom: '2px solid transparent', marginBottom: '-1px' }}>
                 {tab.label}
               </Link>
             ) : (
-              <button
-                key={tab.id}
-                onClick={() => { setActiveTab(tab.id); setPage(1); }}
-                className="px-3 md:px-4 py-2.5 text-sm font-medium transition-colors whitespace-nowrap"
-                style={{
-                  color: isActive ? 'var(--accent)' : 'var(--text-3)',
-                  borderBottom: isActive ? '2px solid var(--accent)' : '2px solid transparent',
-                  marginBottom: '-1px',
-                }}
-              >
+              <button key={tab.id} onClick={() => { setActiveTab(tab.id); setPage(1); }}
+                      className="px-3 py-2.5 text-sm font-medium transition-colors whitespace-nowrap"
+                      style={{
+                        color: isActive ? 'var(--accent)' : 'var(--text-3)',
+                        borderBottom: isActive ? '2px solid var(--accent)' : '2px solid transparent',
+                        marginBottom: '-1px',
+                      }}>
                 {tab.label}
               </button>
             );
           })}
+          <div className="ml-auto hidden md:flex items-center gap-1 text-xs" style={{ color: 'var(--text-3)' }}>
+            <RefreshCw size={11} className={refreshing ? 'animate-spin' : ''} />
+            {refreshing ? 'Updating…' : 'Updated daily'}
+          </div>
         </div>
 
         {/* Question feed */}
@@ -401,40 +343,42 @@ export default function QuestionBank({ isGuest = false, userId }) {
             </div>
           ) : (
             <>
-              {paginatedQ.slice(0, 10).map(q => (
-                <QuestionCard
-                  key={q.id} q={q}
-                  upvoted={!!upvoteMap[q.id]}
-                  newUpvote={!!upvoteMap[q.id] && !loadedUpvotes.current.has(q.id)}
-                  asked={!!askedMap[q.id]}
-                  onUpvote={() => handleUpvote(q)}
-                  onAsked={() => handleAsked(q)}
-                  onCompanyClick={() => setBlueprintCompany(q.company)}
-                />
+              {paginatedQ.slice(0, 6).map(q => (
+                <QuestionCard key={q.id} q={q}
+                  upvoted={!!upvoteMap[q.id]} newUpvote={!!upvoteMap[q.id] && !loadedUpvotes.current.has(q.id)}
+                  asked={!!askedMap[q.id]} onUpvote={() => handleUpvote(q)}
+                  onAsked={() => handleAsked(q)} onCompanyClick={() => setBlueprintCompany(q.company)} />
               ))}
 
-              {paginatedQ.length > 10 && intelligence.topTopics.length > 0 && (
+              {paginatedQ.length > 6 && intelligence.topTopics.length > 0 && (
                 <IntelligenceStrip topics={intelligence.topTopics} onTopicClick={name => {
                   const t = TOPIC_LABELS.find(x => x.name === name);
-                  if (t) setF('topic', t.id);
+                  if (t) { setF('topic', t.id); window.scrollTo({ top: 0, behavior: 'smooth' }); toast(`Filtered by: ${name}`); }
                 }} />
               )}
 
-              {paginatedQ.length > 10 && paginatedQ.slice(10).map(q => (
-                <QuestionCard
-                  key={q.id} q={q}
-                  upvoted={!!upvoteMap[q.id]}
-                  newUpvote={!!upvoteMap[q.id] && !loadedUpvotes.current.has(q.id)}
-                  asked={!!askedMap[q.id]}
-                  onUpvote={() => handleUpvote(q)}
-                  onAsked={() => handleAsked(q)}
-                  onCompanyClick={() => setBlueprintCompany(q.company)}
-                />
+              {paginatedQ.length > 6 && paginatedQ.slice(6, 16).map(q => (
+                <QuestionCard key={q.id} q={q}
+                  upvoted={!!upvoteMap[q.id]} newUpvote={!!upvoteMap[q.id] && !loadedUpvotes.current.has(q.id)}
+                  asked={!!askedMap[q.id]} onUpvote={() => handleUpvote(q)}
+                  onAsked={() => handleAsked(q)} onCompanyClick={() => setBlueprintCompany(q.company)} />
               ))}
 
-              {paginatedQ.length > 10 && intelligence.topCompanies.length > 1 && (
-                <CompaniesStrip companies={intelligence.topCompanies} onCompanyClick={id => setF('company', id)} />
+              {paginatedQ.length > 6 && intelligence.topCompanies.length > 1 && (
+                <CompaniesStrip companies={intelligence.topCompanies} onCompanyClick={id => {
+                  const co = COMPANIES.find(c => c.id === id);
+                  setF('company', id);
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                  toast(`Filtered by: ${co?.name || id}`);
+                }} />
               )}
+
+              {paginatedQ.length > 16 && paginatedQ.slice(16).map(q => (
+                <QuestionCard key={q.id} q={q}
+                  upvoted={!!upvoteMap[q.id]} newUpvote={!!upvoteMap[q.id] && !loadedUpvotes.current.has(q.id)}
+                  asked={!!askedMap[q.id]} onUpvote={() => handleUpvote(q)}
+                  onAsked={() => handleAsked(q)} onCompanyClick={() => setBlueprintCompany(q.company)} />
+              ))}
             </>
           )}
         </div>
@@ -484,7 +428,7 @@ export default function QuestionBank({ isGuest = false, userId }) {
 // ── Interview Intelligence strip ──────────────────────────────────────────────
 function IntelligenceStrip({ topics, onTopicClick }) {
   return (
-    <div className="my-2 py-4 px-1" style={{ borderTop: '1px solid var(--border)', borderBottom: '1px solid var(--border)' }}>
+    <div className="my-2 py-4 px-4 md:px-0 rounded-lg" style={{ background: 'var(--surface)', border: '1px solid var(--border)' }}>
       <div className="flex items-center gap-2 mb-3">
         <TrendingUp size={14} style={{ color: 'var(--accent)' }} />
         <span className="font-mono text-[11px] uppercase tracking-[0.18em] font-semibold"
@@ -510,7 +454,7 @@ function IntelligenceStrip({ topics, onTopicClick }) {
 // ── Companies hiring strip ────────────────────────────────────────────────────
 function CompaniesStrip({ companies, onCompanyClick }) {
   return (
-    <div className="my-2 py-4 px-1" style={{ borderTop: '1px solid var(--border)', borderBottom: '1px solid var(--border)' }}>
+    <div className="my-2 py-4 px-4 md:px-0 rounded-lg" style={{ background: 'var(--surface)', border: '1px solid var(--border)' }}>
       <div className="flex items-center gap-2 mb-3">
         <Building2 size={14} style={{ color: 'var(--accent)' }} />
         <span className="font-mono text-[11px] uppercase tracking-[0.18em] font-semibold"
@@ -535,10 +479,11 @@ function CompaniesStrip({ companies, onCompanyClick }) {
 
 // ── Question card ─────────────────────────────────────────────────────────────
 function QuestionCard({ q, upvoted, newUpvote, asked, onUpvote, onAsked, onCompanyClick }) {
-  const company  = COMPANIES.find(c => c.id === q.company);
-  const compName = company?.name || q.company;
-  const role     = canonicalRole(q.role);
-  const diff     = DIFF_PALETTE[q.difficulty] || DIFF_PALETTE.Medium;
+  const company     = COMPANIES.find(c => c.id === q.company);
+  const compName    = company?.name || q.company;
+  const showCompany = compName && compName.toLowerCase() !== 'unknown';
+  const role        = canonicalRole(q.role).split(',')[0].trim();
+  const diff        = DIFF_PALETTE[q.difficulty] || DIFF_PALETTE.Medium;
 
   return (
     <article
@@ -558,16 +503,16 @@ function QuestionCard({ q, upvoted, newUpvote, asked, onUpvote, onAsked, onCompa
 
       {/* Meta row: Company • Role • Difficulty */}
       <div className="flex items-center gap-1 text-xs mb-2" style={{ color: 'var(--text-3)' }}>
-        <button
-          onClick={onCompanyClick}
-          data-testid={`open-blueprint-${q.company}`}
-          className="hover:underline"
-          style={{ color: 'var(--text-2)' }}
-        >
-          {compName}
-        </button>
-        <span>•</span>
-        <span>{role}</span>
+        {showCompany && (
+          <>
+            <button onClick={onCompanyClick} data-testid={`open-blueprint-${q.company}`}
+                    className="hover:underline" style={{ color: 'var(--text-2)' }}>
+              {compName}
+            </button>
+            <span>•</span>
+          </>
+        )}
+        <span className="truncate max-w-[160px] md:max-w-[240px]">{role}</span>
         <span>•</span>
         <span style={{ color: diff.text }}>{q.difficulty}</span>
       </div>

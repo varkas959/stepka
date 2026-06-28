@@ -136,14 +136,14 @@ export const Sidebar = ({ user, isGuest, onSignOut }) => {
         </Link>
 
         {/* Search pill */}
-        <div className="flex-1 max-w-[480px] flex items-center gap-2.5 rounded-full h-10 px-4 transition-colors"
+        <div className="flex-1 max-w-[440px] flex items-center gap-2.5 rounded-full h-10 px-4 transition-colors"
              style={{ border: `1px solid ${BDR}`, background: 'var(--inset)' }}>
           <Search size={14} style={{ color: T3, flexShrink: 0 }} />
           <input
             value={desktopSearch}
             onChange={e => handleDesktopSearch(e.target.value)}
             placeholder="Search interview questions…"
-            className="flex-1 bg-transparent border-0 outline-none text-sm"
+            className="flex-1 bg-transparent border-0 outline-none text-sm placeholder:opacity-35"
             style={{ color: T1 }}
           />
           {desktopSearch && (
