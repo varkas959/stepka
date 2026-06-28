@@ -1,8 +1,8 @@
 import { useMemo, useState, useEffect, useRef } from 'react';
 import {
-  Plus, X, SlidersHorizontal, Search, Star, Check, ArrowUp,
-  TrendingUp, Building2, Users, BarChart3, RefreshCw,
-  ChevronLeft, ChevronRight, ChevronDown,
+  X, SlidersHorizontal, Search, Star, Check, ArrowUp,
+  TrendingUp, Building2, RefreshCw,
+  ChevronLeft, ChevronRight,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { Link } from 'react-router-dom';
@@ -98,7 +98,6 @@ export default function QuestionBank({ isGuest = false, userId }) {
   const [contributeOpen, setContributeOpen] = useState(false);
   const [contributeMode, setContributeMode] = useState('quick');
   const [moreFiltersOpen, setMoreFiltersOpen] = useState(false);
-  const [showAllTopics, setShowAllTopics] = useState(false);
 
   useEffect(() => {
     loadAllQuestions().then(qs => setUserQuestions(qs)).finally(() => setRefreshing(false));
@@ -129,36 +128,19 @@ export default function QuestionBank({ isGuest = false, userId }) {
     verifyCount: (q.verifyCount || 0) + (contribCounts.verifications[q.id] || 0),
   })), [userQuestions, contribCounts, reportCounts]);
 
-  // Stats
-  const stats = useMemo(() => ({
-    total:     allQuestions.length,
-    companies: new Set(allQuestions.map(q => q.company)).size,
-    roles:     new Set(allQuestions.map(q => q.role).filter(Boolean)).size,
-    thisWeek:  allQuestions.filter(q => (q.daysAgo || 0) <= 7).length,
-  }), [allQuestions]);
-
-  // Sidebar context
-  const sidebarCtx = useMemo(() => {
-    const co   = filters.company !== ALL ? COMPANIES.find(c => c.id === filters.company) : null;
-    const role = filters.role !== ALL ? filters.role : null;
-    const ctxQ = allQuestions.filter(q =>
-      (!co   || q.company === co.id) &&
-      (!role || canonicalRole(q.role) === role)
-    );
-    const topicCounts = {};
-    ctxQ.forEach(q => {
+  // Intelligence data derived from filtered questions
+  const intelligence = useMemo(() => {
+    const topicCounts = {}, companyCounts = {};
+    filtered.forEach(q => {
       const name = TOPIC_LABELS.find(t => t.id === q.topic)?.name || q.topic;
       if (name) topicCounts[name] = (topicCounts[name] || 0) + 1;
+      if (q.company) companyCounts[q.company] = (companyCounts[q.company] || 0) + 1;
     });
-    const diff = { Easy: 0, Medium: 0, Hard: 0 };
-    ctxQ.forEach(q => { if (diff[q.difficulty] !== undefined) diff[q.difficulty]++; });
-    const recent = [...ctxQ].sort((a, b) => (a.daysAgo || 0) - (b.daysAgo || 0)).slice(0, 3);
-    return {
-      company: co, role, count: ctxQ.length,
-      topics:  Object.entries(topicCounts).sort((a, b) => b[1] - a[1]),
-      diff, recent,
-    };
-  }, [allQuestions, filters.company, filters.role]);
+    const topTopics    = Object.entries(topicCounts).sort((a, b) => b[1] - a[1]).slice(0, 6);
+    const topCompanies = Object.entries(companyCounts).sort((a, b) => b[1] - a[1]).slice(0, 6)
+      .map(([id, count]) => ({ id, count, name: COMPANIES.find(c => c.id === id)?.name || id }));
+    return { topTopics, topCompanies };
+  }, [filtered]);
 
   // Filtered + sorted
   const filtered = useMemo(() => {
@@ -232,9 +214,9 @@ export default function QuestionBank({ isGuest = false, userId }) {
   return (
     <div className="min-h-screen" style={{ background: 'var(--page)' }}>
 
-      {/* ── Search bar + Filters button ── */}
+      {/* ── Search bar ── */}
       <div className="px-4 md:px-8 py-3 border-b" style={{ borderColor: 'var(--border)' }}>
-        <div className="max-w-[1200px] mx-auto flex items-center gap-3">
+        <div className="max-w-[720px] mx-auto flex items-center gap-3">
           <div className="flex-1 flex items-center gap-2.5 rounded-lg px-4 h-11 transition-colors focus-within:border-[var(--accent)]"
                style={{ border: '1px solid var(--border)', background: 'var(--surface)' }}>
             <Search size={16} style={{ color: 'var(--text-3)', flexShrink: 0 }} />
@@ -242,18 +224,15 @@ export default function QuestionBank({ isGuest = false, userId }) {
               data-testid="question-search"
               value={search}
               onChange={e => { setSearch(e.target.value); setPage(1); }}
-              placeholder="Search interview questions, companies, roles, topics..."
+              placeholder="Search interview questions…"
               className="flex-1 bg-transparent border-0 outline-none text-sm"
               style={{ color: 'var(--text-1)' }}
             />
-            {search ? (
-              <button onClick={() => setSearch('')} style={{ color: 'var(--text-3)' }}><X size={15} /></button>
-            ) : (
-              <kbd className="hidden sm:inline-flex items-center font-mono text-[11px] px-1.5 py-0.5 rounded select-none"
-                   style={{ border: '1px solid var(--border-2)', color: 'var(--text-3)', background: 'var(--inset)' }}>
-                /
-              </kbd>
-            )}
+            {search
+              ? <button onClick={() => setSearch('')} style={{ color: 'var(--text-3)' }}><X size={15} /></button>
+              : <kbd className="hidden sm:inline-flex items-center font-mono text-[11px] px-1.5 py-0.5 rounded select-none"
+                     style={{ border: '1px solid var(--border-2)', color: 'var(--text-3)', background: 'var(--inset)' }}>/</kbd>
+            }
           </div>
           <button
             data-testid="filters-toggle"
@@ -271,14 +250,12 @@ export default function QuestionBank({ isGuest = false, userId }) {
         </div>
       </div>
 
-      {/* ── Primary filter chips ── */}
+      {/* ── Quick filter chips ── */}
       <div className="border-b" style={{ borderColor: 'var(--border)', background: 'var(--surface)' }}>
-        <div className="max-w-[1200px] mx-auto px-4 md:px-8 py-2.5 flex items-center gap-2 overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-          {/* Desktop: 5 primary filters */}
-          <div className="hidden md:flex items-center gap-2 flex-1">
-            {PRIMARY_FILTERS.map(def => (
+        <div className="max-w-[720px] mx-auto px-4 md:px-8 py-2.5 flex items-center gap-2 overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+          {PRIMARY_FILTERS.map(def => (
+            <div className="shrink-0" key={def.key}>
               <SearchableFilterChip
-                key={def.key}
                 label={def.label}
                 value={filters[def.key] === ALL ? null : filters[def.key]}
                 options={def.options}
@@ -286,36 +263,21 @@ export default function QuestionBank({ isGuest = false, userId }) {
                 onClear={() => clearOne(def.key)}
                 testid={def.key}
               />
-            ))}
-            {hasActiveFilters && (
-              <button onClick={resetAll} className="font-mono text-xs px-2 py-1 ml-auto hover:opacity-80 transition-opacity"
-                      style={{ color: 'var(--accent)' }}>
-                Reset
-              </button>
-            )}
-          </div>
-          {/* Mobile: 4 filters in horizontal scroll */}
-          <div className="flex md:hidden items-center gap-2 overflow-x-auto w-full [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-            {MOBILE_FILTERS.map(def => (
-              <div className="shrink-0" key={def.key}>
-                <SearchableFilterChip
-                  label={def.label}
-                  value={filters[def.key] === ALL ? null : filters[def.key]}
-                  options={def.options}
-                  onChange={v => setF(def.key, v)}
-                  onClear={() => clearOne(def.key)}
-                  testid={def.key}
-                />
-              </div>
-            ))}
-          </div>
+            </div>
+          ))}
+          {hasActiveFilters && (
+            <button onClick={resetAll} className="shrink-0 font-mono text-xs px-2 py-1 ml-auto hover:opacity-80 transition-opacity"
+                    style={{ color: 'var(--accent)' }}>
+              Reset
+            </button>
+          )}
         </div>
       </div>
 
-      {/* ── Secondary filters panel ── */}
+      {/* ── More filters panel ── */}
       {moreFiltersOpen && (
         <div className="border-b px-4 md:px-8 py-3" style={{ borderColor: 'var(--border)', background: 'var(--surface)' }}>
-          <div className="max-w-[1200px] mx-auto flex flex-wrap items-center gap-2">
+          <div className="max-w-[720px] mx-auto flex flex-wrap items-center gap-2">
             <span className="font-mono text-[10px] uppercase tracking-[0.16em] mr-1" style={{ color: 'var(--text-3)' }}>More</span>
             {SECONDARY_FILTERS.map(def => (
               <SearchableFilterChip
@@ -332,263 +294,92 @@ export default function QuestionBank({ isGuest = false, userId }) {
         </div>
       )}
 
-      {/* ── Page body ── */}
-      <div className="max-w-[1200px] mx-auto px-4 md:px-8 py-5">
+      {/* ── Feed ── */}
+      <div className="max-w-[720px] mx-auto px-4 md:px-8 py-4">
 
-        {/* Header */}
-        <div className="flex items-start justify-between mb-4">
+        {/* Header row */}
+        <div className="flex items-center justify-between mb-3">
           <div>
-            <h1 className="text-2xl md:text-3xl font-bold tracking-tight" style={{ color: 'var(--text-1)' }}>
-              <span style={{ color: 'var(--accent)' }}>{stats.total}</span> verified interview questions
-            </h1>
-            <p className="text-sm mt-0.5" style={{ color: 'var(--text-3)' }}>From real candidates. Updated daily.</p>
-          </div>
-          <div className="hidden md:flex items-center gap-1.5 text-xs mt-1" style={{ color: 'var(--text-3)' }}>
-            <RefreshCw size={12} className={refreshing ? 'animate-spin' : ''} />
-            {refreshing ? 'Refreshing…' : 'Last updated: 2 hours ago'}
-          </div>
-        </div>
-
-        {/* Stats cards */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
-          <StatCard
-            icon={<BarChart3 size={18} />}
-            iconColor="#3B6FD4"
-            value={stats.total}
-            label="Total Questions"
-            growth={`+${stats.thisWeek} this week`}
-          />
-          <StatCard
-            icon={<Building2 size={18} />}
-            iconColor="#8B5CF6"
-            value={stats.companies}
-            label="Companies"
-            growth="+3 this week"
-          />
-          <StatCard
-            icon={<Users size={18} />}
-            iconColor="#EC4899"
-            value={stats.roles}
-            label="Roles"
-            growth="+5 this week"
-          />
-          <TrendingCard />
-        </div>
-
-        {/* Two-column layout */}
-        <div className="flex gap-5">
-
-          {/* ── Left sidebar (desktop only) ── */}
-          <aside className="hidden md:flex flex-col gap-4 w-[200px] shrink-0">
-
-            {/* Context + topics + difficulty */}
-            <div className="rounded-xl p-4" style={{ border: '1px solid var(--border)', background: 'var(--surface)' }}>
-              <div className="flex items-center gap-2 mb-0.5">
-                <Building2 size={14} style={{ color: 'var(--accent)', flexShrink: 0 }} />
-                <span className="font-semibold text-sm truncate" style={{ color: 'var(--text-1)' }}>
-                  {sidebarCtx.company
-                    ? `${sidebarCtx.role || 'All roles'} at ${sidebarCtx.company.name}`
-                    : 'All Companies'}
-                </span>
-              </div>
-              <p className="text-xs mb-3 pl-5" style={{ color: 'var(--text-3)' }}>{sidebarCtx.count} questions</p>
-
-              {/* All Questions nav item */}
-              <button
-                onClick={resetAll}
-                className="w-full flex items-center justify-between text-xs px-2 py-1.5 rounded-md mb-4 font-medium"
-                style={{
-                  borderLeft: '2px solid var(--accent)',
-                  background: 'var(--accent-12)',
-                  color: 'var(--text-1)',
-                }}
-              >
-                <span>All Questions</span>
-                <span style={{ color: 'var(--text-3)' }}>{sidebarCtx.count}</span>
-              </button>
-
-              {/* Topics */}
-              {sidebarCtx.topics.length > 0 && (
-                <div className="mb-4">
-                  <div className="font-mono text-[10px] uppercase tracking-[0.18em] mb-2"
-                       style={{ color: 'var(--text-3)' }}>Topics</div>
-                  <div className="space-y-1">
-                    {(showAllTopics ? sidebarCtx.topics : sidebarCtx.topics.slice(0, 9)).map(([name, count]) => {
-                      const topicObj = TOPIC_LABELS.find(t => t.name === name);
-                      const isActive = topicObj && filters.topic === topicObj.id;
-                      return (
-                        <button
-                          key={name}
-                          onClick={() => topicObj && setF('topic', topicObj.id)}
-                          className="w-full flex items-center justify-between text-xs py-0.5 hover:opacity-80 transition-opacity"
-                          style={{ color: isActive ? 'var(--accent)' : 'var(--text-2)' }}
-                        >
-                          <span className="text-left truncate">{name}</span>
-                          <span className="ml-2 shrink-0" style={{ color: 'var(--text-3)' }}>{count}</span>
-                        </button>
-                      );
-                    })}
-                    {sidebarCtx.topics.length > 9 && (
-                      <button
-                        onClick={() => setShowAllTopics(s => !s)}
-                        className="text-xs font-medium mt-1 flex items-center gap-0.5"
-                        style={{ color: 'var(--accent)' }}
-                      >
-                        {showAllTopics ? 'View less' : 'View all topics'} →
-                      </button>
-                    )}
-                  </div>
-                </div>
-              )}
-
-              {/* Difficulty */}
-              <div>
-                <div className="font-mono text-[10px] uppercase tracking-[0.18em] mb-2"
-                     style={{ color: 'var(--text-3)' }}>Difficulty</div>
-                <div className="space-y-1">
-                  {[
-                    { label: 'Easy',   color: 'var(--diff-easy)' },
-                    { label: 'Medium', color: 'var(--diff-medium)' },
-                    { label: 'Hard',   color: 'var(--diff-hard)' },
-                  ].map(({ label, color }) => (
-                    <button
-                      key={label}
-                      onClick={() => setF('difficulty', filters.difficulty === label ? ALL : label)}
-                      className="w-full flex items-center gap-2 text-xs py-0.5 hover:opacity-80 transition-opacity"
-                      style={{ color: filters.difficulty === label ? color : 'var(--text-2)' }}
-                    >
-                      <span className="w-2 h-2 rounded-full shrink-0" style={{ background: color }} />
-                      <span className="flex-1 text-left">{label}</span>
-                      <span style={{ color: 'var(--text-3)' }}>{sidebarCtx.diff[label]}</span>
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            {/* Recently added */}
-            {sidebarCtx.recent.length > 0 && (
-              <div className="rounded-xl p-4" style={{ border: '1px solid var(--border)', background: 'var(--surface)' }}>
-                <div className="font-mono text-[10px] uppercase tracking-[0.18em] mb-3"
-                     style={{ color: 'var(--text-3)' }}>Recently added</div>
-                <div className="space-y-3">
-                  {sidebarCtx.recent.map(q => (
-                    <div key={q.id}>
-                      <Link to={`/app/question/${q.id}`}
-                            className="text-xs leading-snug block mb-1 hover:underline line-clamp-2"
-                            style={{ color: 'var(--text-1)' }}>
-                        {q.body}
-                      </Link>
-                      <div className="flex items-center gap-1.5">
-                        <span className="font-mono text-[10px]" style={{ color: 'var(--text-3)' }}>
-                          {timeAgo(q.daysAgo)}
-                        </span>
-                        {(q.daysAgo || 0) < 2 && (
-                          <span className="font-mono text-[9px] px-1.5 py-0.5 rounded font-bold"
-                                style={{ background: 'var(--accent)', color: '#fff' }}>
-                            NEW
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Share experience */}
-            <button
-              onClick={() => openContribute('paste')}
-              className="w-full flex items-center justify-center gap-2 rounded-xl py-2.5 text-sm border transition-colors hover:bg-white/[0.04]"
-              style={{ borderColor: 'var(--border)', color: 'var(--text-2)' }}
-            >
-              <Users size={14} />
-              Share your experience
-            </button>
-          </aside>
-
-          {/* ── Main content ── */}
-          <div className="flex-1 min-w-0">
-
-            {/* Mobile: compact context card */}
-            <div className="md:hidden flex items-center gap-3 mb-4 px-3 py-3 rounded-xl"
-                 style={{ border: '1px solid var(--border)', background: 'var(--surface)' }}>
-              <Building2 size={18} style={{ color: 'var(--accent)', flexShrink: 0 }} />
-              <div className="flex-1 min-w-0">
-                <div className="font-semibold text-sm truncate" style={{ color: 'var(--text-1)' }}>
-                  {sidebarCtx.company
-                    ? `${sidebarCtx.role || 'All'} at ${sidebarCtx.company.name}`
-                    : 'All Companies'}
-                </div>
-                <div className="text-xs" style={{ color: 'var(--text-3)' }}>{sidebarCtx.count} questions</div>
-              </div>
-              {hasActiveFilters && (
-                <button onClick={resetAll} className="shrink-0 text-xs px-3 py-1.5 rounded-lg border"
-                        style={{ borderColor: 'var(--border)', color: 'var(--text-2)' }}>
-                  Change
-                </button>
-              )}
-            </div>
-
-            {/* Tabs */}
-            <div className="flex items-center border-b mb-0" style={{ borderColor: 'var(--border)' }}>
-              {TABS.map(tab => (
-                <button
-                  key={tab.id}
-                  onClick={() => { setActiveTab(tab.id); setPage(1); }}
-                  className="flex items-center gap-1.5 px-3 md:px-4 py-2.5 text-sm font-medium transition-colors"
-                  style={{
-                    color: activeTab === tab.id ? 'var(--accent)' : 'var(--text-3)',
-                    borderBottom: activeTab === tab.id ? '2px solid var(--accent)' : '2px solid transparent',
-                    marginBottom: '-1px',
-                    whiteSpace: 'nowrap',
-                  }}
-                >
-                  {tab.icon && <span>{tab.icon}</span>}
-                  <span className={tab.badge ? '' : ''}>{tab.label}</span>
-                  {tab.badge && (
-                    <span className="font-mono text-[9px] px-1.5 py-0.5 rounded font-bold"
-                          style={{ background: 'var(--accent)', color: '#fff' }}>
-                      {tab.badge}
-                    </span>
-                  )}
-                </button>
-              ))}
-            </div>
-
-            {/* Active filter count banner */}
+            <span className="font-bold text-lg" style={{ color: 'var(--text-1)' }}>
+              <span style={{ color: 'var(--accent)' }}>{filtered.length}</span> verified questions
+            </span>
             {hasActiveFilters && (
-              <div className="flex items-center justify-between py-2.5 text-sm"
-                   style={{ borderBottom: '1px solid var(--border)' }}>
-                <span style={{ color: 'var(--text-3)' }}>
-                  <span className="font-semibold" style={{ color: 'var(--text-1)' }}>{filtered.length}</span>
-                  {' '}of{' '}
-                  <span className="font-semibold" style={{ color: 'var(--text-1)' }}>{allQuestions.length}</span>
-                  {' '}questions
-                </span>
-                <button onClick={resetAll} className="text-xs underline"
-                        style={{ color: 'var(--accent)' }}>
-                  clear all
-                </button>
-              </div>
+              <span className="text-xs ml-2" style={{ color: 'var(--text-3)' }}>
+                of {allQuestions.length} total
+              </span>
             )}
+          </div>
+          <div className="flex items-center gap-1.5 text-xs" style={{ color: 'var(--text-3)' }}>
+            <RefreshCw size={11} className={refreshing ? 'animate-spin' : ''} />
+            {refreshing ? 'Updating…' : 'Updated daily'}
+          </div>
+        </div>
 
-            {/* Question list */}
-            <div data-testid="question-feed">
-              {paginatedQ.length === 0 ? (
-                <div className="py-16 text-center font-mono text-sm" data-testid="empty-state"
-                     style={{ color: 'var(--text-3)' }}>
-                  No questions match your filters.{' '}
-                  <button onClick={resetAll} className="underline" style={{ color: 'var(--accent)' }}>
-                    Clear filters
-                  </button>
-                </div>
-              ) : (
-                <div className="divide-y" style={{ borderBottom: '1px solid var(--border)', '--tw-divide-color': 'var(--border)' }}>
-                  {paginatedQ.map(q => (
+        {/* Tabs */}
+        <div className="flex items-center border-b mb-0" style={{ borderColor: 'var(--border)' }}>
+          {TABS.map(tab => (
+            <button
+              key={tab.id}
+              onClick={() => { setActiveTab(tab.id); setPage(1); }}
+              className="flex items-center gap-1.5 px-3 md:px-4 py-2.5 text-sm font-medium transition-colors"
+              style={{
+                color: activeTab === tab.id ? 'var(--accent)' : 'var(--text-3)',
+                borderBottom: activeTab === tab.id ? '2px solid var(--accent)' : '2px solid transparent',
+                marginBottom: '-1px',
+                whiteSpace: 'nowrap',
+              }}
+            >
+              {tab.icon && <span>{tab.icon}</span>}
+              <span>{tab.label}</span>
+              {tab.badge && (
+                <span className="font-mono text-[9px] px-1.5 py-0.5 rounded font-bold"
+                      style={{ background: 'var(--accent)', color: '#fff' }}>
+                  {tab.badge}
+                </span>
+              )}
+            </button>
+          ))}
+        </div>
+
+        {/* Question feed with inline strips */}
+        <div data-testid="question-feed">
+          {paginatedQ.length === 0 ? (
+            <div className="py-16 text-center font-mono text-sm" data-testid="empty-state"
+                 style={{ color: 'var(--text-3)' }}>
+              No questions match your filters.{' '}
+              <button onClick={resetAll} className="underline" style={{ color: 'var(--accent)' }}>Clear filters</button>
+            </div>
+          ) : (
+            <>
+              {/* First group */}
+              <div className="divide-y" style={{ '--tw-divide-color': 'var(--border)' }}>
+                {paginatedQ.slice(0, 10).map(q => (
+                  <QuestionCard
+                    key={q.id} q={q}
+                    upvoted={!!upvoteMap[q.id]}
+                    newUpvote={!!upvoteMap[q.id] && !loadedUpvotes.current.has(q.id)}
+                    asked={!!askedMap[q.id]}
+                    onUpvote={() => handleUpvote(q)}
+                    onAsked={() => handleAsked(q)}
+                    onCompanyClick={() => setBlueprintCompany(q.company)}
+                  />
+                ))}
+              </div>
+
+              {/* Interview Intelligence strip */}
+              {paginatedQ.length > 10 && intelligence.topTopics.length > 0 && (
+                <IntelligenceStrip topics={intelligence.topTopics} onTopicClick={name => {
+                  const t = TOPIC_LABELS.find(x => x.name === name);
+                  if (t) setF('topic', t.id);
+                }} />
+              )}
+
+              {/* Second group */}
+              {paginatedQ.length > 10 && (
+                <div className="divide-y" style={{ '--tw-divide-color': 'var(--border)' }}>
+                  {paginatedQ.slice(10, 20).map(q => (
                     <QuestionCard
-                      key={q.id}
-                      q={q}
+                      key={q.id} q={q}
                       upvoted={!!upvoteMap[q.id]}
                       newUpvote={!!upvoteMap[q.id] && !loadedUpvotes.current.has(q.id)}
                       asked={!!askedMap[q.id]}
@@ -599,23 +390,28 @@ export default function QuestionBank({ isGuest = false, userId }) {
                   ))}
                 </div>
               )}
-            </div>
 
-            {/* Pagination */}
-            {totalPages > 1 && (
-              <div className="flex items-center justify-between mt-5">
-                <Pagination
-                  page={page}
-                  totalPages={totalPages}
-                  onChange={p => { setPage(p); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
-                />
-                <span className="hidden md:block font-mono text-xs" style={{ color: 'var(--text-3)' }}>
-                  {PAGE_SIZE} per page
-                </span>
-              </div>
-            )}
-          </div>
+              {/* Companies hiring strip */}
+              {paginatedQ.length > 10 && intelligence.topCompanies.length > 1 && (
+                <CompaniesStrip companies={intelligence.topCompanies} onCompanyClick={id => setF('company', id)} />
+              )}
+            </>
+          )}
         </div>
+
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <div className="flex items-center justify-between mt-5">
+            <Pagination
+              page={page}
+              totalPages={totalPages}
+              onChange={p => { setPage(p); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+            />
+            <span className="font-mono text-xs" style={{ color: 'var(--text-3)' }}>
+              {PAGE_SIZE} per page
+            </span>
+          </div>
+        )}
       </div>
 
       {/* Modals */}
@@ -635,37 +431,54 @@ export default function QuestionBank({ isGuest = false, userId }) {
   );
 }
 
-// ── Stat card ─────────────────────────────────────────────────────────────────
-function StatCard({ icon, iconColor, value, label, growth }) {
+// ── Interview Intelligence strip ──────────────────────────────────────────────
+function IntelligenceStrip({ topics, onTopicClick }) {
   return (
-    <div className="rounded-xl p-4" style={{ border: '1px solid var(--border)', background: 'var(--surface)' }}>
-      <div className="w-9 h-9 rounded-lg flex items-center justify-center mb-3"
-           style={{ background: iconColor + '20', color: iconColor }}>
-        {icon}
+    <div className="my-2 py-4 px-1" style={{ borderTop: '1px solid var(--border)', borderBottom: '1px solid var(--border)' }}>
+      <div className="flex items-center gap-2 mb-3">
+        <TrendingUp size={14} style={{ color: 'var(--accent)' }} />
+        <span className="font-mono text-[11px] uppercase tracking-[0.18em] font-semibold"
+              style={{ color: 'var(--text-3)' }}>Interview Intelligence</span>
       </div>
-      <div className="text-2xl font-bold tracking-tight mb-0.5" style={{ color: 'var(--text-1)' }}>{value}</div>
-      <div className="text-xs mb-1.5" style={{ color: 'var(--text-3)' }}>{label}</div>
-      <div className="text-xs font-semibold" style={{ color: 'var(--diff-easy)' }}>{growth}</div>
+      <div className="flex flex-wrap gap-2">
+        {topics.map(([name, count]) => (
+          <button
+            key={name}
+            onClick={() => onTopicClick(name)}
+            className="inline-flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-full border transition-colors hover:border-[var(--accent)] hover:text-[var(--accent)]"
+            style={{ borderColor: 'var(--border)', color: 'var(--text-2)', background: 'var(--surface)' }}
+          >
+            {name}
+            <span className="font-mono text-[10px]" style={{ color: 'var(--text-3)' }}>{count}</span>
+          </button>
+        ))}
+      </div>
     </div>
   );
 }
 
-// ── Trending card ──────────────────────────────────────────────────────────────
-function TrendingCard() {
+// ── Companies hiring strip ────────────────────────────────────────────────────
+function CompaniesStrip({ companies, onCompanyClick }) {
   return (
-    <div className="rounded-xl p-4" style={{ border: '1px solid var(--border)', background: 'var(--surface)' }}>
-      <div className="w-9 h-9 rounded-lg flex items-center justify-center mb-3"
-           style={{ background: 'rgba(34,197,94,0.12)', color: 'var(--diff-easy)' }}>
-        <TrendingUp size={18} />
+    <div className="my-2 py-4 px-1" style={{ borderTop: '1px solid var(--border)', borderBottom: '1px solid var(--border)' }}>
+      <div className="flex items-center gap-2 mb-3">
+        <Building2 size={14} style={{ color: 'var(--accent)' }} />
+        <span className="font-mono text-[11px] uppercase tracking-[0.18em] font-semibold"
+              style={{ color: 'var(--text-3)' }}>Companies hiring now</span>
       </div>
-      <div className="text-sm font-bold mb-1" style={{ color: 'var(--text-1)' }}>Trending now</div>
-      <div className="text-xs mb-2 leading-relaxed" style={{ color: 'var(--text-3)' }}>
-        Vector DB, LLM, System Design, SQL
+      <div className="flex flex-wrap gap-2">
+        {companies.map(({ id, name, count }) => (
+          <button
+            key={id}
+            onClick={() => onCompanyClick(id)}
+            className="inline-flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-full border transition-colors hover:border-[var(--accent)] hover:text-[var(--accent)]"
+            style={{ borderColor: 'var(--border)', color: 'var(--text-2)', background: 'var(--surface)' }}
+          >
+            {name}
+            <span className="font-mono text-[10px]" style={{ color: 'var(--text-3)' }}>{count}</span>
+          </button>
+        ))}
       </div>
-      <Link to="/questions/trending" className="text-xs font-semibold"
-            style={{ color: 'var(--accent)' }}>
-        See trends →
-      </Link>
     </div>
   );
 }

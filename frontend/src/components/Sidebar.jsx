@@ -196,10 +196,10 @@ export const Sidebar = ({ user, isGuest }) => {
            style={{ background: BG2, borderTop: `1px solid ${BDR}` }}
            data-testid="mobile-bottom-nav">
         {[
-          { to: '/app',           label: 'Home',      Icon: Home,     end: true },
-          { to: '/app/questions', label: 'Questions', Icon: BookOpen, end: true },
-          { to: '/prepare/',      label: 'Prepare',   Icon: LayoutGrid              },
-          { to: '/app/profile',   label: 'Profile',   Icon: User                    },
+          { to: '/app/plan',      label: 'Home',      Icon: Home,       end: true },
+          { to: '/app/questions', label: 'Questions', Icon: BookOpen,   end: true },
+          { to: '/app/practice',  label: 'Prepare',   Icon: LayoutGrid, end: true },
+          { to: '/app/profile',   label: 'Profile',   Icon: User,       end: true },
         ].map(({ to, label, Icon, end }) => (
           <NavLink
             key={to}
