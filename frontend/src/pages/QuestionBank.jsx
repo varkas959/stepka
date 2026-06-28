@@ -5,7 +5,7 @@ import {
   ChevronLeft, ChevronRight,
 } from 'lucide-react';
 import { toast } from 'sonner';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import {
   QUESTIONS, COMPANIES, ROLES, ROLE_MAP, CATEGORIES, CATEGORY_MAP,
   TOPIC_TREE, DIFFICULTIES, ROUND_TYPES, COMPANY_BLUEPRINTS, TECH_STACK,
@@ -82,7 +82,8 @@ function timeAgo(daysAgo) {
 export default function QuestionBank({ isGuest = false, userId }) {
   const [filters, setFilters]         = useState(EMPTY_FILTERS);
   const [activeTab, setActiveTab]     = useState('latest');
-  const [search, setSearch]           = useState('');
+  const [searchParams] = useSearchParams();
+  const [search, setSearch]           = useState(() => searchParams.get('q') || '');
   const [page, setPage]               = useState(1);
   const [askedMap, setAskedMap]       = useState({});
   const [upvoteMap, setUpvoteMap]     = useState({});
@@ -210,8 +211,6 @@ export default function QuestionBank({ isGuest = false, userId }) {
       supabase.from('question_verifications').delete().match({ question_id: q.id, user_id: userId }).then(() => {});
     }
   };
-
-  const navigate = useNavigate();
 
   return (
     <div className="min-h-screen" style={{ background: 'var(--page)' }}>

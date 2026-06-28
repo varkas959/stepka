@@ -1,32 +1,37 @@
-import { NavLink, Link, useLocation } from 'react-router-dom';
-import { BookOpen, RotateCcw, LayoutGrid, Terminal, BarChart2, Flame, Check, Menu, X, MessageSquare, Sun, Moon, Plus, Home, CircleUser, Zap } from 'lucide-react';
-import { useState } from 'react';
+import { NavLink, Link, useLocation, useNavigate } from 'react-router-dom';
+import {
+  BookOpen, RotateCcw, LayoutGrid, Terminal, BarChart2,
+  Flame, Check, Menu, X, MessageSquare, Sun, Moon, Plus,
+  Home, CircleUser, Zap, Search, TrendingUp,
+} from 'lucide-react';
+import { useState, useEffect } from 'react';
 import { useAppState } from '../lib/appState';
 import { useTheme } from 'next-themes';
 
-const BG  = 'var(--page)';
-const BG2 = 'var(--surface)';
 const BDR = 'var(--border)';
 const T1  = 'var(--text-1)';
 const T2  = 'var(--text-2)';
 const T3  = 'var(--text-3)';
 const ACC = 'var(--accent)';
 
-const navItems = [
-  { to: '/app/plan',      label: 'Study Plan',    icon: LayoutGrid, key: 'plan' },
-  { to: '/app/questions', label: 'Question Bank', icon: BookOpen,   key: 'questions' },
-  { to: '/app/review',    label: 'Daily Review',  icon: RotateCcw,  key: 'review',   badge: true },
-  { to: '/app/practice',  label: 'Practice',      icon: Terminal,   key: 'practice' },
-  { to: '/app/progress',  label: 'Progress',      icon: BarChart2,  key: 'progress' },
+const NAV = [
+  { to: '/app/plan',      label: 'Study Plan',    Icon: LayoutGrid, key: 'plan'      },
+  { to: '/app/questions', label: 'Question Bank', Icon: BookOpen,   key: 'questions' },
+  { to: '/app/review',    label: 'Daily Review',  Icon: RotateCcw,  key: 'review',   badge: true },
+  { to: '/app/practice',  label: 'Practice',      Icon: Terminal,   key: 'practice'  },
+  { to: '/app/progress',  label: 'Progress',      Icon: BarChart2,  key: 'progress'  },
 ];
 
-export const Sidebar = ({ user, isGuest }) => {
+export const Sidebar = ({ user, isGuest, onSignOut }) => {
   const { state } = useAppState();
   const { theme, setTheme } = useTheme();
   const toggle = () => setTheme(theme === 'light' ? 'dark' : 'light');
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [desktopSearch, setDesktopSearch] = useState('');
   const location = useLocation();
+  const navigate = useNavigate();
   const onQuestions = location.pathname === '/app/questions';
+  const progressPct = Math.min(100, Math.round((state.xp / state.xpToNext) * 100));
 
   useEffect(() => {
     const h = () => setMobileOpen(true);
@@ -34,128 +39,85 @@ export const Sidebar = ({ user, isGuest }) => {
     return () => window.removeEventListener('stepkai:open-menu', h);
   }, []);
 
-  const progressPct = Math.min(100, Math.round((state.xp / state.xpToNext) * 100));
+  const handleDesktopSearch = (val) => {
+    setDesktopSearch(val);
+    navigate(`/app/questions${val ? `?q=${encodeURIComponent(val)}` : ''}`);
+  };
 
-  const content = (
+  // ── Shared nav content (used in both desktop sidebar and mobile drawer) ──
+  const navContent = (
     <>
-      {/* Logo */}
-      <div className="flex items-center justify-between px-5 py-4" style={{ borderBottom: `1px solid ${BDR}` }}>
-        <div className="flex items-center gap-2.5" data-testid="sidebar-logo">
-          <div className="w-7 h-7 rounded flex items-center justify-center text-xs font-bold text-white" style={{ background: ACC }}>S</div>
-          <div>
-            <div className="text-sm font-semibold" style={{ color: T1 }}>Stepkai</div>
-            <div className="text-[10px]" style={{ color: T3 }}>Interview prep</div>
-          </div>
+      <div className="px-3 pt-4 flex-1 overflow-y-auto">
+        <div className="font-mono text-[10px] uppercase tracking-[0.14em] px-2 mb-2" style={{ color: T3 }}>
+          Workspace
         </div>
-        <button className="md:hidden" onClick={() => setMobileOpen(false)} aria-label="close menu" style={{ color: T2 }}>
-          <X size={18} />
-        </button>
-      </div>
-
-      {/* Nav */}
-      <div className="px-3 pt-5 flex-1">
-        <div className="text-[10px] font-medium uppercase tracking-widest px-3 mb-3" style={{ color: T3, letterSpacing: '0.12em' }}>Workspace</div>
         <nav className="space-y-0.5" data-testid="sidebar-nav">
-          {navItems.map(item => {
-            const Icon = item.icon;
-            return (
-              <NavLink
-                key={item.key}
-                to={item.to}
-                data-testid={`nav-${item.key}`}
-                onClick={() => setMobileOpen(false)}
-                className={({ isActive }) =>
-                  `flex items-center gap-3 px-3 py-2 rounded-md text-sm transition-colors ${
-                    isActive ? 'font-medium' : ''
-                  }`
-                }
-                style={({ isActive }) => ({
-                  background: isActive ? 'var(--accent-12)' : 'transparent',
-                  color: isActive ? T1 : T2,
-                })}
-              >
-                {({ isActive }) => (
-                  <>
-                    <Icon size={15} strokeWidth={1.75} style={{ color: isActive ? ACC : T3 }} />
-                    <span className="flex-1">{item.label}</span>
-                    {item.badge && state.dueToday > 0 && (
-                      <span data-testid="review-badge"
-                            className="text-[10px] px-1.5 py-0.5 rounded font-mono"
-                            style={{ background: 'var(--accent-20)', color: ACC, border: '1px solid var(--accent-35)' }}>
-                        {state.dueToday}
-                      </span>
-                    )}
-                  </>
-                )}
-              </NavLink>
-            );
-          })}
+          {NAV.map(({ to, label, Icon, key, badge }) => (
+            <NavLink
+              key={key}
+              to={to}
+              end={key === 'plan'}
+              data-testid={`nav-${key}`}
+              onClick={() => setMobileOpen(false)}
+              className={({ isActive }) =>
+                `flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors ${isActive ? 'font-medium' : ''}`
+              }
+              style={({ isActive }) => ({
+                background: isActive ? 'var(--accent-12)' : 'transparent',
+                color: isActive ? ACC : T2,
+              })}
+            >
+              {({ isActive }) => (
+                <>
+                  <Icon size={16} strokeWidth={isActive ? 2.2 : 1.7} style={{ color: isActive ? ACC : T3 }} />
+                  <span className="flex-1">{label}</span>
+                  {badge && state.dueToday > 0 && (
+                    <span className="text-[10px] px-1.5 py-0.5 rounded font-mono"
+                          style={{ background: 'var(--accent-20)', color: ACC, border: '1px solid var(--accent-35)' }}>
+                      {state.dueToday}
+                    </span>
+                  )}
+                </>
+              )}
+            </NavLink>
+          ))}
         </nav>
       </div>
 
-      {/* Feedback + theme toggle */}
-      <div className="px-3 pb-2">
+      {/* Bottom section */}
+      <div className="px-3 pb-3 pt-2 border-t" style={{ borderColor: BDR }}>
         <NavLink to="/feedback" onClick={() => setMobileOpen(false)}
-          className="flex items-center gap-3 px-3 py-2 rounded-md text-sm transition-colors"
-          style={({ isActive }) => ({ color: isActive ? T1 : T3, background: isActive ? 'var(--accent-12)' : 'transparent' })}>
-          <MessageSquare size={15} strokeWidth={1.75} />
+          className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors"
+          style={({ isActive }) => ({ color: isActive ? ACC : T3, background: isActive ? 'var(--accent-12)' : 'transparent' })}>
+          <MessageSquare size={15} strokeWidth={1.7} />
           <span>Feedback</span>
         </NavLink>
         <button onClick={toggle} data-testid="theme-toggle"
-          className="flex items-center gap-3 px-3 py-2 rounded-md text-sm transition-colors w-full hover:bg-white/5"
+          className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm w-full hover:bg-white/5 transition-colors"
           style={{ color: T3 }}>
-          {theme === 'dark' ? <Sun size={15} strokeWidth={1.75} /> : <Moon size={15} strokeWidth={1.75} />}
+          {theme === 'dark' ? <Sun size={15} strokeWidth={1.7} /> : <Moon size={15} strokeWidth={1.7} />}
           <span>{theme === 'dark' ? 'Light mode' : 'Dark mode'}</span>
         </button>
-      </div>
 
-      {/* User / Sign in */}
-      <div className="px-3 pb-4 pt-3" style={{ borderTop: `1px solid ${BDR}` }}>
+        {/* User */}
         {isGuest ? (
           <Link to="/signin" onClick={() => setMobileOpen(false)}
-            className="flex items-center justify-center gap-2 w-full py-2.5 rounded-md text-sm font-medium text-white transition-opacity hover:opacity-90"
+            className="flex items-center justify-center gap-2 w-full py-2 mt-1 rounded-lg text-sm font-medium text-white"
             style={{ background: ACC }}>
-            Sign in to track progress
+            Sign in
           </Link>
         ) : (
-          <>
-            <Link to="/app/profile" onClick={() => setMobileOpen(false)} data-testid="sidebar-user"
-              className="flex items-start gap-3 p-2 rounded-md transition-colors hover:bg-white/5">
-              <div className="w-8 h-8 rounded flex items-center justify-center text-xs font-semibold shrink-0"
-                style={{ background: 'var(--accent-20)', color: ACC, border: '1px solid var(--accent-35)' }}>
-                {user?.avatarInitials || 'U'}
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="text-sm font-medium truncate" style={{ color: T1 }}>{user?.name?.split(' ')[0] || 'User'}</div>
-                <div className="text-[10px] mt-0.5" style={{ color: T3 }}>Level {state.level}</div>
-              </div>
-            </Link>
-
-            {/* XP bar */}
-            <div className="mt-3 px-2">
-              <div className="flex items-center justify-between text-[10px] mb-1.5" style={{ color: T3 }}>
-                <span>XP progress</span>
-                <span className="font-mono" style={{ color: T2 }}>{progressPct}%</span>
-              </div>
-              <div className="h-1 rounded-full" style={{ background: BDR }}>
-                <div className="h-1 rounded-full transition-all" style={{ width: `${progressPct}%`, background: ACC }} />
-              </div>
+          <Link to="/app/profile" onClick={() => setMobileOpen(false)} data-testid="sidebar-user"
+            className="flex items-center gap-3 px-2 py-2 mt-1 rounded-lg hover:bg-white/5 transition-colors">
+            <div className="w-7 h-7 rounded-md flex items-center justify-center text-xs font-semibold shrink-0"
+                 style={{ background: 'var(--accent-20)', color: ACC, border: '1px solid var(--accent-35)' }}>
+              {user?.avatarInitials || 'U'}
             </div>
-
-            {/* Stats row */}
-            <div className="mt-3 px-2 flex items-center gap-4 text-xs">
-              <span className="flex items-center gap-1.5" style={{ color: T2 }}>
-                <Flame size={11} style={{ color: '#F59E0B' }} />
-                <span className="font-mono" style={{ color: T1 }}>{state.streak}</span>
-                <span style={{ color: T3 }}>streak</span>
-              </span>
-              <span className="flex items-center gap-1.5" style={{ color: T2 }}>
-                <Check size={11} style={{ color: '#22C55E' }} strokeWidth={2.5} />
-                <span className="font-mono" style={{ color: T1 }}>{state.reviewedToday}</span>
-                <span style={{ color: T3 }}>today</span>
-              </span>
+            <div className="flex-1 min-w-0">
+              <div className="text-sm font-medium truncate" style={{ color: T1 }}>{user?.name?.split(' ')[0] || 'User'}</div>
+              <div className="text-[10px]" style={{ color: T3 }}>Level {state.level} · {state.streak} streak</div>
             </div>
-          </>
+          </Link>
         )}
       </div>
     </>
@@ -163,44 +125,124 @@ export const Sidebar = ({ user, isGuest }) => {
 
   return (
     <>
-      {/* Mobile top bar — hidden on questions page (QuestionBank provides its own) */}
+      {/* ── Desktop top bar ── */}
+      <header className="hidden md:flex fixed top-0 left-0 right-0 z-50 h-14 items-center gap-4 px-4"
+              style={{ background: 'var(--surface)', borderBottom: `1px solid ${BDR}` }}>
+        {/* Logo area — matches sidebar width */}
+        <Link to="/app/plan" className="flex items-center gap-2.5 w-52 shrink-0">
+          <div className="w-8 h-8 rounded-lg flex items-center justify-center font-bold text-sm text-white"
+               style={{ background: ACC }}>S</div>
+          <span className="font-semibold text-[15px]" style={{ color: T1 }}>Stepkai</span>
+        </Link>
+
+        {/* Search pill */}
+        <div className="flex-1 max-w-[480px] flex items-center gap-2.5 rounded-full h-10 px-4 transition-colors"
+             style={{ border: `1px solid ${BDR}`, background: 'var(--inset)' }}>
+          <Search size={14} style={{ color: T3, flexShrink: 0 }} />
+          <input
+            value={desktopSearch}
+            onChange={e => handleDesktopSearch(e.target.value)}
+            placeholder="Search interview questions…"
+            className="flex-1 bg-transparent border-0 outline-none text-sm"
+            style={{ color: T1 }}
+          />
+          {desktopSearch && (
+            <button onClick={() => handleDesktopSearch('')} style={{ color: T3 }}><X size={14} /></button>
+          )}
+        </div>
+
+        {/* Right actions */}
+        <div className="ml-auto flex items-center gap-2.5">
+          {/* + Contribute */}
+          <button
+            onClick={() => window.dispatchEvent(new CustomEvent('stepkai:contribute'))}
+            className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold text-white transition-opacity hover:opacity-90"
+            style={{ background: ACC }}
+          >
+            <Plus size={15} strokeWidth={2.5} />
+            Contribute
+          </button>
+
+          {/* Trending shortcut */}
+          <Link to="/companies/" title="Companies"
+                className="w-9 h-9 flex items-center justify-center rounded-lg border transition-colors hover:bg-white/5"
+                style={{ borderColor: BDR, color: T3 }}>
+            <TrendingUp size={17} strokeWidth={1.7} />
+          </Link>
+
+          {/* Theme */}
+          <button onClick={toggle} title="Toggle theme"
+                  className="w-9 h-9 flex items-center justify-center rounded-lg border transition-colors hover:bg-white/5"
+                  style={{ borderColor: BDR, color: T3 }}>
+            {theme === 'dark' ? <Sun size={17} strokeWidth={1.7} /> : <Moon size={17} strokeWidth={1.7} />}
+          </button>
+
+          {/* User avatar */}
+          {isGuest ? (
+            <Link to="/signin"
+                  className="px-4 py-2 rounded-lg text-sm font-medium border transition-colors hover:bg-white/5"
+                  style={{ borderColor: BDR, color: T1 }}>
+              Log in
+            </Link>
+          ) : (
+            <Link to="/app/profile" data-testid="topbar-user"
+                  className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-semibold shrink-0"
+                  style={{ background: 'var(--accent-20)', color: ACC, border: `1px solid var(--accent-35)` }}>
+              {user?.avatarInitials || 'U'}
+            </Link>
+          )}
+        </div>
+      </header>
+
+      {/* ── Desktop sidebar (below top bar) ── */}
+      <aside className="hidden md:flex w-52 flex-col fixed top-14 bottom-0 left-0 z-40"
+             style={{ background: 'var(--surface)', borderRight: `1px solid ${BDR}` }}>
+        {navContent}
+      </aside>
+
+      {/* ── Mobile top bar (hidden on questions page) ── */}
       {!onQuestions && (
         <div className="md:hidden fixed top-0 left-0 right-0 z-40 backdrop-blur-sm h-14 flex items-center justify-between px-4"
              style={{ background: 'var(--surface-blur)', borderBottom: `1px solid ${BDR}` }}>
           <div className="flex items-center gap-3">
-            <button onClick={() => setMobileOpen(true)} data-testid="mobile-menu" style={{ color: T2 }}><Menu size={20} /></button>
+            <button onClick={() => setMobileOpen(true)} data-testid="mobile-menu" style={{ color: T2 }}>
+              <Menu size={20} />
+            </button>
             <div className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold text-white"
                  style={{ background: ACC }}>S</div>
           </div>
         </div>
       )}
 
-      {/* Desktop sidebar */}
-      <aside className="hidden md:flex w-60 flex-col fixed inset-y-0 left-0 z-40"
-             style={{ background: BG2, borderRight: `1px solid ${BDR}` }}>
-        {content}
-      </aside>
-
-      {/* Mobile drawer */}
+      {/* ── Mobile drawer ── */}
       {mobileOpen && (
         <div className="md:hidden fixed inset-0 z-50">
           <div className="absolute inset-0" style={{ background: 'rgba(6,8,12,0.92)' }} onClick={() => setMobileOpen(false)} />
-          <aside className="absolute inset-y-0 left-0 w-[82%] max-w-[300px] flex flex-col animate-fade-up"
-                 style={{ background: BG2, borderRight: `1px solid ${BDR}` }}>
-            {content}
+          <aside className="absolute inset-y-0 left-0 w-[82%] max-w-[300px] flex flex-col"
+                 style={{ background: 'var(--surface)', borderRight: `1px solid ${BDR}` }}>
+            {/* Drawer header */}
+            <div className="flex items-center justify-between px-4 py-4 border-b" style={{ borderColor: BDR }}>
+              <div className="flex items-center gap-2.5">
+                <div className="w-7 h-7 rounded-lg flex items-center justify-center text-xs font-bold text-white"
+                     style={{ background: ACC }}>S</div>
+                <span className="font-semibold text-sm" style={{ color: T1 }}>Stepkai</span>
+              </div>
+              <button onClick={() => setMobileOpen(false)} style={{ color: T2 }}><X size={18} /></button>
+            </div>
+            {navContent}
           </aside>
         </div>
       )}
 
-      {/* Mobile bottom nav */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 flex items-stretch h-[60px] safe-area-bottom"
-           style={{ background: BG2, borderTop: `1px solid ${BDR}` }}
+      {/* ── Mobile bottom nav ── */}
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 flex items-stretch h-[60px]"
+           style={{ background: 'var(--surface)', borderTop: `1px solid ${BDR}` }}
            data-testid="mobile-bottom-nav">
         {[
-          { to: '/app/plan',      label: 'Home',      Icon: Home,        end: true },
-          { to: '/app/questions', label: 'Questions', Icon: BookOpen,    end: true },
-          { to: '/app/practice',  label: 'Prepare',   Icon: Zap,         end: true },
-          { to: '/app/profile',   label: 'Profile',   Icon: CircleUser,  end: true },
+          { to: '/app/plan',      label: 'Home',      Icon: Home,       end: true },
+          { to: '/app/questions', label: 'Questions', Icon: BookOpen,   end: true },
+          { to: '/app/practice',  label: 'Prepare',   Icon: Zap,        end: true },
+          { to: '/app/profile',   label: 'Profile',   Icon: CircleUser, end: true },
         ].map(({ to, label, Icon, end }) => (
           <NavLink
             key={to}
@@ -212,7 +254,7 @@ export const Sidebar = ({ user, isGuest }) => {
             {({ isActive }) => (
               <>
                 <div className="flex items-center justify-center w-10 h-7 rounded-2xl transition-colors"
-                     style={{ background: isActive ? `rgba(59,111,212,0.12)` : 'transparent' }}>
+                     style={{ background: isActive ? 'rgba(59,111,212,0.12)' : 'transparent' }}>
                   <Icon size={20} strokeWidth={isActive ? 2.2 : 1.6} />
                 </div>
                 <span className="text-[10px]" style={{ fontWeight: isActive ? 600 : 400 }}>{label}</span>

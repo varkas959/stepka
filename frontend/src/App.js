@@ -31,7 +31,7 @@ function AppShell({ session, onSignOut, children }) {
   return (
     <div className="min-h-screen bg-zinc-950 text-zinc-50">
       <Sidebar user={session?.user} onSignOut={onSignOut} isGuest={!session} />
-      <div className="md:pl-64 pt-14 md:pt-0">
+      <div className="md:pl-52 pt-14">
         {!session && <GuestBanner />}
         <div className="pb-20">{children}</div>
       </div>
