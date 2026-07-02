@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, Link } from 'react-router-dom';
 import { Toaster } from 'sonner';
-import { HelmetProvider } from 'react-helmet-async';
+import { HelmetProvider, Helmet } from 'react-helmet-async';
 import { ThemeProvider } from 'next-themes';
 import './App.css';
 
@@ -34,6 +34,33 @@ function AppShell({ session, onSignOut, children }) {
       <div className="md:pl-52 pt-14">
         {!session && <GuestBanner />}
         <div className="pb-20">{children}</div>
+      </div>
+    </div>
+  );
+}
+
+function NotFound() {
+  return (
+    <div className="min-h-screen flex flex-col items-center justify-center px-6 text-center"
+         style={{ background: 'var(--page)', color: 'var(--text-1)' }}>
+      <Helmet>
+        <title>Page not found · Stepkai</title>
+        <meta name="robots" content="noindex" />
+      </Helmet>
+      <div className="font-mono text-6xl font-bold mb-4" style={{ color: 'var(--accent)' }}>404</div>
+      <h1 className="text-2xl font-semibold mb-2">Page not found</h1>
+      <p className="text-sm mb-8" style={{ color: 'var(--text-3)' }}>
+        The page you're looking for doesn't exist or has moved.
+      </p>
+      <div className="flex items-center gap-3">
+        <Link to="/" className="text-sm font-semibold px-5 py-2.5 rounded-lg text-white"
+              style={{ background: 'var(--accent)' }}>
+          Go home
+        </Link>
+        <Link to="/app/questions" className="text-sm font-medium px-5 py-2.5 rounded-lg border"
+              style={{ borderColor: 'var(--border-2)', color: 'var(--text-2)' }}>
+          Browse questions
+        </Link>
       </div>
     </div>
   );
@@ -139,7 +166,7 @@ function App() {
           } />
           {/* Hidden admin — role-gated server-side; not in any nav */}
           <Route path="/admin/review" element={<AdminReview />} />
-          <Route path="*" element={<Navigate to="/" replace />} />
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
     </AppStateProvider>

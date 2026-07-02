@@ -1326,9 +1326,12 @@ COMPANIES.filter(c => QUESTIONS.some(q => q.company === c.id)).forEach(c => {
 });
 intelRoles.forEach(r => staticPages.push(`/role/${slug(r)}`));
 
+const generatedSet = new Set(sitemapUrls);
+const uniqueStatic = [...new Set(staticPages)].filter(u => !generatedSet.has(u) && !generatedSet.has(u + '/'));
+
 const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-${staticPages.map(u => `  <url><loc>https://www.stepkai.com${u}</loc><changefreq>weekly</changefreq><priority>0.8</priority><lastmod>${today}</lastmod></url>`).join('\n')}
+${uniqueStatic.map(u => `  <url><loc>https://www.stepkai.com${u}</loc><changefreq>weekly</changefreq><priority>0.8</priority><lastmod>${today}</lastmod></url>`).join('\n')}
 ${sitemapUrls.map(u => `  <url><loc>https://www.stepkai.com${u}</loc><changefreq>monthly</changefreq><priority>0.7</priority><lastmod>${today}</lastmod></url>`).join('\n')}
 </urlset>`;
 

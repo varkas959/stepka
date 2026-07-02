@@ -1,5 +1,6 @@
 import { useEffect, useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 import { ArrowRight, Check, X, Clock, Target, ArrowUp } from 'lucide-react';
 import { COMPANIES, QUESTIONS } from '../lib/mockData';
 import { getSession } from '../lib/auth';
@@ -101,6 +102,9 @@ export default function Home() {
   useEffect(() => { getSession().then(setSession); }, []);
   return (
     <div className="min-h-screen flex flex-col" style={{ background: C.bg, color: C.text1 }}>
+      <Helmet>
+        <link rel="canonical" href="https://www.stepkai.com/" />
+      </Helmet>
       <HomeNav session={session} />
       <Hero />
       <TrustBar />
