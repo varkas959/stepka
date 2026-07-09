@@ -22,13 +22,6 @@ export async function moderateText(text) {
   return data;
 }
 
-export async function analyzeJD({ jd, targetCompany, targetRole }) {
-  const { data } = await api.post('/jd', {
-    action: 'analyze', jd, target_company: targetCompany, target_role: targetRole,
-  });
-  return data;
-}
-
 export async function generatePlan({ company, role, heatmap, gaps, readiness, falseConfidenceSkills, highRiskSkills }) {
   const { data } = await api.post('/generate-plan', { company, role, heatmap, gaps, readiness, falseConfidenceSkills, highRiskSkills });
   return data;

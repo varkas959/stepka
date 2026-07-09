@@ -176,7 +176,7 @@ const ReadinessReport = () => {
       {/* Header */}
       <div className="px-5 py-3 flex items-center justify-between"
            style={{ borderBottom: `1px solid ${C.border}`, background: C.bg }}>
-        <span className="font-mono text-[10px] uppercase tracking-[0.2em]" style={{ color: C.text3 }}>Readiness Report</span>
+        <span className="font-mono text-[10px] uppercase tracking-[0.2em]" style={{ color: C.text3 }}>Example Report</span>
         <span className="font-mono text-[10px]" style={{ color: C.text3 }}>
           {new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
         </span>
@@ -314,11 +314,10 @@ const Hero = () => (
         </div>
       </div>
 
-      {/* Right — live product preview (rotating readiness report) */}
+      {/* Right — example report (rotating illustration, not live user data) */}
       <div>
         <div className="flex items-center gap-1.5 mb-2.5 justify-center md:justify-start">
-          <span className="w-1.5 h-1.5 rounded-full animate-pulse-soft" style={{ background: C.green }} />
-          <span className="font-mono text-[10px] uppercase tracking-[0.18em]" style={{ color: C.text3 }}>Live product preview</span>
+          <span className="font-mono text-[10px] uppercase tracking-[0.18em]" style={{ color: C.text3 }}>Example readiness report</span>
         </div>
         <ReadinessReport />
       </div>
