@@ -132,6 +132,13 @@ ${breadcrumb.length ? `<div class="breadcrumb">
 </div>` : ''}
 <h1>${esc(h1)}</h1>
 ${bodyHtml}
+${faqItems.length ? `<h2>Frequently asked questions</h2>
+<div style="margin-bottom:32px">
+${faqItems.map(f => `  <div style="margin-bottom:20px">
+    <div style="font-weight:600;font-size:15px;color:#f4f4f5;margin-bottom:6px">${esc(f.q)}</div>
+    <div style="color:#a1a1aa;font-size:14px;line-height:1.7">${esc(f.a)}</div>
+  </div>`).join('\n')}
+</div>` : ''}
 </main>
 <footer>
   <p>&copy; ${YEAR} Stepkai &middot; <a href="/">Home</a> &middot; <a href="/app/questions">Question Bank</a> &middot; <a href="/app/plan">Study Plan</a> &middot; <a href="/questions/">Browse All</a> &middot; <a href="/companies/">Companies</a> &middot; <a href="/roles/">Roles</a></p>
@@ -541,7 +548,9 @@ ${relatedSection('Other company interview processes', ACTIVE_COMPANIES.filter(c=
   write(`interview-process/${compSlug}/index.html`, shell({
     title, desc, canonical, h1: title, bodyHtml,
     faqItems: [
+      { q: `What is the ${co.name} hiring process?`, a: `The ${co.name} hiring process has ${info.rounds.length} stages: ${info.rounds.join(', ')}. Most candidates report ${qs.length} distinct questions across these rounds.` },
       { q: `How many rounds does ${co.name} interview have?`, a: `${co.name} typically has ${info.rounds.length} rounds: ${info.rounds.join(', ')}.` },
+      { q: `What happens in a ${co.name} technical interview?`, a: `The technical round at ${co.name} focuses on ${topics.slice(0,3).join(', ')}. ${info.tips}` },
       { q: `What topics does ${co.name} ask in technical rounds?`, a: topics.join(', ') + '. Based on ' + qs.length + ' questions reported by engineers.' },
       { q: `How hard is the ${co.name} interview?`, a: `Difficulty ranges from ${[...new Set(qs.map(q=>q.difficulty))].join(', ')}. ${info.tips}` },
     ],
