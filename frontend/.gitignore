@@ -21,3 +21,7 @@
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+# SEO loop — service account key must never be committed
+gsc-service-account.json
+seo-reports/
