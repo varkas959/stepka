@@ -20,6 +20,24 @@
       ]
     }
   ],
+  "redirects": [
+    { "source": "/interview-process", "destination": "/interview-process/", "permanent": true },
+    { "source": "/prepare", "destination": "/prepare/", "permanent": true },
+    { "source": "/tools", "destination": "/tools/", "permanent": true },
+    { "source": "/interview-process/:slug", "destination": "/interview-process/:slug/", "permanent": true },
+    { "source": "/prepare/:slug", "destination": "/prepare/:slug/", "permanent": true },
+    { "source": "/tools/:slug", "destination": "/tools/:slug/", "permanent": true },
+    { "source": "/compare/:slug", "destination": "/compare/:slug/", "permanent": true },
+    { "source": "/interview-experience/:slug", "destination": "/interview-experience/:slug/", "permanent": true },
+    { "source": "/guide/:slug", "destination": "/guide/:slug/", "permanent": true },
+    { "source": "/roles/:slug/interview-questions", "destination": "/roles/:slug/interview-questions/", "permanent": true },
+    { "source": "/companies/:company/:role", "destination": "/companies/:company/:role/", "permanent": true },
+    { "source": "/questions/company/:slug", "destination": "/questions/company/:slug/", "permanent": true },
+    { "source": "/questions/topic/:slug", "destination": "/questions/topic/:slug/", "permanent": true },
+    { "source": "/questions/tech/:slug", "destination": "/questions/tech/:slug/", "permanent": true },
+    { "source": "/questions/trending", "destination": "/questions/trending/", "permanent": true },
+    { "source": "/questions/:combo", "destination": "/questions/:combo/", "permanent": true }
+  ],
   "rewrites": [
     { "source": "/api/(.*)", "destination": "/api/$1" },
     { "source": "/r/(.*)", "destination": "/api/r/$1" },
