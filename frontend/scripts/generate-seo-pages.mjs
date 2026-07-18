@@ -903,6 +903,22 @@ ${relatedSection('Related comparisons', COMPARISONS.filter(c=>c.slug!==comp.slug
 
 console.log(`[seo] Generated comparison pages`);
 
+// /compare/ index
+{
+  const title = `Technology Comparisons for Interviews ${YEAR}`;
+  const desc  = `Side-by-side comparisons of technologies commonly asked about in interviews — which to learn, what companies ask about each, and real reported questions for both.`;
+  write('compare/index.html', shell({
+    title, desc, canonical: '/compare/', h1: title,
+    breadcrumb: [{ label: 'Compare', href: '/compare/' }],
+    bodyHtml: `
+<p class="subtitle">${esc(desc)}</p>
+<div class="pill-grid">
+${COMPARISONS.map(c => `<a href="/compare/${c.slug}/" class="pill">${esc(c.h1)}</a>`).join('\n')}
+</div>
+${practiceBlock('', '')}`,
+  }));
+}
+
 // ═══════════════════════════════════════════════════════════════════════════
 // 11. COMPANY + ROLE PAGES  /companies/[company]/[role]-interview-questions/
 //     e.g. "Business Analyst Interview Questions at Accenture"
@@ -989,13 +1005,33 @@ ${relatedSection(`More at ${esc(company.name)}`, [
     title, desc, canonical, h1, bodyHtml, faqItems,
     breadcrumb: [
       { label: 'Companies', href: '/companies/' },
-      { label: company.name, href: `/companies/${compSlug}/` },
+      { label: company.name, href: `/questions/company/${compSlug}/` },
       { label: `${role} Questions`, href: canonical },
     ],
   }));
 });
 
 console.log(`[seo] Generated company+role pages`);
+
+// /companies/ index
+{
+  const activeCompanies = COMPANIES.filter(c => QUESTIONS.some(q => q.company === c.id));
+  const title = `Companies — Interview Questions by Employer ${YEAR}`;
+  const desc  = `Browse real interview questions organized by company. ${activeCompanies.length} companies, reported by engineers who went through the actual interview loop.`;
+  write('companies/index.html', shell({
+    title, desc, canonical: '/companies/', h1: title,
+    breadcrumb: [{ label: 'Companies', href: '/companies/' }],
+    bodyHtml: `
+<p class="subtitle">${esc(desc)}</p>
+<div class="pill-grid">
+${activeCompanies.map(c => {
+  const n = QUESTIONS.filter(q => q.company === c.id).length;
+  return `<a href="/questions/company/${slug(c.name)}/" class="pill">${esc(c.name)} <span style="color:#52525b">(${n})</span></a>`;
+}).join('\n')}
+</div>
+${practiceBlock('', '')}`,
+  }));
+}
 
 // ═══════════════════════════════════════════════════════════════════════════
 // 12. ROLE PAGES  /roles/[role]/interview-questions/
@@ -1071,13 +1107,29 @@ ${relatedSection(`${esc(role)} by company`, topCompanies.slice(0, 8).map(([n]) =
     title, desc, canonical, h1, bodyHtml, faqItems,
     breadcrumb: [
       { label: 'Roles', href: '/roles/' },
-      { label: role, href: `/roles/${roleSlug}/` },
-      { label: 'Interview Questions', href: canonical },
+      { label: `${role} Interview Questions`, href: canonical },
     ],
   }));
 });
 
 console.log(`[seo] Generated role pages`);
+
+// /roles/ index
+{
+  const activeRoles = [...roleMap.values()].filter(r => r.questions.length >= 3);
+  const title = `Roles — Interview Questions by Job Title ${YEAR}`;
+  const desc  = `Browse real interview questions organized by role — SDE, Data Engineer, QA, DevOps, Product Manager and more, across all reported companies.`;
+  write('roles/index.html', shell({
+    title, desc, canonical: '/roles/', h1: title,
+    breadcrumb: [{ label: 'Roles', href: '/roles/' }],
+    bodyHtml: `
+<p class="subtitle">${esc(desc)}</p>
+<div class="pill-grid">
+${activeRoles.map(r => `<a href="/roles/${r.roleSlug}/interview-questions/" class="pill">${esc(r.role)} <span style="color:#52525b">(${r.questions.length})</span></a>`).join('\n')}
+</div>
+${practiceBlock('', '')}`,
+  }));
+}
 
 // ═══════════════════════════════════════════════════════════════════════════
 // 13. INTERVIEW EXPERIENCE PAGES  /interview-experience/[company]/
@@ -1167,6 +1219,25 @@ ${relatedSection(`More from ${esc(company.name)}`, [
 });
 
 console.log(`[seo] Generated interview experience pages`);
+
+// /interview-experience/ index
+{
+  const activeExp = [...expPagesMap.values()].filter(e => e.questions.length >= 3);
+  const title = `Interview Experiences — Real Candidate Reports ${YEAR}`;
+  const desc  = `Real interview experience reports from engineers — rounds, topics, and what to expect, sourced directly from candidates who went through the process.`;
+  write('interview-experience/index.html', shell({
+    title, desc, canonical: '/interview-experience/', h1: title,
+    breadcrumb: [{ label: 'Interview Experience', href: '/interview-experience/' }],
+    bodyHtml: activeExp.length ? `
+<p class="subtitle">${esc(desc)}</p>
+<div class="pill-grid">
+${activeExp.map(e => `<a href="/interview-experience/${slug(e.company.name)}/" class="pill">${esc(e.company.name)} <span style="color:#52525b">(${e.questions.length})</span></a>`).join('\n')}
+</div>
+${practiceBlock('', '')}` : `
+<p class="subtitle">${esc(desc)}</p>
+<p style="color:#a1a1aa;font-size:14px">No candidate-reported interview experiences yet — check back soon, or browse <a href="/questions/">all interview questions</a> in the meantime.</p>`,
+  }));
+}
 
 // ═══════════════════════════════════════════════════════════════════════════
 // 14. INTERVIEW GUIDE PAGES  /guide/[company]-[role]/
@@ -1313,6 +1384,23 @@ ${relatedSection(`More at ${esc(company.name)}`, [
 });
 
 console.log(`[seo] Generated interview guide pages`);
+
+// /guide/ index
+{
+  const activeGuides = [...guideMap.values()].filter(g => g.company && g.questions.length >= 3);
+  const title = `Interview Guides — Company + Role Playbooks ${YEAR}`;
+  const desc  = `Evidence-backed preparation playbooks combining a specific company and role — topics, difficulty, and a free readiness assessment for each.`;
+  write('guide/index.html', shell({
+    title, desc, canonical: '/guide/', h1: title,
+    breadcrumb: [{ label: 'Guides', href: '/guide/' }],
+    bodyHtml: `
+<p class="subtitle">${esc(desc)}</p>
+<div class="pill-grid">
+${activeGuides.map(g => `<a href="/guide/${slug(g.company.name)}-${g.roleSlug}/" class="pill">${esc(g.company.name)} ${esc(g.role)} <span style="color:#52525b">(${g.questions.length})</span></a>`).join('\n')}
+</div>
+${practiceBlock('', '')}`,
+  }));
+}
 
 // ═══════════════════════════════════════════════════════════════════════════
 // 15. SITEMAP.XML
