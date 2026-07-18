@@ -83,6 +83,7 @@ export default function InterviewIntelligence({ kind }) {
         <title>{scope.title} | Stepkai</title>
         <meta name="description" content={desc.slice(0, 155)} />
         <link rel="canonical" href={`https://www.stepkai.com${window.location.pathname}`} />
+        {intel.total === 0 && <meta name="robots" content="noindex" />}
       </Helmet>
 
       <div className="max-w-4xl mx-auto px-4 sm:px-8 py-8">
