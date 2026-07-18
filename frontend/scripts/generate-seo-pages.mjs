@@ -19,6 +19,25 @@ const trunc  = (s, n) => s.length > n ? s.slice(0, n - 1) + '…' : s;
 const COMPANY_MAP = Object.fromEntries(COMPANIES.map(c => [c.id, c]));
 const YEAR = new Date().getFullYear();
 
+// ── Validity lookups — a related-link section must never link to a page
+// that its own generation threshold would refuse to write. Computed once,
+// independent of where each section's own map gets built later. ──
+const comboCounts = {}, companyRoleCounts = {}, guideCounts = {};
+QUESTIONS.forEach(q => {
+  (q.tech || []).forEach(t => {
+    const k = `${q.company}:${t}`;
+    comboCounts[k] = (comboCounts[k] || 0) + 1;
+  });
+  if (q.role) {
+    const k = `${q.company}:${q.role}`;
+    companyRoleCounts[k] = (companyRoleCounts[k] || 0) + 1;
+    guideCounts[k] = (guideCounts[k] || 0) + 1;
+  }
+});
+const isValidCombo = (companyId, tech) => (comboCounts[`${companyId}:${tech}`] || 0) >= 5;
+const isValidCompanyRole = (companyId, role) => (companyRoleCounts[`${companyId}:${role}`] || 0) >= 5;
+const isValidGuide = (companyId, role) => (guideCounts[`${companyId}:${role}`] || 0) >= 3;
+
 // ── Track all generated URLs for sitemap ────────────────────────────────────
 const sitemapUrls = [];
 function write(relPath, html) {
@@ -199,7 +218,7 @@ QUESTIONS.forEach(q => {
 });
 
 combos.forEach(({ questions, company, tech }) => {
-  if (!company || questions.length < 2) return;
+  if (!company || questions.length < 5) return;
   const compSlug = slug(company.name);
   const techSlug = slug(tech);
   const pageSlug = `${compSlug}-${techSlug}`;
@@ -211,8 +230,10 @@ combos.forEach(({ questions, company, tech }) => {
 
   const relCo    = QUESTIONS.filter(q => q.company === company.id && !(q.tech||[]).includes(tech)).slice(0,6);
   const relTech  = QUESTIONS.filter(q => (q.tech||[]).includes(tech) && q.company !== company.id).slice(0,6);
-  const relCoNames = [...new Set(relTech.map(q => COMPANY_MAP[q.company]?.name).filter(Boolean))].slice(0,8);
-  const relTechs   = [...new Set(relCo.flatMap(q => q.tech||[]).filter(t2 => t2 !== tech))].slice(0,8);
+  const relCoNames = [...new Set(relTech.map(q => COMPANY_MAP[q.company]?.name).filter(Boolean))]
+    .filter(cn => { const c = COMPANIES.find(x => x.name === cn); return c && isValidCombo(c.id, tech); }).slice(0,8);
+  const relTechs   = [...new Set(relCo.flatMap(q => q.tech||[]).filter(t2 => t2 !== tech))]
+    .filter(t2 => isValidCombo(company.id, t2)).slice(0,8);
 
   const bodyHtml = `
 <p class="subtitle">${esc(desc)}</p>
@@ -262,11 +283,11 @@ COMPANIES.forEach(co => {
   const desc      = `${qs.length} real interview questions asked at ${co.name}. Covers ${[...new Set(qs.map(q=>q.topicPath))].join(', ')}. Reported by engineers who went through the ${co.name} process.`;
   const canonical = `/questions/company/${compSlug}/`;
 
-  const techs  = [...new Set(qs.flatMap(q => q.tech||[]))].slice(0, 12);
+  const techs  = [...new Set(qs.flatMap(q => q.tech||[]))].filter(t => isValidCombo(co.id, t)).slice(0, 12);
   const topics = [...new Set(qs.map(q => q.topicPath))];
 
   // Roles for this company → guide links
-  const rolesHere = [...new Set(qs.map(q => q.role).filter(Boolean))];
+  const rolesHere = [...new Set(qs.map(q => q.role).filter(Boolean))].filter(r => isValidGuide(co.id, r));
   const guideLinks = rolesHere.slice(0, 4).map(r => ({
     label: `${co.name} ${r} Guide`, href: `/guide/${compSlug}-${slug(r)}/`, accent: true,
   }));
@@ -384,7 +405,9 @@ ${companies.map(cn => {
   return `<h2>${esc(cn)} (${coQs.length})</h2>${coQs.map((q,i)=>qCard(q,i+1)).join('\n')}`;
 }).join('\n')}
 ${practiceBlock('', tech)}
-${relatedSection(`${esc(tech)} questions at each company`, companies.map(cn => ({
+${relatedSection(`${esc(tech)} questions at each company`, companies.filter(cn => {
+  const c = COMPANIES.find(x => x.name === cn); return c && isValidCombo(c.id, tech);
+}).map(cn => ({
   label: `${cn} ${tech}`, href: `/questions/${slug(cn)}-${techSlug}/`,
 })))}`;
 
@@ -446,7 +469,7 @@ ${activeCompanies.map(c => {
 <h2>Popular Company + Technology Combos</h2>
 <div class="pill-grid">
 ${[...combos.entries()]
-  .filter(([,v]) => v.questions.length >= 3)
+  .filter(([,v]) => v.company && v.questions.length >= 5)
   .sort((a,b) => b[1].questions.reduce((s,q)=>s+q.upvotes,0) - a[1].questions.reduce((s,q)=>s+q.upvotes,0))
   .slice(0, 30)
   .map(([key, { company: co, tech }]) => co
@@ -509,7 +532,7 @@ ACTIVE_COMPANIES.forEach(co => {
   const desc      = `Everything about the ${co.name} interview process: rounds, what each round tests, difficulty level, and ${qs.length} real questions asked by engineers who cleared the loop.`;
   const canonical = `/interview-process/${compSlug}/`;
 
-  const techs  = [...new Set(qs.flatMap(q => q.tech||[]))].slice(0, 8);
+  const techs  = [...new Set(qs.flatMap(q => q.tech||[]))].filter(t => isValidCombo(co.id, t)).slice(0, 8);
   const topics = [...new Set(qs.map(q => q.topicPath))];
 
   const bodyHtml = `
@@ -586,7 +609,7 @@ ACTIVE_COMPANIES.forEach(co => {
   const qs      = QUESTIONS.filter(q => q.company === co.id);
   const compSlug = slug(co.name);
   const topics   = [...new Set(qs.map(q => q.topicPath))];
-  const techs    = [...new Set(qs.flatMap(q => q.tech||[]))].slice(0, 8);
+  const techs    = [...new Set(qs.flatMap(q => q.tech||[]))].filter(t => isValidCombo(co.id, t)).slice(0, 8);
   const topQ     = qs.sort((a,b)=>b.upvotes-a.upvotes).slice(0, 5);
   const title    = `How to Prepare for ${co.name} Interview ${YEAR} — Complete Guide`;
   const desc     = `Step-by-step preparation guide for ${co.name} interviews. Covers what to study, how long to prepare, top resources, and ${qs.length} real questions reported by engineers who cleared the ${co.name} process.`;
@@ -933,7 +956,7 @@ QUESTIONS.forEach(q => {
 });
 
 companyRoleMap.forEach(({ questions, company, role, roleSlug }) => {
-  if (!company || questions.length < 2) return;
+  if (!company || questions.length < 5) return;
   const compSlug = slug(company.name);
   const canonical = `/companies/${compSlug}/${roleSlug}-interview-questions/`;
   const title = `${role} Interview Questions at ${company.name} ${YEAR}`;
@@ -954,7 +977,7 @@ companyRoleMap.forEach(({ questions, company, role, roleSlug }) => {
   const sameRoleCompanies = [...new Set(
     QUESTIONS.filter(q => q.role === role && q.company !== company.id)
       .map(q => COMPANY_MAP[q.company]?.name).filter(Boolean)
-  )].slice(0, 6);
+  )].filter(n => { const c = COMPANIES.find(x => x.name === n); return c && isValidCompanyRole(c.id, role); }).slice(0, 6);
 
   const faqItems = [
     { q: `What topics does ${company.name} ask ${role}s?`, a: topTopics.length ? `Common topics: ${topTopics.map(([t])=>t).join(', ')}.` : 'Topics vary by team.' },
@@ -1098,10 +1121,10 @@ ${signalsHtml}
 <h2>Top Questions by Upvotes</h2>
 ${questions.sort((a,b) => b.upvotes-a.upvotes).slice(0, 12).map((q,i) => qCard(q,i+1)).join('\n')}
 ${practiceBlock('', role)}
-${relatedSection(`${esc(role)} by company`, topCompanies.slice(0, 8).map(([n]) => {
+${relatedSection(`${esc(role)} by company`, topCompanies.map(([n]) => {
   const co = COMPANIES.find(c => c.name===n);
-  return co ? { label: `${n} ${role} questions`, href: `/companies/${slug(n)}/${roleSlug}-interview-questions/` } : null;
-}).filter(Boolean))}`;
+  return (co && isValidCompanyRole(co.id, role)) ? { label: `${n} ${role} questions`, href: `/companies/${slug(n)}/${roleSlug}-interview-questions/` } : null;
+}).filter(Boolean).slice(0, 8))}`;
 
   write(`roles/${roleSlug}/interview-questions/index.html`, shell({
     title, desc, canonical, h1, bodyHtml, faqItems,
@@ -1292,7 +1315,7 @@ guideMap.forEach(({ questions, company, role, roleSlug }) => {
   const sameRole = [...new Set(
     QUESTIONS.filter(q => q.role === role && q.company !== company.id)
       .map(q => COMPANY_MAP[q.company]?.name).filter(Boolean)
-  )].slice(0, 5);
+  )].filter(n => { const c = COMPANIES.find(x => x.name === n); return c && isValidGuide(c.id, role); }).slice(0, 5);
 
   const focusAreasHtml = `
 <div style="border:1px solid rgba(255,255,255,.09);border-radius:12px;padding:24px;margin-bottom:32px;background:#0c0c0f">
@@ -1362,7 +1385,7 @@ ${assessmentCtaHtml}
 <h2>Top Questions — Ranked by Community Votes</h2>
 <p style="color:#a1a1aa;font-size:13px;margin-bottom:20px">These ${topQs.length} questions appeared most in ${esc(company.name)} ${esc(role)} reports. Master these first.</p>
 ${topQs.map((q, i) => qCard(q, i + 1)).join('\n')}
-<p style="margin-top:16px"><a href="/companies/${compSlug}/${roleSlug}-interview-questions/" class="pill">See all ${questions.length} questions →</a></p>
+${isValidCompanyRole(company.id, role) ? `<p style="margin-top:16px"><a href="/companies/${compSlug}/${roleSlug}-interview-questions/" class="pill">See all ${questions.length} questions →</a></p>` : ''}
 ${sameRole.length ? relatedSection(`Same role at other companies`, sameRole.map(n => {
   const co2 = COMPANIES.find(c => c.name === n);
   return co2 ? { label: `${n} ${role} guide`, href: `/guide/${slug(n)}-${roleSlug}/`, accent: true } : null;
@@ -1370,7 +1393,7 @@ ${sameRole.length ? relatedSection(`Same role at other companies`, sameRole.map(
 ${relatedSection(`More at ${esc(company.name)}`, [
   { label: `All ${esc(company.name)} questions`, href: `/questions/company/${compSlug}/` },
   { label: `${esc(company.name)} interview process`, href: `/interview-process/${compSlug}/` },
-  { label: `${esc(company.name)} ${role} questions`, href: `/companies/${compSlug}/${roleSlug}-interview-questions/` },
+  ...(isValidCompanyRole(company.id, role) ? [{ label: `${esc(company.name)} ${role} questions`, href: `/companies/${compSlug}/${roleSlug}-interview-questions/` }] : []),
 ])}`;
 
   write(`guide/${compSlug}-${roleSlug}/index.html`, shell({
