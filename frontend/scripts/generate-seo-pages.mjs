@@ -4,15 +4,30 @@
 
 import fs from 'fs';
 import path from 'path';
+import crypto from 'crypto';
 import { fileURLToPath } from 'url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const BUILD = path.join(__dirname, '..', 'build');
 const DATA  = JSON.parse(fs.readFileSync(path.join(__dirname, 'seo-data.json'), 'utf-8'));
 
+// ── Per-page publish/modified date tracking ──────────────────────────────────
+// Committed to git (not build/, which is gitignored and ephemeral on Vercel) so
+// real first-seen and last-changed dates persist across deploys, instead of
+// every page sharing the current build's date. A page's dateModified only
+// advances when its actual rendered content changes.
+const DATES_FILE = path.join(__dirname, 'page-dates.json');
+const pageDates = fs.existsSync(DATES_FILE) ? JSON.parse(fs.readFileSync(DATES_FILE, 'utf-8')) : {};
+const todayStr = new Date().toISOString().split('T')[0];
+
 const { COMPANIES, QUESTIONS, TECH_STACK } = DATA;
 
-const slug   = s => s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+// Explicit overrides for names that would otherwise collide once symbols are
+// stripped (e.g. "C++" and "C#" both reduce to "c") — silently overwriting
+// each other's page on every build with no error, since both produce a
+// technically-valid but identical URL.
+const SLUG_OVERRIDES = { 'C++': 'cpp', 'C#': 'csharp' };
+const slug   = s => SLUG_OVERRIDES[s] || s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
 const esc    = s => String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 const trunc  = (s, n) => s.length > n ? s.slice(0, n - 1) + '…' : s;
 
@@ -40,11 +55,37 @@ const isValidGuide = (companyId, role) => (guideCounts[`${companyId}:${role}`] |
 
 // ── Track all generated URLs for sitemap ────────────────────────────────────
 const sitemapUrls = [];
+const sitemapLastmod = {};
+let newCount = 0, changedCount = 0, unchangedCount = 0;
 function write(relPath, html) {
+  const url = '/' + relPath.replace(/index\.html$/, '').replace(/\\/g, '/');
+
+  // Hash BEFORE date substitution so the hash is stable across builds unless
+  // the actual content changed — dates themselves never affect the hash.
+  const hash = crypto.createHash('sha1').update(html).digest('hex').slice(0, 16);
+  const prev = pageDates[url];
+  let datePublished, dateModified;
+  if (prev && prev.hash === hash) {
+    datePublished = prev.datePublished; dateModified = prev.dateModified;
+    unchangedCount++;
+  } else if (prev) {
+    datePublished = prev.datePublished; dateModified = todayStr;
+    changedCount++;
+  } else {
+    datePublished = todayStr; dateModified = todayStr;
+    newCount++;
+  }
+  pageDates[url] = { datePublished, dateModified, hash };
+  sitemapLastmod[url] = dateModified;
+
+  const humanDate = iso => new Date(iso + 'T00:00:00Z').toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' });
+  html = html
+    .replace(/__DATE_PUBLISHED__/g, datePublished).replace(/__DATE_MODIFIED__/g, dateModified)
+    .replace(/__DATE_PUBLISHED_HUMAN__/g, humanDate(datePublished)).replace(/__DATE_MODIFIED_HUMAN__/g, humanDate(dateModified));
+
   const abs = path.join(BUILD, relPath);
   fs.mkdirSync(path.dirname(abs), { recursive: true });
   fs.writeFileSync(abs, html, 'utf-8');
-  const url = '/' + relPath.replace(/index\.html$/, '').replace(/\\/g, '/');
   sitemapUrls.push(url);
 }
 
@@ -77,6 +118,23 @@ function shell({ title, desc, canonical, h1, bodyHtml, faqItems = [], breadcrumb
 }
 </script>`;
 
+  // Dates resolved by write() via placeholder substitution — see DATES_FILE above.
+  const articleSchema = `
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": ${JSON.stringify(title)},
+  "description": ${JSON.stringify(trunc(desc, 155))},
+  "image": "https://www.stepkai.com/og-image.png",
+  "author": { "@type": "Organization", "name": "Stepkai", "url": "https://www.stepkai.com/" },
+  "publisher": { "@type": "Organization", "name": "Stepkai", "logo": { "@type": "ImageObject", "url": "https://www.stepkai.com/logo.png" } },
+  "datePublished": "__DATE_PUBLISHED__",
+  "dateModified": "__DATE_MODIFIED__",
+  "mainEntityOfPage": { "@type": "WebPage", "@id": "https://www.stepkai.com${canonical}" }
+}
+</script>`;
+
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -99,6 +157,7 @@ function shell({ title, desc, canonical, h1, bodyHtml, faqItems = [], breadcrumb
 <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-MY36EXDRBM');</script>
 ${faqSchema}
 ${breadcrumbSchema}
+${articleSchema}
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#09090b;color:#f4f4f5;line-height:1.6}
@@ -150,6 +209,7 @@ ${breadcrumb.length ? `<div class="breadcrumb">
   <a href="/">Home</a>${breadcrumb.map(c => `<span>/</span><a href="${c.href}">${esc(c.label)}</a>`).join('')}
 </div>` : ''}
 <h1>${esc(h1)}</h1>
+<div style="font-family:monospace;font-size:11px;color:#52525b;margin-bottom:20px">Published __DATE_PUBLISHED_HUMAN__ &middot; Updated __DATE_MODIFIED_HUMAN__</div>
 ${bodyHtml}
 ${faqItems.length ? `<h2>Frequently asked questions</h2>
 <div style="margin-bottom:32px">
@@ -1452,7 +1512,7 @@ const uniqueStatic = [...new Set(staticPages)].filter(u => !generatedSet.has(u) 
 const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 ${uniqueStatic.map(u => `  <url><loc>https://www.stepkai.com${u}</loc><changefreq>weekly</changefreq><priority>0.8</priority><lastmod>${today}</lastmod></url>`).join('\n')}
-${sitemapUrls.map(u => `  <url><loc>https://www.stepkai.com${u}</loc><changefreq>monthly</changefreq><priority>0.7</priority><lastmod>${today}</lastmod></url>`).join('\n')}
+${sitemapUrls.map(u => `  <url><loc>https://www.stepkai.com${u}</loc><changefreq>monthly</changefreq><priority>0.7</priority><lastmod>${sitemapLastmod[u] || today}</lastmod></url>`).join('\n')}
 </urlset>`;
 
 fs.writeFileSync(path.join(BUILD, 'sitemap.xml'), sitemap, 'utf-8');
@@ -1469,4 +1529,11 @@ Sitemap: https://www.stepkai.com/sitemap.xml
 `, 'utf-8');
 
 console.log('[seo] robots.txt written');
+
+// Persist page-dates.json to the source tree (not build/) so it survives to
+// the next deploy. Must be git-committed alongside code changes for the
+// freshness tracking to actually work across Vercel's ephemeral builds.
+fs.writeFileSync(DATES_FILE, JSON.stringify(pageDates, null, 2) + '\n', 'utf-8');
+console.log(`[seo] page-dates.json written (${newCount} new, ${changedCount} content-changed, ${unchangedCount} unchanged)`);
+
 console.log(`[seo] Done. Total static pages: ${sitemapUrls.length}`);

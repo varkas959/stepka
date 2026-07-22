@@ -1,0 +1,26 @@
+# Stepkai
+
+> Stepkai is an AI-powered interview readiness platform that helps software engineers prepare for technical interviews. It analyzes real job descriptions, builds personalized preparation plans, runs AI-graded mock interview practice, and provides a real, community-verified bank of company-specific interview questions.
+
+## Primary topics
+
+- Interview preparation for software engineers
+- Technical interview questions (DSA, System Design, coding rounds)
+- HR and behavioral interview questions
+- Company-specific interview processes and rounds
+- Java, React, Node.js, Python, TypeScript, SQL, AWS interview questions
+- TCS, Infosys, Wipro, Accenture, Cognizant, Capgemini, Deloitte interview questions
+- Amazon, Google, Microsoft, Meta, Netflix, LinkedIn, Uber interview questions
+
+## Key pages
+
+- [Home](https://www.stepkai.com/): AI-powered interview readiness assessment and personalized study plans
+- [Interview Questions](https://www.stepkai.com/questions/): Browse the full bank of real, verified interview questions
+- [Companies](https://www.stepkai.com/companies/): Interview questions organized by employer
+- [Roles](https://www.stepkai.com/roles/): Interview questions organized by job role
+- [Interview Process Guides](https://www.stepkai.com/interview-process/): Round-by-round breakdowns of each company's interview process
+- [Preparation Guides](https://www.stepkai.com/prepare/): Step-by-step guides for preparing at each company
+- [Interview Guides](https://www.stepkai.com/guide/): Combined company + role preparation playbooks
+- [Interview Experiences](https://www.stepkai.com/interview-experience/): Real candidate-reported interview experiences
+- [Technology Comparisons](https://www.stepkai.com/compare/): Comparisons of technologies commonly tested in interviews
+- [Trending Questions](https://www.stepkai.com/questions/trending/): The most upvoted interview questions currently
