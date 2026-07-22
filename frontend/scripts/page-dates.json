@@ -2,452 +2,452 @@
   "/questions/amazon-java/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "f7abbfed104d6e64"
+    "hash": "c5f1b939931cea86"
   },
   "/questions/google-python/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "e460b741ebd02836"
+    "hash": "22138df2fcff5ca3"
   },
   "/questions/accenture-selenium/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "c734468f4a1261d8"
+    "hash": "11dc806d73b3c37a"
   },
   "/questions/accenture-javascript/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "9d0736a4ca57cdd9"
+    "hash": "ea95a455ddc7e845"
   },
   "/questions/accenture-java/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "f71bfd7d5b12d00e"
+    "hash": "b75f2e20f5d86d5f"
   },
   "/questions/deloitte-jenkins/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "5483186494da045b"
+    "hash": "8b18477da766a98d"
   },
   "/questions/deloitte-github-actions/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "d3cda8a81c3409a8"
+    "hash": "9d7aa3fdf133ba12"
   },
   "/questions/deloitte-docker/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "efc37658c87ba2e0"
+    "hash": "23f1a8a8041360d4"
   },
   "/questions/wipro-selenium/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "6baf033b4d218d05"
+    "hash": "38368b7deb1ab9c8"
   },
   "/questions/wipro-java/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "567e64554d3712b8"
+    "hash": "e58d78a726b7b65e"
   },
   "/questions/infosys-java/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "5a45bbaf3560c029"
+    "hash": "9903bfec3e5eca78"
   },
   "/questions/infosys-spring-boot/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "9fb7a122a8145817"
+    "hash": "cfaa4c411d0cdf9b"
   },
   "/questions/tcs-java/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "f502418b4a36d01f"
+    "hash": "ab5191c0c31ad8ad"
   },
   "/questions/tcs-spring-boot/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "556461e303cb9f38"
+    "hash": "e2467f5bb9d2e0b5"
   },
   "/questions/capgemini-playwright/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "f04dbef37d89d3b2"
+    "hash": "4d6a21d8efc21e39"
   },
   "/questions/capgemini-typescript/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "e314e20051ccc99e"
+    "hash": "cfc5f2dd5e1fef88"
   },
   "/questions/swiggy-redis/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "530097ffaa230fc2"
+    "hash": "e17816edaca4ef8b"
   },
   "/questions/meta-distributed-systems/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "3c6eb9f44f2f316b"
+    "hash": "16c5b8034a7531d3"
   },
   "/questions/meta-python/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "994b48f14ec89dac"
+    "hash": "5e28ace0252fae4a"
   },
   "/questions/linkedin-distributed-systems/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "aee3d5587d13aba8"
+    "hash": "7210751735770dc5"
   },
   "/questions/linkedin-kafka/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "94a965ef7a619153"
+    "hash": "7425a86e16226d49"
   },
   "/questions/uber-distributed-systems/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "af7bfcbc93b0a213"
+    "hash": "544e8fb35eb327b1"
   },
   "/questions/uber-kafka/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "8217b1d7a88e7d97"
+    "hash": "b13c82d5c9c17eb9"
   },
   "/questions/stripe-postgresql/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "8806fae3dd38908e"
+    "hash": "928eac246913492a"
   },
   "/questions/stripe-distributed-systems/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "b940a5163530b93d"
+    "hash": "78e49ba54f7b8768"
   },
   "/questions/apple-ios/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "0eeedb2cea67c6fe"
+    "hash": "975634b659f7f167"
   },
   "/questions/netflix-distributed-systems/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "c720db3b2a894132"
+    "hash": "28e6a9074dd5321f"
   },
   "/questions/netflix-aws/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "cc440860b4b91251"
+    "hash": "23bc392f4473619b"
   },
   "/questions/airbnb-distributed-systems/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "bee2b837343704a7"
+    "hash": "1ce9cdb4729be37b"
   },
   "/questions/google-distributed-systems/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "517bb76be6580ee9"
+    "hash": "d81257868bd3bfdd"
   },
   "/questions/meta-javascript/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "2ca193d33f0e0c8e"
+    "hash": "b99f7ab72eaf29ab"
   },
   "/questions/uber-python/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "ded0c0d1704e6a0b"
+    "hash": "6d6819678f3f795d"
   },
   "/questions/accenture-react/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "2fca14340d2fcc7a"
+    "hash": "ef8d625fc0af2f87"
   },
   "/questions/accenture-performance/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "43c98f88bb3320e4"
+    "hash": "79eafbfbd9c87069"
   },
   "/questions/payu-javascript/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "48d39b91eafc12c7"
+    "hash": "97da11ff4b6348ee"
   },
   "/questions/payu-react/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "ffca4baace10f5ce"
+    "hash": "4cbb741aae9c06fd"
   },
   "/questions/general-snowflake/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "2490a234b6b517ed"
+    "hash": "e01ff9b1ae575b3c"
   },
   "/questions/general-sql/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "184c62e676178fd7"
+    "hash": "0474f055d7bedfae"
   },
   "/questions/stripe-system-design/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "ae3e4438aff7d61e"
+    "hash": "a91cef29b61dc5c9"
   },
   "/questions/ltimindtree-gcp/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "b5177dd0421144ee"
+    "hash": "bba1eeaa55684116"
   },
   "/questions/ltimindtree-java/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "1f8b394635b3831d"
+    "hash": "49e37420468f126f"
   },
   "/questions/company/amazon/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "4e3b847497c8c4a3"
+    "hash": "9731157cbd17e350"
   },
   "/questions/company/google/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "64682e2214e527d1"
+    "hash": "b174011797588365"
   },
   "/questions/company/microsoft/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "4c49d75cf971565e"
+    "hash": "02edc18f85137621"
   },
   "/questions/company/flipkart/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "940edf87fe9b5629"
+    "hash": "c52ae27cf639e40a"
   },
   "/questions/company/swiggy/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "1624cd05b148a337"
+    "hash": "353e4366cf81bff3"
   },
   "/questions/company/meta/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "2226f6db64dbf6cb"
+    "hash": "48d2e3e5ac060583"
   },
   "/questions/company/apple/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "ac36b41d23428052"
+    "hash": "5c950349bb05fbad"
   },
   "/questions/company/netflix/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "cf08b4851702434b"
+    "hash": "5173bdd51fedc53b"
   },
   "/questions/company/uber/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "91d3e4c1ac48f652"
+    "hash": "10efe5f5a66e9f74"
   },
   "/questions/company/airbnb/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "4f150141b7a376af"
+    "hash": "2dc23fc365be4867"
   },
   "/questions/company/stripe/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "d78445927cbf98df"
+    "hash": "092028466f2b5d17"
   },
   "/questions/company/razorpay/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "3a0c5be63f93d975"
+    "hash": "5c4fea8bd81b08a4"
   },
   "/questions/company/phonepe/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "e1b256f0bf794284"
+    "hash": "690317f84ea47ea8"
   },
   "/questions/company/paytm/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "9b83cc3ddba2e65b"
+    "hash": "fc09cc2ac5dac90e"
   },
   "/questions/company/zomato/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "914158b75ee1fc10"
+    "hash": "26456d3b14e24968"
   },
   "/questions/company/salesforce/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "4b168cc9471298a9"
+    "hash": "1e50d0ff86ebf4fc"
   },
   "/questions/company/oracle/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "1abbac244a798eca"
+    "hash": "ecedfff9c01b8831"
   },
   "/questions/company/adobe/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "9c80ed19a72b9872"
+    "hash": "bc7745444b878344"
   },
   "/questions/company/linkedin/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "b59ff5e2223f2bfd"
+    "hash": "7cb26442d55324fc"
   },
   "/questions/company/atlassian/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "6308d2b2fdefff0b"
+    "hash": "e6790769af1e2c30"
   },
   "/questions/company/accenture/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "1557a506f3f1bdb6"
+    "hash": "906b84fce48846c5"
   },
   "/questions/company/deloitte/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "6d5840f21df98f99"
+    "hash": "0ed8faa3fef3b211"
   },
   "/questions/company/wipro/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "b730b44eef864b03"
+    "hash": "d65c2c0c812b6272"
   },
   "/questions/company/infosys/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "b6c8835ae78d4be8"
+    "hash": "dc708b7a7cc48573"
   },
   "/questions/company/tcs/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "601b8c0d1722e173"
+    "hash": "ecdb2e470f1acb43"
   },
   "/questions/company/capgemini/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "2048c4682b01d934"
+    "hash": "c719d463bcc9b58e"
   },
   "/questions/company/payu/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "de4ed65677896477"
+    "hash": "0371f092a6196b9f"
   },
   "/questions/company/general/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "3cf8eb34a2f93b92"
+    "hash": "539e2a1ec7a2fae8"
   },
   "/questions/company/anthropic/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "b00c6e8f003ee13f"
+    "hash": "c8f2de9236d2decf"
   },
   "/questions/company/openai/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "93de1357c10353e1"
+    "hash": "d150dd5dce8dedbc"
   },
   "/questions/company/tiktok/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "9f68c02e992b8c2e"
+    "hash": "06dd516a46898ed0"
   },
   "/questions/company/jpmorgan/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "00cb0fbebdfd8883"
+    "hash": "27f64b9ada241ff5"
   },
   "/questions/company/walmart/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "cfda1f399148107d"
+    "hash": "610a760bb27cdcd2"
   },
   "/questions/company/spotify/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "0bc7b34905e85625"
+    "hash": "5d927db9f135fa88"
   },
   "/questions/company/doordash/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "8de9488be5520af4"
+    "hash": "c8072c6418e61e90"
   },
   "/questions/company/goldman-sachs/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "a212dd37de444de5"
+    "hash": "04f4ceb9bcb53472"
   },
   "/questions/company/revolut/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "7f892155f628ebbe"
+    "hash": "89fa39b941c4e0ea"
   },
   "/questions/company/canva/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "dab05216f67de745"
+    "hash": "b641302c86f6730e"
   },
   "/questions/company/capital-one/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "1c6f5970d94a3c28"
+    "hash": "6aced0f001cd2355"
   },
   "/questions/company/lyft/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "418e12a6ab18a4ef"
+    "hash": "5f0adbfe465ac23b"
   },
   "/questions/company/sap/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "81254dd3457ae7ce"
+    "hash": "9560562753472004"
   },
   "/questions/company/siemens/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "cad70b7144ee555e"
+    "hash": "3b6ffa6c6453d083"
   },
   "/questions/company/shopify/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "5fad969deb9ea9f6"
+    "hash": "b8e6853fddc5ab6e"
   },
   "/questions/company/grab/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "70496480d3a1e473"
+    "hash": "c987819b34734a48"
   },
   "/questions/company/cognizant/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "fb497f9c33faf71e"
+    "hash": "8ee49c8f828f2c8e"
   },
   "/questions/company/ltimindtree/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "e51f023ff546bb00"
+    "hash": "5aeed407f04568d8"
   },
   "/questions/company/myntra/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "7260a44e0155efd0"
+    "hash": "df7bcb601f9286d6"
   },
   "/questions/company/hotstar/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "6695a98be17cd277"
+    "hash": "617f7197f4dc8ed0"
   },
   "/questions/company/twitter/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "07e73f2f80fe0a79"
+    "hash": "7279fa2388ed34db"
   },
   "/questions/topic/arrays/": {
     "datePublished": "2026-07-22",
@@ -457,7 +457,7 @@
   "/questions/topic/system-design/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "811dc7fd75c91812"
+    "hash": "be84ed442efb32c0"
   },
   "/questions/topic/trees/": {
     "datePublished": "2026-07-22",
@@ -482,17 +482,17 @@
   "/questions/topic/domain/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "3ecf244e2b151c0c"
+    "hash": "c2fa5fc1a9def700"
   },
   "/questions/topic/devops/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "2bc8ec78554f6831"
+    "hash": "52138afe41b2643f"
   },
   "/questions/topic/api-testing/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "55ad8689406e7737"
+    "hash": "44a3c66686724d86"
   },
   "/questions/topic/hashmaps/": {
     "datePublished": "2026-07-22",
@@ -507,12 +507,12 @@
   "/questions/topic/pub-sub/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "0899ee88aeed0d26"
+    "hash": "63e46dbfa6d0136c"
   },
   "/questions/topic/performance/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "8fbb20007613e6d4"
+    "hash": "5a055de3105e857b"
   },
   "/questions/topic/memory/": {
     "datePublished": "2026-07-22",
@@ -522,22 +522,22 @@
   "/questions/topic/query-optimization/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "d17f9ef59d9c9c69"
+    "hash": "e12c35ba7ed435ea"
   },
   "/questions/topic/async/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "686ad76e97b60323"
+    "hash": "de2523e47eb2bb2e"
   },
   "/questions/topic/lambda/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "04f7d74111aff822"
+    "hash": "c9125bac5b6ee858"
   },
   "/questions/topic/consumer/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "4451f6c29c8ce410"
+    "hash": "0d37ab75cf01c8d7"
   },
   "/questions/topic/saga-pattern/": {
     "datePublished": "2026-07-22",
@@ -557,17 +557,17 @@
   "/questions/topic/sql-injection/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "d6f3794b5b7dc4c6"
+    "hash": "f8d4e10c8c6ac7df"
   },
   "/questions/topic/latency-tail/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "0636bdf6d55ee07f"
+    "hash": "e07a99fc64d6c66b"
   },
   "/questions/topic/cache-stampede/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "93c56cd522d3caaa"
+    "hash": "27ec377bb6e1d5be"
   },
   "/questions/topic/cluster-health/": {
     "datePublished": "2026-07-22",
@@ -587,7 +587,7 @@
   "/questions/topic/architecture/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "ef5678026edb3cda"
+    "hash": "a7a8291c5f07a83c"
   },
   "/questions/topic/core-concepts/": {
     "datePublished": "2026-07-22",
@@ -612,37 +612,37 @@
   "/questions/topic/v8-engine/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "ea9abe3aae01040e"
+    "hash": "19fe965cff60b0e2"
   },
   "/questions/tech/java/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "a151869bdaf6baaa"
+    "hash": "53286e631fa53348"
   },
   "/questions/tech/python/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "3984b6fffea5928f"
+    "hash": "d80daadc5e29ecd2"
   },
   "/questions/tech/javascript/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "fee10c10c047d74e"
+    "hash": "3e76a7467d856b0b"
   },
   "/questions/tech/distributed-systems/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "35c89a13dbda722b"
+    "hash": "83b1b631bbd37f2d"
   },
   "/questions/tech/system-design/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "2a09575d0e64c15d"
+    "hash": "bc31e9aa3c8a5b6e"
   },
   "/questions/tech/aws/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "8ae49e6499dbd47d"
+    "hash": "0c4ed99064eacc61"
   },
   "/questions/tech/c/": {
     "datePublished": "2026-07-22",
@@ -652,7 +652,7 @@
   "/questions/tech/microservices/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "e82b2a1b2d29efdb"
+    "hash": "c2c3d4f02915e263"
   },
   "/questions/tech/go/": {
     "datePublished": "2026-07-22",
@@ -697,17 +697,17 @@
   "/questions/tech/postman/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "fa167955e69088cb"
+    "hash": "b616f938456fbbf2"
   },
   "/questions/tech/rest/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "34f04f3b24832da8"
+    "hash": "63b90e30a650f852"
   },
   "/questions/tech/spring-boot/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "96248071db2374b5"
+    "hash": "984f8a1999ae4a12"
   },
   "/questions/tech/mysql/": {
     "datePublished": "2026-07-22",
@@ -717,17 +717,17 @@
   "/questions/tech/postgresql/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "5cf4fc93505f0c75"
+    "hash": "b30b79fc121e211b"
   },
   "/questions/tech/kafka/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "c337a2b4244f2329"
+    "hash": "4dfe6f04052555a0"
   },
   "/questions/tech/redis/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "15efa4f0c4764974"
+    "hash": "a6d865b20843f6b4"
   },
   "/questions/tech/elasticsearch/": {
     "datePublished": "2026-07-22",
@@ -742,7 +742,7 @@
   "/questions/tech/swift/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "e7724bdb35dfc597"
+    "hash": "86376f336d72de8e"
   },
   "/questions/tech/ios/": {
     "datePublished": "2026-07-22",
@@ -757,12 +757,12 @@
   "/questions/tech/react/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "dd55159fd45a3afe"
+    "hash": "9f78c604dd28bd2d"
   },
   "/questions/tech/performance/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "ec530d6c76e74451"
+    "hash": "3130196e550a5b34"
   },
   "/questions/tech/next-js/": {
     "datePublished": "2026-07-22",
@@ -772,17 +772,17 @@
   "/questions/tech/security/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "e93753e8fb497147"
+    "hash": "8ee637dc6823881e"
   },
   "/questions/tech/snowflake/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "bfac710c761e2edf"
+    "hash": "d628d275436317d5"
   },
   "/questions/tech/sql/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "76f9db0430738b4e"
+    "hash": "609d079794cea3a6"
   },
   "/questions/tech/llm/": {
     "datePublished": "2026-07-22",
@@ -792,57 +792,57 @@
   "/questions/trending/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "bd3cb6d2850dfe7c"
+    "hash": "e54911923124ed75"
   },
   "/questions/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "4a93179c9062fc9c"
+    "hash": "dfe5b32550214a45"
   },
   "/interview-process/amazon/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "8aaa108593bb6651"
+    "hash": "9059493025860440"
   },
   "/interview-process/google/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "48952e9c98bb3d62"
+    "hash": "9f6418be6de3a8eb"
   },
   "/interview-process/microsoft/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "a71b0943557935e0"
+    "hash": "c75883b07ed5f22d"
   },
   "/interview-process/flipkart/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "c1b321480eca804c"
+    "hash": "57a9159bbb34fdff"
   },
   "/interview-process/swiggy/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "4c522a318d3cd852"
+    "hash": "a06fffde859c6b3c"
   },
   "/interview-process/meta/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "739c909a7a3eadf8"
+    "hash": "829abfd10d3ff7ea"
   },
   "/interview-process/apple/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "e253511206c75d5a"
+    "hash": "b411f7c0beb28b28"
   },
   "/interview-process/netflix/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "a7592925a2428b27"
+    "hash": "90a84767b65d39f8"
   },
   "/interview-process/uber/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "339e67d047b26b24"
+    "hash": "1032928e0b0c79cd"
   },
   "/interview-process/airbnb/": {
     "datePublished": "2026-07-22",
@@ -852,17 +852,17 @@
   "/interview-process/stripe/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "f8514c678ddce2cf"
+    "hash": "96e40b2d476c12ab"
   },
   "/interview-process/razorpay/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "1c5e2b2d58e65348"
+    "hash": "95c0e8e59bfe6847"
   },
   "/interview-process/phonepe/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "db05f190cabcbeff"
+    "hash": "5ed07f8884059c94"
   },
   "/interview-process/paytm/": {
     "datePublished": "2026-07-22",
@@ -872,17 +872,17 @@
   "/interview-process/zomato/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "201ee8aab1e8f089"
+    "hash": "05857327eb0c32c7"
   },
   "/interview-process/salesforce/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "0f5c9bc994fa8f52"
+    "hash": "1daa13247d62647b"
   },
   "/interview-process/oracle/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "ab89960307d54b3f"
+    "hash": "3c0b765e72c8e34b"
   },
   "/interview-process/adobe/": {
     "datePublished": "2026-07-22",
@@ -897,12 +897,12 @@
   "/interview-process/atlassian/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "1f1d7d1d16fe7229"
+    "hash": "d06854899e833a0d"
   },
   "/interview-process/accenture/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "e12a6aac07e79da9"
+    "hash": "3050bbea75f67de0"
   },
   "/interview-process/deloitte/": {
     "datePublished": "2026-07-22",
@@ -912,7 +912,7 @@
   "/interview-process/wipro/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "4876b7aa580459cc"
+    "hash": "a4f7ed8535913788"
   },
   "/interview-process/infosys/": {
     "datePublished": "2026-07-22",
@@ -927,17 +927,17 @@
   "/interview-process/capgemini/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "4548c6550f547557"
+    "hash": "f1e2b799aa9421af"
   },
   "/interview-process/payu/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "5153117eaa25fbf8"
+    "hash": "a8108cfd04209667"
   },
   "/interview-process/general/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "78482ef6cd80bac1"
+    "hash": "c85ac1ded92d2bee"
   },
   "/interview-process/anthropic/": {
     "datePublished": "2026-07-22",
@@ -1022,12 +1022,12 @@
   "/interview-process/cognizant/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "7b4766f54a816c04"
+    "hash": "6b9c564a0ac74639"
   },
   "/interview-process/ltimindtree/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "e02099fb51d42399"
+    "hash": "0a1c2dd99d420979"
   },
   "/interview-process/myntra/": {
     "datePublished": "2026-07-22",
@@ -1047,52 +1047,52 @@
   "/interview-process/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "7993dc4bf3309330"
+    "hash": "bdebc8e3d2f4fcbb"
   },
   "/prepare/amazon/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "b712b8c1e374b4c4"
+    "hash": "9b3ce4b07e9773c6"
   },
   "/prepare/google/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "ae70216e457d7a23"
+    "hash": "86c16a144929992b"
   },
   "/prepare/microsoft/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "e9777929e48c77fd"
+    "hash": "6c5e92c33f099b06"
   },
   "/prepare/flipkart/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "afb63dd8ba135b62"
+    "hash": "497ea57ad351ec73"
   },
   "/prepare/swiggy/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "d9c0455b6376e4e5"
+    "hash": "8f5d6782f6958b53"
   },
   "/prepare/meta/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "ad0f18f3fe5e7b6c"
+    "hash": "ff543c8cc5280bfb"
   },
   "/prepare/apple/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "1416b5e71690c551"
+    "hash": "92945b18833f00ec"
   },
   "/prepare/netflix/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "7041d36b8ecf901c"
+    "hash": "5ffca0cc31bddaf1"
   },
   "/prepare/uber/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "e97816ed20022846"
+    "hash": "11913b8e88ea23fc"
   },
   "/prepare/airbnb/": {
     "datePublished": "2026-07-22",
@@ -1102,17 +1102,17 @@
   "/prepare/stripe/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "ba0ac98b338297ab"
+    "hash": "6e503f5d27d8b65e"
   },
   "/prepare/razorpay/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "dce4e56122ebc79b"
+    "hash": "4a55f1fc1b5879a2"
   },
   "/prepare/phonepe/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "22484bcab4ca6cb4"
+    "hash": "bbae45cd85b0d368"
   },
   "/prepare/paytm/": {
     "datePublished": "2026-07-22",
@@ -1122,17 +1122,17 @@
   "/prepare/zomato/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "87da5e028288c242"
+    "hash": "8595b0c5078909b8"
   },
   "/prepare/salesforce/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "8d41cfd752eb4153"
+    "hash": "714dbcd148690272"
   },
   "/prepare/oracle/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "d1fb5c6e14f078f2"
+    "hash": "d54f62890ff10262"
   },
   "/prepare/adobe/": {
     "datePublished": "2026-07-22",
@@ -1147,12 +1147,12 @@
   "/prepare/atlassian/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "9be3e9a923b54558"
+    "hash": "0654798a6cf0402e"
   },
   "/prepare/accenture/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "e3d31bffd2631aa2"
+    "hash": "52b2c91327ce056a"
   },
   "/prepare/deloitte/": {
     "datePublished": "2026-07-22",
@@ -1162,7 +1162,7 @@
   "/prepare/wipro/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "ef916f1a5e54be38"
+    "hash": "190922ba3041d0f2"
   },
   "/prepare/infosys/": {
     "datePublished": "2026-07-22",
@@ -1177,17 +1177,17 @@
   "/prepare/capgemini/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "61247acbbd8a0236"
+    "hash": "5abf5a9409fcd90a"
   },
   "/prepare/payu/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "e35c28111a352e4b"
+    "hash": "680e04f6879a60fb"
   },
   "/prepare/general/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "717141bdef6fa636"
+    "hash": "5d5bf4aabc10090e"
   },
   "/prepare/anthropic/": {
     "datePublished": "2026-07-22",
@@ -1272,12 +1272,12 @@
   "/prepare/cognizant/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "fbc978a53e730434"
+    "hash": "775f1a5b6906a448"
   },
   "/prepare/ltimindtree/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "98de3c712de61bef"
+    "hash": "f5b5f0e57341ca52"
   },
   "/prepare/myntra/": {
     "datePublished": "2026-07-22",
@@ -1297,7 +1297,7 @@
   "/prepare/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "47b34bf9fda97526"
+    "hash": "465f8949ef209c7a"
   },
   "/tools/jd-analysis/": {
     "datePublished": "2026-07-22",
@@ -1307,7 +1307,7 @@
   "/tools/ai-interview-practice/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "60cc6c9588f0944a"
+    "hash": "86c6636999ab0530"
   },
   "/tools/study-plan-generator/": {
     "datePublished": "2026-07-22",
@@ -1327,7 +1327,7 @@
   "/compare/java-vs-python-interview/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "14cb8339c198d753"
+    "hash": "f095899a2b821776"
   },
   "/compare/": {
     "datePublished": "2026-07-22",
@@ -1337,7 +1337,7 @@
   "/companies/amazon/sde2-interview-questions/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "a4dde737ae4395e8"
+    "hash": "24c38b0fd688aead"
   },
   "/companies/google/sde2-interview-questions/": {
     "datePublished": "2026-07-22",
@@ -1357,7 +1357,7 @@
   "/companies/flipkart/sde2-interview-questions/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "b4ffb65e1636ba54"
+    "hash": "05568d1994859445"
   },
   "/companies/amazon/staff-interview-questions/": {
     "datePublished": "2026-07-22",
@@ -1367,7 +1367,7 @@
   "/companies/accenture/developer-interview-questions/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "dea12de62889fd3d"
+    "hash": "8dab04cde813ca83"
   },
   "/companies/deloitte/devops-interview-questions/": {
     "datePublished": "2026-07-22",
@@ -1397,7 +1397,7 @@
   "/companies/swiggy/sde2-interview-questions/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "b4caf74b27874888"
+    "hash": "4f03612c195f4308"
   },
   "/companies/meta/sde2-interview-questions/": {
     "datePublished": "2026-07-22",
@@ -1407,17 +1407,17 @@
   "/companies/zomato/sde2-interview-questions/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "6bdbdd3533733078"
+    "hash": "f76896183b8341b4"
   },
   "/companies/razorpay/sde2-interview-questions/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "7df7e052f4efdc81"
+    "hash": "46923616fc0511ac"
   },
   "/companies/phonepe/sde2-interview-questions/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "fc7b6d143d167272"
+    "hash": "7569963e87df34db"
   },
   "/companies/paytm/sde2-interview-questions/": {
     "datePublished": "2026-07-22",
@@ -1437,7 +1437,7 @@
   "/companies/uber/sde2-interview-questions/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "27777df96cd1b4df"
+    "hash": "f98231aa15333c25"
   },
   "/companies/stripe/sde2-interview-questions/": {
     "datePublished": "2026-07-22",
@@ -1497,12 +1497,12 @@
   "/companies/meta/senior-sde-interview-questions/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "1dae1c5b6d632f05"
+    "hash": "81e6668de0ee886c"
   },
   "/companies/ltimindtree/senior-sde-interview-questions/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "2d79361a16b93afc"
+    "hash": "bef6a0b6c9f7a3d8"
   },
   "/companies/general/sde2-interview-questions/": {
     "datePublished": "2026-07-22",
@@ -1517,12 +1517,12 @@
   "/companies/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "cfe79e2e3ce7fce9"
+    "hash": "2d1a4cb15f7d4b9b"
   },
   "/roles/sde2/interview-questions/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "5f63eb640d14d53d"
+    "hash": "a07b7d15fa0960e4"
   },
   "/roles/staff/interview-questions/": {
     "datePublished": "2026-07-22",
@@ -1537,7 +1537,7 @@
   "/roles/developer/interview-questions/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "28b81d9f16048f95"
+    "hash": "148f87753053abbd"
   },
   "/roles/devops/interview-questions/": {
     "datePublished": "2026-07-22",
@@ -1567,7 +1567,7 @@
   "/roles/senior-sde/interview-questions/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "7afe0f2668123a0d"
+    "hash": "cd6bc9398bcee423"
   },
   "/roles/product-owner/interview-questions/": {
     "datePublished": "2026-07-22",
@@ -1587,7 +1587,7 @@
   "/roles/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "efa963cd347bea6e"
+    "hash": "222263d090c50e03"
   },
   "/interview-experience/payu/": {
     "datePublished": "2026-07-22",
@@ -1607,7 +1607,7 @@
   "/guide/amazon-sde2/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "e28467d5271d0823"
+    "hash": "ce2616b34ea4e68d"
   },
   "/guide/google-sde2/": {
     "datePublished": "2026-07-22",
@@ -1637,7 +1637,7 @@
   "/guide/flipkart-sde2/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "07320b7a28551e46"
+    "hash": "885b6bc982db88ef"
   },
   "/guide/flipkart-sde1/": {
     "datePublished": "2026-07-22",
@@ -1652,7 +1652,7 @@
   "/guide/accenture-developer/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "51ae7c227a15ddf8"
+    "hash": "a9875713fd31cb4e"
   },
   "/guide/deloitte-devops/": {
     "datePublished": "2026-07-22",
@@ -1682,7 +1682,7 @@
   "/guide/swiggy-sde2/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "5db309cb76bf925d"
+    "hash": "7e8dc516f599fefa"
   },
   "/guide/swiggy-sde1/": {
     "datePublished": "2026-07-22",
@@ -1702,17 +1702,17 @@
   "/guide/zomato-sde2/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "07de43a31ea62807"
+    "hash": "8090a41626ee2297"
   },
   "/guide/razorpay-sde2/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "d63c4992676f9ba6"
+    "hash": "b2b3afae425de202"
   },
   "/guide/phonepe-sde2/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "6e3963ef2398dc92"
+    "hash": "492550bf210b7f3c"
   },
   "/guide/paytm-sde2/": {
     "datePublished": "2026-07-22",
@@ -1732,7 +1732,7 @@
   "/guide/uber-sde2/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "ba78bdc26725ef81"
+    "hash": "e3f886eb03ed591e"
   },
   "/guide/stripe-sde2/": {
     "datePublished": "2026-07-22",
@@ -1792,22 +1792,22 @@
   "/guide/google-senior-sde/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "a4fefb5d0ecf7ffe"
+    "hash": "ec684e0cf0eea642"
   },
   "/guide/meta-senior-sde/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "c166779e08d63d65"
+    "hash": "f212de6df23c3f72"
   },
   "/guide/stripe-senior-sde/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "1c45695bcbe23e47"
+    "hash": "dca3a4387916e2ca"
   },
   "/guide/ltimindtree-senior-sde/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "9a2a0210a85112de"
+    "hash": "e106dc68f1834059"
   },
   "/guide/general-sde2/": {
     "datePublished": "2026-07-22",
@@ -1822,7 +1822,7 @@
   "/guide/netflix-senior-sde/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "a6ce438bacff9016"
+    "hash": "14ca4bdd3da73173"
   },
   "/guide/airbnb-senior-sde/": {
     "datePublished": "2026-07-22",
@@ -1832,12 +1832,12 @@
   "/guide/microsoft-senior-sde/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "b9c6ddad645e9779"
+    "hash": "a6d75dede935e3d2"
   },
   "/guide/apple-senior-sde/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "27c62848a972f38a"
+    "hash": "cf0b5fa302442d19"
   },
   "/guide/linkedin-senior-sde/": {
     "datePublished": "2026-07-22",
@@ -1847,22 +1847,22 @@
   "/guide/uber-senior-sde/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "7f34b9017b77395e"
+    "hash": "72335f9c666cb4de"
   },
   "/guide/salesforce-senior-sde/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "c55a42da18661ec2"
+    "hash": "ca4c53c5c5487d1e"
   },
   "/guide/atlassian-senior-sde/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "4b2efabc88fac480"
+    "hash": "c9a2990265755405"
   },
   "/guide/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "7020c1690f8dde07"
+    "hash": "5551b18bf038973e"
   },
   "/questions/tech/cpp/": {
     "datePublished": "2026-07-22",
@@ -1872,6 +1872,251 @@
   "/questions/tech/csharp/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "9e6ea24ffc3132cb"
+    "hash": "51c800d8e2fe9599"
+  },
+  "/questions/amazon-python/": {
+    "datePublished": "2026-07-22",
+    "dateModified": "2026-07-22",
+    "hash": "d7ef7c0ed7f7c59d"
+  },
+  "/questions/amazon-aws/": {
+    "datePublished": "2026-07-22",
+    "dateModified": "2026-07-22",
+    "hash": "aed7fd17cb154702"
+  },
+  "/questions/wipro-postman/": {
+    "datePublished": "2026-07-22",
+    "dateModified": "2026-07-22",
+    "hash": "c0b497ba128c57b9"
+  },
+  "/questions/wipro-rest/": {
+    "datePublished": "2026-07-22",
+    "dateModified": "2026-07-22",
+    "hash": "3ebbd7d87088967b"
+  },
+  "/questions/capgemini-javascript/": {
+    "datePublished": "2026-07-22",
+    "dateModified": "2026-07-22",
+    "hash": "9b4c9b9db1f7420d"
+  },
+  "/questions/swiggy-java/": {
+    "datePublished": "2026-07-22",
+    "dateModified": "2026-07-22",
+    "hash": "9c62d3fb276d9c8d"
+  },
+  "/questions/meta-kafka/": {
+    "datePublished": "2026-07-22",
+    "dateModified": "2026-07-22",
+    "hash": "b27a24dc2f1025fa"
+  },
+  "/questions/meta-java/": {
+    "datePublished": "2026-07-22",
+    "dateModified": "2026-07-22",
+    "hash": "6a622597525a8b4a"
+  },
+  "/questions/zomato-kafka/": {
+    "datePublished": "2026-07-22",
+    "dateModified": "2026-07-22",
+    "hash": "accfdf467e5eac0c"
+  },
+  "/questions/razorpay-kafka/": {
+    "datePublished": "2026-07-22",
+    "dateModified": "2026-07-22",
+    "hash": "cefafa42cca48d69"
+  },
+  "/questions/razorpay-postgresql/": {
+    "datePublished": "2026-07-22",
+    "dateModified": "2026-07-22",
+    "hash": "42b2be31daa62ad1"
+  },
+  "/questions/phonepe-redis/": {
+    "datePublished": "2026-07-22",
+    "dateModified": "2026-07-22",
+    "hash": "51998b89c6cbc057"
+  },
+  "/questions/uber-redis/": {
+    "datePublished": "2026-07-22",
+    "dateModified": "2026-07-22",
+    "hash": "dd3330a9ffea4b5e"
+  },
+  "/questions/stripe-kafka/": {
+    "datePublished": "2026-07-22",
+    "dateModified": "2026-07-22",
+    "hash": "851e38319005fd79"
+  },
+  "/questions/oracle-postgresql/": {
+    "datePublished": "2026-07-22",
+    "dateModified": "2026-07-22",
+    "hash": "ffacd35f230b3737"
+  },
+  "/questions/apple-distributed-systems/": {
+    "datePublished": "2026-07-22",
+    "dateModified": "2026-07-22",
+    "hash": "42fb3f3626d1a1a2"
+  },
+  "/questions/apple-swift/": {
+    "datePublished": "2026-07-22",
+    "dateModified": "2026-07-22",
+    "hash": "24a61f62bba6794d"
+  },
+  "/questions/netflix-kafka/": {
+    "datePublished": "2026-07-22",
+    "dateModified": "2026-07-22",
+    "hash": "27c76f1e27a92e26"
+  },
+  "/questions/microsoft-csharp/": {
+    "datePublished": "2026-07-22",
+    "dateModified": "2026-07-22",
+    "hash": "8b27548906967f0c"
+  },
+  "/questions/microsoft-java/": {
+    "datePublished": "2026-07-22",
+    "dateModified": "2026-07-22",
+    "hash": "cd872f896267e6c0"
+  },
+  "/questions/microsoft-python/": {
+    "datePublished": "2026-07-22",
+    "dateModified": "2026-07-22",
+    "hash": "15b09e1fe446f29e"
+  },
+  "/questions/flipkart-java/": {
+    "datePublished": "2026-07-22",
+    "dateModified": "2026-07-22",
+    "hash": "f8a0c201f8108956"
+  },
+  "/questions/salesforce-java/": {
+    "datePublished": "2026-07-22",
+    "dateModified": "2026-07-22",
+    "hash": "bab29906bfc38947"
+  },
+  "/questions/oracle-java/": {
+    "datePublished": "2026-07-22",
+    "dateModified": "2026-07-22",
+    "hash": "a8100ba8424ae197"
+  },
+  "/questions/payu-java/": {
+    "datePublished": "2026-07-22",
+    "dateModified": "2026-07-22",
+    "hash": "5d0a098bf61da7aa"
+  },
+  "/questions/general-python/": {
+    "datePublished": "2026-07-22",
+    "dateModified": "2026-07-22",
+    "hash": "9529686b74d147b0"
+  },
+  "/questions/ltimindtree-system-design/": {
+    "datePublished": "2026-07-22",
+    "dateModified": "2026-07-22",
+    "hash": "73de8a84b8082f26"
+  },
+  "/questions/wipro-react/": {
+    "datePublished": "2026-07-22",
+    "dateModified": "2026-07-22",
+    "hash": "a86038ca6048db50"
+  },
+  "/questions/accenture-spring-boot/": {
+    "datePublished": "2026-07-22",
+    "dateModified": "2026-07-22",
+    "hash": "48f700fd403f04f7"
+  },
+  "/questions/cognizant-sql/": {
+    "datePublished": "2026-07-22",
+    "dateModified": "2026-07-22",
+    "hash": "f4e99dcb2671983e"
+  },
+  "/questions/company/snowflake/": {
+    "datePublished": "2026-07-22",
+    "dateModified": "2026-07-22",
+    "hash": "a869e78516778991"
+  },
+  "/interview-process/snowflake/": {
+    "datePublished": "2026-07-22",
+    "dateModified": "2026-07-22",
+    "hash": "5b63ad77a8323de8"
+  },
+  "/prepare/snowflake/": {
+    "datePublished": "2026-07-22",
+    "dateModified": "2026-07-22",
+    "hash": "6e80241d3282b185"
+  },
+  "/companies/google/senior-sde-interview-questions/": {
+    "datePublished": "2026-07-22",
+    "dateModified": "2026-07-22",
+    "hash": "768f6db83e332f69"
+  },
+  "/companies/stripe/senior-sde-interview-questions/": {
+    "datePublished": "2026-07-22",
+    "dateModified": "2026-07-22",
+    "hash": "7f87d93d5c2c9f3c"
+  },
+  "/companies/snowflake/sde2-interview-questions/": {
+    "datePublished": "2026-07-22",
+    "dateModified": "2026-07-22",
+    "hash": "6a9956ab34c3b026"
+  },
+  "/companies/netflix/senior-sde-interview-questions/": {
+    "datePublished": "2026-07-22",
+    "dateModified": "2026-07-22",
+    "hash": "119b927e6e999ee0"
+  },
+  "/companies/microsoft/senior-sde-interview-questions/": {
+    "datePublished": "2026-07-22",
+    "dateModified": "2026-07-22",
+    "hash": "dc7baa1e7b7ffd72"
+  },
+  "/companies/apple/senior-sde-interview-questions/": {
+    "datePublished": "2026-07-22",
+    "dateModified": "2026-07-22",
+    "hash": "cddf775fd108ef1e"
+  },
+  "/companies/uber/senior-sde-interview-questions/": {
+    "datePublished": "2026-07-22",
+    "dateModified": "2026-07-22",
+    "hash": "49a8fa6d4b361358"
+  },
+  "/companies/salesforce/senior-sde-interview-questions/": {
+    "datePublished": "2026-07-22",
+    "dateModified": "2026-07-22",
+    "hash": "4159e1d06a4a5f40"
+  },
+  "/companies/atlassian/senior-sde-interview-questions/": {
+    "datePublished": "2026-07-22",
+    "dateModified": "2026-07-22",
+    "hash": "0308bd2336b0c164"
+  },
+  "/companies/wipro/developer-interview-questions/": {
+    "datePublished": "2026-07-22",
+    "dateModified": "2026-07-22",
+    "hash": "5100c773bcf1d4c2"
+  },
+  "/companies/cognizant/developer-interview-questions/": {
+    "datePublished": "2026-07-22",
+    "dateModified": "2026-07-22",
+    "hash": "45afdd258f9c128b"
+  },
+  "/roles/qa-engineer/interview-questions/": {
+    "datePublished": "2026-07-22",
+    "dateModified": "2026-07-22",
+    "hash": "5b2500a14fee0738"
+  },
+  "/guide/snowflake-sde2/": {
+    "datePublished": "2026-07-22",
+    "dateModified": "2026-07-22",
+    "hash": "f10e161122797c38"
+  },
+  "/guide/oracle-senior-sde/": {
+    "datePublished": "2026-07-22",
+    "dateModified": "2026-07-22",
+    "hash": "373f3f9cf4768083"
+  },
+  "/guide/wipro-developer/": {
+    "datePublished": "2026-07-22",
+    "dateModified": "2026-07-22",
+    "hash": "e156702c58e3c4dd"
+  },
+  "/guide/cognizant-developer/": {
+    "datePublished": "2026-07-22",
+    "dateModified": "2026-07-22",
+    "hash": "11bf1059bd259ae6"
   }
 }
