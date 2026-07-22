@@ -312,7 +312,7 @@
   "/questions/company/deloitte/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "0ed8faa3fef3b211"
+    "hash": "97c97ddf6bffa904"
   },
   "/questions/company/wipro/": {
     "datePublished": "2026-07-22",
@@ -422,7 +422,7 @@
   "/questions/company/grab/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "c987819b34734a48"
+    "hash": "f8fe3c2736551963"
   },
   "/questions/company/cognizant/": {
     "datePublished": "2026-07-22",
@@ -457,7 +457,7 @@
   "/questions/topic/system-design/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "be84ed442efb32c0"
+    "hash": "991b6835f4978aa4"
   },
   "/questions/topic/trees/": {
     "datePublished": "2026-07-22",
@@ -472,32 +472,32 @@
   "/questions/topic/behavioral/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "7b3b06628a059202"
+    "hash": "7133d16fc5e0ea71"
   },
   "/questions/topic/testing/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "80cd652815e3081d"
+    "hash": "a16fbeda7768470a"
   },
   "/questions/topic/domain/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "c2fa5fc1a9def700"
+    "hash": "1b886be525d72b62"
   },
   "/questions/topic/devops/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "52138afe41b2643f"
+    "hash": "534d4377116c22f1"
   },
   "/questions/topic/api-testing/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "44a3c66686724d86"
+    "hash": "e59ef66c634a5071"
   },
   "/questions/topic/hashmaps/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "6c8396fe39c7fd47"
+    "hash": "b12e0d1ea5cd72e8"
   },
   "/questions/topic/real-time-data/": {
     "datePublished": "2026-07-22",
@@ -507,7 +507,7 @@
   "/questions/topic/pub-sub/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "63e46dbfa6d0136c"
+    "hash": "238ff91677041fa9"
   },
   "/questions/topic/performance/": {
     "datePublished": "2026-07-22",
@@ -522,7 +522,7 @@
   "/questions/topic/query-optimization/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "e12c35ba7ed435ea"
+    "hash": "8f82198f6b8fd29a"
   },
   "/questions/topic/async/": {
     "datePublished": "2026-07-22",
@@ -532,7 +532,7 @@
   "/questions/topic/lambda/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "c9125bac5b6ee858"
+    "hash": "82fcd54620553e10"
   },
   "/questions/topic/consumer/": {
     "datePublished": "2026-07-22",
@@ -542,7 +542,7 @@
   "/questions/topic/saga-pattern/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "d83f246ef137bff1"
+    "hash": "e31569a348a1c1ea"
   },
   "/questions/topic/type-system/": {
     "datePublished": "2026-07-22",
@@ -567,7 +567,7 @@
   "/questions/topic/cache-stampede/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "27ec377bb6e1d5be"
+    "hash": "ca6df84b301113a9"
   },
   "/questions/topic/cluster-health/": {
     "datePublished": "2026-07-22",
@@ -582,12 +582,12 @@
   "/questions/topic/exactly-once/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "ef6e8c466001f4c8"
+    "hash": "a3cc7dd88abbfe7a"
   },
   "/questions/topic/architecture/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "a7a8291c5f07a83c"
+    "hash": "cf5e4f994e81480b"
   },
   "/questions/topic/core-concepts/": {
     "datePublished": "2026-07-22",
@@ -597,7 +597,7 @@
   "/questions/topic/scheduling/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "8a25f1693743d29d"
+    "hash": "d8189a8bf06fa85c"
   },
   "/questions/topic/webassembly/": {
     "datePublished": "2026-07-22",
@@ -617,12 +617,12 @@
   "/questions/tech/java/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "53286e631fa53348"
+    "hash": "eab39e4fde3f82bd"
   },
   "/questions/tech/python/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "d80daadc5e29ecd2"
+    "hash": "7ee35c5110743d24"
   },
   "/questions/tech/javascript/": {
     "datePublished": "2026-07-22",
@@ -632,17 +632,17 @@
   "/questions/tech/distributed-systems/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "83b1b631bbd37f2d"
+    "hash": "f525db82e5ed861f"
   },
   "/questions/tech/system-design/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "bc31e9aa3c8a5b6e"
+    "hash": "ca12ffed8b96730b"
   },
   "/questions/tech/aws/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "0c4ed99064eacc61"
+    "hash": "1eb6a69e59103033"
   },
   "/questions/tech/c/": {
     "datePublished": "2026-07-22",
@@ -652,7 +652,7 @@
   "/questions/tech/microservices/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "c2c3d4f02915e263"
+    "hash": "e3a032ab79b1f15d"
   },
   "/questions/tech/go/": {
     "datePublished": "2026-07-22",
@@ -697,7 +697,7 @@
   "/questions/tech/postman/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "b616f938456fbbf2"
+    "hash": "92b9d94ec8d4dd98"
   },
   "/questions/tech/rest/": {
     "datePublished": "2026-07-22",
@@ -727,7 +727,7 @@
   "/questions/tech/redis/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "a6d865b20843f6b4"
+    "hash": "74f6ca33776ec5ac"
   },
   "/questions/tech/elasticsearch/": {
     "datePublished": "2026-07-22",
@@ -777,12 +777,12 @@
   "/questions/tech/snowflake/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "d628d275436317d5"
+    "hash": "0b550085ce95069f"
   },
   "/questions/tech/sql/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "609d079794cea3a6"
+    "hash": "f77adc12e6220fbb"
   },
   "/questions/tech/llm/": {
     "datePublished": "2026-07-22",
@@ -797,7 +797,7 @@
   "/questions/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "dfe5b32550214a45"
+    "hash": "0150507a6a6aab3e"
   },
   "/interview-process/amazon/": {
     "datePublished": "2026-07-22",
@@ -907,7 +907,7 @@
   "/interview-process/deloitte/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "c3a2c34230caa560"
+    "hash": "ed0ea1cc8087179f"
   },
   "/interview-process/wipro/": {
     "datePublished": "2026-07-22",
@@ -1017,7 +1017,7 @@
   "/interview-process/grab/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "173a595bd45c5925"
+    "hash": "45223005dda002f8"
   },
   "/interview-process/cognizant/": {
     "datePublished": "2026-07-22",
@@ -1157,7 +1157,7 @@
   "/prepare/deloitte/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "0e8fa7a6e48ccb6e"
+    "hash": "9c25d5a259a37471"
   },
   "/prepare/wipro/": {
     "datePublished": "2026-07-22",
@@ -1267,7 +1267,7 @@
   "/prepare/grab/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "8ef0980bd91b471a"
+    "hash": "828d5a31a246b10d"
   },
   "/prepare/cognizant/": {
     "datePublished": "2026-07-22",
@@ -1307,7 +1307,7 @@
   "/tools/ai-interview-practice/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "86c6636999ab0530"
+    "hash": "bcf22396664205bb"
   },
   "/tools/study-plan-generator/": {
     "datePublished": "2026-07-22",
@@ -1327,7 +1327,7 @@
   "/compare/java-vs-python-interview/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "f095899a2b821776"
+    "hash": "732a6cf5a984aebc"
   },
   "/compare/": {
     "datePublished": "2026-07-22",
@@ -1492,7 +1492,7 @@
   "/companies/general/data-engineer-interview-questions/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "3da60dd75a60f145"
+    "hash": "12f678a41e610081"
   },
   "/companies/meta/senior-sde-interview-questions/": {
     "datePublished": "2026-07-22",
@@ -1517,12 +1517,12 @@
   "/companies/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "2d1a4cb15f7d4b9b"
+    "hash": "eedeb185b28f5fde"
   },
   "/roles/sde2/interview-questions/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "a07b7d15fa0960e4"
+    "hash": "6a52ebf5acd8edc2"
   },
   "/roles/staff/interview-questions/": {
     "datePublished": "2026-07-22",
@@ -1557,7 +1557,7 @@
   "/roles/data-engineer/interview-questions/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "5ad6bd13fbde3971"
+    "hash": "42fda03ca0a30769"
   },
   "/roles/ai-engineer/interview-questions/": {
     "datePublished": "2026-07-22",
@@ -1567,7 +1567,7 @@
   "/roles/senior-sde/interview-questions/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "cd6bc9398bcee423"
+    "hash": "0dca63707371ecb7"
   },
   "/roles/product-owner/interview-questions/": {
     "datePublished": "2026-07-22",
@@ -1577,17 +1577,17 @@
   "/roles/business-analyst/interview-questions/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "d58f35f0966c482e"
+    "hash": "74860d54295e6d6b"
   },
   "/roles/cloud-architect/interview-questions/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "12911b737976eb9f"
+    "hash": "bbf25da9385867c0"
   },
   "/roles/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "222263d090c50e03"
+    "hash": "bd8d77eb0a4e093b"
   },
   "/interview-experience/payu/": {
     "datePublished": "2026-07-22",
@@ -1787,7 +1787,7 @@
   "/guide/general-data-engineer/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "597e4b2c3bc52084"
+    "hash": "2e2f501531e633a4"
   },
   "/guide/google-senior-sde/": {
     "datePublished": "2026-07-22",
@@ -1862,7 +1862,7 @@
   "/guide/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "5551b18bf038973e"
+    "hash": "46eeb66aacd5b45c"
   },
   "/questions/tech/cpp/": {
     "datePublished": "2026-07-22",
@@ -2097,7 +2097,7 @@
   "/roles/qa-engineer/interview-questions/": {
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
-    "hash": "5b2500a14fee0738"
+    "hash": "66e2b73931736a5f"
   },
   "/guide/snowflake-sde2/": {
     "datePublished": "2026-07-22",
@@ -2118,5 +2118,45 @@
     "datePublished": "2026-07-22",
     "dateModified": "2026-07-22",
     "hash": "11bf1059bd259ae6"
+  },
+  "/questions/tech/airflow/": {
+    "datePublished": "2026-07-22",
+    "dateModified": "2026-07-22",
+    "hash": "642b0cb9972077b5"
+  },
+  "/questions/tech/devops/": {
+    "datePublished": "2026-07-22",
+    "dateModified": "2026-07-22",
+    "hash": "6f6c0a1b2ba0c17f"
+  },
+  "/companies/deloitte/data-engineer-interview-questions/": {
+    "datePublished": "2026-07-22",
+    "dateModified": "2026-07-22",
+    "hash": "0bc0b367581d0d73"
+  },
+  "/guide/deloitte-data-engineer/": {
+    "datePublished": "2026-07-22",
+    "dateModified": "2026-07-22",
+    "hash": "2f088cc14e6bded9"
+  },
+  "/guide/grab-data-engineer/": {
+    "datePublished": "2026-07-22",
+    "dateModified": "2026-07-22",
+    "hash": "a78cf20860057df3"
+  },
+  "/guide/deloitte-cloud-architect/": {
+    "datePublished": "2026-07-22",
+    "dateModified": "2026-07-22",
+    "hash": "f7fd3d7bb4771f96"
+  },
+  "/guide/deloitte-business-analyst/": {
+    "datePublished": "2026-07-22",
+    "dateModified": "2026-07-22",
+    "hash": "020dcc10bb7d0a7d"
+  },
+  "/guide/grab-senior-sde/": {
+    "datePublished": "2026-07-22",
+    "dateModified": "2026-07-22",
+    "hash": "a281dedb8d2ad349"
   }
 }
