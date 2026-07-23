@@ -15,6 +15,7 @@ const DEFAULTS = {
   activePlan: null,
   readiness: 0,
   lastReviewDate: null,
+  javaLearn: { lastConceptId: null, completedConceptIds: [] },
 };
 
 const camelFromRow = (row) => ({
@@ -30,6 +31,7 @@ const camelFromRow = (row) => ({
   activePlan: row.active_plan,
   readiness: row.readiness,
   lastReviewDate: row.last_review_date,
+  javaLearn: row.java_learn || { lastConceptId: null, completedConceptIds: [] },
 });
 
 const rowFromCamel = (s, userId) => ({
@@ -46,6 +48,7 @@ const rowFromCamel = (s, userId) => ({
   active_plan: s.activePlan,
   readiness: s.readiness,
   last_review_date: s.lastReviewDate,
+  java_learn: s.javaLearn,
   updated_at: new Date().toISOString(),
 });
 

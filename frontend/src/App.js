@@ -26,6 +26,7 @@ import FeedbackPage from './pages/FeedbackPage';
 import SEOPage from './pages/SEOPage';
 import ReportPage from './pages/ReportPage';
 import InterviewIntelligence from './pages/InterviewIntelligence';
+import JavaConceptsSimple from './pages/JavaConceptsSimple';
 
 function AppShell({ session, onSignOut, children }) {
   return (
@@ -152,6 +153,11 @@ function App() {
           <Route path="/app/practice" element={
             <AppShell session={session} onSignOut={() => setSession(null)}>
               <Practice isGuest={!session} />
+            </AppShell>
+          } />
+          <Route path="/app/learn/java" element={
+            <AppShell session={session} onSignOut={() => setSession(null)}>
+              <JavaConceptsSimple />
             </AppShell>
           } />
           <Route path="/app/progress" element={

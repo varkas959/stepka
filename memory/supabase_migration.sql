@@ -77,3 +77,10 @@ create trigger on_auth_user_created_progress
 insert into public.user_progress (user_id)
 select id from auth.users
 on conflict (user_id) do nothing;
+
+-- ============================================================
+-- 6. java_learn: "Java Concepts Explained Simply" progress
+--    tracks which concept the user last viewed/completed
+-- ============================================================
+alter table public.user_progress
+  add column if not exists java_learn jsonb not null default '{"lastConceptId":null,"completedConceptIds":[]}'::jsonb;
