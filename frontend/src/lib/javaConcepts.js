@@ -8,6 +8,7 @@ export const JAVA_CONCEPTS = [
     order: 1,
     title: 'Classes vs Objects',
     tagline: 'The blueprint and the thing you build from it',
+    expandReaction: "Good starting point — get this one solid and everything else clicks faster.",
     analogy: {
       emoji: '🍪',
       text: "A class is like a cookie cutter — it's the shape. An object is the actual cookie you get when you press the cutter into dough. You can make many cookies (objects) from one cutter (class), and each cookie can have its own sprinkles (data).",
@@ -16,6 +17,16 @@ export const JAVA_CONCEPTS = [
     codeExample: {
       label: 'In real code',
       code: `class Cookie {\n  String flavor;\n}\n\nCookie choc = new Cookie();\nchoc.flavor = "chocolate chip";\n\nCookie sugar = new Cookie();\nsugar.flavor = "sugar";\n// choc and sugar are two separate objects from the same class`,
+      output: [
+        'choc.flavor → "chocolate chip"',
+        'sugar.flavor → "sugar"',
+        '✓ Two separate Cookie objects made from one class',
+      ],
+    },
+    taazaClaim: {
+      text: "Wait, so the class is the actual cookie, and the object is the cutter, right?",
+      isCorrect: false,
+      whyRight: "Actually it's the other way around — the class is the cutter (the shape/template), the object is the cookie you actually get.",
     },
     quiz: [
       {
@@ -25,6 +36,7 @@ export const JAVA_CONCEPTS = [
         correctIndex: 0,
         explainCorrect: "Right — choc is a real cookie made using the Cookie cutter (class).",
         explainIncorrect: "Not quite — choc was created with `new Cookie()`, which makes an object, not a class or a method.",
+        hint: "Look at the keyword right before Cookie() in that line — it's the same keyword used any time something new gets created.",
       },
     ],
   },
@@ -33,6 +45,7 @@ export const JAVA_CONCEPTS = [
     order: 2,
     title: 'Encapsulation',
     tagline: 'Hiding the messy stuff behind a clean label',
+    expandReaction: "Great choice — this one confuses almost everyone at first.",
     analogy: {
       emoji: '💊',
       text: "Encapsulation is like a fever capsule your mother gives you: you don't see what's inside, but taking it reduces your fever. You don't need to know the exact chemicals — you just need to know 'take one, fever goes down.' The capsule hides the complicated part and only shows you the simple result.",
@@ -41,6 +54,17 @@ export const JAVA_CONCEPTS = [
     codeExample: {
       label: 'In real code',
       code: `public class Capsule {\n  private int feverLevel = 10; // hidden inside\n\n  public void takeMedicine() {\n    feverLevel -= 2; // logic stays inside the class\n  }\n\n  public int getFeverLevel() {\n    return feverLevel; // controlled peek, not direct access\n  }\n}`,
+      output: [
+        'capsule.feverLevel → 🔒 (private, no direct access)',
+        'capsule.takeMedicine()',
+        'capsule.getFeverLevel() → 8',
+        '✓ Fever reduced without ever exposing the raw data',
+      ],
+    },
+    taazaClaim: {
+      text: "So private just means other classes can't touch the data directly, they have to go through a method?",
+      isCorrect: true,
+      whyRight: "Exactly right — that's the whole idea of encapsulation.",
     },
     quiz: [
       {
@@ -50,6 +74,7 @@ export const JAVA_CONCEPTS = [
         correctIndex: 0,
         explainCorrect: "Exactly — private hides the 'medicine', the public method is the only door in.",
         explainIncorrect: "Not quite — private isn't about speed or compiling, it's about controlling access.",
+        hint: "Think about the capsule again — why doesn't your mother let you touch the powder inside directly?",
       },
     ],
   },
@@ -58,6 +83,7 @@ export const JAVA_CONCEPTS = [
     order: 3,
     title: 'Inheritance',
     tagline: 'Children get their parents\' traits — plus a few of their own',
+    expandReaction: "Classic interview topic — this one shows up constantly.",
     analogy: {
       emoji: '👨‍👩‍👧',
       text: "Inheritance is like a child inheriting eye color and height from their parent — they get those traits automatically, without learning them from scratch. But the child can also have their own hobbies the parent never had. In the same way, a new class can 'inherit' everything from an existing class, and then add its own extra abilities.",
@@ -66,6 +92,18 @@ export const JAVA_CONCEPTS = [
     codeExample: {
       label: 'In real code',
       code: `class Animal {\n  void eat() { System.out.println("eating"); }\n}\n\nclass Dog extends Animal {\n  void bark() { System.out.println("woof!"); }\n}\n\nDog d = new Dog();\nd.eat();  // inherited from Animal\nd.bark(); // Dog's own extra ability`,
+      output: [
+        'd.eat()',
+        'eating',
+        'd.bark()',
+        'woof!',
+        '✓ Dog inherited eat() from Animal, and added its own bark()',
+      ],
+    },
+    taazaClaim: {
+      text: "So if Dog extends Animal, that means Animal can now use Dog's bark() method too, right?",
+      isCorrect: false,
+      whyRight: "Not quite — inheritance only flows one direction. The child (Dog) gets the parent's stuff, not the other way around.",
     },
     quiz: [
       {
@@ -75,6 +113,7 @@ export const JAVA_CONCEPTS = [
         correctIndex: 0,
         explainCorrect: "Exactly — extending Animal means Dog automatically gets everything Animal has.",
         explainIncorrect: "Not quite — `eat()` isn't a keyword, and Dog and Animal are two different classes. The `extends` keyword is what connects them.",
+        hint: "Look at the word right after 'class Dog' — it connects Dog to Animal.",
       },
     ],
   },
@@ -83,6 +122,7 @@ export const JAVA_CONCEPTS = [
     order: 4,
     title: 'Polymorphism',
     tagline: 'One button, different results depending on what it\'s pointed at',
+    expandReaction: "That's a common interview trap — most people can define it but trip up explaining why.",
     analogy: {
       emoji: '📺',
       text: "Polymorphism is like a universal remote's power button — pressing the same button turns on a TV, an AC, or a fan, but each device reacts in its own way. The action ('press power') looks the same from the outside, but what actually happens depends on which device is receiving it.",
@@ -91,6 +131,18 @@ export const JAVA_CONCEPTS = [
     codeExample: {
       label: 'In real code',
       code: `class Animal {\n  void makeSound() { System.out.println("some sound"); }\n}\nclass Dog extends Animal {\n  void makeSound() { System.out.println("Woof!"); }\n}\nclass Cat extends Animal {\n  void makeSound() { System.out.println("Meow!"); }\n}\n\nAnimal a1 = new Dog();\nAnimal a2 = new Cat();\na1.makeSound(); // Woof!\na2.makeSound(); // Meow!`,
+      output: [
+        'a1.makeSound()',
+        'Woof!',
+        'a2.makeSound()',
+        'Meow!',
+        '✓ Same method call, different behavior per real object',
+      ],
+    },
+    taazaClaim: {
+      text: "So the same method name can behave completely differently depending on which actual object is calling it?",
+      isCorrect: true,
+      whyRight: "Yes! That's polymorphism in a nutshell.",
     },
     quiz: [
       {
@@ -100,6 +152,7 @@ export const JAVA_CONCEPTS = [
         correctIndex: 0,
         explainCorrect: "Right — like the remote's power button, the same call does something different depending on the real device (object) underneath.",
         explainIncorrect: "Not quite — Animal only has one makeSound() method. It's the real object type (Dog vs Cat) that decides which overridden version actually runs.",
+        hint: "Think about the remote control again — the button never changes, but what's it pointed at?",
       },
     ],
   },
@@ -108,6 +161,7 @@ export const JAVA_CONCEPTS = [
     order: 5,
     title: 'Abstraction',
     tagline: 'Using something without needing to know how it works inside',
+    expandReaction: "People often mix this one up with encapsulation — good to nail the difference early.",
     analogy: {
       emoji: '🚗',
       text: "Abstraction is like driving a car — you press the accelerator and the car moves. You don't need to understand the engine, the fuel injection, or the transmission to drive. The car exposes a simple set of controls (pedal, wheel) and hides all the complicated machinery behind them.",
@@ -116,6 +170,16 @@ export const JAVA_CONCEPTS = [
     codeExample: {
       label: 'In real code',
       code: `abstract class Car {\n  abstract void accelerate(); // just the pedal, no engine detail\n}\n\nclass ElectricCar extends Car {\n  void accelerate() {\n    // complicated battery/motor logic hidden here\n    System.out.println("silently speeding up");\n  }\n}`,
+      output: [
+        'car.accelerate()',
+        'silently speeding up',
+        '✓ You just called accelerate() — no engine details needed',
+      ],
+    },
+    taazaClaim: {
+      text: "So abstraction means there's no code at all behind the button, right?",
+      isCorrect: false,
+      whyRight: "Not true — there's plenty of code in there, it's just hidden from whoever is using it.",
     },
     quiz: [
       {
@@ -125,6 +189,7 @@ export const JAVA_CONCEPTS = [
         correctIndex: 0,
         explainCorrect: "Exactly — you just use the simple controls, the complexity stays hidden inside.",
         explainIncorrect: "Not quite — abstraction doesn't mean no code is written, it means the complicated code is hidden behind a simple interface.",
+        hint: "Think about the car analogy again — is the goal 'no engine exists' or 'you don't need to see the engine'?",
       },
     ],
   },
@@ -133,6 +198,7 @@ export const JAVA_CONCEPTS = [
     order: 6,
     title: 'Interfaces',
     tagline: 'A standard shape that anything can plug into',
+    expandReaction: "This one connects nicely to abstraction — good sequencing.",
     analogy: {
       emoji: '🔌',
       text: "An interface is like a power socket standard — any device with the right plug shape can be used, whether it's a lamp, a charger, or a fan. The socket doesn't care what the device does internally, only that it fits the agreed-upon shape.",
@@ -141,6 +207,18 @@ export const JAVA_CONCEPTS = [
     codeExample: {
       label: 'In real code',
       code: `interface Chargeable {\n  void charge();\n}\n\nclass Phone implements Chargeable {\n  public void charge() { System.out.println("phone charging"); }\n}\n\nclass Laptop implements Chargeable {\n  public void charge() { System.out.println("laptop charging"); }\n}`,
+      output: [
+        'phone.charge()',
+        'phone charging',
+        'laptop.charge()',
+        'laptop charging',
+        '✓ Both fit the same Chargeable "socket", different internals',
+      ],
+    },
+    taazaClaim: {
+      text: "So an interface just says 'you must have this method', but doesn't care how you write it inside?",
+      isCorrect: true,
+      whyRight: "Exactly — that's the whole point of an interface.",
     },
     quiz: [
       {
@@ -150,6 +228,7 @@ export const JAVA_CONCEPTS = [
         correctIndex: 0,
         explainCorrect: "Right — like a power socket, the interface only cares that the plug (method) exists, not what's on the other end.",
         explainIncorrect: "Not quite — Phone and Laptop are separate classes, and Chargeable doesn't write any logic itself, it just requires that charge() exists.",
+        hint: "Think about the power socket again — does the socket care what brand of charger you plug in?",
       },
     ],
   },
@@ -158,6 +237,7 @@ export const JAVA_CONCEPTS = [
     order: 7,
     title: 'Constructors',
     tagline: 'Filled in the moment something is created',
+    expandReaction: "Last one — finish this and you've got the full OOP foundation down.",
     analogy: {
       emoji: '📜',
       text: "A constructor is like a birth certificate — it gets filled out the exact moment a baby is born, recording the name and birth date right away. In the same way, a constructor runs the instant an object is created, setting up its starting information before you use it for anything else.",
@@ -166,6 +246,17 @@ export const JAVA_CONCEPTS = [
     codeExample: {
       label: 'In real code',
       code: `class Person {\n  String name;\n\n  Person(String givenName) { // constructor\n    name = givenName;\n  }\n}\n\nPerson p = new Person("Amit"); // constructor runs right here\nSystem.out.println(p.name); // "Amit"`,
+      output: [
+        'new Person("Amit")',
+        '(constructor runs automatically right here)',
+        'p.name → "Amit"',
+        '✓ Object was ready to use the instant it was created',
+      ],
+    },
+    taazaClaim: {
+      text: "So a constructor can be called anytime later, whenever we feel like it, right?",
+      isCorrect: false,
+      whyRight: "Nope — a constructor only runs once, automatically, the moment the object is created with `new`.",
     },
     quiz: [
       {
@@ -175,6 +266,7 @@ export const JAVA_CONCEPTS = [
         correctIndex: 0,
         explainCorrect: "Exactly — just like a birth certificate, it's filled in right at the moment of creation.",
         explainIncorrect: "Not quite — constructors run automatically with `new`, you never call them manually like a regular method.",
+        hint: "Think about the birth certificate again — is it filled out years later, or the moment the baby arrives?",
       },
     ],
   },
@@ -185,3 +277,24 @@ export const getNextConcept = (currentId) => {
   const idx = JAVA_CONCEPTS.findIndex(c => c.id === currentId);
   return idx >= 0 && idx < JAVA_CONCEPTS.length - 1 ? JAVA_CONCEPTS[idx + 1] : null;
 };
+
+// Keywords used to surface real interview questions related to each concept —
+// bridges the simplified analogy back into the actual question bank.
+const RELATED_KEYWORDS = {
+  'classes-vs-objects': ['constructor', 'instantiat'],
+  encapsulation: ['encapsulat'],
+  inheritance: ['inherit'],
+  polymorphism: ['polymorph'],
+  abstraction: ['abstract'],
+  interfaces: ['interface'],
+  constructors: ['constructor'],
+};
+
+export function getRelatedQuestions(conceptId, allQuestions, limit = 3) {
+  const keywords = RELATED_KEYWORDS[conceptId] || [];
+  if (!keywords.length) return [];
+  return allQuestions
+    .filter(q => q.topic === 'java' && keywords.some(kw => q.body.toLowerCase().includes(kw)))
+    .sort((a, b) => (b.upvotes || 0) - (a.upvotes || 0))
+    .slice(0, limit);
+}
