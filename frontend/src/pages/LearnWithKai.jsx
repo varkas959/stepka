@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { toast } from 'sonner';
 import { ChevronDown, ChevronRight, Check, Trophy, ArrowUpRight, Play } from 'lucide-react';
 import { useAppState } from '../lib/appState';
-import { TECH_TRACKS, getTrack, getConceptById, getRelatedQuestions } from '../lib/techConcepts';
+import { TECH_TRACKS, getTrack, getConceptById, getRelatedQuestions, getConceptsByTier } from '../lib/techConcepts';
 import { QUESTIONS } from '../lib/mockData';
 import { Mascot } from '../components/Mascot';
 import { playCorrect, playIncorrect, playCelebrate } from '../lib/sound';
@@ -95,6 +95,35 @@ function RelatedQuestions({ trackId, trackName, concept }) {
       <Link to="/app/questions" className="inline-flex items-center gap-1 text-xs font-medium mt-2.5" style={{ color: ACC }}>
         Browse all {trackName} interview questions <ArrowUpRight size={12} />
       </Link>
+    </div>
+  );
+}
+
+function InterviewChallenge({ questions }) {
+  if (!questions?.length) return null;
+  return (
+    <div className="rounded-lg p-4" style={{ background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.25)' }}>
+      <div className="font-mono text-[10px] uppercase tracking-[0.16em] mb-2.5" style={{ color: '#ef4444' }}>
+        🔴 Can you answer this in an interview?
+      </div>
+      <ul className="space-y-2">
+        {questions.map((q, i) => (
+          <li key={i} className="text-sm leading-relaxed flex gap-2" style={{ color: 'var(--text-2)' }}>
+            <span style={{ color: '#ef4444' }}>•</span> {q}
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+function TierHeader({ emoji, label, done, total }) {
+  return (
+    <div className="flex items-center gap-2.5 mt-7 mb-3 first:mt-0">
+      <span className="text-lg leading-none">{emoji}</span>
+      <h2 className="text-xs font-bold uppercase tracking-[0.14em]" style={{ color: 'var(--text-2)' }}>{label}</h2>
+      <span className="font-mono text-[11px]" style={{ color: 'var(--text-3)' }}>{done}/{total}</span>
+      <div className="flex-1 h-px" style={{ background: 'var(--border)' }} />
     </div>
   );
 }
@@ -348,8 +377,10 @@ export default function LearnWithKai() {
         })}
       </div>
 
-      <div className="mt-6 space-y-2.5">
-        {track.concepts.map((concept) => {
+      {(() => {
+        const tierGroups = getConceptsByTier(activeTrackId);
+
+        const renderConcept = (concept) => {
           const isOpen = openId === concept.id;
           const isDone = completed.includes(concept.id);
           return (
@@ -393,12 +424,30 @@ export default function LearnWithKai() {
                   </button>
 
                   <RelatedQuestions trackId={activeTrackId} trackName={track.name} concept={concept} />
+
+                  <InterviewChallenge questions={concept.interviewChallenge} />
                 </div>
               )}
             </div>
           );
-        })}
-      </div>
+        };
+
+        if (tierGroups) {
+          return tierGroups.map(group => (
+            <div key={group.id}>
+              <TierHeader
+                emoji={group.emoji}
+                label={group.label}
+                done={group.concepts.filter(c => completed.includes(c.id)).length}
+                total={group.concepts.length}
+              />
+              <div className="space-y-2.5">{group.concepts.map(renderConcept)}</div>
+            </div>
+          ));
+        }
+
+        return <div className="mt-6 space-y-2.5">{track.concepts.map(renderConcept)}</div>;
+      })()}
 
       <Mascot
         active={mascotActive}
