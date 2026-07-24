@@ -37,15 +37,21 @@ const FACE_BY_MODE = {
   look: '👀',
 };
 
-// Real Kai sprite images — only wired up for modes with a clean transparent
-// asset so far. Modes not listed here fall back to the drawn SVG character
-// below. Add more entries as new poses are exported with transparent backgrounds.
+// Real Kai sprite images. Only two clean poses exist so far (a neutral
+// wink-and-point, and an arms-up celebration) — every mode maps to whichever
+// of the two reads closer, so the character never flips to the hand-drawn
+// SVG fallback mid-flow (that jump reads as "wrong mascot" to users). Swap
+// individual entries to dedicated sprites as new poses are exported.
 const SPRITE_BY_MODE = {
   idle: '/mascot/kai-wink.png',
   look: '/mascot/kai-wink.png',
   quiz: '/mascot/kai-wink.png',
+  thinking: '/mascot/kai-wink.png',
+  surprise: '/mascot/kai-wink.png',
+  sleepy: '/mascot/kai-wink.png',
   happy: '/mascot/kai-happy.png',
   celebrate: '/mascot/kai-happy.png',
+  graduate: '/mascot/kai-happy.png',
 };
 
 // Ambient, task-free chit-chat — shown when the user pokes the idle mascot
@@ -197,6 +203,13 @@ export function Mascot({
     if (question || claim || feedback) setClickReaction(null);
   }, [question, claim, feedback]);
 
+  // A quiz question or a "teach Kai" claim means the parent needs Kai on
+  // screen right now — pull him out of the docked tab automatically so a
+  // tap on "Quick check" is never silently swallowed by a dismissed mascot.
+  useEffect(() => {
+    if (question || claim) setDocked(false);
+  }, [question, claim]);
+
   const fireReaction = (pool) => {
     const text = pool[Math.floor(Math.random() * pool.length)];
     setClickReaction(text);
@@ -220,8 +233,9 @@ export function Mascot({
   };
 
   return (
+    <>
     <AnimatePresence>
-      {active && (docked ? (
+      {active && docked && (
         <motion.button
           key="docked-tab"
           onClick={handleUndock}
@@ -249,7 +263,10 @@ export function Mascot({
         >
           <span style={{ fontSize: 20 }}>{FACE_BY_MODE[mode] || FACE_BY_MODE.idle}</span>
         </motion.button>
-      ) : (
+      )}
+    </AnimatePresence>
+    <AnimatePresence>
+      {active && !docked && (
         <motion.div
           key="mascot-full"
           data-testid="mascot"
@@ -363,7 +380,8 @@ export function Mascot({
             <Character mode={mode} burstKey={burstKey} />
           </div>
         </motion.div>
-      ))}
+      )}
     </AnimatePresence>
+    </>
   );
 }
