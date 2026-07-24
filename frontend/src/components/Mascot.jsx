@@ -1,13 +1,12 @@
-// Reusable animated mascot ("Taaza") — an original character, not affiliated
-// with any other product. A round-headed character in a purple hoodie,
-// holding a coffee mug, with a real emoji face that changes per emotional
-// state. People remember faces, not robots — so the expression itself is
-// always a genuine emoji, not an abstract drawn shape.
+// Reusable animated mascot ("Kai") — an original character, not affiliated
+// with any other product. Currently a round-headed hoodie-and-mug SVG
+// character with an emoji face; swap to real Kai sprite images once
+// available (see public/mascot/ — the pose-to-mode mapping stays here).
 import { useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { X } from 'lucide-react';
 
-const HOODIE = '#7C3AED'; // purple — Taaza's signature color, distinct from the site's blue accent
+const HOODIE = '#7C3AED'; // purple — Kai's signature color, distinct from the site's blue accent
 
 // Reveals text character-by-character, re-typing whenever the text itself changes.
 function Typewriter({ text, speed = 16 }) {
@@ -36,6 +35,17 @@ const FACE_BY_MODE = {
   sleepy: '😴',
   graduate: '🎓',
   look: '👀',
+};
+
+// Real Kai sprite images — only wired up for modes with a clean transparent
+// asset so far. Modes not listed here fall back to the drawn SVG character
+// below. Add more entries as new poses are exported with transparent backgrounds.
+const SPRITE_BY_MODE = {
+  idle: '/mascot/kai-wink.png',
+  look: '/mascot/kai-wink.png',
+  quiz: '/mascot/kai-wink.png',
+  happy: '/mascot/kai-happy.png',
+  celebrate: '/mascot/kai-happy.png',
 };
 
 const CONFETTI_COLORS = ['#7C3AED', '#3B6FD4', '#F59E0B', '#22C55E', '#EF4444'];
@@ -71,7 +81,7 @@ function Confetti({ burstKey }) {
   );
 }
 
-// ── The character: round hoodie body + mug, emoji face swapped per mode ──
+// ── The character: real Kai sprite where available, drawn SVG fallback otherwise ──
 function Character({ mode, burstKey }) {
   const bodyVariants = {
     idle:      { y: [0, -3, 0], transition: { y: { repeat: Infinity, duration: 2.6, ease: 'easeInOut' } } },
@@ -89,35 +99,49 @@ function Character({ mode, burstKey }) {
     celebrate: { rotate: [0, -35, 15, -35, 0], transition: { duration: 0.6, ease: 'easeInOut' } },
   };
 
+  const sprite = SPRITE_BY_MODE[mode];
+
   return (
     <div className="relative" style={{ width: 76, height: 76 }}>
       {mode === 'celebrate' && <Confetti burstKey={burstKey} />}
-      <motion.div animate={mode} variants={bodyVariants} className="relative">
-        <svg width="76" height="76" viewBox="0 0 76 76">
-          {/* hood/shoulders */}
-          <path d="M14 62 Q14 34 38 34 Q62 34 62 62 Z" fill={HOODIE} />
-          {/* hood drawstrings */}
-          <circle cx="30" cy="46" r="1.6" fill="white" opacity="0.8" />
-          <circle cx="46" cy="46" r="1.6" fill="white" opacity="0.8" />
-          {/* waving arm */}
-          <motion.g variants={armVariants} animate={mode === 'celebrate' ? 'celebrate' : 'idle'} style={{ originX: '60px', originY: '52px' }}>
-            <rect x="56" y="46" width="15" height="9" rx="4.5" fill={HOODIE} />
-          </motion.g>
-          {/* mug */}
-          <g transform="translate(16, 54)">
-            <rect x="0" y="0" width="11" height="9" rx="2" fill="#fff" opacity="0.95" />
-            <path d="M11 2 Q16 2 16 5 Q16 8 11 7" stroke="#fff" strokeWidth="1.6" fill="none" opacity="0.95" />
-          </g>
-          {/* face circle */}
-          <circle cx="38" cy="30" r="22" fill="#FBEFE3" />
-        </svg>
-        {/* emoji face, centered over the face circle */}
-        <div
-          className="absolute flex items-center justify-center"
-          style={{ left: 0, top: 0, width: 76, height: 60, fontSize: 26, lineHeight: 1 }}
-        >
-          {FACE_BY_MODE[mode] || FACE_BY_MODE.idle}
-        </div>
+      <motion.div animate={mode} variants={bodyVariants} className="relative" style={{ width: 76, height: 76 }}>
+        {sprite ? (
+          <img
+            src={sprite}
+            alt="Kai"
+            width={76}
+            height={76}
+            style={{ width: 76, height: 76, objectFit: 'contain', filter: 'drop-shadow(0 4px 10px rgba(124,58,237,0.25))' }}
+          />
+        ) : (
+          <>
+            <svg width="76" height="76" viewBox="0 0 76 76">
+              {/* hood/shoulders */}
+              <path d="M14 62 Q14 34 38 34 Q62 34 62 62 Z" fill={HOODIE} />
+              {/* hood drawstrings */}
+              <circle cx="30" cy="46" r="1.6" fill="white" opacity="0.8" />
+              <circle cx="46" cy="46" r="1.6" fill="white" opacity="0.8" />
+              {/* waving arm */}
+              <motion.g variants={armVariants} animate={mode === 'celebrate' ? 'celebrate' : 'idle'} style={{ originX: '60px', originY: '52px' }}>
+                <rect x="56" y="46" width="15" height="9" rx="4.5" fill={HOODIE} />
+              </motion.g>
+              {/* mug */}
+              <g transform="translate(16, 54)">
+                <rect x="0" y="0" width="11" height="9" rx="2" fill="#fff" opacity="0.95" />
+                <path d="M11 2 Q16 2 16 5 Q16 8 11 7" stroke="#fff" strokeWidth="1.6" fill="none" opacity="0.95" />
+              </g>
+              {/* face circle */}
+              <circle cx="38" cy="30" r="22" fill="#FBEFE3" />
+            </svg>
+            {/* emoji face, centered over the face circle */}
+            <div
+              className="absolute flex items-center justify-center"
+              style={{ left: 0, top: 0, width: 76, height: 60, fontSize: 26, lineHeight: 1 }}
+            >
+              {FACE_BY_MODE[mode] || FACE_BY_MODE.idle}
+            </div>
+          </>
+        )}
       </motion.div>
     </div>
   );
@@ -137,7 +161,7 @@ export function Mascot({
   onRetry,
   claim = null,
   onClaimAnswer,
-  name = 'Taaza',
+  name = 'Kai',
 }) {
   const [burstKey, setBurstKey] = useState(0);
   useEffect(() => { if (mode === 'celebrate') setBurstKey(k => k + 1); }, [mode]);
@@ -200,7 +224,7 @@ export function Mascot({
                     className="text-xs font-semibold px-3 py-1.5 rounded-lg"
                     style={{ border: '1px solid var(--border-2)', color: 'var(--text-2)' }}
                   >
-                    No, Taaza!
+                    No, Kai!
                   </button>
                 </div>
               </div>

@@ -26,7 +26,7 @@ import FeedbackPage from './pages/FeedbackPage';
 import SEOPage from './pages/SEOPage';
 import ReportPage from './pages/ReportPage';
 import InterviewIntelligence from './pages/InterviewIntelligence';
-import JavaConceptsSimple from './pages/JavaConceptsSimple';
+import LearnWithKai from './pages/LearnWithKai';
 
 function AppShell({ session, onSignOut, children }) {
   return (
@@ -155,9 +155,9 @@ function App() {
               <Practice isGuest={!session} />
             </AppShell>
           } />
-          <Route path="/app/learn/java" element={
+          <Route path="/app/learn" element={
             <AppShell session={session} onSignOut={() => setSession(null)}>
-              <JavaConceptsSimple />
+              <LearnWithKai />
             </AppShell>
           } />
           <Route path="/app/progress" element={

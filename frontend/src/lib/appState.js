@@ -82,15 +82,21 @@ export function AppStateProvider({ userId, children }) {
     consumeFreeze: () => setState(s => ({ ...s, streakFreezes: Math.max(0, s.streakFreezes - 1) })),
     setActivePlan: (plan) => setState(s => ({ ...s, activePlan: plan })),
     setReadiness: (r) => setState(s => ({ ...s, readiness: r })),
-    setJavaLearnProgress: (conceptId) => setState(s => ({
-      ...s,
-      javaLearn: {
-        lastConceptId: conceptId,
-        completedConceptIds: s.javaLearn?.completedConceptIds?.includes(conceptId)
-          ? s.javaLearn.completedConceptIds
-          : [...(s.javaLearn?.completedConceptIds || []), conceptId],
-      },
-    })),
+    setConceptProgress: (trackId, conceptId) => setState(s => {
+      const track = s.conceptsLearn?.[trackId] || { lastConceptId: null, completedConceptIds: [] };
+      return {
+        ...s,
+        conceptsLearn: {
+          ...s.conceptsLearn,
+          [trackId]: {
+            lastConceptId: conceptId,
+            completedConceptIds: track.completedConceptIds.includes(conceptId)
+              ? track.completedConceptIds
+              : [...track.completedConceptIds, conceptId],
+          },
+        },
+      };
+    }),
   }), [state, loaded, userId]);
 
   return <AppStateContext.Provider value={value}>{children}</AppStateContext.Provider>;

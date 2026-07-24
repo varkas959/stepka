@@ -79,8 +79,15 @@ select id from auth.users
 on conflict (user_id) do nothing;
 
 -- ============================================================
--- 6. java_learn: "Java Concepts Explained Simply" progress
---    tracks which concept the user last viewed/completed
+-- 6. java_learn: superseded by concepts_learn below (kept, unused,
+--    to avoid a destructive column drop for anyone who already ran this)
 -- ============================================================
 alter table public.user_progress
   add column if not exists java_learn jsonb not null default '{"lastConceptId":null,"completedConceptIds":[]}'::jsonb;
+
+-- ============================================================
+-- 7. concepts_learn: "Learn with Kai" progress, per technology track
+--    tracks which concept the user last viewed/completed, per track
+-- ============================================================
+alter table public.user_progress
+  add column if not exists concepts_learn jsonb not null default '{"java":{"lastConceptId":null,"completedConceptIds":[]},"python":{"lastConceptId":null,"completedConceptIds":[]},"react":{"lastConceptId":null,"completedConceptIds":[]}}'::jsonb;

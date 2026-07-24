@@ -19,7 +19,7 @@ const NAV = [
   { to: '/app/questions', label: 'Question Bank', Icon: BookOpen,   key: 'questions' },
   { to: '/app/review',    label: 'Daily Review',  Icon: RotateCcw,  key: 'review',   badge: true },
   { to: '/app/practice',  label: 'Practice',      Icon: Terminal,   key: 'practice'  },
-  { to: '/app/learn/java', label: 'Java Simply',  Icon: Sparkles,   key: 'java-learn' },
+  { to: '/app/learn',      label: 'Learn',         Icon: Sparkles,   key: 'learn'      },
   { to: '/app/progress',  label: 'Progress',      Icon: BarChart2,  key: 'progress'  },
 ];
 

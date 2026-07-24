@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { toast } from 'sonner';
 import { ChevronDown, ChevronRight, Check, Trophy, ArrowUpRight, Play } from 'lucide-react';
 import { useAppState } from '../lib/appState';
-import { JAVA_CONCEPTS, getConceptById, getRelatedQuestions } from '../lib/javaConcepts';
+import { TECH_TRACKS, getTrack, getConceptById, getRelatedQuestions } from '../lib/techConcepts';
 import { QUESTIONS } from '../lib/mockData';
 import { Mascot } from '../components/Mascot';
 import { playCorrect, playIncorrect, playCelebrate } from '../lib/sound';
@@ -68,8 +68,8 @@ function RunOutput({ output }) {
   );
 }
 
-function RelatedQuestions({ concept }) {
-  const matches = getRelatedQuestions(concept.id, QUESTIONS);
+function RelatedQuestions({ trackId, trackName, concept }) {
+  const matches = getRelatedQuestions(trackId, concept.id, QUESTIONS);
   return (
     <div className="pt-2 border-t" style={{ borderColor: 'var(--border)' }}>
       <div className="font-mono text-[10px] uppercase tracking-[0.16em] mb-2 mt-3" style={{ color: 'var(--text-3)' }}>
@@ -93,32 +93,42 @@ function RelatedQuestions({ concept }) {
         <p className="text-xs" style={{ color: 'var(--text-3)' }}>No exact match yet for this one —</p>
       )}
       <Link to="/app/questions" className="inline-flex items-center gap-1 text-xs font-medium mt-2.5" style={{ color: ACC }}>
-        Browse all Java interview questions <ArrowUpRight size={12} />
+        Browse all {trackName} interview questions <ArrowUpRight size={12} />
       </Link>
     </div>
   );
 }
 
-export default function JavaConceptsSimple() {
-  const { state, addXp, setJavaLearnProgress } = useAppState();
-  const completed = state.javaLearn?.completedConceptIds || [];
-  const lastConceptId = state.javaLearn?.lastConceptId;
-  const lastConcept = lastConceptId ? getConceptById(lastConceptId) : null;
-  const allDone = completed.length >= JAVA_CONCEPTS.length;
+export default function LearnWithKai() {
+  const { state, addXp, setConceptProgress } = useAppState();
 
-  const [openId, setOpenId] = useState(lastConceptId || JAVA_CONCEPTS[0].id);
+  const [activeTrackId, setActiveTrackId] = useState(() => {
+    // Resume whichever track was most recently touched, default to Java.
+    const cl = state.conceptsLearn;
+    if (!cl) return 'java';
+    const withProgress = TECH_TRACKS.find(t => cl[t.id]?.lastConceptId);
+    return withProgress?.id || 'java';
+  });
+  const track = getTrack(activeTrackId);
+  const trackProgress = state.conceptsLearn?.[activeTrackId] || { lastConceptId: null, completedConceptIds: [] };
+  const completed = trackProgress.completedConceptIds || [];
+  const lastConceptId = trackProgress.lastConceptId;
+  const lastConcept = lastConceptId ? getConceptById(activeTrackId, lastConceptId) : null;
+  const allDone = completed.length >= track.concepts.length;
+
+  const [openId, setOpenId] = useState(lastConceptId || track.concepts[0].id);
   const [mascotActive, setMascotActive] = useState(true);
   const [mode, setMode] = useState('idle');
   const [message, setMessage] = useState(
     lastConcept
       ? `Welcome back! You were on ${lastConcept.title} last time — want to pick up where you left off?`
-      : "Hi, I'm Taaza! Let's make Java concepts simple. Pick one below to get started."
+      : `Hi, I'm Kai! Let's make ${track.name} concepts simple. Pick one below to get started.`
   );
   const [activeQuiz, setActiveQuiz] = useState(null); // { conceptId, question }
   const [feedback, setFeedback] = useState(null);
   const [hintText, setHintText] = useState(null);
   const [hintEligible, setHintEligible] = useState(false); // true only during a wrong-quiz-answer window
-  const [claim, setClaim] = useState(null); // { text, isCorrect, whyRight } — Taaza's "teach me" moment
+  const [claim, setClaim] = useState(null); // { text, isCorrect, whyRight } — Kai's "teach me" moment
 
   const idleTimer = useRef(null);
   const perfectRun = useRef(true); // stays true only if every quiz so far was correct on the first try
@@ -138,7 +148,7 @@ export default function JavaConceptsSimple() {
     }, IDLE_TIMEOUT_MS);
   }, []);
 
-  // Idle-yawn timer — resets on any click or scroll, and wakes Taaza back up
+  // Idle-yawn timer — resets on any click or scroll, and wakes Kai back up
   useEffect(() => {
     resetIdleTimer();
     const onActivity = () => {
@@ -157,7 +167,7 @@ export default function JavaConceptsSimple() {
     };
   }, [resetIdleTimer]);
 
-  // Scroll → Taaza glances at the content, only when just idly sitting there
+  // Scroll → Kai glances at the content, only when just idly sitting there
   useEffect(() => {
     let lookTimeout;
     const onScroll = () => {
@@ -168,6 +178,27 @@ export default function JavaConceptsSimple() {
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => { window.removeEventListener('scroll', onScroll); clearTimeout(lookTimeout); };
   }, []);
+
+  const switchTrack = (trackId) => {
+    if (trackId === activeTrackId) return;
+    const nextTrack = getTrack(trackId);
+    const nextProgress = state.conceptsLearn?.[trackId] || { lastConceptId: null, completedConceptIds: [] };
+    setActiveTrackId(trackId);
+    setOpenId(nextProgress.lastConceptId || nextTrack.concepts[0].id);
+    setActiveQuiz(null);
+    setFeedback(null);
+    setHintText(null);
+    setHintEligible(false);
+    setClaim(null);
+    perfectRun.current = true;
+    setMascotActive(true);
+    setMode('idle');
+    setMessage(
+      nextProgress.lastConceptId
+        ? `Switching to ${nextTrack.name}! You were on ${getConceptById(trackId, nextProgress.lastConceptId)?.title} last time.`
+        : `Let's do ${nextTrack.name}! Pick a concept below to get started.`
+    );
+  };
 
   const openConcept = (concept) => {
     const willOpen = openId !== concept.id;
@@ -196,7 +227,7 @@ export default function JavaConceptsSimple() {
   const answerQuiz = (optionIndex) => {
     const { conceptId, question } = activeQuiz;
     const correct = optionIndex === question.correctIndex;
-    setJavaLearnProgress(conceptId);
+    setConceptProgress(activeTrackId, conceptId);
 
     // Play immediately, synchronously within the click handler — browsers tie
     // audio playback permission to the user gesture, not to a later timeout.
@@ -210,38 +241,38 @@ export default function JavaConceptsSimple() {
       if (correct) {
         addXp(10);
         const justFinishedAll = completed.includes(conceptId)
-          ? completed.length >= JAVA_CONCEPTS.length
-          : completed.length + 1 >= JAVA_CONCEPTS.length;
+          ? completed.length >= track.concepts.length
+          : completed.length + 1 >= track.concepts.length;
 
         if (justFinishedAll && perfectRun.current) {
           playCelebrate();
           setHintEligible(false);
           setMode('celebrate');
           setMessage(null);
-          setFeedback({ correct: true, text: "You've mastered every concept, and got every single one right on the first try. Incredible run! 🎉" });
+          setFeedback({ correct: true, text: `You've mastered every ${track.name} concept, and got every single one right on the first try. Incredible run! 🎉` });
           toast.success('Perfect run — all concepts mastered!');
         } else if (justFinishedAll) {
           playCelebrate();
           setHintEligible(false);
           setMode('graduate');
           setMessage(null);
-          setFeedback({ correct: true, text: "That's all 7 concepts done! You've got the OOP foundation locked in." });
-          toast.success("You've completed Java Concepts Simply! 🎓");
+          setFeedback({ correct: true, text: `That's all ${track.concepts.length} ${track.name} concepts done! You've got the foundation locked in.` });
+          toast.success(`You've completed ${track.name} with Kai! 🎓`);
         } else {
           setHintEligible(false);
           setMode('happy');
           setFeedback({ correct: true, text: `Nice answer! ${question.explainCorrect}` });
           toast.success('Nice answer! +10 XP');
 
-          // A beat later, Taaza tries to "teach back" what it just learned —
+          // A beat later, Kai tries to "teach back" what it just learned —
           // sometimes right, sometimes wrong — and the user corrects it.
-          const concept = getConceptById(conceptId);
-          if (concept?.taazaClaim) {
+          const concept = getConceptById(activeTrackId, conceptId);
+          if (concept?.kaiClaim) {
             setTimeout(() => {
               // Skip if the user already moved on to a different concept card.
               if (openIdRef.current !== conceptId) return;
               setFeedback(null);
-              setClaim(concept.taazaClaim);
+              setClaim(concept.kaiClaim);
             }, 1800);
           }
         }
@@ -250,7 +281,7 @@ export default function JavaConceptsSimple() {
         setHintEligible(true);
         setMode('thinking');
         setFeedback({ correct: false, text: `Close! ${question.explainIncorrect}` });
-        toast("Not quite — Taaza has a hint if you want one.");
+        toast("Not quite — Kai has a hint if you want one.");
       }
     }, 550);
   };
@@ -276,26 +307,49 @@ export default function JavaConceptsSimple() {
   };
 
   return (
-    <div className="px-4 md:px-10 py-4 md:py-6 max-w-3xl mx-auto" data-testid="java-concepts-page">
+    <div className="px-4 md:px-10 py-4 md:py-6 max-w-3xl mx-auto" data-testid="learn-with-kai-page">
       <div className="flex items-center justify-between gap-3 flex-wrap">
         <div className="flex items-center gap-3 flex-wrap">
           <h1 className="text-3xl md:text-4xl font-semibold tracking-tight" style={{ color: 'var(--text-1)' }}>
-            Java Concepts, Explained Simply
+            Learn with Kai
           </h1>
           {allDone && (
             <span className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-full" style={{ background: 'var(--accent-12)', color: ACC, border: '1px solid var(--accent-35)' }}>
-              <Trophy size={13} /> All concepts mastered
+              <Trophy size={13} /> {track.name} mastered
             </span>
           )}
         </div>
-        <ProgressRing done={completed.length} total={JAVA_CONCEPTS.length} />
+        <ProgressRing done={completed.length} total={track.concepts.length} />
       </div>
       <p className="font-mono text-sm mt-2" style={{ color: 'var(--text-2)' }}>
         Every concept as an analogy a 5th grader would get — then the real code.
       </p>
 
+      {/* Track selector */}
+      <div className="flex items-center gap-2 mt-5">
+        {TECH_TRACKS.map(t => {
+          const active = t.id === activeTrackId;
+          const tProgress = state.conceptsLearn?.[t.id]?.completedConceptIds?.length || 0;
+          return (
+            <button
+              key={t.id}
+              onClick={() => switchTrack(t.id)}
+              className="inline-flex items-center gap-1.5 text-sm font-medium px-3.5 py-2 rounded-lg transition-colors"
+              style={{
+                background: active ? ACC : 'var(--surface)',
+                color: active ? '#fff' : 'var(--text-2)',
+                border: `1px solid ${active ? ACC : 'var(--border)'}`,
+              }}
+            >
+              <span>{t.icon}</span> {t.name}
+              <span className="font-mono text-[10px] opacity-80">{tProgress}/{t.concepts.length}</span>
+            </button>
+          );
+        })}
+      </div>
+
       <div className="mt-6 space-y-2.5">
-        {JAVA_CONCEPTS.map((concept) => {
+        {track.concepts.map((concept) => {
           const isOpen = openId === concept.id;
           const isDone = completed.includes(concept.id);
           return (
@@ -338,7 +392,7 @@ export default function JavaConceptsSimple() {
                     Quick check — am I getting this?
                   </button>
 
-                  <RelatedQuestions concept={concept} />
+                  <RelatedQuestions trackId={activeTrackId} trackName={track.name} concept={concept} />
                 </div>
               )}
             </div>
