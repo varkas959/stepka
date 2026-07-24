@@ -410,7 +410,6 @@ export default function LearnWithKai() {
         hintAvailable={hintEligible}
         hintText={hintText}
         onRequestHint={requestHint}
-        onDismiss={() => setMascotActive(false)}
         onRetry={retryQuiz}
         claim={claim}
         onClaimAnswer={answerClaim}

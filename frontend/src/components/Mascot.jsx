@@ -2,7 +2,7 @@
 // with any other product. Currently a round-headed hoodie-and-mug SVG
 // character with an emoji face; swap to real Kai sprite images once
 // available (see public/mascot/ — the pose-to-mode mapping stays here).
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { X } from 'lucide-react';
 
@@ -47,6 +47,26 @@ const SPRITE_BY_MODE = {
   happy: '/mascot/kai-happy.png',
   celebrate: '/mascot/kai-happy.png',
 };
+
+// Ambient, task-free chit-chat — shown when the user pokes the idle mascot
+// or pulls it back out of its docked tab, so it feels alive between quizzes.
+const FRIENDLY_MESSAGES = [
+  "Hope your day's going good! \u{1F60A}",
+  "Just checking in — you're doing great.",
+  "Take a breather if you need one, I'll be right here.",
+  "Fun fact: every concept you learn compounds. Keep at it!",
+  "Coffee break? I won't judge ☕",
+  "You've got this — one concept at a time.",
+  "Curious minds ship better code. Keep exploring!",
+  "Confused now, confident later — that's just how learning works.",
+];
+
+const WELCOME_BACK_MESSAGES = [
+  "Hey, I'm back! Miss me? \u{1F604}",
+  "Ready when you are!",
+  "Let's pick up right where we left off.",
+  "Back in action — what are we learning next?",
+];
 
 const CONFETTI_COLORS = ['#7C3AED', '#3B6FD4', '#F59E0B', '#22C55E', '#EF4444'];
 
@@ -157,23 +177,85 @@ export function Mascot({
   hintText = null,
   onRequestHint,
   feedback = null,
-  onDismiss,
   onRetry,
   claim = null,
   onClaimAnswer,
   name = 'Kai',
 }) {
   const [burstKey, setBurstKey] = useState(0);
+  const [docked, setDocked] = useState(false);
+  const [clickReaction, setClickReaction] = useState(null);
+  const reactionTimer = useRef(null);
+
   useEffect(() => { if (mode === 'celebrate') setBurstKey(k => k + 1); }, [mode]);
+  useEffect(() => () => { if (reactionTimer.current) clearTimeout(reactionTimer.current); }, []);
+
+  // Clear any in-flight ambient reaction once the parent hands us real
+  // task-driven content (a question, a claim, feedback) so it never fights
+  // with the actual quiz flow for the bubble.
+  useEffect(() => {
+    if (question || claim || feedback) setClickReaction(null);
+  }, [question, claim, feedback]);
+
+  const fireReaction = (pool) => {
+    const text = pool[Math.floor(Math.random() * pool.length)];
+    setClickReaction(text);
+    if (reactionTimer.current) clearTimeout(reactionTimer.current);
+    reactionTimer.current = setTimeout(() => setClickReaction(null), 4200);
+  };
+
+  // Dismissing no longer removes Kai — it tucks him into a small peeking
+  // tab on the left edge of the screen instead, so he's always one click away.
+  const handleDock = () => setDocked(true);
+  const handleUndock = () => {
+    setDocked(false);
+    fireReaction(WELCOME_BACK_MESSAGES);
+  };
+
+  const isAmbientClickable = !question && !(claim && !feedback) && !feedback &&
+    ['idle', 'look', 'happy', 'sleepy', 'graduate'].includes(mode);
+  const handleCharacterClick = () => {
+    if (!isAmbientClickable) return;
+    fireReaction(FRIENDLY_MESSAGES);
+  };
 
   return (
     <AnimatePresence>
-      {active && (
+      {active && (docked ? (
+        <motion.button
+          key="docked-tab"
+          onClick={handleUndock}
+          aria-label={`Bring ${name} back`}
+          title={`Bring ${name} back`}
+          initial={{ x: -60, opacity: 0 }}
+          animate={{ x: [0, 6, 0], opacity: 1 }}
+          exit={{ x: -60, opacity: 0 }}
+          transition={{
+            x: { repeat: Infinity, duration: 2.2, ease: 'easeInOut', repeatDelay: 1 },
+            opacity: { duration: 0.25 },
+          }}
+          className="fixed z-40 flex items-center justify-end rounded-full shadow-lg"
+          style={{
+            top: '50%',
+            left: '-28px',
+            transform: 'translateY(-50%)',
+            width: 56,
+            height: 56,
+            paddingRight: 8,
+            background: 'var(--surface)',
+            border: '1px solid var(--border)',
+            cursor: 'pointer',
+          }}
+        >
+          <span style={{ fontSize: 20 }}>{FACE_BY_MODE[mode] || FACE_BY_MODE.idle}</span>
+        </motion.button>
+      ) : (
         <motion.div
+          key="mascot-full"
           data-testid="mascot"
-          initial={{ x: 140, opacity: 0 }}
-          animate={{ x: 0, opacity: 1 }}
-          exit={{ x: 140, opacity: 0 }}
+          initial={{ scale: 0.8, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          exit={{ x: -280, opacity: 0 }}
           transition={{ type: 'spring', stiffness: 260, damping: 24 }}
           className="fixed z-40 flex items-end gap-3"
           style={{ bottom: '88px', right: '16px', maxWidth: 'min(340px, calc(100vw - 32px))' }}
@@ -184,7 +266,7 @@ export function Mascot({
             style={{ background: 'var(--surface)', border: '1px solid var(--border)', minWidth: 180 }}
           >
             <button
-              onClick={onDismiss}
+              onClick={handleDock}
               aria-label="Dismiss"
               className="absolute -top-2 -right-2 w-6 h-6 rounded-full flex items-center justify-center shadow"
               style={{ background: 'var(--surface)', border: '1px solid var(--border)', color: 'var(--text-3)' }}
@@ -265,16 +347,23 @@ export function Mascot({
                 )}
               </div>
             ) : (
-              <div className="text-sm" style={{ color: 'var(--text-1)' }}><Typewriter text={message} /></div>
+              <div className="text-sm" style={{ color: 'var(--text-1)' }}>
+                <Typewriter text={clickReaction || message} />
+              </div>
             )}
           </div>
 
           {/* Character avatar */}
-          <div className="shrink-0" title={name}>
+          <div
+            className="shrink-0"
+            title={isAmbientClickable ? `Say hi to ${name}` : name}
+            onClick={handleCharacterClick}
+            style={{ cursor: isAmbientClickable ? 'pointer' : 'default' }}
+          >
             <Character mode={mode} burstKey={burstKey} />
           </div>
         </motion.div>
-      )}
+      ))}
     </AnimatePresence>
   );
 }
