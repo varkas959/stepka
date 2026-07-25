@@ -1493,6 +1493,7 @@ const staticPages = [
   '/', '/questions', '/feedback', '/privacy', '/terms',
   '/questions/', '/interview-process/', '/prepare/', '/tools/', '/compare/',
   '/companies/', '/roles/', '/interview-experience/', '/guide/',
+  '/app/learn', // "Learn with Kai" — evergreen concept glossary, guest-accessible
 ];
 
 // Interview Intelligence SPA routes — crawlable via Helmet meta + SPA fallback.

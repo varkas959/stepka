@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 import { toast } from 'sonner';
 import { ChevronDown, ChevronRight, Check, Trophy, ArrowUpRight, Play } from 'lucide-react';
 import { useAppState } from '../lib/appState';
@@ -285,8 +286,41 @@ export default function LearnWithKai() {
     setFeedback({ correct: gotItRight, text: gotItRight ? `Nice catch! ${whyRight}` : `Actually... ${whyRight}` });
   };
 
+  // DefinedTermSet schema: an accurate structured-data description of what's
+  // actually on this page (a glossary of programming concepts with plain-
+  // language definitions), built from the same data the UI renders — not a
+  // separate hand-maintained list that could drift out of sync.
+  const definedTermSetLd = {
+    '@context': 'https://schema.org',
+    '@type': 'DefinedTermSet',
+    name: 'Learn with Kai — Programming Concepts Explained Simply',
+    description: 'Java, Python, and React concepts explained with 5th-grade analogies, real code, and interview-ready follow-up questions.',
+    url: 'https://www.stepkai.com/app/learn',
+    hasDefinedTerm: TECH_TRACKS.flatMap(t => t.concepts.map(c => ({
+      '@type': 'DefinedTerm',
+      name: c.title,
+      description: c.analogy.text,
+      inDefinedTermSet: 'https://www.stepkai.com/app/learn',
+    }))),
+  };
+
   return (
     <div className="px-4 md:px-10 py-4 md:py-6 max-w-3xl mx-auto" data-testid="learn-with-kai-page">
+      <Helmet>
+        <title>Learn Java, Python & React Simply — Analogies + Code | Stepkai</title>
+        <meta
+          name="description"
+          content="75+ programming concepts explained with 5th-grade analogies, real code, and quizzes — Java, Python, React, from OOP basics to JVM internals. Free, no signup required to start."
+        />
+        <meta property="og:title" content="Learn Java, Python & React Simply — Analogies + Code | Stepkai" />
+        <meta
+          property="og:description"
+          content="75+ programming concepts explained with 5th-grade analogies, real code, and quizzes — Java, Python, React, from OOP basics to JVM internals."
+        />
+        <meta property="og:type" content="website" />
+        <link rel="canonical" href="https://www.stepkai.com/app/learn" />
+        <script type="application/ld+json">{JSON.stringify(definedTermSetLd)}</script>
+      </Helmet>
       <div className="flex items-center justify-between gap-3 flex-wrap">
         <div className="flex items-center gap-3 flex-wrap">
           <h1 className="text-3xl md:text-4xl font-semibold tracking-tight" style={{ color: 'var(--text-1)' }}>

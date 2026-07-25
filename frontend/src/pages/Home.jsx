@@ -677,6 +677,7 @@ const Footer = () => (
             <a href="/companies/" className="hover:opacity-80 transition-opacity text-xs">Companies</a>
             <a href="/roles/" className="hover:opacity-80 transition-opacity text-xs">Roles</a>
             <a href="/guide/" className="hover:opacity-80 transition-opacity text-xs">Interview Guides</a>
+            <a href="/app/learn" className="hover:opacity-80 transition-opacity text-xs">Learn with Kai</a>
           </div>
         </div>
         <div>
