@@ -27,6 +27,7 @@ import SEOPage from './pages/SEOPage';
 import ReportPage from './pages/ReportPage';
 import InterviewIntelligence from './pages/InterviewIntelligence';
 import LearnWithKai from './pages/LearnWithKai';
+import { CompaniesIndex, RolesIndex } from './pages/CompaniesIndex';
 
 function AppShell({ session, onSignOut, children }) {
   return (
@@ -124,6 +125,8 @@ function App() {
           <Route path="/interview-experiences/:slug" element={<InterviewIntelligence kind="companyRole" />} />
           <Route path="/company/:slug" element={<InterviewIntelligence kind="company" />} />
           <Route path="/role/:slug" element={<InterviewIntelligence kind="role" />} />
+          <Route path="/companies" element={<CompaniesIndex />} />
+          <Route path="/roles" element={<RolesIndex />} />
           <Route path="/questions/trending" element={<SEOPage kind="trending" />} />
           <Route path="/questions/company/:slug" element={<SEOPage kind="company" />} />
           <Route path="/questions/topic/:slug" element={<SEOPage kind="topic" />} />

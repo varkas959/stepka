@@ -116,9 +116,9 @@ function InterviewChallenge({ questions }) {
   );
 }
 
-function TierHeader({ emoji, label, done, total }) {
+function TierHeader({ emoji, label, done, total, isFirst }) {
   return (
-    <div className="flex items-center gap-2.5 mt-7 mb-3 first:mt-0">
+    <div className={`flex items-center gap-2.5 mb-3 ${isFirst ? 'mt-0' : 'mt-10'}`}>
       <span className="text-lg leading-none">{emoji}</span>
       <h2 className="text-xs font-bold uppercase tracking-[0.14em]" style={{ color: 'var(--text-2)' }}>{label}</h2>
       <span className="font-mono text-[11px]" style={{ color: 'var(--text-3)' }}>{done}/{total}</span>
@@ -383,13 +383,14 @@ export default function LearnWithKai() {
         };
 
         if (tierGroups) {
-          return tierGroups.map(group => (
+          return tierGroups.map((group, i) => (
             <div key={group.id}>
               <TierHeader
                 emoji={group.emoji}
                 label={group.label}
                 done={group.concepts.filter(c => completed.includes(c.id)).length}
                 total={group.concepts.length}
+                isFirst={i === 0}
               />
               <div className="space-y-2.5">{group.concepts.map(renderConcept)}</div>
             </div>
