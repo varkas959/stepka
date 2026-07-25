@@ -1,15 +1,14 @@
-import { useState, useRef, useEffect, useCallback } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { toast } from 'sonner';
 import { ChevronDown, ChevronRight, Check, Trophy, ArrowUpRight, Play } from 'lucide-react';
 import { useAppState } from '../lib/appState';
 import { TECH_TRACKS, getTrack, getConceptById, getRelatedQuestions, getConceptsByTier } from '../lib/techConcepts';
 import { QUESTIONS } from '../lib/mockData';
-import { Mascot } from '../components/Mascot';
+import { KaiCompanion } from '../components/KaiCompanion';
 import { playCorrect, playIncorrect, playCelebrate } from '../lib/sound';
 
 const ACC = 'var(--accent)';
-const IDLE_TIMEOUT_MS = 30000;
 
 function ProgressRing({ done, total }) {
   const size = 44, stroke = 4, r = (size - stroke) / 2, c = 2 * Math.PI * r;
@@ -146,7 +145,6 @@ export default function LearnWithKai() {
   const allDone = completed.length >= track.concepts.length;
 
   const [openId, setOpenId] = useState(lastConceptId || track.concepts[0].id);
-  const [mascotActive, setMascotActive] = useState(true);
   const [mode, setMode] = useState('idle');
   const [message, setMessage] = useState(
     lastConcept
@@ -159,54 +157,9 @@ export default function LearnWithKai() {
   const [hintEligible, setHintEligible] = useState(false); // true only during a wrong-quiz-answer window
   const [claim, setClaim] = useState(null); // { text, isCorrect, whyRight } — Kai's "teach me" moment
 
-  const idleTimer = useRef(null);
   const perfectRun = useRef(true); // stays true only if every quiz so far was correct on the first try
-  const modeRef = useRef(mode);
-  useEffect(() => { modeRef.current = mode; }, [mode]);
   const openIdRef = useRef(openId);
   useEffect(() => { openIdRef.current = openId; }, [openId]);
-
-  const resetIdleTimer = useCallback(() => {
-    if (idleTimer.current) clearTimeout(idleTimer.current);
-    idleTimer.current = setTimeout(() => {
-      // Never interrupt an active quiz/feedback moment with a yawn.
-      if (modeRef.current === 'idle' || modeRef.current === 'look') {
-        setMode('sleepy');
-        setMessage('*yawn* Still there? Take your time.');
-      }
-    }, IDLE_TIMEOUT_MS);
-  }, []);
-
-  // Idle-yawn timer — resets on any click or scroll, and wakes Kai back up
-  useEffect(() => {
-    resetIdleTimer();
-    const onActivity = () => {
-      if (modeRef.current === 'sleepy') {
-        setMode('idle');
-        setMessage("Oh, welcome back!");
-      }
-      resetIdleTimer();
-    };
-    window.addEventListener('click', onActivity);
-    window.addEventListener('scroll', onActivity, { passive: true });
-    return () => {
-      if (idleTimer.current) clearTimeout(idleTimer.current);
-      window.removeEventListener('click', onActivity);
-      window.removeEventListener('scroll', onActivity);
-    };
-  }, [resetIdleTimer]);
-
-  // Scroll → Kai glances at the content, only when just idly sitting there
-  useEffect(() => {
-    let lookTimeout;
-    const onScroll = () => {
-      setMode(m => (m === 'idle' ? 'look' : m));
-      clearTimeout(lookTimeout);
-      lookTimeout = setTimeout(() => setMode(m => (m === 'look' ? 'idle' : m)), 1200);
-    };
-    window.addEventListener('scroll', onScroll, { passive: true });
-    return () => { window.removeEventListener('scroll', onScroll); clearTimeout(lookTimeout); };
-  }, []);
 
   const switchTrack = (trackId) => {
     if (trackId === activeTrackId) return;
@@ -220,7 +173,6 @@ export default function LearnWithKai() {
     setHintEligible(false);
     setClaim(null);
     perfectRun.current = true;
-    setMascotActive(true);
     setMode('idle');
     setMessage(
       nextProgress.lastConceptId
@@ -233,7 +185,6 @@ export default function LearnWithKai() {
     const willOpen = openId !== concept.id;
     setOpenId(willOpen ? concept.id : null);
     if (willOpen) {
-      setMascotActive(true);
       setMode('surprise');
       setMessage(concept.expandReaction);
       setFeedback(null);
@@ -250,7 +201,6 @@ export default function LearnWithKai() {
     setHintEligible(false);
     setClaim(null);
     setMode('quiz');
-    setMascotActive(true);
   };
 
   const answerQuiz = (optionIndex) => {
@@ -449,10 +399,11 @@ export default function LearnWithKai() {
         return <div className="mt-6 space-y-2.5">{track.concepts.map(renderConcept)}</div>;
       })()}
 
-      <Mascot
-        active={mascotActive}
+      <KaiCompanion
         mode={mode}
         message={message}
+        onModeChange={setMode}
+        onMessageChange={setMessage}
         question={mode === 'quiz' ? activeQuiz?.question : null}
         onAnswer={answerQuiz}
         feedback={feedback}

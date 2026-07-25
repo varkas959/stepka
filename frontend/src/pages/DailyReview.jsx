@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { SRS_CARDS } from '../lib/mockData';
 import { useAppState } from '../lib/appState';
 import { PixelBar } from '../components/PixelBar';
+import { KaiCompanion } from '../components/KaiCompanion';
 import { ChevronLeft, RotateCw, Trophy, Zap, ArrowRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
@@ -43,6 +44,16 @@ const shuffle = (a) => {
   return x;
 };
 
+// Kai's reaction to each honest self-rating. A "forgot" is deliberately met
+// with encouragement rather than disappointment — rating honestly is the
+// behaviour the SRS algorithm actually needs, so it shouldn't feel punished.
+const KAI_BY_RATING = {
+  1: { mode: 'thinking',  text: "That one's tricky — it'll come back sooner so you can nail it." },
+  2: { mode: 'thinking',  text: "Hard-won still counts. You'll see that one again soon." },
+  3: { mode: 'happy',     text: "Nice recall! That one's sticking." },
+  4: { mode: 'happy',     text: "Locked in — that one's parked for a while." },
+};
+
 export default function DailyReview() {
   const [phase, setPhase] = useState('queue');
   const [idx, setIdx] = useState(0);
@@ -52,22 +63,89 @@ export default function DailyReview() {
   const { state, bumpReview, addXp, recordRating } = useAppState();
   const navigate = useNavigate();
 
+  const [kaiMode, setKaiMode] = useState('idle');
+  // Null means "no reaction showing" — the greeting below is then derived
+  // fresh on every render. A lazy useState initialiser would have frozen the
+  // greeting at mount, before the async Supabase progress load lands, so a
+  // signed-in user's streak would never be mentioned.
+  const [kaiReaction, setKaiReaction] = useState(null);
+  const kaiResetTimer = useRef(null);
+
+  const kaiGreeting = state.streak > 0
+    ? `You're on a ${state.streak}-day streak — let's keep it alive.`
+    : `${SRS_CARDS.length} cards due today. Let's knock them out together.`;
+  const kaiMessage = kaiReaction ?? kaiGreeting;
+
+  // Show a reaction, then drift back to idle so the ambient behaviour
+  // (glancing on scroll, eventually yawning) can resume. Mode and message are
+  // cleared together — resetting only the mode left the bubble showing stale
+  // reaction text under a neutral face.
+  const kaiReact = useCallback((mode, text, holdMs = 3500) => {
+    setKaiMode(mode);
+    setKaiReaction(text);
+    if (kaiResetTimer.current) clearTimeout(kaiResetTimer.current);
+    kaiResetTimer.current = setTimeout(() => {
+      setKaiMode('idle');
+      setKaiReaction(null);
+    }, holdMs);
+  }, []);
+  useEffect(() => () => { if (kaiResetTimer.current) clearTimeout(kaiResetTimer.current); }, []);
+
   const breakdown = SRS_CARDS.reduce((acc, c) => { acc[c.kind] = (acc[c.kind] || 0) + 1; return acc; }, {});
-  const startSession = () => { setOrder(shuffle(SRS_CARDS.map((_, i) => i))); setPhase('session'); setIdx(0); setFlipped(false); setRatings([]); };
+  const startSession = () => {
+    setOrder(shuffle(SRS_CARDS.map((_, i) => i)));
+    setPhase('session'); setIdx(0); setFlipped(false); setRatings([]);
+    kaiReact('happy', "Here we go — rate each one honestly, that's what makes this work.");
+  };
 
   const handleRate = (r) => {
     const card = SRS_CARDS[order[idx]];
-    setRatings(prev => [...prev, { cardId: card.id, rating: r }]);
+    const entry = { cardId: card.id, rating: r };
+    const nextRatings = [...ratings, entry];
+    // Functional update so a double-tap in a single batch can't drop an entry;
+    // `nextRatings` is only used for the local end-of-session check below.
+    setRatings(prev => [...prev, entry]);
     bumpReview();
     addXp(10 + r.key * 2);
     recordRating(card.id, r.key);
-    if (idx + 1 >= SRS_CARDS.length) setPhase('done');
-    else { setIdx(i => i + 1); setFlipped(false); }
+
+    if (idx + 1 >= SRS_CARDS.length) {
+      setPhase('done');
+      // Only a session with nothing forgotten earns the full celebration —
+      // otherwise the celebrate animation stops meaning anything. "hard" still
+      // counts as recalled, so the bar is `key > 1` (i.e. not "forgot").
+      const noneForgotten = nextRatings.every(x => x.rating.key > 1);
+      if (noneForgotten) {
+        kaiReact('celebrate', "Clean sweep — nothing forgotten. Streak's safe. 🎉", 6000);
+      } else {
+        kaiReact('graduate', "Session done, streak intact. The shaky ones come back sooner — that's the point.", 6000);
+      }
+    } else {
+      const reaction = KAI_BY_RATING[r.key];
+      if (reaction) kaiReact(reaction.mode, reaction.text);
+      setIdx(i => i + 1);
+      setFlipped(false);
+    }
   };
 
-  if (phase === 'queue') return <QueueView state={state} breakdown={breakdown} total={SRS_CARDS.length} onStart={startSession} />;
-  if (phase === 'session') return <SessionView card={SRS_CARDS[order[idx]]} idx={idx} flipped={flipped} setFlipped={setFlipped} onRate={handleRate} onExit={() => setPhase('queue')} />;
-  return <DoneView ratings={ratings} state={state} onContinue={() => navigate('/app/progress')} onAgain={() => setPhase('queue')} />;
+  return (
+    <>
+      {phase === 'queue' && <QueueView state={state} breakdown={breakdown} total={SRS_CARDS.length} onStart={startSession} />}
+      {phase === 'session' && <SessionView card={SRS_CARDS[order[idx]]} idx={idx} flipped={flipped} setFlipped={setFlipped} onRate={handleRate} onExit={() => setPhase('queue')} />}
+      {phase === 'done' && <DoneView ratings={ratings} state={state} onContinue={() => navigate('/app/progress')} onAgain={() => setPhase('queue')} />}
+
+      <KaiCompanion
+        mode={kaiMode}
+        message={kaiMessage}
+        onModeChange={setKaiMode}
+        onMessageChange={setKaiReaction}
+        // The end-of-session celebration is the one moment worth surfacing
+        // even to someone who tucked Kai away. It's scoped to the reaction
+        // window, so he slides back to his tab once it's over.
+        demandAttention={phase === 'done' && kaiReaction !== null}
+      />
+    </>
+  );
 }
 
 const QueueView = ({ state, breakdown, total, onStart }) => {

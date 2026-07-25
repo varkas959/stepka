@@ -2,7 +2,7 @@
 // with any other product. Currently a round-headed hoodie-and-mug SVG
 // character with an emoji face; swap to real Kai sprite images once
 // available (see public/mascot/ — the pose-to-mode mapping stays here).
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { X } from 'lucide-react';
 
@@ -73,6 +73,10 @@ const WELCOME_BACK_MESSAGES = [
   "Let's pick up right where we left off.",
   "Back in action — what are we learning next?",
 ];
+
+// The pose shown in the docked tab. Fixed on purpose — see the docked-tab
+// render below for why it must not follow the live mode.
+const DOCKED_SPRITE = '/mascot/kai-wink.png';
 
 const CONFETTI_COLORS = ['#7C3AED', '#3B6FD4', '#F59E0B', '#22C55E', '#EF4444'];
 
@@ -187,11 +191,23 @@ export function Mascot({
   claim = null,
   onClaimAnswer,
   name = 'Kai',
+  // Docked state is optionally controlled. Pass `docked` + `onDockedChange`
+  // to hoist it (so dismissing Kai can persist across pages); omit both and
+  // the component manages it internally, staying usable on its own.
+  docked: dockedProp,
+  onDockedChange,
 }) {
   const [burstKey, setBurstKey] = useState(0);
-  const [docked, setDocked] = useState(false);
+  const [internalDocked, setInternalDocked] = useState(false);
   const [clickReaction, setClickReaction] = useState(null);
   const reactionTimer = useRef(null);
+
+  const isControlled = dockedProp !== undefined;
+  const docked = isControlled ? dockedProp : internalDocked;
+  const setDocked = useCallback((next) => {
+    if (!isControlled) setInternalDocked(next);
+    onDockedChange?.(next);
+  }, [isControlled, onDockedChange]);
 
   useEffect(() => { if (mode === 'celebrate') setBurstKey(k => k + 1); }, [mode]);
   useEffect(() => () => { if (reactionTimer.current) clearTimeout(reactionTimer.current); }, []);
@@ -202,13 +218,6 @@ export function Mascot({
   useEffect(() => {
     if (question || claim || feedback) setClickReaction(null);
   }, [question, claim, feedback]);
-
-  // A quiz question or a "teach Kai" claim means the parent needs Kai on
-  // screen right now — pull him out of the docked tab automatically so a
-  // tap on "Quick check" is never silently swallowed by a dismissed mascot.
-  useEffect(() => {
-    if (question || claim) setDocked(false);
-  }, [question, claim]);
 
   const fireReaction = (pool) => {
     const text = pool[Math.floor(Math.random() * pool.length)];
@@ -250,18 +259,33 @@ export function Mascot({
           }}
           className="fixed z-40 flex items-center justify-end rounded-full shadow-lg"
           style={{
-            top: '50%',
+            // Vertically centred via calc rather than translateY(-50%): this
+            // element animates `x`, and framer-motion owns the transform
+            // property outright, so any transform set here would be clobbered.
+            top: 'calc(50% - 28px)',
             left: '-28px',
-            transform: 'translateY(-50%)',
             width: 56,
             height: 56,
-            paddingRight: 8,
+            paddingRight: 6,
             background: 'var(--surface)',
             border: '1px solid var(--border)',
             cursor: 'pointer',
           }}
         >
-          <span style={{ fontSize: 20 }}>{FACE_BY_MODE[mode] || FACE_BY_MODE.idle}</span>
+          {/* Deliberately a fixed pose, not SPRITE_BY_MODE[mode]: while Kai is
+              tucked away he should be a calm, stable affordance. Following the
+              live mode made the tab flip between faces on scroll/idle, which
+              read as him randomly looking surprised or sad. */}
+          {/* Sized/offset so Kai's face lands in the ~28px of the tab that is
+              actually on screen — the left half sits outside the viewport. */}
+          <img
+            src={DOCKED_SPRITE}
+            alt=""
+            aria-hidden="true"
+            width={28}
+            height={28}
+            style={{ width: 28, height: 28, objectFit: 'contain' }}
+          />
         </motion.button>
       )}
     </AnimatePresence>
