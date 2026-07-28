@@ -1,7 +1,7 @@
 import { useMemo, useState, useEffect, useRef } from 'react';
 import {
   X, SlidersHorizontal, Search, Check, ArrowUp, Menu, Plus,
-  TrendingUp, Building2,
+  TrendingUp, Building2, Sparkles,
   ChevronLeft, ChevronRight,
 } from 'lucide-react';
 import { toast } from 'sonner';
@@ -82,7 +82,11 @@ function timeAgo(daysAgo) {
 // ── Main component ────────────────────────────────────────────────────────────
 export default function QuestionBank({ isGuest = false, userId }) {
   const [filters, setFilters]         = useState(EMPTY_FILTERS);
-  const [activeTab, setActiveTab]     = useState('latest');
+  // Default to Trending, not Latest: sorting by recency alone can surface a
+  // long run of questions from a single recent contribution burst (e.g. one
+  // company/topic dominating an entire page), which reads as "this site only
+  // has questions about X" to a first-time visitor.
+  const [activeTab, setActiveTab]     = useState('trending');
   const [searchParams] = useSearchParams();
   const [search, setSearch]           = useState(() => searchParams.get('q') || '');
   const [page, setPage]               = useState(1);
@@ -602,7 +606,7 @@ function CompaniesStrip({ companies, onCompanyClick }) {
       <div className="flex items-center gap-2 mb-3">
         <Building2 size={14} style={{ color: 'var(--accent)' }} />
         <span className="font-mono text-[11px] uppercase tracking-[0.18em] font-semibold"
-              style={{ color: 'var(--text-3)' }}>Companies hiring now</span>
+              style={{ color: 'var(--text-3)' }}>Browse by company</span>
       </div>
       <div className="flex flex-wrap gap-2">
         {companies.map(({ id, name, count }) => (
@@ -663,16 +667,27 @@ function QuestionCard({ q, upvoted, newUpvote, asked, onUpvote, onAsked, onCompa
 
       {/* Actions row */}
       <div className="flex items-center justify-between">
-        <button
-          data-testid={`asked-${q.id}`}
-          onClick={onAsked}
-          disabled={asked}
-          className="flex items-center gap-1 text-xs transition-colors"
-          style={{ color: asked ? 'var(--diff-easy)' : 'var(--text-3)' }}
-        >
-          <Check size={11} strokeWidth={2.5} />
-          <span>Asked this</span>
-        </button>
+        <div className="flex items-center gap-3">
+          <button
+            data-testid={`asked-${q.id}`}
+            onClick={onAsked}
+            disabled={asked}
+            title={asked ? "You confirmed you were asked this in a real interview" : "Click to confirm you were asked this in a real interview"}
+            className="flex items-center gap-1 text-xs transition-colors"
+            style={{ color: asked ? 'var(--diff-easy)' : 'var(--text-3)' }}
+          >
+            <Check size={11} strokeWidth={2.5} />
+            <span>{asked ? 'I was asked this' : 'Were you asked this?'}</span>
+          </button>
+          <Link
+            to={`/app/question/${q.id}`}
+            className="hidden sm:flex items-center gap-1 text-xs transition-colors hover:opacity-80"
+            style={{ color: 'var(--accent)' }}
+          >
+            <Sparkles size={11} />
+            <span>Practice · AI-graded</span>
+          </Link>
+        </div>
         <button
           data-testid={`upvote-${q.id}`}
           onClick={onUpvote}
@@ -680,7 +695,14 @@ function QuestionCard({ q, upvoted, newUpvote, asked, onUpvote, onAsked, onCompa
           style={{ color: upvoted ? 'var(--diff-easy)' : 'var(--text-3)' }}
         >
           <ArrowUp size={11} strokeWidth={2} />
-          <span className="font-mono">{q.verifyCount + (newUpvote ? 1 : 0)}</span>
+          {/* Low counts (< 5) read as "nobody verified this yet" rather than
+              a useful signal, so we show a neutral "Verify" prompt instead
+              of broadcasting a 1 or 2. */}
+          {(q.verifyCount + (newUpvote ? 1 : 0)) >= 5 ? (
+            <span className="font-mono">{q.verifyCount + (newUpvote ? 1 : 0)}</span>
+          ) : (
+            <span>{upvoted ? 'Verified' : 'Verify'}</span>
+          )}
         </button>
       </div>
     </article>

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
-import { QUESTIONS, COMPANIES } from '../lib/mockData';
+import { QUESTIONS, COMPANIES, CATEGORY_MAP } from '../lib/mockData';
 import { useAppState } from '../lib/appState';
 import { Loader2, Code2, FileText, Timer, RotateCw, ArrowRight, ArrowDown } from 'lucide-react';
 import { toast } from 'sonner';
@@ -8,17 +8,13 @@ import { gradeAnswer } from '../lib/api';
 import { PixelBar } from '../components/PixelBar';
 import { DepthChallenge } from '../components/DepthChallenge';
 
-const BEHAVIORAL_TOPICS = ['behavioral'];
-const SAMPLE_CODE = `// two-sum O(n)
-function twoSum(nums, target) {
-  const seen = new Map();
-  for (let i = 0; i < nums.length; i++) {
-    const need = target - nums[i];
-    if (seen.has(need)) return [seen.get(need), i];
-    seen.set(nums[i], i);
-  }
-  return null;
-}`;
+// Only DSA questions are genuinely "write a function" — System Design,
+// Behavioral, Security, and everything else in this bank are scenario or
+// discussion-style prompts, so they default to the text editor instead of
+// dropping a coding question into a text box or a scenario into a code editor.
+const deriveCategory = (q) => CATEGORY_MAP[q.topic] || (q.round === 'System Design' ? 'System Design' : q.round === 'HR' ? 'Behavioral' : 'Technical');
+const isCodingQuestion = (q) => deriveCategory(q) === 'DSA';
+const CODE_HINT = '// Pseudocode is fine — outline your approach, then refine.';
 
 const ACC = 'var(--accent)';
 
@@ -29,8 +25,8 @@ export default function Practice({ isGuest = false }) {
   const [pinnedQ, setPinnedQ] = useState(pinned);
 
   const q = pinnedQ ?? QUESTIONS[qIdx];
-  const isBehavioral = BEHAVIORAL_TOPICS.includes(q.topic);
-  const [mode, setMode] = useState(isBehavioral ? 'text' : 'code');
+  const isBehavioral = deriveCategory(q) === 'Behavioral';
+  const [mode, setMode] = useState(isCodingQuestion(q) ? 'code' : 'text');
   const [answer, setAnswer] = useState('');
   const [seconds, setSeconds] = useState(0);
   const [submitting, setSubmitting] = useState(false);
@@ -43,9 +39,9 @@ export default function Practice({ isGuest = false }) {
   const navTo = (newIdx) => { setPinnedQ(null); setQIdx(newIdx); };
 
   useEffect(() => {
-    setMode(isBehavioral ? 'text' : 'code');
+    setMode(isCodingQuestion(q) ? 'code' : 'text');
     setAnswer(''); setSeconds(0); setFeedback(null);
-  }, [q.id, isBehavioral]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [q]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (feedback) return;
@@ -84,7 +80,9 @@ export default function Practice({ isGuest = false }) {
         <div className="flex items-center gap-2 font-mono text-xs">
           <button onClick={() => navTo((qIdx - 1 + QUESTIONS.length) % QUESTIONS.length)}
             className="border border-white/10 rounded-md px-2.5 py-1.5 text-zinc-300 hover:bg-white/5" data-testid="prev-question">← prev</button>
-          <span className="text-zinc-500">{qIdx + 1} / {QUESTIONS.length}</span>
+          {/* No absolute position shown — "526 / 1095" implies a sequence or
+              plan that doesn't exist; these are shuffled, not ordered. */}
+          <span className="text-zinc-500">shuffled practice</span>
           <button onClick={() => navTo((qIdx + 1) % QUESTIONS.length)}
             className="border border-white/10 rounded-md px-2.5 py-1.5 text-zinc-300 hover:bg-white/5" data-testid="next-question">next →</button>
         </div>
@@ -97,8 +95,9 @@ export default function Practice({ isGuest = false }) {
             <span className="font-mono text-[11px] px-2 py-0.5 rounded-[4px] border" style={{ borderColor: 'rgba(59,111,212,0.35)', background: 'rgba(59,111,212,0.07)', color: '#7AA9F7' }}>{company?.name}</span>
             <span className="font-mono text-[11px] px-2 py-0.5 rounded-[4px] border border-white/10 bg-white/[0.03] text-zinc-300">{q.role}</span>
             <span className="font-mono text-[11px] px-2 py-0.5 rounded-[4px] border border-white/10 bg-white/[0.03] text-zinc-300">{q.difficulty}</span>
-            <span className="ml-auto inline-flex items-center gap-1.5 text-zinc-400">
+            <span className="ml-auto inline-flex items-center gap-1.5 text-zinc-400" title="Time spent — not scored, no limit">
               <Timer size={13} /> <span>{formatTime(seconds)}</span>
+              <span className="text-zinc-600 hidden sm:inline">· not scored</span>
             </span>
           </div>
           <div className="p-5">
@@ -131,7 +130,7 @@ export default function Practice({ isGuest = false }) {
             data-testid="answer-input"
             value={answer}
             onChange={(e) => setAnswer(e.target.value)}
-            placeholder={mode === 'code' ? SAMPLE_CODE : '// type your answer. numbers and structure beat adjectives.'}
+            placeholder={mode === 'code' ? CODE_HINT : '// type your answer. numbers and structure beat adjectives.'}
             rows={12}
             disabled={!!feedback}
             className={`flex-1 w-full bg-transparent border-0 p-5 text-sm focus:outline-none resize-y ${mode === 'code' ? 'font-mono' : 'font-mono'} text-zinc-100 placeholder:text-zinc-700 disabled:opacity-60`}

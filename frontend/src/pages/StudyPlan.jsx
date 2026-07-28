@@ -213,7 +213,7 @@ export default function StudyPlan({ isGuest = false }) {
   return (
     <div className="px-4 md:px-8 py-6 md:py-8 max-w-5xl mx-auto">
       {step === 'input' && (
-        <InputStep jd={jd} setJd={setJd} company={company} setCompany={setCompany} role={role} setRole={setRole} onStart={startAssessment} />
+        <InputStep jd={jd} setJd={setJd} company={company} setCompany={setCompany} role={role} setRole={setRole} onStart={startAssessment} activePlan={state.activePlan} />
       )}
       {step !== 'input' && (
         <>
@@ -338,7 +338,9 @@ const JdImport = ({ onExtract }) => {
 };
 
 // ─── Input step ──────────────────────────────────────────────────────────────
-const InputStep = ({ jd, setJd, company, setCompany, role, setRole, onStart }) => (
+const InputStep = ({ jd, setJd, company, setCompany, role, setRole, onStart, activePlan }) => {
+  const selectedCompanyName = COMPANIES.find(c => c.id === company)?.name;
+  return (
   <div className="animate-fade-up">
     {/* Page title */}
     <div className="mb-6">
@@ -347,7 +349,21 @@ const InputStep = ({ jd, setJd, company, setCompany, role, setRole, onStart }) =
     </div>
 
     <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.6fr] gap-5 items-start">
-      {/* Left: value proposition */}
+      {/* Left: returning user sees their current plan, not marketing copy;
+          first-time visitors see the value proposition. */}
+      {activePlan ? (
+        <div className="rounded-xl border border-white/8 p-6" style={{ background: 'var(--inset)' }}>
+          <div className="text-[11px] font-mono uppercase tracking-[0.16em] text-zinc-500 mb-4">Your active plan</div>
+          <div className="text-lg font-semibold text-zinc-100">{activePlan.company} · {activePlan.role}</div>
+          <div className="text-sm text-zinc-400 mt-1">Day {activePlan.currentDay} of {activePlan.totalDays}</div>
+          <div className="mt-4 h-1.5 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.08)' }}>
+            <div className="h-full rounded-full" style={{ width: `${Math.min(100, Math.round((activePlan.currentDay / activePlan.totalDays) * 100))}%`, background: 'var(--accent)' }} />
+          </div>
+          <p className="text-[12px] text-zinc-500 mt-4 leading-relaxed">
+            Starting a new assessment on the right will replace this plan with one built from your new JD.
+          </p>
+        </div>
+      ) : (
       <div className="rounded-xl border border-white/8 p-6" style={{ background: 'var(--inset)' }}>
         <div className="text-[11px] font-mono uppercase tracking-[0.16em] text-zinc-500 mb-4">What you get</div>
         <ul className="space-y-3.5">
@@ -388,6 +404,7 @@ const InputStep = ({ jd, setJd, company, setCompany, role, setRole, onStart }) =
           </div>
         </div>
       </div>
+      )}
 
       {/* Right: upload card */}
       <div className="rounded-xl border border-white/10 overflow-hidden" style={{ background: 'var(--inset)' }}>
@@ -395,7 +412,7 @@ const InputStep = ({ jd, setJd, company, setCompany, role, setRole, onStart }) =
         <div className="px-5 py-3.5 border-b border-white/6 flex items-center gap-2" style={{ background: 'var(--inset)' }}>
           <span className="text-emerald-400 font-mono text-sm">&gt;</span>
           <span className="font-mono text-sm text-zinc-300">paste-job-description</span>
-          <span className="ml-auto font-mono text-[11px] text-zinc-500 px-2 py-0.5 rounded border border-white/8" style={{ background: 'rgba(255,255,255,0.02)' }}>step 1 of 4</span>
+          <span className="ml-auto font-mono text-[11px] text-zinc-500 px-2 py-0.5 rounded border border-white/8" style={{ background: 'rgba(255,255,255,0.02)' }}>step 1 of 3</span>
         </div>
 
         {/* Textarea */}
@@ -422,7 +439,9 @@ const InputStep = ({ jd, setJd, company, setCompany, role, setRole, onStart }) =
         <div className="mx-5 mb-4 rounded-lg border border-white/8 overflow-hidden" style={{ background: 'var(--page)' }}>
           <div className="px-4 py-2.5 border-b border-white/6 flex items-center gap-2" style={{ background: 'var(--inset)' }}>
             <span className="w-1.5 h-1.5 rounded-full bg-zinc-600 inline-block" />
-            <span className="font-mono text-[11px] uppercase tracking-[0.14em] text-zinc-500">Sample output · Business Analyst at Google</span>
+            <span className="font-mono text-[11px] uppercase tracking-[0.14em] text-zinc-500">
+              Illustrative example{selectedCompanyName ? ` · ${role} at ${selectedCompanyName}` : ' — numbers below are not tied to your JD'}
+            </span>
           </div>
           <div className="px-4 py-4 grid grid-cols-2 sm:grid-cols-4 gap-4">
             <div>
@@ -465,16 +484,22 @@ const InputStep = ({ jd, setJd, company, setCompany, role, setRole, onStart }) =
           <div className="text-[12px] font-mono text-zinc-500">
             {jd.length > 0 ? <span>{jd.length} chars · <span style={{ color: jd.length > 200 ? '#22c55e' : '#f59e0b' }}>{jd.length > 200 ? 'Good length' : 'Add more for best results'}</span></span> : 'No JD pasted yet'}
           </div>
-          <button onClick={onStart} disabled={!jd.trim()}
-            className="inline-flex items-center gap-2 text-sm font-semibold px-5 py-2.5 rounded-lg text-white hover:opacity-90 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
-            style={{ background: 'var(--accent)' }}>
-            <Sparkles size={14} strokeWidth={2.5} /> Start assessment
-          </button>
+          <div className="flex flex-col items-end gap-1">
+            <button onClick={onStart} disabled={!jd.trim()}
+              className="inline-flex items-center gap-2 text-sm font-semibold px-5 py-2.5 rounded-lg text-white hover:opacity-90 transition-all disabled:cursor-not-allowed"
+              style={jd.trim() ? { background: 'var(--accent)' } : { background: 'rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.45)' }}>
+              <Sparkles size={14} strokeWidth={2.5} /> Start assessment
+            </button>
+            {!jd.trim() && (
+              <span className="font-mono text-[11px]" style={{ color: 'var(--text-3)' }}>Paste a JD above to unlock</span>
+            )}
+          </div>
         </div>
       </div>
     </div>
   </div>
-);
+  );
+};
 
 // ─── Loading card ─────────────────────────────────────────────────────────────
 const LoadingCard = ({ color, text, sub }) => (

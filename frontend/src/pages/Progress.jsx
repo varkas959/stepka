@@ -12,6 +12,13 @@ export default function Progress() {
   const company = COMPANIES.find(c => c.id === state.activePlan?.company);
   const xpPct = Math.round((state.xp / state.xpToNext) * 100);
   const readinessColor = state.readiness < 40 ? '#ef4444' : state.readiness < 70 ? '#f59e0b' : '#22c55e';
+  // XP_EVENTS / TOPIC_MASTERY / HEATMAP_DATA are fixed illustrative arrays,
+  // not derived from real per-user history (that history isn't tracked yet).
+  // Showing them unconditionally means a guest with zero real activity sees
+  // an invented 8-week streak of green squares next to a genuine "Streak: 0"
+  // — a direct, visible contradiction on the same screen. Only show this
+  // illustrative content once there's some real sign of activity.
+  const hasRealActivity = state.streak > 0 || state.xp > 0 || state.reviewedToday > 0;
 
   const useFreeze = () => {
     if (state.streakFreezes <= 0) { toast.error('No freezes left.'); return; }
@@ -76,6 +83,9 @@ export default function Progress() {
           </div>
           <div className="mt-5">
             <div className="font-mono text-[10px] uppercase tracking-[0.18em] text-zinc-600 mb-2">XP by source · last 30 days</div>
+            {!hasRealActivity ? (
+              <EmptyState className="text-xs">Earn XP from reviews, practice, or contributions to see a breakdown.</EmptyState>
+            ) : (
             <div className="h-24">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={XP_BREAKDOWN} margin={{ top: 0, right: 0, bottom: 0, left: 0 }}>
@@ -91,6 +101,7 @@ export default function Progress() {
                 </BarChart>
               </ResponsiveContainer>
             </div>
+            )}
           </div>
         </Card>
 
@@ -113,51 +124,74 @@ export default function Progress() {
         <Card className="md:col-span-3 lg:col-span-3" testid="mastery-heatmap-card">
           <div className="flex items-center justify-between">
             <Eyebrow>Daily activity · last 8 weeks</Eyebrow>
-            <div className="font-mono text-xs text-emerald-400 inline-flex items-center gap-1.5">
-              <TrendingUp size={12} strokeWidth={2.25} /> +18% vs prior 8w
+            {hasRealActivity && (
+              <div className="font-mono text-xs text-emerald-400 inline-flex items-center gap-1.5">
+                <TrendingUp size={12} strokeWidth={2.25} /> +18% vs prior 8w
+              </div>
+            )}
+          </div>
+          {hasRealActivity ? (
+            <div className="mt-5 overflow-x-auto pb-1">
+              <ContributionHeatmap />
             </div>
-          </div>
-          <div className="mt-5 overflow-x-auto pb-1">
-            <ContributionHeatmap />
-          </div>
+          ) : (
+            <EmptyState className="mt-5">Complete your first review to start building activity history.</EmptyState>
+          )}
         </Card>
 
         {/* Topic mastery */}
         <Card className="md:col-span-3 lg:col-span-2" testid="topic-mastery-card">
           <Eyebrow>Topic mastery · active plan</Eyebrow>
-          <div className="mt-4 space-y-3">
-            {TOPIC_MASTERY.map(t => {
-              const color = t.level >= 4 ? '#22c55e' : t.level === 3 ? '#f59e0b' : '#ef4444';
-              return (
-                <div key={t.topic} className="flex items-center gap-3 font-mono">
-                  <div className="w-24 sm:w-32 text-sm text-zinc-200 truncate shrink-0">{t.topic}</div>
-                  <div className="flex-1 min-w-0"><PixelBar value={(t.level / 5) * 100} height={10} color={color} dotColor={color} /></div>
-                  <div className="w-12 text-right text-xs shrink-0" style={{ color }}>{t.level}/5</div>
-                </div>
-              );
-            })}
-          </div>
+          {hasRealActivity ? (
+            <div className="mt-4 space-y-3">
+              {TOPIC_MASTERY.map(t => {
+                const color = t.level >= 4 ? '#22c55e' : t.level === 3 ? '#f59e0b' : '#ef4444';
+                const pct = Math.round((t.level / 5) * 100);
+                return (
+                  <div key={t.topic} className="flex items-center gap-3 font-mono">
+                    <div className="w-24 sm:w-32 text-sm text-zinc-200 truncate shrink-0">{t.topic}</div>
+                    {/* Numeric label sits on the bar itself, not just after it —
+                        color alone (red/amber/green) isn't a reliable signal
+                        for color-blind readers. */}
+                    <div className="relative flex-1 min-w-0">
+                      <PixelBar value={pct} height={16} color={color} dotColor={color} />
+                      <span className="absolute inset-0 flex items-center justify-end pr-1.5 text-[9px] font-semibold text-white/90" style={{ textShadow: '0 1px 2px rgba(0,0,0,0.6)' }}>
+                        {pct}%
+                      </span>
+                    </div>
+                    <div className="w-10 text-right text-xs shrink-0" style={{ color }}>{t.level}/5</div>
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
+            <EmptyState className="mt-4">Complete an assessment on Study Plan to see your topic mastery.</EmptyState>
+          )}
         </Card>
 
         {/* XP events */}
         <Card className="md:col-span-3 lg:col-span-2" testid="xp-events-card">
           <Eyebrow>Recent XP events</Eyebrow>
-          <div className="mt-4 space-y-3 font-mono text-sm">
-            {XP_EVENTS.map(e => (
-              <div key={e.id} className="flex items-center gap-3 pb-3 border-b border-white/5 last:border-0 last:pb-0">
-                <div className={`w-1 h-8 rounded-sm ${
-                  e.source === 'review' ? 'bg-emerald-500'
-                  : e.source === 'submission' ? 'bg-blue-500'
-                  : 'bg-amber-500'
-                }`} />
-                <div className="flex-1 min-w-0">
-                  <div className="text-zinc-100 truncate">{e.label}</div>
-                  <div className="text-[10px] uppercase tracking-[0.18em] text-zinc-600">{e.source} · {e.ago}</div>
+          {hasRealActivity ? (
+            <div className="mt-4 space-y-3 font-mono text-sm">
+              {XP_EVENTS.map(e => (
+                <div key={e.id} className="flex items-center gap-3 pb-3 border-b border-white/5 last:border-0 last:pb-0">
+                  <div className={`w-1 h-8 rounded-sm ${
+                    e.source === 'review' ? 'bg-emerald-500'
+                    : e.source === 'submission' ? 'bg-blue-500'
+                    : 'bg-amber-500'
+                  }`} />
+                  <div className="flex-1 min-w-0">
+                    <div className="text-zinc-100 truncate">{e.label}</div>
+                    <div className="text-[10px] uppercase tracking-[0.18em] text-zinc-600">{e.source} · {e.ago}</div>
+                  </div>
+                  <div className="text-emerald-400">+{e.amount}</div>
                 </div>
-                <div className="text-emerald-400">+{e.amount}</div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          ) : (
+            <EmptyState className="mt-4">No XP events yet — start a review or practice session to earn some.</EmptyState>
+          )}
         </Card>
       </div>
       </div>
@@ -173,6 +207,10 @@ const Card = ({ children, className = '', testid }) => (
 
 const Eyebrow = ({ children }) => (
   <div className="font-mono text-[10px] uppercase tracking-[0.22em] text-zinc-600">{children}</div>
+);
+
+const EmptyState = ({ children, className = '' }) => (
+  <p className={`text-sm text-zinc-500 leading-relaxed ${className}`}>{children}</p>
 );
 
 const Breadcrumb = ({ segments }) => (

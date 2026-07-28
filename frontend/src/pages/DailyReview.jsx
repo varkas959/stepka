@@ -71,9 +71,12 @@ export default function DailyReview() {
   const [kaiReaction, setKaiReaction] = useState(null);
   const kaiResetTimer = useRef(null);
 
+  // Deliberately doesn't restate "N cards due today" — that's already the
+  // page's own H1, right above where this bubble renders. Kai should add
+  // something the page doesn't already say, not echo it back.
   const kaiGreeting = state.streak > 0
     ? `You're on a ${state.streak}-day streak — let's keep it alive.`
-    : `${SRS_CARDS.length} cards due today. Let's knock them out together.`;
+    : "Rate honestly, even when it's tempting to say you knew it — that's what actually improves tomorrow's queue.";
   const kaiMessage = kaiReaction ?? kaiGreeting;
 
   // Show a reaction, then drift back to idle so the ambient behaviour
@@ -150,15 +153,22 @@ export default function DailyReview() {
 
 const QueueView = ({ state, breakdown, total, onStart }) => {
   const goalPct = Math.round((state.reviewedToday / state.goalToday) * 100);
+  // The daily goal target and "cards due" are two different numbers by
+  // design (goal is a personal target, due is today's actual queue size),
+  // but stating a goal larger than what's actually available today is a
+  // real contradiction, not just confusing copy — you can't hit a goal of
+  // 10 when only 8 cards exist to review. Cap what we tell the user to what
+  // they can actually achieve today.
+  const achievableGoal = Math.min(state.goalToday, total);
   return (
     <div className="px-4 md:px-10 py-6 md:py-10 max-w-3xl mx-auto">
       <Breadcrumb segments={['daily-review', 'queue']} />
       <h1 className="text-4xl md:text-5xl font-semibold tracking-tight mt-1" style={{ color: C.text1 }}>
-        <span style={{ color: C.text3 }}>$</span> {total} cards due
+        {total} cards due
         <span style={{ color: C.text3 }}> today</span>
       </h1>
       <p className="mt-3 text-base max-w-xl leading-relaxed" style={{ color: C.text2 }}>
-        Spaced repetition. Rate each card honestly the algorithm rebuilds tomorrow queue from your signal.
+        Spaced repetition. Rate each card honestly — the algorithm rebuilds tomorrow's queue from your signal.
       </p>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-8">
@@ -174,7 +184,7 @@ const QueueView = ({ state, breakdown, total, onStart }) => {
         </div>
         <PixelBar value={goalPct} height={14} color={C.green} />
         <div className="mt-5 flex items-center justify-between gap-3 flex-wrap">
-          <p className="font-mono text-sm" style={{ color: C.text2 }}>Hit <span style={{ color: C.text1 }}>{state.goalToday}</span> cards to keep the streak alive.</p>
+          <p className="font-mono text-sm" style={{ color: C.text2 }}>Hit <span style={{ color: C.text1 }}>{achievableGoal}</span> cards to keep the streak alive.</p>
           <button data-testid="start-review" onClick={onStart}
             className="inline-flex items-center gap-2 font-mono text-sm font-semibold uppercase tracking-[0.14em] px-4 py-2.5 rounded-md text-white hover:opacity-90 transition-opacity"
             style={{ background: C.accent }}>

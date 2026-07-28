@@ -21,7 +21,18 @@ const C = {
 };
 
 const ACTIVE_COMPANY_IDS = new Set(QUESTIONS.map(q => q.company));
-const ACTIVE_COMPANIES = COMPANIES.filter(c => ACTIVE_COMPANY_IDS.has(c.id));
+const ALL_ACTIVE_COMPANIES = COMPANIES.filter(c => ACTIVE_COMPANY_IDS.has(c.id));
+
+// The logo wall shows depth, not breadth: top companies by actual question
+// count, not all 50 (which would bury Amazon/TCS-level coverage next to
+// one-off logos we only have a handful of questions for). "general" is an
+// internal catch-all bucket, not a real employer — excluded here.
+const QUESTION_COUNT_BY_COMPANY = QUESTIONS.reduce((acc, q) => { acc[q.company] = (acc[q.company] || 0) + 1; return acc; }, {});
+const ACTIVE_COMPANIES = ALL_ACTIVE_COMPANIES
+  .filter(c => c.id !== 'general')
+  .map(c => ({ ...c, count: QUESTION_COUNT_BY_COMPANY[c.id] || 0 }))
+  .sort((a, b) => b.count - a.count)
+  .slice(0, 9);
 
 const slugify = s => s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
 
@@ -64,6 +75,9 @@ const Eyebrow = ({ children }) => (
   </div>
 );
 
+// Companies used here match the ones with real question depth (see
+// CompaniesStrip below and the site's SEO positioning) — Amazon, TCS, and
+// Wipro, not a thin one-off logo pulled in just for variety.
 const PROFILES = [
   {
     company: 'Amazon', role: 'Senior SDE', readiness: 61,
@@ -72,28 +86,22 @@ const PROFILES = [
     weeks: 3,
   },
   {
-    company: 'Atlassian', role: 'Product Owner', readiness: 58,
-    strengths: [{ name: 'Stakeholder Mgmt', score: 79 }, { name: 'Backlog Grooming', score: 72 }, { name: 'User Stories', score: 65 }],
-    gaps:      [{ name: 'OKR Alignment', score: 22 }, { name: 'Release Planning', score: 31 }, { name: 'Roadmapping', score: 41 }],
+    company: 'TCS', role: 'Software Engineer', readiness: 58,
+    strengths: [{ name: 'Core Java', score: 79 }, { name: 'SQL / DBMS', score: 74 }, { name: 'OOP Concepts', score: 66 }],
+    gaps:      [{ name: 'System Design', score: 22 }, { name: 'Spring Boot', score: 31 }, { name: 'Cloud Basics', score: 40 }],
     weeks: 4,
   },
   {
-    company: 'Google', role: 'Business Analyst', readiness: 72,
-    strengths: [{ name: 'Data Analysis', score: 88 }, { name: 'SQL', score: 76 }, { name: 'Requirements', score: 70 }],
-    gaps:      [{ name: 'Process Mapping', score: 28 }, { name: 'Change Management', score: 35 }, { name: 'Stakeholder Reports', score: 44 }],
+    company: 'Google', role: 'SDE2', readiness: 72,
+    strengths: [{ name: 'Algorithms', score: 88 }, { name: 'Data Structures', score: 76 }, { name: 'System Design', score: 70 }],
+    gaps:      [{ name: 'Distributed Systems', score: 28 }, { name: 'Concurrency', score: 35 }, { name: 'Behavioral', score: 44 }],
     weeks: 2,
   },
   {
-    company: 'PhonePe', role: 'Scrum Master', readiness: 54,
-    strengths: [{ name: 'Sprint Planning', score: 81 }, { name: 'Retrospectives', score: 69 }, { name: 'Agile Coaching', score: 63 }],
-    gaps:      [{ name: 'Metrics & Reporting', score: 17 }, { name: 'Dependency Mgmt', score: 29 }, { name: 'Scaled Agile', score: 36 }],
+    company: 'Wipro', role: 'Senior Developer', readiness: 54,
+    strengths: [{ name: 'Java', score: 81 }, { name: 'REST APIs', score: 69 }, { name: 'SQL', score: 63 }],
+    gaps:      [{ name: 'Microservices', score: 17 }, { name: 'System Design', score: 29 }, { name: 'Docker / K8s', score: 36 }],
     weeks: 4,
-  },
-  {
-    company: 'Netflix', role: 'Data Engineer', readiness: 67,
-    strengths: [{ name: 'Python', score: 86 }, { name: 'Apache Spark', score: 73 }, { name: 'Data Modelling', score: 66 }],
-    gaps:      [{ name: 'Flink / Streaming', score: 21 }, { name: 'ML Pipelines', score: 33 }, { name: 'Cost Optimisation', score: 45 }],
-    weeks: 3,
   },
 ];
 
@@ -141,7 +149,7 @@ const HomeNav = ({ session }) => (
           <Link to="/app/plan"
             className="inline-flex items-center gap-1.5 text-sm font-medium px-4 py-1.5 rounded-md transition-opacity hover:opacity-90 text-white"
             style={{ background: C.accent }}>
-            Assess your readiness
+            Analyze my JD — free
           </Link>
         )}
       </div>
@@ -279,7 +287,7 @@ const Hero = () => (
         <div className="flex items-center gap-2 mb-6">
           <StepMark size={15} />
           <span className="font-mono text-[10px] uppercase tracking-[0.2em]" style={{ color: C.text3 }}>
-            {QUESTIONS.length}+ questions · {ACTIVE_COMPANIES.length} companies
+            Real interview questions, ranked by what your JD actually needs
           </span>
         </div>
 
@@ -306,12 +314,6 @@ const Hero = () => (
             Browse questions first
           </Link>
         </div>
-
-        <div className="flex items-center gap-8 mt-12 pt-8" style={{ borderTop: `1px solid ${C.border}` }}>
-          <Stat value={`${QUESTIONS.length}+`} label="Verified questions" />
-          <Stat value={`${ACTIVE_COMPANIES.length}`} label="Companies tracked" />
-          <Stat value="Free" label="To start" />
-        </div>
       </div>
 
       {/* Right — example report (rotating illustration, not live user data) */}
@@ -323,13 +325,6 @@ const Hero = () => (
       </div>
     </div>
   </section>
-);
-
-const Stat = ({ value, label }) => (
-  <div>
-    <div className="font-mono text-xl font-semibold" style={{ color: C.text1 }}>{value}</div>
-    <div className="text-xs mt-0.5" style={{ color: C.text3 }}>{label}</div>
-  </div>
 );
 
 // ─── How it works ─────────────────────────────────────────────────────────────
@@ -405,7 +400,10 @@ const CompanyCard = ({ c }) => {
            style={{ background: hover ? c.color : c.color + '1f', color: hover ? '#fff' : c.color }}>
         {c.initials}
       </div>
-      <span className="text-sm font-medium whitespace-nowrap" style={{ color: hover ? C.text1 : C.text2 }}>{c.name}</span>
+      <div className="flex flex-col">
+        <span className="text-sm font-medium whitespace-nowrap leading-tight" style={{ color: hover ? C.text1 : C.text2 }}>{c.name}</span>
+        <span className="text-[11px] whitespace-nowrap leading-tight" style={{ color: C.text3 }}>{c.count} question{c.count === 1 ? '' : 's'}</span>
+      </div>
     </Link>
   );
 };
@@ -487,7 +485,7 @@ const FinalCTA = () => (
         </p>
         <ul className="space-y-3 mb-10">
           {[
-            `${QUESTIONS.length}+ verified questions across ${ACTIVE_COMPANIES.length} companies`,
+            `${QUESTIONS.length}+ verified questions across ${ALL_ACTIVE_COMPANIES.length} companies`,
             'Readiness score from your actual assessment — not self-reported',
             'Your data stays private. We never sell it.',
           ].map(item => (
@@ -500,7 +498,7 @@ const FinalCTA = () => (
         <Link to="/app/plan" data-testid="final-cta"
           className="inline-flex items-center gap-2 font-semibold px-7 py-3.5 rounded-lg transition-transform hover:-translate-y-0.5 text-white shadow-lg"
           style={{ background: C.accent, fontSize: '16px', boxShadow: '0 8px 24px -8px var(--accent)' }}>
-          Generate my interview plan <ArrowRight size={16} strokeWidth={2.5} />
+          Analyze my JD — free <ArrowRight size={16} strokeWidth={2.5} />
         </Link>
       </Reveal>
     </div>
@@ -510,7 +508,7 @@ const FinalCTA = () => (
 // ─── Trust bar ───────────────────────────────────────────────────────────────
 const TRUST_STATS = [
   { value: `${QUESTIONS.length}+`, label: 'Verified questions' },
-  { value: `${ACTIVE_COMPANIES.length}`, label: 'Companies tracked' },
+  { value: `${ALL_ACTIVE_COMPANIES.length}`, label: 'Companies tracked' },
   { value: '4', label: 'Question formats' },
   { value: '15 min', label: 'To your first score' },
 ];
