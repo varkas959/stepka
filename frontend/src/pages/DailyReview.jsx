@@ -60,7 +60,7 @@ export default function DailyReview() {
   const [order, setOrder] = useState(() => SRS_CARDS.map((_, i) => i));
   const [flipped, setFlipped] = useState(false);
   const [ratings, setRatings] = useState([]);
-  const { state, bumpReview, addXp, recordRating } = useAppState();
+  const { state, bumpReview, addXp, recordRating, dueToday } = useAppState();
   const navigate = useNavigate();
 
   const [kaiMode, setKaiMode] = useState('idle');
@@ -133,20 +133,25 @@ export default function DailyReview() {
 
   return (
     <>
-      {phase === 'queue' && <QueueView state={state} breakdown={breakdown} total={SRS_CARDS.length} onStart={startSession} />}
+      {phase === 'queue' && <QueueView state={state} breakdown={breakdown} total={dueToday} onStart={startSession} />}
       {phase === 'session' && <SessionView card={SRS_CARDS[order[idx]]} idx={idx} flipped={flipped} setFlipped={setFlipped} onRate={handleRate} onExit={() => setPhase('queue')} />}
       {phase === 'done' && <DoneView ratings={ratings} state={state} onContinue={() => navigate('/app/progress')} onAgain={() => setPhase('queue')} />}
 
-      <KaiCompanion
-        mode={kaiMode}
-        message={kaiMessage}
-        onModeChange={setKaiMode}
-        onMessageChange={setKaiReaction}
-        // The end-of-session celebration is the one moment worth surfacing
-        // even to someone who tucked Kai away. It's scoped to the reaction
-        // window, so he slides back to his tab once it's over.
-        demandAttention={phase === 'done' && kaiReaction !== null}
-      />
+      {/* Kai is desktop-only here — on mobile the docked tab's off-screen-by-design
+          left offset clipped over the concept card instead of tucking away cleanly,
+          and this screen has no room to spare for a companion anyway. */}
+      <div className="hidden md:block">
+        <KaiCompanion
+          mode={kaiMode}
+          message={kaiMessage}
+          onModeChange={setKaiMode}
+          onMessageChange={setKaiReaction}
+          // The end-of-session celebration is the one moment worth surfacing
+          // even to someone who tucked Kai away. It's scoped to the reaction
+          // window, so he slides back to his tab once it's over.
+          demandAttention={phase === 'done' && kaiReaction !== null}
+        />
+      </div>
     </>
   );
 }
@@ -171,7 +176,9 @@ const QueueView = ({ state, breakdown, total, onStart }) => {
         Spaced repetition. Rate each card honestly — the algorithm rebuilds tomorrow's queue from your signal.
       </p>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-8">
+      {/* One row of three even on mobile — three stacked full-width cards to
+          show three single digits pushed the Start Review button off-screen. */}
+      <div className="grid grid-cols-3 gap-2 sm:gap-3 mt-6 md:mt-8">
         <KindCard kind="concept" value={breakdown.concept || 0} />
         <KindCard kind="coding"  value={breakdown.coding  || 0} />
         <KindCard kind="star"    value={breakdown.star    || 0} />

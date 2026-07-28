@@ -42,9 +42,22 @@ export default function StudyPlan({ isGuest = false }) {
   const [expandedDay, setExpandedDay] = useState(null);
   const [reportSlug, setReportSlug] = useState(null);
   const [corpus, setCorpus] = useState([]);   // canonical question store, for market-frequency
-  const { state, setActivePlan, setReadiness } = useAppState();
+  const { state, setActivePlan, setReadiness, dueToday } = useAppState();
 
   useEffect(() => { loadAllQuestions().then(setCorpus).catch(() => {}); }, []);
+
+  // Returning users: rehydrate the actual 14-day plan from persisted state
+  // instead of showing the empty input/summary screen. Guarded on
+  // `generatedPlan` being empty so it doesn't clobber a plan just generated
+  // this session, and skipped after an explicit reset (which clears
+  // activePlan itself, so this simply won't re-fire).
+  useEffect(() => {
+    if (state.activePlan?.plan && !generatedPlan) {
+      setGeneratedPlan(state.activePlan.plan);
+      setExpandedDay(state.activePlan.currentDay || 1);
+      setStep('plan');
+    }
+  }, [state.activePlan]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const companyName = COMPANIES.find(c => c.id === company)?.name || company;
 
@@ -190,7 +203,12 @@ export default function StudyPlan({ isGuest = false }) {
         highRiskSkills: gapIntel?.highRisk.map(s => s.skill) || [],
       });
       setGeneratedPlan(plan);
-      setActivePlan({ company, role, currentDay: 1, totalDays: 14 });
+      // Persist the actual plan content (days/mockInterviews/successProbability),
+      // not just the company/role/day counters — activePlan is a jsonb blob,
+      // so this needs no schema change. Without this, a returning user's
+      // "Day 3 of 14" survives reload but the 14-day plan itself doesn't,
+      // leaving Study Plan with nothing to show but empty summary stats.
+      setActivePlan({ company, role, currentDay: 1, totalDays: 14, plan });
       setExpandedDay(1);
       setStep('plan');
       track('study_plan_generated', { company: companyName, role, readiness });
@@ -208,13 +226,13 @@ export default function StudyPlan({ isGuest = false }) {
   if (step === 'plan') {
     return <PlanCalendar plan={generatedPlan} expandedDay={expandedDay} setExpandedDay={setExpandedDay} state={state}
       reportSlug={reportSlug}
-      onReset={() => { setStep('input'); setGeneratedPlan(null); setExpandedDay(null); setReportSlug(null); }} />;
+      onReset={() => { setStep('input'); setGeneratedPlan(null); setExpandedDay(null); setReportSlug(null); setActivePlan(null); }} />;
   }
 
   return (
     <div className="px-4 md:px-8 py-6 md:py-8 max-w-5xl mx-auto">
       {step === 'input' && (
-        <InputStep jd={jd} setJd={setJd} company={company} setCompany={setCompany} role={role} setRole={setRole} onStart={startAssessment} activePlan={state.activePlan} isGuest={isGuest} dueToday={state.dueToday} readiness={state.readiness} />
+        <InputStep jd={jd} setJd={setJd} company={company} setCompany={setCompany} role={role} setRole={setRole} onStart={startAssessment} activePlan={state.activePlan} isGuest={isGuest} dueToday={dueToday} readiness={state.readiness} />
       )}
       {step !== 'input' && (
         <>

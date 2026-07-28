@@ -36,9 +36,32 @@ export default function Progress() {
         <p className="text-sm text-zinc-400 mt-3">Stats that earn the streak.</p>
       </div>
 
+      {/* Mobile-only compact stats — three full-width cards to show streak/
+          level/readiness (two of them often just a single digit) wasted most
+          of the screen; this is the same numbers in one row. */}
+      <Card className="md:hidden mb-4" testid="mobile-stats-card">
+        <div className="grid grid-cols-3 gap-3 text-center">
+          <div>
+            <div className="flex items-center justify-center gap-1.5">
+              <Flame size={16} className="text-amber-500" fill="currentColor" />
+              <span className="font-mono text-2xl font-semibold text-zinc-50">{state.streak}</span>
+            </div>
+            <Eyebrow>streak</Eyebrow>
+          </div>
+          <div>
+            <span className="font-mono text-2xl font-semibold text-zinc-50">{state.level}</span>
+            <Eyebrow>level</Eyebrow>
+          </div>
+          <div>
+            <span className="font-mono text-2xl font-semibold" style={{ color: readinessColor }}>{state.readiness}%</span>
+            <Eyebrow>readiness</Eyebrow>
+          </div>
+        </div>
+      </Card>
+
       <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
-        {/* Streak */}
-        <Card testid="streak-widget">
+        {/* Streak — desktop only; mobile's compact card above covers streak/level/readiness */}
+        <Card className="hidden md:block" testid="streak-widget">
           <Eyebrow>Streak</Eyebrow>
           <div className="flex items-center gap-3 mt-3">
             <Flame size={26} className="text-amber-500" fill="currentColor" />
@@ -105,8 +128,8 @@ export default function Progress() {
           </div>
         </Card>
 
-        {/* Readiness */}
-        <Card className="md:col-span-3 lg:col-span-1" testid="readiness-card">
+        {/* Readiness — desktop only; mobile's compact card above covers streak/level/readiness */}
+        <Card className="hidden md:block md:col-span-3 lg:col-span-1" testid="readiness-card">
           <Eyebrow>Readiness</Eyebrow>
           <div className="mt-4">
             <div className="font-mono text-6xl font-semibold" style={{ color: readinessColor }}>

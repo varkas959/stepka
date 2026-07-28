@@ -5,6 +5,12 @@ import { ArrowRight, Check, X, Clock, Target, ArrowUp } from 'lucide-react';
 import { COMPANIES, QUESTIONS } from '../lib/mockData';
 import { getSession } from '../lib/auth';
 
+// The real in-app count (static seed + live contributions) is always >=
+// this and grows over time — round down to a figure that reads as an
+// intentional approximation instead of a precise count that a live number
+// elsewhere in the app will inevitably outpace and visibly disagree with.
+const QUESTION_COUNT_APPROX = `${Math.floor(QUESTIONS.length / 100) * 100}+`;
+
 const C = {
   bg:      'var(--page)',
   bg2:     'var(--surface)',
@@ -485,7 +491,7 @@ const FinalCTA = () => (
         </p>
         <ul className="space-y-3 mb-10">
           {[
-            `${QUESTIONS.length}+ verified questions across ${ALL_ACTIVE_COMPANIES.length} companies`,
+            `${QUESTION_COUNT_APPROX} verified questions across ${ALL_ACTIVE_COMPANIES.length} companies`,
             'Readiness score from your actual assessment — not self-reported',
             'Your data stays private. We never sell it.',
           ].map(item => (
@@ -507,7 +513,7 @@ const FinalCTA = () => (
 
 // ─── Trust bar ───────────────────────────────────────────────────────────────
 const TRUST_STATS = [
-  { value: `${QUESTIONS.length}+`, label: 'Verified questions' },
+  { value: QUESTION_COUNT_APPROX, label: 'Verified questions' },
   { value: `${ALL_ACTIVE_COMPANIES.length}`, label: 'Companies tracked' },
   { value: '4', label: 'Question formats' },
   { value: '15 min', label: 'To your first score' },

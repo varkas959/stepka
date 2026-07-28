@@ -24,7 +24,7 @@ const NAV = [
 ];
 
 export const Sidebar = ({ user, isGuest, onSignOut }) => {
-  const { state } = useAppState();
+  const { state, dueToday } = useAppState();
   const { theme, setTheme } = useTheme();
   const toggle = () => setTheme(theme === 'light' ? 'dark' : 'light');
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -79,10 +79,10 @@ export const Sidebar = ({ user, isGuest, onSignOut }) => {
                 <>
                   <Icon size={16} strokeWidth={isActive ? 2.2 : 1.7} style={{ color: isActive ? ACC : T3 }} />
                   <span className="flex-1">{label}</span>
-                  {badge && state.dueToday > 0 && (
+                  {badge && dueToday > 0 && (
                     <span className="text-[10px] px-1.5 py-0.5 rounded font-mono"
                           style={{ background: 'var(--accent-20)', color: ACC, border: '1px solid var(--accent-35)' }}>
-                      {state.dueToday}
+                      {dueToday}
                     </span>
                   )}
                 </>
@@ -270,9 +270,9 @@ export const Sidebar = ({ user, isGuest, onSignOut }) => {
                 <div className="relative flex items-center justify-center w-10 h-7 rounded-2xl transition-colors"
                      style={{ background: isActive ? 'rgba(59,111,212,0.12)' : 'transparent' }}>
                   <Icon size={20} strokeWidth={isActive ? 2.2 : 1.6} />
-                  {badge && state.dueToday > 0 && (
+                  {badge && dueToday > 0 && (
                     <span className="absolute -top-1 -right-1 w-3.5 h-3.5 rounded-full text-[8px] font-bold flex items-center justify-center text-white"
-                          style={{ background: ACC }}>{state.dueToday}</span>
+                          style={{ background: ACC }}>{dueToday}</span>
                   )}
                 </div>
                 <span className="text-[10px]" style={{ fontWeight: isActive ? 600 : 400 }}>{label}</span>

@@ -72,6 +72,14 @@ const DIFF_PALETTE = {
   Hard:   { border: 'rgba(225,128,128,0.25)', bg: 'rgba(225,128,128,0.08)', text: 'var(--diff-hard)' },
 };
 
+// Deterministic per-string hash, used to tie-break sorts without depending
+// on raw array order (see `filtered` below).
+function hashStr(s) {
+  let h = 0;
+  for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) | 0;
+  return h;
+}
+
 function timeAgo(daysAgo) {
   if (!daysAgo || daysAgo === 0) return '2h ago';
   if (daysAgo < 1) return `${Math.round(daysAgo * 24)}h ago`;
@@ -139,6 +147,7 @@ export default function QuestionBank({ isGuest = false, userId }) {
 
   // Filtered + sorted
   const filtered = useMemo(() => {
+    const s = search.trim().toLowerCase();
     let list = allQuestions.filter(q => {
       if (filters.company    !== ALL && q.company !== filters.company) return false;
       if (filters.role       !== ALL && canonicalRole(q.role) !== filters.role) return false;
@@ -148,12 +157,28 @@ export default function QuestionBank({ isGuest = false, userId }) {
       if (filters.difficulty !== ALL && q.difficulty !== filters.difficulty) return false;
       if (filters.experience !== ALL && q.experience !== filters.experience) return false;
       if (filters.round      !== ALL && q.round !== filters.round) return false;
-      if (search && !q.body.toLowerCase().includes(search.toLowerCase())) return false;
+      if (s) {
+        // Searching "TCS" only ever matched question *body* text before —
+        // company/role/topic weren't checked, so searching a company name
+        // that never happens to appear inline in a question's wording
+        // returned almost nothing even when that company has hundreds of
+        // questions.
+        const companyName = COMPANIES.find(c => c.id === q.company)?.name || q.company || '';
+        const topicLabel = TOPIC_LABELS.find(t => t.id === q.topic)?.name || q.topic || '';
+        const haystack = `${q.body} ${companyName} ${q.role} ${topicLabel}`.toLowerCase();
+        if (!haystack.includes(s)) return false;
+      }
       if (activeTab === 'recent' && (q.daysAgo || 0) > 7) return false;
       return true;
     });
-    if (activeTab === 'trending') list = [...list].sort((a, b) => b.upvotes - a.upvotes);
-    else if (activeTab === 'asked') list = [...list].sort((a, b) => b.asked - a.asked);
+    // Tie-break by a stable per-id hash, not raw list order — a lot of
+    // questions (especially bulk-imported ones) share identical upvote/asked
+    // counts, and without a tiebreaker "trending"/"asked" silently collapse
+    // back to insertion order, which clusters consecutive same-company,
+    // same-import-batch questions on page one.
+    const tiebreak = (a, b) => hashStr(a.id) - hashStr(b.id);
+    if (activeTab === 'trending') list = [...list].sort((a, b) => (b.upvotes - a.upvotes) || tiebreak(a, b));
+    else if (activeTab === 'asked') list = [...list].sort((a, b) => (b.asked - a.asked) || tiebreak(a, b));
     else list = [...list].sort((a, b) => (a.daysAgo || 0) - (b.daysAgo || 0));
     return list;
   }, [filters, search, activeTab, allQuestions]);
@@ -315,11 +340,13 @@ export default function QuestionBank({ isGuest = false, userId }) {
       )}
 
       {/* ── Feed ── */}
-      <div className="mx-auto md:px-8 md:pt-4 pb-4">
+      <div className="mx-auto md:px-8 md:pt-4 pb-36 md:pb-4">
 
         {/* Tabs — on mobile appear right at top before count, and stay pinned
-            under the header while scrolling so Trending/sort stays reachable. */}
-        <div className="sticky top-14 z-30 flex items-center border-b px-4 md:px-0 md:static"
+            under the header while scrolling so Trending/sort stays reachable.
+            Scrolls horizontally so the last tab (Roles) isn't clipped by the
+            viewport edge with no way to reach it. */}
+        <div className="sticky top-14 z-30 flex items-center border-b px-4 md:px-0 md:static overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
              style={{ borderColor: 'var(--border)', background: 'var(--surface)' }}>
           {TABS.map(tab => {
             const isActive = tab.type === 'sort' && activeTab === tab.id;
