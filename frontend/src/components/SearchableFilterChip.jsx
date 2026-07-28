@@ -34,7 +34,7 @@ export const SearchableFilterChip = ({
       <PopoverTrigger asChild>
         <button
           data-testid={`filter-chip-${testid}`}
-          className={`group inline-flex items-center gap-1 font-mono text-xs px-2.5 py-1.5 rounded-md border transition-colors ${
+          className={`group inline-flex items-center gap-1 text-xs px-2.5 py-1.5 rounded-md border transition-colors ${
             active
               ? 'border-emerald-500/40 bg-emerald-500/[0.06] text-emerald-400'
               : 'border-white/10 bg-transparent text-zinc-500 hover:border-white/25 hover:text-zinc-300'
@@ -62,12 +62,12 @@ export const SearchableFilterChip = ({
             value={q}
             onChange={(e) => setQ(e.target.value)}
             placeholder={`type to filter ${label}…`}
-            className="flex-1 bg-transparent border-0 outline-none font-mono text-xs text-zinc-100 placeholder:text-zinc-600"
+            className="flex-1 bg-transparent border-0 outline-none text-xs text-zinc-100 placeholder:text-zinc-600"
           />
         </div>
         <div className="max-h-[300px] overflow-y-auto py-1">
           {filtered.length === 0 && (
-            <div className="px-3 py-6 text-center font-mono text-xs text-zinc-600">{emptyText}</div>
+            <div className="px-3 py-6 text-center text-xs text-zinc-600">{emptyText}</div>
           )}
           {!grouped && filtered.map(o => (
             <Row key={o.id} option={o} selected={value === o.id}
@@ -94,7 +94,7 @@ const Row = ({ option, selected, onSelect, testid }) => (
   <button
     data-testid={testid}
     onClick={onSelect}
-    className={`w-full flex items-center gap-2 px-3 py-1.5 font-mono text-sm text-left transition-colors ${
+    className={`w-full flex items-center gap-2 px-3 py-1.5 text-sm text-left transition-colors ${
       selected ? 'bg-emerald-500/[0.08] text-emerald-400' : 'text-zinc-300 hover:bg-white/5'
     }`}>
     <span className="flex-1">{option.label}</span>

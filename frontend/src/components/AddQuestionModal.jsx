@@ -136,9 +136,9 @@ export const AddQuestionModal = ({ open, onOpenChange, onAdded, userId, embedded
               onChange={(e) => set('body', e.target.value)}
               rows={6}
               placeholder="// Paste the question exactly as you were asked it. Include any context the interviewer gave you."
-              className="w-full bg-zinc-900 border border-white/10 rounded-md p-3 text-sm font-mono text-zinc-100 placeholder:text-zinc-600 focus:outline-none focus:border-white/30 transition-colors resize-y"
+              className="w-full bg-zinc-900 border border-white/10 rounded-md p-3 text-sm text-zinc-100 placeholder:text-zinc-600 focus:outline-none focus:border-white/30 transition-colors resize-y"
             />
-            <div className="font-mono text-[11px] text-zinc-600 mt-1.5 flex justify-between">
+            <div className="text-[11px] text-zinc-600 mt-1.5 flex justify-between">
               <span>// min 30 chars · no URLs · keep it interview-relevant</span>
               <span className={form.body.length < 30 ? 'text-red-400' : 'text-emerald-400'}>{form.body.length} chars</span>
             </div>
@@ -150,7 +150,7 @@ export const AddQuestionModal = ({ open, onOpenChange, onAdded, userId, embedded
                 <AlertTriangle size={13} className="text-red-400" />
                 <div className="font-mono text-[10px] uppercase tracking-[0.18em] text-red-400">Submission blocked by moderation</div>
               </div>
-              <ul className="font-mono text-xs text-red-300 list-disc ml-5 space-y-0.5">
+              <ul className="text-xs text-red-300 list-disc ml-5 space-y-0.5">
                 {violations.map((v, i) => (
                   <li key={i}>
                     {v.kind === 'profanity' && <>contains a flagged word: <span className="text-red-200">"{v.match}"</span></>}
@@ -161,23 +161,23 @@ export const AddQuestionModal = ({ open, onOpenChange, onAdded, userId, embedded
                   </li>
                 ))}
               </ul>
-              <div className="font-mono text-[11px] text-zinc-500 mt-2">Edit your submission and try again. We keep the bank professional.</div>
+              <div className="text-[11px] text-zinc-500 mt-2">Edit your submission and try again. We keep the bank professional.</div>
             </div>
           )}
 
-          <div className="rounded-md border border-emerald-500/30 bg-emerald-500/[0.04] p-3 font-mono text-xs text-zinc-300">
+          <div className="rounded-md border border-emerald-500/30 bg-emerald-500/[0.04] p-3 text-xs text-zinc-300">
             <span className="text-emerald-400">// reward</span> &nbsp;Your question goes live immediately → earn +40 XP.
           </div>
 
           <div className="flex items-center gap-2 pt-1">
             <button type="submit" data-testid="aq-submit" disabled={submitting}
-              className="inline-flex items-center gap-2 font-mono text-sm font-semibold uppercase tracking-[0.14em] px-4 py-2 rounded-md text-white hover:opacity-90 transition-opacity disabled:opacity-50"
+              className="inline-flex items-center gap-2 text-sm font-semibold uppercase tracking-[0.14em] px-4 py-2 rounded-md text-white hover:opacity-90 transition-opacity disabled:opacity-50"
               style={{ background: 'var(--accent)' }}>
               {submitting && <Loader2 size={14} className="animate-spin" />}
               {submitting ? 'Adding…' : 'Add question'}
             </button>
             <button type="button" onClick={() => onOpenChange(false)}
-              className="font-mono text-sm px-3 py-2 rounded-md border border-white/10 bg-zinc-900 hover:bg-zinc-800 text-zinc-100">Cancel</button>
+              className="text-sm px-3 py-2 rounded-md border border-white/10 bg-zinc-900 hover:bg-zinc-800 text-zinc-100">Cancel</button>
           </div>
         </form>
   );

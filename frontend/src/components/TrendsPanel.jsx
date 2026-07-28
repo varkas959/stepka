@@ -17,7 +17,7 @@ export const TrendsPanel = () => {
   if (!skills.length && !tech.length && !topics.length) return null;
 
   const Chip = ({ label, count }) => (
-    <span className="inline-flex items-center gap-1 font-mono text-[11px] leading-none px-2 py-1 rounded-[5px]"
+    <span className="inline-flex items-center gap-1 text-[11px] leading-none px-2 py-1 rounded-[5px]"
       style={{ border: '1px solid var(--chip-border)', background: 'var(--chip-bg)', color: 'var(--chip-text)' }}>
       {label}{count != null && <span style={{ color: 'var(--text-3)' }}>{count}</span>}
     </span>

@@ -33,7 +33,7 @@ export default function Progress() {
       <Breadcrumb segments={['progress', 'dashboard']} />
       <div className="mt-1 mb-7">
         <h1 className="text-4xl md:text-5xl font-semibold tracking-tight text-zinc-50">Where you stand</h1>
-        <p className="font-mono text-sm text-zinc-400 mt-3">Stats that earn the streak.</p>
+        <p className="text-sm text-zinc-400 mt-3">Stats that earn the streak.</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
@@ -47,8 +47,8 @@ export default function Progress() {
               <div className="font-mono text-[10px] uppercase tracking-[0.18em] text-zinc-600">days</div>
             </div>
           </div>
-          <div className="font-mono text-xs text-zinc-400 mt-4 flex justify-between">
-            <span>longest</span><span className="text-zinc-100">{state.longestStreak}d</span>
+          <div className="text-xs text-zinc-400 mt-4 flex justify-between">
+            <span>longest</span><span className="font-mono text-zinc-100">{state.longestStreak}d</span>
           </div>
           <div className="mt-4 pt-4 border-t border-white/5">
             <div className="font-mono text-[10px] uppercase tracking-[0.18em] text-zinc-600 mb-2">Freezes</div>
@@ -58,15 +58,15 @@ export default function Progress() {
                   fill={i < state.streakFreezes ? 'currentColor' : 'none'} />
               ))}
               <button data-testid="use-freeze" onClick={useFreeze}
-                className="ml-auto font-mono text-[10px] uppercase tracking-[0.18em] text-zinc-300 hover:text-zinc-50 border border-white/10 rounded px-2 py-1">
+                className="ml-auto text-[10px] uppercase tracking-[0.18em] text-zinc-300 hover:text-zinc-50 border border-white/10 rounded px-2 py-1">
                 use freeze
               </button>
             </div>
           </div>
         </Card>
 
-        {/* XP + Level */}
-        <Card className="md:col-span-2" testid="xp-level">
+        {/* XP + Level — desktop only; mobile's three cards are Streak/Readiness/Topic mastery */}
+        <Card className="hidden md:block md:col-span-2" testid="xp-level">
           <div className="flex items-start justify-between">
             <div>
               <Eyebrow>Level · XP</Eyebrow>
@@ -112,7 +112,7 @@ export default function Progress() {
             <div className="font-mono text-6xl font-semibold" style={{ color: readinessColor }}>
               {state.readiness}<span className="text-2xl text-zinc-700">%</span>
             </div>
-            <div className="font-mono text-xs text-zinc-400 mt-2">{company?.name} {state.activePlan?.role}</div>
+            <div className="text-xs text-zinc-400 mt-2">{company?.name} {state.activePlan?.role}</div>
             <div className="font-mono text-[10px] uppercase tracking-[0.18em] text-zinc-600 mt-1">target loop</div>
           </div>
           <div className="mt-5">
@@ -120,8 +120,8 @@ export default function Progress() {
           </div>
         </Card>
 
-        {/* Heatmap */}
-        <Card className="md:col-span-3 lg:col-span-3" testid="mastery-heatmap-card">
+        {/* Heatmap — desktop only, illegible under ~500px */}
+        <Card className="hidden md:block md:col-span-3 lg:col-span-3" testid="mastery-heatmap-card">
           <div className="flex items-center justify-between">
             <Eyebrow>Daily activity · last 8 weeks</Eyebrow>
             {hasRealActivity && (
@@ -148,18 +148,18 @@ export default function Progress() {
                 const color = t.level >= 4 ? '#22c55e' : t.level === 3 ? '#f59e0b' : '#ef4444';
                 const pct = Math.round((t.level / 5) * 100);
                 return (
-                  <div key={t.topic} className="flex items-center gap-3 font-mono">
+                  <div key={t.topic} className="flex items-center gap-3">
                     <div className="w-24 sm:w-32 text-sm text-zinc-200 truncate shrink-0">{t.topic}</div>
                     {/* Numeric label sits on the bar itself, not just after it —
                         color alone (red/amber/green) isn't a reliable signal
                         for color-blind readers. */}
                     <div className="relative flex-1 min-w-0">
                       <PixelBar value={pct} height={16} color={color} dotColor={color} />
-                      <span className="absolute inset-0 flex items-center justify-end pr-1.5 text-[9px] font-semibold text-white/90" style={{ textShadow: '0 1px 2px rgba(0,0,0,0.6)' }}>
+                      <span className="absolute inset-0 flex items-center justify-end pr-1.5 font-mono text-[9px] font-semibold text-white/90" style={{ textShadow: '0 1px 2px rgba(0,0,0,0.6)' }}>
                         {pct}%
                       </span>
                     </div>
-                    <div className="w-10 text-right text-xs shrink-0" style={{ color }}>{t.level}/5</div>
+                    <div className="w-10 text-right font-mono text-xs shrink-0" style={{ color }}>{t.level}/5</div>
                   </div>
                 );
               })}
@@ -169,11 +169,11 @@ export default function Progress() {
           )}
         </Card>
 
-        {/* XP events */}
-        <Card className="md:col-span-3 lg:col-span-2" testid="xp-events-card">
+        {/* XP events — desktop only; mobile's three cards are Streak/Readiness/Topic mastery */}
+        <Card className="hidden md:block md:col-span-3 lg:col-span-2" testid="xp-events-card">
           <Eyebrow>Recent XP events</Eyebrow>
           {hasRealActivity ? (
-            <div className="mt-4 space-y-3 font-mono text-sm">
+            <div className="mt-4 space-y-3 text-sm">
               {XP_EVENTS.map(e => (
                 <div key={e.id} className="flex items-center gap-3 pb-3 border-b border-white/5 last:border-0 last:pb-0">
                   <div className={`w-1 h-8 rounded-sm ${
@@ -183,9 +183,9 @@ export default function Progress() {
                   }`} />
                   <div className="flex-1 min-w-0">
                     <div className="text-zinc-100 truncate">{e.label}</div>
-                    <div className="text-[10px] uppercase tracking-[0.18em] text-zinc-600">{e.source} · {e.ago}</div>
+                    <div className="font-mono text-[10px] uppercase tracking-[0.18em] text-zinc-600">{e.source} · {e.ago}</div>
                   </div>
-                  <div className="text-emerald-400">+{e.amount}</div>
+                  <div className="font-mono text-emerald-400">+{e.amount}</div>
                 </div>
               ))}
             </div>
@@ -214,8 +214,7 @@ const EmptyState = ({ children, className = '' }) => (
 );
 
 const Breadcrumb = ({ segments }) => (
-  <div className="font-mono text-sm mb-4" style={{ color: 'var(--text-3)' }}>
-    <span style={{ color: 'var(--accent)' }}>~</span>
+  <div className="text-sm mb-4" style={{ color: 'var(--text-3)' }}>
     {segments.map((s, i) => (
       <span key={i}>
         <span className="mx-1.5">/</span>

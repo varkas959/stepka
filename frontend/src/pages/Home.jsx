@@ -197,7 +197,7 @@ const ReadinessReport = () => {
           <div className="flex items-start justify-between gap-4">
             <div>
               <div className="text-lg font-semibold" style={{ color: C.text1 }}>{p.company}</div>
-              <div className="font-mono text-xs mt-1" style={{ color: C.text3 }}>{p.role} · Technical loop</div>
+              <div className="text-xs mt-1" style={{ color: C.text3 }}>{p.role} · Technical loop</div>
             </div>
             <div className="text-right shrink-0">
               <div className="font-mono font-semibold leading-none" style={{ fontSize: 48, color: scoreClr }}>
@@ -251,7 +251,7 @@ const ReadinessReport = () => {
               <div className="font-mono text-sm font-semibold mt-0.5" style={{ color: C.text1 }}>{p.weeks} weeks · 45 min/day</div>
             </div>
           </div>
-          <Link to="/app/plan" className="font-mono text-xs hover:opacity-80 transition-opacity" style={{ color: C.accent }}>
+          <Link to="/app/plan" className="text-xs hover:opacity-80 transition-opacity" style={{ color: C.accent }}>
             Start assessment →
           </Link>
         </div>
@@ -447,13 +447,13 @@ const CompaniesStrip = () => (
           <div className="flex flex-wrap justify-center gap-2">
             {TOPIC_LINKS.map(t => (
               <Link key={t.href} to={t.href}
-                className="font-mono text-xs px-3 py-1.5 rounded-md border transition-colors hover:border-white/25 hover:text-zinc-50"
+                className="text-xs px-3 py-1.5 rounded-md border transition-colors hover:border-white/25 hover:text-zinc-50"
                 style={{ borderColor: C.border, color: C.text3, textDecoration: 'none' }}>
                 {t.label}
               </Link>
             ))}
             <Link to="/questions"
-              className="font-mono text-xs px-3 py-1.5 rounded-md border transition-colors"
+              className="text-xs px-3 py-1.5 rounded-md border transition-colors"
               style={{ borderColor: 'rgba(59,111,212,0.4)', color: C.accent, textDecoration: 'none' }}>
               Browse all questions →
             </Link>

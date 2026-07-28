@@ -30,12 +30,12 @@ export default function Profile({ session, onSignOut }) {
   return (
     <div className="px-4 md:px-10 py-4 md:py-6 max-w-3xl mx-auto" data-testid="profile-page">
       <h1 className="text-3xl md:text-4xl font-semibold tracking-tight text-zinc-50">Profile &amp; settings</h1>
-      <p className="font-mono text-sm text-zinc-400 mt-3">Account info, daily goal, notifications, legal.</p>
+      <p className="text-sm text-zinc-400 mt-3">Account info, daily goal, notifications, legal.</p>
 
       {/* Identity */}
       <Section icon={User} title="Identity">
         <div className="flex items-center gap-4 mb-5">
-          <div className="w-12 h-12 rounded-md flex items-center justify-center font-mono text-base font-semibold"
+          <div className="w-12 h-12 rounded-md flex items-center justify-center text-base font-semibold"
                style={{ background: 'rgba(59,111,212,0.12)', color: 'var(--accent)', border: '1px solid rgba(59,111,212,0.25)' }}>
             {user.avatarInitials || 'U'}
           </div>
@@ -48,7 +48,7 @@ export default function Profile({ session, onSignOut }) {
         </div>
         <Field label="display name">
           <input data-testid="display-name" value={name} onChange={(e) => setName(e.target.value)}
-            className="w-full bg-zinc-900 border border-white/10 rounded-md px-3 py-2 text-sm font-mono text-zinc-100 focus:outline-none focus:border-white/30" />
+            className="w-full bg-zinc-900 border border-white/10 rounded-md px-3 py-2 text-sm text-zinc-100 focus:outline-none focus:border-white/30" />
         </Field>
       </Section>
 
@@ -76,12 +76,12 @@ export default function Profile({ session, onSignOut }) {
 
       <div className="flex items-center gap-2 mt-6">
         <button data-testid="save-settings" onClick={save}
-          className="inline-flex items-center gap-2 font-mono text-sm font-semibold uppercase tracking-[0.14em] px-4 py-2.5 rounded-md text-zinc-950 hover:brightness-110 transition-all"
+          className="inline-flex items-center gap-2 text-sm font-semibold uppercase tracking-[0.14em] px-4 py-2.5 rounded-md text-zinc-950 hover:brightness-110 transition-all"
           style={{ background: 'var(--accent)' }}>
           <Save size={14} strokeWidth={2.5} /> Save changes
         </button>
         <button data-testid="profile-signout" onClick={handleSignOut}
-          className="inline-flex items-center gap-2 font-mono text-sm px-3.5 py-2 rounded-md border border-white/10 bg-zinc-900 hover:bg-zinc-800 text-zinc-100">
+          className="inline-flex items-center gap-2 text-sm px-3.5 py-2 rounded-md border border-white/10 bg-zinc-900 hover:bg-zinc-800 text-zinc-100">
           <LogOut size={13} /> Sign out
         </button>
       </div>
@@ -94,7 +94,7 @@ export default function Profile({ session, onSignOut }) {
         </div>
         <p className="text-sm text-zinc-300">Permanently delete your account and all associated progress.</p>
         <button data-testid="delete-account" onClick={dangerDelete}
-          className="mt-3 inline-flex items-center gap-2 font-mono text-xs uppercase tracking-[0.14em] px-3 py-2 rounded-md border border-red-500/40 bg-red-500/[0.06] text-red-300 hover:bg-red-500/15 transition-colors">
+          className="mt-3 inline-flex items-center gap-2 text-xs uppercase tracking-[0.14em] px-3 py-2 rounded-md border border-red-500/40 bg-red-500/[0.06] text-red-300 hover:bg-red-500/15 transition-colors">
           Delete account
         </button>
       </div>
@@ -116,7 +116,7 @@ const Field = ({ label, hint, children }) => (
   <div className="mb-3">
     <div className="font-mono text-[10px] uppercase tracking-[0.18em] text-zinc-500 mb-1.5">{label}</div>
     {children}
-    {hint && <div className="font-mono text-[11px] text-zinc-600 mt-1.5">// {hint}</div>}
+    {hint && <div className="text-[11px] text-zinc-600 mt-1.5">// {hint}</div>}
   </div>
 );
 
@@ -124,7 +124,7 @@ const Toggle = ({ label, hint, value, onChange, testid }) => (
   <div className="flex items-start justify-between gap-4 py-2.5 border-b border-white/5 last:border-0">
     <div>
       <div className="text-zinc-100 text-sm">{label}</div>
-      {hint && <div className="font-mono text-[11px] text-zinc-600 mt-1">// {hint}</div>}
+      {hint && <div className="text-[11px] text-zinc-600 mt-1">// {hint}</div>}
     </div>
     <button data-testid={testid} onClick={() => onChange(!value)} aria-pressed={value}
       className={`shrink-0 inline-flex items-center w-10 h-6 rounded-full border transition-colors ${
@@ -137,14 +137,13 @@ const Toggle = ({ label, hint, value, onChange, testid }) => (
 );
 
 const LegalLink = ({ to, children }) => (
-  <Link to={to} className="inline-flex items-center gap-1.5 font-mono text-xs px-3 py-2 rounded-md border border-white/10 bg-zinc-900 hover:bg-zinc-800 text-zinc-200">
+  <Link to={to} className="inline-flex items-center gap-1.5 text-xs px-3 py-2 rounded-md border border-white/10 bg-zinc-900 hover:bg-zinc-800 text-zinc-200">
     {children} <ExternalLink size={11} />
   </Link>
 );
 
 const Breadcrumb = ({ segments }) => (
-  <div className="font-mono text-sm mb-4" style={{ color: 'var(--text-3)' }}>
-    <span style={{ color: 'var(--accent)' }}>~</span>
+  <div className="text-sm mb-4" style={{ color: 'var(--text-3)' }}>
     {segments.map((s, i) => (
       <span key={i}>
         <span className="mx-1.5">/</span>

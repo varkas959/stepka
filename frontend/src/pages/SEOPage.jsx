@@ -22,17 +22,17 @@ function QuestionList({ questions, title }) {
   return (
     <div className="space-y-4 mt-6">
       {questions.length === 0 && (
-        <p className="text-zinc-500 font-mono text-sm">No questions found.</p>
+        <p className="text-zinc-500 text-sm">No questions found.</p>
       )}
       {questions.map(q => {
         const company = COMPANIES.find(c => c.id === q.company);
         return (
           <div key={q.id} className="rounded-lg border border-white/10 bg-zinc-950 p-5 hover:border-white/20 transition-colors">
             <div className="flex items-center gap-2 flex-wrap mb-3">
-              <span className="font-mono text-[11px] px-2 py-0.5 rounded" style={{ background: (company?.color || '#888') + '22', color: company?.color || '#888', border: `1px solid ${(company?.color || '#888')}44` }}>{company?.name}</span>
-              <span className="font-mono text-[11px] px-2 py-0.5 rounded border border-white/10 text-zinc-400">{q.role}</span>
-              <span className="font-mono text-[11px] px-2 py-0.5 rounded border border-white/10 text-zinc-400">{q.topicPath}</span>
-              <span className="font-mono text-[11px] px-2 py-0.5 rounded border border-white/10 text-zinc-400">{q.difficulty}</span>
+              <span className="text-[11px] px-2 py-0.5 rounded" style={{ background: (company?.color || '#888') + '22', color: company?.color || '#888', border: `1px solid ${(company?.color || '#888')}44` }}>{company?.name}</span>
+              <span className="text-[11px] px-2 py-0.5 rounded border border-white/10 text-zinc-400">{q.role}</span>
+              <span className="text-[11px] px-2 py-0.5 rounded border border-white/10 text-zinc-400">{q.topicPath}</span>
+              <span className="text-[11px] px-2 py-0.5 rounded border border-white/10 text-zinc-400">{q.difficulty}</span>
             </div>
             <p className="text-zinc-100 text-sm leading-relaxed line-clamp-3">{q.body.replace(/\n/g, ' ')}</p>
             <div className="mt-3 font-mono text-xs text-zinc-600">↑ {q.upvotes} upvotes · {q.asked} people asked this</div>
@@ -50,24 +50,24 @@ function RelatedLinks({ currentKind, currentSlug }) {
       <div className="flex flex-wrap gap-2">
         {ACTIVE_COMPANIES.slice(0, 8).map(c => (
           <Link key={c.id} to={`/questions/company/${slugify(c.name)}`}
-            className="font-mono text-xs px-2.5 py-1 rounded border border-white/10 text-zinc-400 hover:text-zinc-50 hover:border-white/25 transition-colors">
+            className="text-xs px-2.5 py-1 rounded border border-white/10 text-zinc-400 hover:text-zinc-50 hover:border-white/25 transition-colors">
             {c.name}
           </Link>
         ))}
         {ACTIVE_TOPICS.map(t => (
           <Link key={t.id} to={`/questions/topic/${slugify(t.name)}`}
-            className="font-mono text-xs px-2.5 py-1 rounded border border-white/10 text-zinc-400 hover:text-zinc-50 hover:border-white/25 transition-colors">
+            className="text-xs px-2.5 py-1 rounded border border-white/10 text-zinc-400 hover:text-zinc-50 hover:border-white/25 transition-colors">
             {t.name}
           </Link>
         ))}
         {ACTIVE_TECHS.slice(0, 6).map(t => (
           <Link key={t} to={`/questions/tech/${slugify(t)}`}
-            className="font-mono text-xs px-2.5 py-1 rounded border border-white/10 text-zinc-400 hover:text-zinc-50 hover:border-white/25 transition-colors">
+            className="text-xs px-2.5 py-1 rounded border border-white/10 text-zinc-400 hover:text-zinc-50 hover:border-white/25 transition-colors">
             {t}
           </Link>
         ))}
         <Link to="/questions/trending"
-          className="font-mono text-xs px-2.5 py-1 rounded border transition-colors" style={{ borderColor: 'rgba(59,111,212,0.3)', color: '#7AA9F7' }}>
+          className="text-xs px-2.5 py-1 rounded border transition-colors" style={{ borderColor: 'rgba(59,111,212,0.3)', color: '#7AA9F7' }}>
           🔥 Trending
         </Link>
       </div>
@@ -90,17 +90,17 @@ function PageShell({ title, description, children, slug, kind }) {
       <header className="border-b border-white/5 sticky top-0 z-30 bg-zinc-950/90 backdrop-blur">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2">
-            <div className="w-7 h-7 rounded flex items-center justify-center font-mono font-bold text-white text-xs" style={{ background: 'var(--accent)' }}>S</div>
-            <span className="font-mono font-semibold text-sm">Stepkai</span>
+            <div className="w-7 h-7 rounded flex items-center justify-center font-bold text-white text-xs" style={{ background: 'var(--accent)' }}>S</div>
+            <span className="font-semibold text-sm">Stepkai</span>
           </Link>
-          <Link to="/app/questions" className="inline-flex items-center gap-1.5 font-mono text-xs font-semibold uppercase tracking-[0.14em] px-3 py-1.5 rounded-md text-white hover:opacity-90 transition-opacity" style={{ background: 'var(--accent)' }}>
+          <Link to="/app/questions" className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-[0.14em] px-3 py-1.5 rounded-md text-white hover:opacity-90 transition-opacity" style={{ background: 'var(--accent)' }}>
             Browse all <ArrowRight size={11} strokeWidth={2.5} />
           </Link>
         </div>
       </header>
 
       <main className="max-w-4xl mx-auto px-4 sm:px-6 py-10">
-        <Link to="/app/questions" className="inline-flex items-center gap-1 font-mono text-xs text-zinc-500 hover:text-zinc-300 mb-6">
+        <Link to="/app/questions" className="inline-flex items-center gap-1 text-xs text-zinc-500 hover:text-zinc-300 mb-6">
           <ArrowLeft size={12} /> Back to all questions
         </Link>
         <h1 className="text-3xl sm:text-4xl font-semibold tracking-tight">{title}</h1>
@@ -123,7 +123,7 @@ function TrendingPage() {
       description={`The ${questions.length} most popular interview questions right now, ranked by upvotes and how many engineers reported being asked them. Updated daily.`}
       kind="trending"
     >
-      <div className="mt-4 inline-flex items-center gap-2 font-mono text-xs px-3 py-1.5 rounded" style={{ color: '#7AA9F7', background: 'rgba(59,111,212,0.06)', border: '1px solid rgba(59,111,212,0.2)' }}>
+      <div className="mt-4 inline-flex items-center gap-2 text-xs px-3 py-1.5 rounded" style={{ color: '#7AA9F7', background: 'rgba(59,111,212,0.06)', border: '1px solid rgba(59,111,212,0.2)' }}>
         <TrendingUp size={12} /> Ranked by upvotes + times asked
       </div>
       <QuestionList questions={questions} />

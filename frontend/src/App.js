@@ -5,7 +5,7 @@ import { HelmetProvider, Helmet } from 'react-helmet-async';
 import { ThemeProvider } from 'next-themes';
 import './App.css';
 
-import { AppStateProvider } from './lib/appState';
+import { AppStateProvider, useAppState } from './lib/appState';
 import { getSession, onAuthStateChange } from './lib/auth';
 import { AuthGate } from './components/AuthGate';
 import { Sidebar } from './components/Sidebar';
@@ -84,6 +84,15 @@ function GuestBanner() {
   );
 }
 
+// Signed-in users land on Daily Review, not Study Plan — that's the daily-habit
+// surface. First-time signed-in users with no activity yet still go to Study
+// Plan, since there's nothing to review until a plan/questions exist.
+function SignedInLanding() {
+  const { state } = useAppState();
+  const isReturning = state.streak > 0 || state.xp > 0 || state.reviewedToday > 0 || !!state.activePlan;
+  return <Navigate to={isReturning ? '/app/review' : '/app/plan'} replace />;
+}
+
 function App() {
   const [session, setSession] = useState(null);
   const [hydrated, setHydrated] = useState(false);
@@ -111,9 +120,9 @@ function App() {
       <BrowserRouter>
         <Routes>
           {/* Public */}
-          <Route path="/" element={<Home />} />
+          <Route path="/" element={session ? <SignedInLanding /> : <Home />} />
           <Route path="/signin" element={
-            session ? <Navigate to="/app/plan" replace /> : <AuthGate />
+            session ? <SignedInLanding /> : <AuthGate />
           } />
           <Route path="/auth/callback" element={<AuthCallback />} />
           <Route path="/privacy" element={<LegalPage kind="privacy" />} />

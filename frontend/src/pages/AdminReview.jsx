@@ -76,7 +76,7 @@ export default function AdminReview() {
       <div className="min-h-screen flex flex-col items-center justify-center gap-3 px-4" style={{ background: 'var(--page)' }}>
         <ShieldCheck size={28} style={{ color: 'var(--text-3)' }} />
         <div className="text-lg font-semibold" style={{ color: 'var(--text-1)' }}>Not authorized</div>
-        <Link to="/app/questions" className="font-mono text-sm" style={{ color: 'var(--accent)' }}>← Back to app</Link>
+        <Link to="/app/questions" className="text-sm" style={{ color: 'var(--accent)' }}>← Back to app</Link>
       </div>
     );
   }
@@ -111,7 +111,7 @@ export default function AdminReview() {
 
       <div className="max-w-4xl mx-auto px-4 md:px-8 py-6">
         {loading ? (
-          <div className="flex items-center gap-2 font-mono text-sm py-10" style={{ color: 'var(--text-3)' }}><Loader2 size={14} className="animate-spin" /> Loading queue…</div>
+          <div className="flex items-center gap-2 text-sm py-10" style={{ color: 'var(--text-3)' }}><Loader2 size={14} className="animate-spin" /> Loading queue…</div>
         ) : pending.length === 0 ? (
           <div className="text-center py-20">
             <Check size={28} className="mx-auto mb-3" style={{ color: 'var(--diff-easy)' }} />

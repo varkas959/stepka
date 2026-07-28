@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { Loader2, Sparkles, ChevronDown, ArrowRight, ArrowLeft, ArrowDown, CheckCircle2, AlertTriangle, XCircle, Trophy, Brain, Eye, Flame, Target, Send, Upload } from 'lucide-react';
 import { toast } from 'sonner';
 import { COMPANIES, QUESTIONS } from '../lib/mockData';
@@ -213,7 +214,7 @@ export default function StudyPlan({ isGuest = false }) {
   return (
     <div className="px-4 md:px-8 py-6 md:py-8 max-w-5xl mx-auto">
       {step === 'input' && (
-        <InputStep jd={jd} setJd={setJd} company={company} setCompany={setCompany} role={role} setRole={setRole} onStart={startAssessment} activePlan={state.activePlan} />
+        <InputStep jd={jd} setJd={setJd} company={company} setCompany={setCompany} role={role} setRole={setRole} onStart={startAssessment} activePlan={state.activePlan} isGuest={isGuest} dueToday={state.dueToday} readiness={state.readiness} />
       )}
       {step !== 'input' && (
         <>
@@ -325,7 +326,7 @@ const JdImport = ({ onExtract }) => {
     <div className="px-5 pb-3 -mt-1 flex items-center gap-3 flex-wrap">
       <input ref={inputRef} type="file" accept="image/*" multiple hidden onChange={handle} />
       <button type="button" onClick={() => inputRef.current?.click()} disabled={busy || used >= MAX_SHOTS}
-        className="inline-flex items-center gap-2 font-mono text-xs px-3 py-2 rounded-md border transition-colors hover:bg-white/[0.04] disabled:opacity-50"
+        className="inline-flex items-center gap-2 text-xs px-3 py-2 rounded-md border transition-colors hover:bg-white/[0.04] disabled:opacity-50"
         style={{ borderColor: 'var(--border-2)', color: 'var(--text-2)' }}>
         {busy ? <Loader2 size={13} className="animate-spin" /> : <Upload size={13} />}
         {busy ? `Reading… ${progress}%` : "Can't copy? Upload screenshot(s)"}
@@ -337,18 +338,72 @@ const JdImport = ({ onExtract }) => {
   );
 };
 
+// ─── Mobile signed-in status summary ──────────────────────────────────────────
+// Replaces the marketing/onboarding card on phones: cards due, plan day,
+// readiness, one primary action. Daily Review is the primary mobile habit,
+// so that's the CTA whenever there's something due.
+const MobileHomeSummary = ({ activePlan, dueToday, readiness }) => (
+  <div className="rounded-xl border border-white/8 p-5" style={{ background: 'var(--inset)' }}>
+    <div className="grid grid-cols-3 gap-3 text-center">
+      <div>
+        <div className="font-mono text-2xl font-semibold" style={{ color: dueToday > 0 ? 'var(--accent)' : 'var(--text-1)' }}>{dueToday || 0}</div>
+        <div className="text-[11px] mt-1" style={{ color: 'var(--text-3)' }}>due today</div>
+      </div>
+      <div>
+        <div className="font-mono text-2xl font-semibold text-zinc-100">{activePlan ? `${activePlan.currentDay}/${activePlan.totalDays}` : '—'}</div>
+        <div className="text-[11px] mt-1" style={{ color: 'var(--text-3)' }}>plan day</div>
+      </div>
+      <div>
+        <div className="font-mono text-2xl font-semibold" style={{ color: readiness >= 70 ? '#22c55e' : readiness >= 40 ? '#f59e0b' : '#ef4444' }}>{readiness || 0}%</div>
+        <div className="text-[11px] mt-1" style={{ color: 'var(--text-3)' }}>readiness</div>
+      </div>
+    </div>
+
+    <Link to={dueToday > 0 ? '/app/review' : '/app/questions'}
+      className="mt-5 flex items-center justify-center gap-2 text-sm font-semibold py-3 rounded-lg text-white hover:opacity-90 transition-opacity"
+      style={{ background: 'var(--accent)' }}>
+      {dueToday > 0 ? `Start today's review · ${dueToday} cards` : 'Browse questions'}
+    </Link>
+  </div>
+);
+
 // ─── Input step ──────────────────────────────────────────────────────────────
-const InputStep = ({ jd, setJd, company, setCompany, role, setRole, onStart, activePlan }) => {
+const InputStep = ({ jd, setJd, company, setCompany, role, setRole, onStart, activePlan, isGuest, dueToday, readiness }) => {
   const selectedCompanyName = COMPANIES.find(c => c.id === company)?.name;
+  // Mobile is a different job: nobody pastes a JD on a phone. Signed-in users on
+  // mobile get a compact status summary instead of the marketing/onboarding copy,
+  // with the JD-paste flow demoted to a secondary, explicitly-revealed action.
+  const [showJdFormMobile, setShowJdFormMobile] = useState(false);
+  const mobileFormVisible = isGuest || showJdFormMobile;
   return (
   <div className="animate-fade-up">
-    {/* Page title */}
-    <div className="mb-6">
+    {/* Page title — marketing framing only for guests / desktop */}
+    <div className={`mb-6 ${!isGuest ? 'hidden md:block' : ''}`}>
       <h1 className="text-2xl md:text-3xl font-semibold tracking-tight text-zinc-50">Find out exactly what to prepare.</h1>
       <p className="text-zinc-400 mt-1.5 text-sm">Upload a job description and get a personalised gap analysis in minutes.</p>
     </div>
 
-    <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.6fr] gap-5 items-start">
+    {/* Mobile, signed-in: compact status summary — the whole screen, no marketing card */}
+    {!isGuest && (
+      <div className="md:hidden mb-6">
+        <MobileHomeSummary activePlan={activePlan} dueToday={dueToday} readiness={readiness} />
+        {!showJdFormMobile && (
+          <button onClick={() => setShowJdFormMobile(true)}
+            className="mt-3 w-full text-center text-xs py-2" style={{ color: 'var(--text-3)' }}>
+            {activePlan ? 'Re-run assessment with a new JD' : 'Paste a job description to get a plan'}
+          </button>
+        )}
+      </div>
+    )}
+
+    {!isGuest && showJdFormMobile && (
+      <button onClick={() => setShowJdFormMobile(false)}
+        className="md:hidden mb-3 text-xs" style={{ color: 'var(--text-3)' }}>
+        ← Hide
+      </button>
+    )}
+
+    <div className={`grid grid-cols-1 lg:grid-cols-[1fr_1.6fr] gap-5 items-start ${!isGuest ? (mobileFormVisible ? '' : 'hidden md:grid') : ''}`}>
       {/* Left: returning user sees their current plan, not marketing copy;
           first-time visitors see the value proposition. */}
       {activePlan ? (
@@ -450,7 +505,7 @@ const InputStep = ({ jd, setJd, company, setCompany, role, setRole, onStart, act
                 {['SQL', 'Stakeholder Mgmt', 'Requirements'].map(s => (
                   <div key={s} className="flex items-center gap-1.5">
                     <span className="text-[11px]" style={{ color: '#22c55e' }}>✓</span>
-                    <span className="font-mono text-[12px] text-zinc-300">{s}</span>
+                    <span className="text-[12px] text-zinc-300">{s}</span>
                   </div>
                 ))}
               </div>
@@ -458,7 +513,7 @@ const InputStep = ({ jd, setJd, company, setCompany, role, setRole, onStart, act
             <div>
               <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-zinc-600 mb-2">Readiness Score</div>
               <div className="font-mono text-3xl font-semibold" style={{ color: '#f59e0b' }}>61<span className="text-base text-zinc-600">%</span></div>
-              <div className="font-mono text-[11px] text-zinc-500 mt-1">Needs improvement</div>
+              <div className="text-[11px] text-zinc-500 mt-1">Needs improvement</div>
             </div>
             <div>
               <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-zinc-600 mb-2">Top Gaps</div>
@@ -466,7 +521,7 @@ const InputStep = ({ jd, setJd, company, setCompany, role, setRole, onStart, act
                 {['Process Mapping', 'Data Analysis', 'Reporting'].map(g => (
                   <div key={g} className="flex items-center gap-1.5">
                     <span className="text-[11px] text-zinc-600">•</span>
-                    <span className="font-mono text-[12px] text-zinc-400">{g}</span>
+                    <span className="text-[12px] text-zinc-400">{g}</span>
                   </div>
                 ))}
               </div>
@@ -474,7 +529,7 @@ const InputStep = ({ jd, setJd, company, setCompany, role, setRole, onStart, act
             <div>
               <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-zinc-600 mb-2">Estimated Plan</div>
               <div className="font-mono text-3xl font-semibold text-zinc-100">14<span className="text-base text-zinc-600"> days</span></div>
-              <div className="font-mono text-[11px] text-zinc-500 mt-1">Personalised roadmap</div>
+              <div className="text-[11px] text-zinc-500 mt-1">Personalised roadmap</div>
             </div>
           </div>
         </div>
@@ -491,7 +546,7 @@ const InputStep = ({ jd, setJd, company, setCompany, role, setRole, onStart, act
               <Sparkles size={14} strokeWidth={2.5} /> Start assessment
             </button>
             {!jd.trim() && (
-              <span className="font-mono text-[11px]" style={{ color: 'var(--text-3)' }}>Paste a JD above to unlock</span>
+              <span className="text-[11px]" style={{ color: 'var(--text-3)' }}>Paste a JD above to unlock</span>
             )}
           </div>
         </div>
@@ -505,8 +560,8 @@ const InputStep = ({ jd, setJd, company, setCompany, role, setRole, onStart, act
 const LoadingCard = ({ color, text, sub }) => (
   <div className="mt-7 rounded-lg border border-white/10 bg-zinc-950 p-14 flex flex-col items-center animate-fade-up">
     <Loader2 size={28} className={`animate-spin ${color === 'emerald' ? 'text-emerald-400' : 'text-blue-400'}`} />
-    <div className="font-mono text-base text-zinc-200 mt-5">{text}</div>
-    {sub && <div className="font-mono text-sm text-zinc-400 mt-1.5">{sub}</div>}
+    <div className="text-base text-zinc-200 mt-5">{text}</div>
+    {sub && <div className="text-sm text-zinc-400 mt-1.5">{sub}</div>}
   </div>
 );
 
@@ -548,7 +603,7 @@ const AssessmentQuiz = ({ questions, currentQ, onAnswer, label }) => {
     <div className="mt-7 animate-fade-up">
       <div className="flex items-center justify-between mb-2 font-mono text-sm text-zinc-400">
         <span>{label} · question <span className="text-zinc-100 font-semibold">{currentQ + 1}</span> of {total}</span>
-        <span className="font-mono text-[10px] px-2 py-0.5 rounded border shrink-0 ml-2 {TYPE_COLOR[q.type]}"
+        <span className="text-[10px] px-2 py-0.5 rounded border shrink-0 ml-2 {TYPE_COLOR[q.type]}"
           style={{ color: q.type === 'mcq' ? '#60a5fa' : q.type === 'scenario_selection' ? '#c084fc' : q.type === 'ranking' ? '#fbbf24' : '#34d399' }}>
           {TYPE_LABEL[q.type]}
         </span>
@@ -556,8 +611,8 @@ const AssessmentQuiz = ({ questions, currentQ, onAnswer, label }) => {
       <PixelBar value={pct} height={5} color="var(--accent)" />
 
       <div className="mt-4 rounded-lg border border-white/10 bg-zinc-950 overflow-hidden">
-        <div className="px-5 py-3 border-b border-white/5 flex items-center gap-2 font-mono text-xs">
-          <span className="font-mono text-[12px] px-2 py-0.5 rounded border border-white/10 bg-white/[0.03] text-zinc-300">{q.competency}</span>
+        <div className="px-5 py-3 border-b border-white/5 flex items-center gap-2 text-xs">
+          <span className="text-[12px] px-2 py-0.5 rounded border border-white/10 bg-white/[0.03] text-zinc-300">{q.competency}</span>
         </div>
         <div className="p-5">
           <p className="text-zinc-100 text-base leading-relaxed" style={{ fontFamily: 'inherit' }}>{q.question}</p>
@@ -579,11 +634,11 @@ const AssessmentQuiz = ({ questions, currentQ, onAnswer, label }) => {
 
         <div className="border-t border-white/5 p-4 flex items-center justify-between gap-3">
           <button onClick={handleSkip}
-            className="font-mono text-sm px-4 py-2 rounded-md border border-white/10 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 hover:text-zinc-100 transition-colors">
+            className="text-sm px-4 py-2 rounded-md border border-white/10 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 hover:text-zinc-100 transition-colors">
             Skip →
           </button>
           <button onClick={handleNext} disabled={!canSubmit() && q.type !== 'free_text'}
-            className="inline-flex items-center gap-2 font-mono text-sm font-semibold uppercase tracking-[0.14em] px-5 py-2.5 rounded-md text-white hover:opacity-90 transition-opacity disabled:opacity-40"
+            className="inline-flex items-center gap-2 text-sm font-semibold uppercase tracking-[0.14em] px-5 py-2.5 rounded-md text-white hover:opacity-90 transition-opacity disabled:opacity-40"
             style={{ background: 'var(--accent)' }}>
             {currentQ + 1 === total ? <>Submit <CheckCircle2 size={14} /></> : <>Next <ArrowRight size={14} strokeWidth={2.5} /></>}
           </button>
@@ -600,7 +655,7 @@ const MCQOptions = ({ options, selected, onSelect }) => (
       const isSelected = selected === letter;
       return (
         <button key={i} onClick={() => onSelect(letter)}
-          className={`w-full text-left p-3 rounded-md border font-mono text-sm transition-all leading-relaxed ${
+          className={`w-full text-left p-3 rounded-md border text-sm transition-all leading-relaxed ${
             isSelected ? 'border-blue-500/60 bg-blue-500/[0.08] text-blue-100' : 'border-white/10 text-zinc-200 hover:border-white/25 hover:bg-white/[0.03]'
           }`}>
           <span className={`font-semibold mr-2 ${isSelected ? 'text-blue-400' : 'text-zinc-400'}`}>{letter}.</span>
@@ -618,12 +673,12 @@ const RankingPicker = ({ items, order, setOrder }) => {
 
   return (
     <div>
-      <p className="font-mono text-sm text-zinc-400 mb-3">Click items in priority order (1st = highest priority):</p>
+      <p className="text-sm text-zinc-400 mb-3">Click items in priority order (1st = highest priority):</p>
       {remaining.length > 0 && (
         <div className="flex flex-wrap gap-2 mb-4">
           {remaining.map(item => (
             <button key={item} onClick={() => addItem(item)}
-              className="font-mono text-sm px-3 py-1.5 rounded-md border border-white/15 bg-zinc-900 text-zinc-200 hover:border-blue-500/40 hover:text-blue-300 transition-colors">
+              className="text-sm px-3 py-1.5 rounded-md border border-white/15 bg-zinc-900 text-zinc-200 hover:border-blue-500/40 hover:text-blue-300 transition-colors">
               {item}
             </button>
           ))}
@@ -635,8 +690,8 @@ const RankingPicker = ({ items, order, setOrder }) => {
           {order.map((item, i) => (
             <div key={item} className="flex items-center gap-2 p-2 rounded-md border border-emerald-500/25 bg-emerald-500/[0.04]">
               <span className="font-mono text-sm text-emerald-400 w-4 shrink-0">{i + 1}.</span>
-              <span className="font-mono text-sm text-zinc-200 flex-1">{item}</span>
-              <button onClick={() => removeItem(item)} className="font-mono text-[12px] text-zinc-500 hover:text-red-400 transition-colors">✕</button>
+              <span className="text-sm text-zinc-200 flex-1">{item}</span>
+              <button onClick={() => removeItem(item)} className="text-[12px] text-zinc-500 hover:text-red-400 transition-colors">✕</button>
             </div>
           ))}
         </div>
@@ -654,13 +709,13 @@ const FreeTextInput = ({ value, onChange, criteria }) => (
       <div className="mb-3 p-3 rounded-md border border-zinc-800 bg-zinc-900/50">
         <div className="font-mono text-[12px] uppercase tracking-[0.18em] text-zinc-400 mb-1.5">Strong answers cover:</div>
         <ul className="space-y-0.5">
-          {criteria.map((c, i) => <li key={i} className="font-mono text-sm text-zinc-300 leading-relaxed">· {c}</li>)}
+          {criteria.map((c, i) => <li key={i} className="text-sm text-zinc-300 leading-relaxed">· {c}</li>)}
         </ul>
       </div>
     )}
     <textarea value={value} onChange={e => onChange(e.target.value)} rows={5}
       placeholder="Type your answer… or skip if you don't know."
-      className="w-full bg-zinc-900 border border-white/10 rounded-md p-4 text-base font-mono text-zinc-100 placeholder:text-zinc-500 focus:outline-none focus:border-white/30 resize-y leading-loose" />
+      className="w-full bg-zinc-900 border border-white/10 rounded-md p-4 text-base text-zinc-100 placeholder:text-zinc-500 focus:outline-none focus:border-white/30 resize-y leading-loose" />
   </div>
 );
 
@@ -676,7 +731,7 @@ const ScreeningResults = ({ result, onSkip, onDeepDive }) => {
           <div className="font-mono text-5xl font-semibold" style={{ color: rc }}>{readiness}<span className="text-xl text-zinc-500">%</span></div>
           <div className="flex-1 min-w-[180px] pb-1"><PixelBar value={readiness} height={12} color={rc} dotColor={rc} /></div>
         </div>
-        {summary && <p className="font-mono text-sm text-zinc-300 leading-loose">{summary}</p>}
+        {summary && <p className="text-sm text-zinc-300 leading-loose">{summary}</p>}
       </div>
 
       <div className="rounded-lg border border-white/10 bg-zinc-950 p-5">
@@ -686,11 +741,11 @@ const ScreeningResults = ({ result, onSkip, onDeepDive }) => {
             const color = BAND_COLOR[h.band] || '#a1a1aa';
             const Icon = BAND_ICON[h.band] || AlertTriangle;
             return (
-              <div key={h.skill} className="flex items-center gap-2 font-mono text-sm">
+              <div key={h.skill} className="flex items-center gap-2 text-sm">
                 <Icon size={11} style={{ color }} className="shrink-0" />
                 <span className="text-zinc-200 w-32 sm:w-44 truncate shrink-0">{h.skill}</span>
                 <div className="flex-1 min-w-0"><PixelBar value={h.score} height={9} color={color} dotColor={color} /></div>
-                <span className="w-9 text-right shrink-0" style={{ color }}>{h.score}%</span>
+                <span className="font-mono w-9 text-right shrink-0" style={{ color }}>{h.score}%</span>
               </div>
             );
           })}
@@ -702,20 +757,20 @@ const ScreeningResults = ({ result, onSkip, onDeepDive }) => {
           <div className="flex items-start gap-3">
             <Brain size={18} style={{ color: '#7AA9F7' }} className="mt-0.5 shrink-0" />
             <div className="flex-1">
-              <div className="font-mono text-base text-zinc-100 font-semibold">
+              <div className="text-base text-zinc-100 font-semibold">
                 We identified {deepDiveSkills.length} area{deepDiveSkills.length > 1 ? 's' : ''} that need deeper evaluation
               </div>
-              <p className="font-mono text-sm text-zinc-300 mt-1.5 leading-loose">
+              <p className="text-sm text-zinc-300 mt-1.5 leading-loose">
                 A {deepDiveCount}-question deep-dive on <span style={{ color: '#7AA9F7' }}>{deepDiveSkills.map(s => s.skill).join(', ')}</span> will give your plan much higher accuracy.
               </p>
               <div className="flex gap-2 mt-4 flex-wrap">
                 <button onClick={onDeepDive}
-                  className="inline-flex items-center gap-2 font-mono text-sm font-semibold uppercase tracking-[0.14em] px-4 py-2.5 rounded-md text-white hover:opacity-90 transition-opacity"
+                  className="inline-flex items-center gap-2 text-sm font-semibold uppercase tracking-[0.14em] px-4 py-2.5 rounded-md text-white hover:opacity-90 transition-opacity"
                   style={{ background: 'var(--accent)' }}>
                   Continue deep-dive ({deepDiveCount} questions) <ArrowRight size={13} strokeWidth={2.5} />
                 </button>
                 <button onClick={onSkip}
-                  className="font-mono text-sm px-4 py-2.5 rounded-md border border-white/10 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 hover:text-zinc-100 transition-colors">
+                  className="text-sm px-4 py-2.5 rounded-md border border-white/10 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 hover:text-zinc-100 transition-colors">
                   Skip → Generate plan now
                 </button>
               </div>
@@ -725,7 +780,7 @@ const ScreeningResults = ({ result, onSkip, onDeepDive }) => {
       ) : (
         <div className="flex justify-end">
           <button onClick={onSkip}
-            className="inline-flex items-center gap-2 font-mono text-sm font-semibold uppercase tracking-[0.14em] px-5 py-2.5 rounded-md text-white hover:opacity-90 transition-opacity"
+            className="inline-flex items-center gap-2 text-sm font-semibold uppercase tracking-[0.14em] px-5 py-2.5 rounded-md text-white hover:opacity-90 transition-opacity"
             style={{ background: 'var(--accent)' }}>
             Generate personalised plan <ArrowRight size={14} strokeWidth={2.5} />
           </button>
@@ -748,7 +803,7 @@ const GapView = ({ heatmap, gaps, readiness, summary, company, role, onContinue,
           </div>
           <div className="flex-1 min-w-[200px]">
             <PixelBar value={readiness} height={14} color={rc} dotColor={rc} />
-            {summary && <p className="font-mono text-sm text-zinc-300 mt-3 leading-loose">{summary}</p>}
+            {summary && <p className="text-sm text-zinc-300 mt-3 leading-loose">{summary}</p>}
           </div>
         </div>
       </div>
@@ -761,14 +816,14 @@ const GapView = ({ heatmap, gaps, readiness, summary, company, role, onContinue,
             const Icon = BAND_ICON[h.band] || AlertTriangle;
             return (
               <div key={h.skill}>
-                <div className="flex items-center gap-3 mb-0.5 font-mono text-sm">
+                <div className="flex items-center gap-3 mb-0.5 text-sm">
                   <Icon size={12} style={{ color }} className="shrink-0" />
                   <span className="text-zinc-100 w-36 sm:w-48 truncate shrink-0">{h.skill}</span>
                   <div className="flex-1 min-w-0"><PixelBar value={h.score} height={10} color={color} dotColor={color} /></div>
-                  <span className="w-10 text-right shrink-0 font-semibold" style={{ color }}>{h.score}%</span>
+                  <span className="font-mono w-10 text-right shrink-0 font-semibold" style={{ color }}>{h.score}%</span>
                   <span className="hidden sm:block text-[10px] px-1.5 py-0.5 rounded border shrink-0" style={{ color, borderColor: color + '50', background: color + '10' }}>{h.band}</span>
                 </div>
-                {h.feedback && <p className="font-mono text-[12px] text-zinc-400 ml-5 leading-loose">{h.feedback}</p>}
+                {h.feedback && <p className="text-[12px] text-zinc-400 ml-5 leading-loose">{h.feedback}</p>}
               </div>
             );
           })}
@@ -786,11 +841,11 @@ const GapView = ({ heatmap, gaps, readiness, summary, company, role, onContinue,
 
       <div className="flex items-center justify-between gap-3 flex-wrap pt-1">
         <button onClick={onBack}
-          className="inline-flex items-center gap-1.5 font-mono text-sm px-3 py-2 rounded-md border border-white/10 bg-zinc-900 hover:bg-zinc-800 text-zinc-100">
+          className="inline-flex items-center gap-1.5 text-sm px-3 py-2 rounded-md border border-white/10 bg-zinc-900 hover:bg-zinc-800 text-zinc-100">
           <ArrowLeft size={13} /> Back
         </button>
         <button onClick={onContinue}
-          className="inline-flex items-center gap-2 font-mono text-sm font-semibold uppercase tracking-[0.14em] px-5 py-2.5 rounded-md text-white hover:opacity-90 transition-opacity"
+          className="inline-flex items-center gap-2 text-sm font-semibold uppercase tracking-[0.14em] px-5 py-2.5 rounded-md text-white hover:opacity-90 transition-opacity"
           style={{ background: 'var(--accent)' }}>
           Generate personalised roadmap <ArrowRight size={14} strokeWidth={2.5} />
         </button>
@@ -803,9 +858,9 @@ const GapBucket = ({ color, label, items, desc }) => (
   <div className="rounded-md border p-4" style={{ borderColor: color + '40', background: color + '08' }}>
     <div className="font-mono text-[12px] uppercase tracking-[0.18em] mb-2" style={{ color }}>{label}</div>
     <div className="flex flex-wrap gap-1.5 mb-2">
-      {items.map(s => <span key={s} className="font-mono text-xs px-2 py-0.5 rounded border" style={{ color, borderColor: color + '40', background: color + '10' }}>{s}</span>)}
+      {items.map(s => <span key={s} className="text-xs px-2 py-0.5 rounded border" style={{ color, borderColor: color + '40', background: color + '10' }}>{s}</span>)}
     </div>
-    <p className="font-mono text-[12px] text-zinc-400 leading-loose">{desc}</p>
+    <p className="text-[12px] text-zinc-400 leading-loose">{desc}</p>
   </div>
 );
 
@@ -837,7 +892,7 @@ const GapIntelligenceView = ({ intel, cards, company, role, onChallenge, onConti
           <Brain size={16} style={{ color: '#7AA9F7' }} />
           <div className="font-mono text-[12px] uppercase tracking-[0.22em] text-zinc-300">Gap Intelligence</div>
         </div>
-        <p className="font-mono text-sm text-zinc-400 leading-loose mt-1">
+        <p className="text-sm text-zinc-400 leading-loose mt-1">
           Not a generic skill list — this is built from <span className="text-zinc-200">your actual answers</span> cross-checked against <span className="text-zinc-200">real reported {company} interview questions</span>.
         </p>
       </div>
@@ -851,14 +906,14 @@ const GapIntelligenceView = ({ intel, cards, company, role, onChallenge, onConti
               <span className="font-mono text-[12px] uppercase tracking-[0.16em]" style={{ color }}>{label}</span>
               <span className="ml-auto font-mono text-xs text-zinc-500">{items.length}</span>
             </div>
-            <p className="font-mono text-[11px] text-zinc-500 leading-relaxed mb-2.5">{blurb}</p>
+            <p className="text-[11px] text-zinc-500 leading-relaxed mb-2.5">{blurb}</p>
             {items.length === 0 ? (
-              <p className="font-mono text-xs text-zinc-600">None detected.</p>
+              <p className="text-xs text-zinc-600">None detected.</p>
             ) : (
               <div className="flex flex-wrap gap-1.5">
                 {items.map(h => (
-                  <span key={h.skill} className="font-mono text-xs px-2 py-0.5 rounded border" style={{ color, borderColor: color + '40', background: color + '10' }}>
-                    {h.skill} <span className="opacity-60">{h.score}%</span>
+                  <span key={h.skill} className="text-xs px-2 py-0.5 rounded border" style={{ color, borderColor: color + '40', background: color + '10' }}>
+                    {h.skill} <span className="font-mono opacity-60">{h.score}%</span>
                   </span>
                 ))}
               </div>
@@ -877,7 +932,7 @@ const GapIntelligenceView = ({ intel, cards, company, role, onChallenge, onConti
               {h.falseConfidence ? <Eye size={14} className="shrink-0" style={{ color: '#a855f7' }} />
                 : h.highRisk ? <Flame size={14} className="shrink-0" style={{ color: '#ef4444' }} />
                 : <AlertTriangle size={14} className="shrink-0" style={{ color: '#f97316' }} />}
-              <span className="font-mono text-sm text-zinc-100 font-semibold">{h.skill}</span>
+              <span className="text-sm text-zinc-100 font-semibold">{h.skill}</span>
               <span className="font-mono text-[10px] px-1.5 py-0.5 rounded border border-white/10 text-zinc-400">risk {h.riskScore}</span>
               {h.frequency?.questionCount > 0 && (
                 <span className="font-mono text-[10px] text-zinc-500 hidden sm:inline">asked ~{h.frequency.askCount}× · {h.frequency.questionCount} reported</span>
@@ -898,7 +953,7 @@ const GapIntelligenceView = ({ intel, cards, company, role, onChallenge, onConti
                   );
                 })()}
                 {!card ? (
-                  <div className="flex items-center gap-2 font-mono text-xs text-zinc-500"><Loader2 size={13} className="animate-spin" /> Generating intelligence for this skill…</div>
+                  <div className="flex items-center gap-2 text-xs text-zinc-500"><Loader2 size={13} className="animate-spin" /> Generating intelligence for this skill…</div>
                 ) : (
                   <>
                     <Field label="Why it matters in interviews" text={card.whyItMatters} />
@@ -907,7 +962,7 @@ const GapIntelligenceView = ({ intel, cards, company, role, onChallenge, onConti
                       <div>
                         <div className="font-mono text-[11px] uppercase tracking-[0.18em] text-zinc-500 mb-1.5">Most common mistakes</div>
                         <ul className="space-y-1">
-                          {card.commonMistakes.map((m, i) => <li key={i} className="font-mono text-[13px] text-zinc-300 leading-relaxed flex gap-2"><span className="text-red-400">✕</span>{m}</li>)}
+                          {card.commonMistakes.map((m, i) => <li key={i} className="text-[13px] text-zinc-300 leading-relaxed flex gap-2"><span className="text-red-400">✕</span>{m}</li>)}
                         </ul>
                       </div>
                     )}
@@ -919,10 +974,10 @@ const GapIntelligenceView = ({ intel, cards, company, role, onChallenge, onConti
                             <div key={i} className="rounded-md border border-white/8 bg-white/[0.02] p-3">
                               <div className="flex items-center gap-2 flex-wrap">
                                 <Target size={12} style={{ color: '#7AA9F7' }} />
-                                <span className="font-mono text-[13px] text-zinc-100 font-medium">{a.title}</span>
+                                <span className="text-[13px] text-zinc-100 font-medium">{a.title}</span>
                                 {a.time && <span className="ml-auto font-mono text-[10px] text-zinc-500">{a.time}</span>}
                               </div>
-                              {a.outcome && <div className="font-mono text-[12px] text-zinc-400 mt-1 leading-relaxed">→ {a.outcome}</div>}
+                              {a.outcome && <div className="text-[12px] text-zinc-400 mt-1 leading-relaxed">→ {a.outcome}</div>}
                             </div>
                           ))}
                         </div>
@@ -932,12 +987,12 @@ const GapIntelligenceView = ({ intel, cards, company, role, onChallenge, onConti
                 )}
                 <div className="flex items-center gap-2 flex-wrap">
                   <button onClick={() => setDepthSkill(h.skill)}
-                    className="inline-flex items-center gap-2 font-mono text-xs font-semibold px-3 py-2 rounded-md text-white hover:opacity-90 transition-opacity"
+                    className="inline-flex items-center gap-2 text-xs font-semibold px-3 py-2 rounded-md text-white hover:opacity-90 transition-opacity"
                     style={{ background: 'var(--accent)' }}>
                     <ArrowDown size={13} /> Challenge my understanding
                   </button>
                   <button onClick={() => onChallenge(h.skill)}
-                    className="inline-flex items-center gap-2 font-mono text-xs font-semibold px-3 py-2 rounded-md border transition-colors hover:bg-white/[0.04]"
+                    className="inline-flex items-center gap-2 text-xs font-semibold px-3 py-2 rounded-md border transition-colors hover:bg-white/[0.04]"
                     style={{ borderColor: 'var(--border-2)', color: 'var(--text-2)' }}>
                     <Brain size={13} /> Full adaptive interview
                   </button>
@@ -953,10 +1008,10 @@ const GapIntelligenceView = ({ intel, cards, company, role, onChallenge, onConti
         onComplete={(lvl) => setDepthBySkill(m => ({ ...m, [depthSkill]: lvl }))} />
 
       <div className="flex items-center justify-between gap-3 flex-wrap pt-1">
-        <button onClick={onBack} className="inline-flex items-center gap-1.5 font-mono text-sm px-3 py-2 rounded-md border border-white/10 bg-zinc-900 hover:bg-zinc-800 text-zinc-100">
+        <button onClick={onBack} className="inline-flex items-center gap-1.5 text-sm px-3 py-2 rounded-md border border-white/10 bg-zinc-900 hover:bg-zinc-800 text-zinc-100">
           <ArrowLeft size={13} /> Back
         </button>
-        <button onClick={onContinue} className="inline-flex items-center gap-2 font-mono text-sm font-semibold uppercase tracking-[0.14em] px-5 py-2.5 rounded-md text-white hover:opacity-90 transition-opacity" style={{ background: 'var(--accent)' }}>
+        <button onClick={onContinue} className="inline-flex items-center gap-2 text-sm font-semibold uppercase tracking-[0.14em] px-5 py-2.5 rounded-md text-white hover:opacity-90 transition-opacity" style={{ background: 'var(--accent)' }}>
           Generate gap-driven roadmap <ArrowRight size={14} strokeWidth={2.5} />
         </button>
       </div>
@@ -981,7 +1036,7 @@ const CovDepthBar = ({ label, sub, value, color }) => (
     <div className="h-1.5 rounded-full overflow-hidden mb-1.5" style={{ background: 'var(--surface-2)' }}>
       <div className="h-full rounded-full transition-all" style={{ width: `${value}%`, background: color }} />
     </div>
-    <div className="font-mono text-[10px] text-zinc-500">{sub}</div>
+    <div className="text-[10px] text-zinc-500">{sub}</div>
   </div>
 );
 
@@ -1033,9 +1088,9 @@ const ChallengeMode = ({ company, role, skill, onExit }) => {
         <div className="flex items-center gap-2">
           <Brain size={16} style={{ color: '#a855f7' }} />
           <div className="font-mono text-[12px] uppercase tracking-[0.2em] text-zinc-200">Challenge mode · {skill}</div>
-          <button onClick={onExit} className="ml-auto font-mono text-xs text-zinc-400 hover:text-zinc-100 border border-white/10 rounded px-2.5 py-1">Exit</button>
+          <button onClick={onExit} className="ml-auto text-xs text-zinc-400 hover:text-zinc-100 border border-white/10 rounded px-2.5 py-1">Exit</button>
         </div>
-        <p className="font-mono text-[12px] text-zinc-400 mt-2 leading-loose">
+        <p className="text-[12px] text-zinc-400 mt-2 leading-loose">
           A senior interviewer probes one question at a time, drilling into your answers until your true depth is clear.
         </p>
       </div>
@@ -1055,7 +1110,7 @@ const ChallengeMode = ({ company, role, skill, onExit }) => {
       ))}
 
       {loading && (
-        <div className="flex items-center gap-2 font-mono text-sm text-zinc-400 px-1"><Loader2 size={14} className="animate-spin" /> Interviewer is thinking…</div>
+        <div className="flex items-center gap-2 text-sm text-zinc-400 px-1"><Loader2 size={14} className="animate-spin" /> Interviewer is thinking…</div>
       )}
 
       {/* Active question */}
@@ -1063,13 +1118,13 @@ const ChallengeMode = ({ company, role, skill, onExit }) => {
         <div className="rounded-lg border border-white/10 bg-zinc-950 p-5">
           {current.gapDetected && (
             <div className="mb-3 rounded-md border border-amber-500/30 bg-amber-500/[0.06] px-3 py-2">
-              <span className="font-mono text-[11px] text-amber-400">Gap detected: </span>
-              <span className="font-mono text-[12px] text-zinc-300">{current.gapDetected}</span>
+              <span className="text-[11px] text-amber-400">Gap detected: </span>
+              <span className="text-[12px] text-zinc-300">{current.gapDetected}</span>
             </div>
           )}
           <div className="font-mono text-[10px] uppercase tracking-[0.18em] text-zinc-500 mb-1">Interviewer · Q{transcript.length + 1}</div>
           <p className="text-[15px] text-zinc-100 leading-relaxed mb-1">{current.nextQuestion}</p>
-          {current.probeReason && <p className="font-mono text-[11px] text-zinc-500 italic mb-3">why this: {current.probeReason}</p>}
+          {current.probeReason && <p className="text-[11px] text-zinc-500 italic mb-3">why this: {current.probeReason}</p>}
           <textarea value={answer} onChange={e => setAnswer(e.target.value)} rows={4}
             placeholder="Answer in your own words. Be specific — vague answers get probed harder."
             className="w-full bg-zinc-900 border border-white/10 rounded-md p-3 text-[14px] text-zinc-100 placeholder:text-zinc-600 focus:outline-none focus:border-white/30 resize-y leading-relaxed" />
@@ -1080,7 +1135,7 @@ const ChallengeMode = ({ company, role, skill, onExit }) => {
               <span style={{ color: cc(current.confidence) }}>confidence {current.confidence}%</span>
             </div>
             <button onClick={submit}
-              className="inline-flex items-center gap-2 font-mono text-sm font-semibold px-4 py-2 rounded-md text-white hover:opacity-90 transition-opacity" style={{ background: '#7C3AED' }}>
+              className="inline-flex items-center gap-2 text-sm font-semibold px-4 py-2 rounded-md text-white hover:opacity-90 transition-opacity" style={{ background: '#7C3AED' }}>
               Submit answer <Send size={13} />
             </button>
           </div>
@@ -1096,7 +1151,7 @@ const ChallengeMode = ({ company, role, skill, onExit }) => {
             <div className="font-mono text-sm text-zinc-400 pb-1">demonstrated depth · interviewer confidence {verdict.confidence}%</div>
           </div>
           {verdict.verdict && <p className="text-[14px] text-zinc-200 leading-loose">{verdict.verdict}</p>}
-          <button onClick={onExit} className="mt-4 inline-flex items-center gap-2 font-mono text-sm font-semibold px-4 py-2 rounded-md text-white hover:opacity-90 transition-opacity" style={{ background: 'var(--accent)' }}>
+          <button onClick={onExit} className="mt-4 inline-flex items-center gap-2 text-sm font-semibold px-4 py-2 rounded-md text-white hover:opacity-90 transition-opacity" style={{ background: 'var(--accent)' }}>
             <ArrowLeft size={13} /> Back to Gap Intelligence
           </button>
         </div>
@@ -1123,19 +1178,19 @@ const SharePanel = ({ slug }) => {
       </div>
       <div className="flex items-center gap-2">
         <div className="flex-1 font-mono text-xs px-3 py-2 rounded-md truncate" style={{ background: 'rgba(0,0,0,0.3)', color: '#D1D5DB', border: '1px solid var(--border)' }}>{url}</div>
-        <button onClick={copy} className="shrink-0 font-mono text-xs px-3 py-2 rounded-md text-white hover:opacity-90 transition-opacity" style={{ background: 'var(--accent)' }}>
+        <button onClick={copy} className="shrink-0 text-xs px-3 py-2 rounded-md text-white hover:opacity-90 transition-opacity" style={{ background: 'var(--accent)' }}>
           {copied ? 'Copied!' : 'Copy link'}
         </button>
       </div>
       <div className="flex gap-2 mt-2.5">
         <a href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`} target="_blank" rel="noopener noreferrer"
-           className="flex-1 text-center font-mono text-xs py-1.5 rounded-md transition-opacity hover:opacity-80"
+           className="flex-1 text-center text-xs py-1.5 rounded-md transition-opacity hover:opacity-80"
            style={{ border: '1px solid var(--border)', color: '#9CA3AF' }}>LinkedIn</a>
         <a href={`https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}&text=${encodeURIComponent('My interview readiness score is live. See the breakdown:')}`} target="_blank" rel="noopener noreferrer"
-           className="flex-1 text-center font-mono text-xs py-1.5 rounded-md transition-opacity hover:opacity-80"
+           className="flex-1 text-center text-xs py-1.5 rounded-md transition-opacity hover:opacity-80"
            style={{ border: '1px solid var(--border)', color: '#9CA3AF' }}>Twitter / X</a>
         <a href={`https://api.whatsapp.com/send?text=${encodeURIComponent(`My interview readiness report: ${url}`)}`} target="_blank" rel="noopener noreferrer"
-           className="flex-1 text-center font-mono text-xs py-1.5 rounded-md transition-opacity hover:opacity-80"
+           className="flex-1 text-center text-xs py-1.5 rounded-md transition-opacity hover:opacity-80"
            style={{ border: '1px solid var(--border)', color: '#9CA3AF' }}>WhatsApp</a>
       </div>
     </div>
@@ -1156,7 +1211,7 @@ const PlanCalendar = ({ plan, expandedDay, setExpandedDay, state, onReset, repor
       <div className="flex items-start justify-between gap-4 mt-1 mb-4 flex-wrap">
         <div>
           <h1 className="text-3xl md:text-5xl font-semibold tracking-tight text-zinc-50">{company.name} · {state.activePlan?.role}</h1>
-          <p className="font-mono text-sm text-zinc-300 mt-2">Tap any day · mock interviews in blue · today in green</p>
+          <p className="text-sm text-zinc-300 mt-2">Tap any day · mock interviews in blue · today in green</p>
         </div>
         <div className="flex items-center gap-2 flex-wrap">
           {plan?.successProbability && (
@@ -1164,7 +1219,7 @@ const PlanCalendar = ({ plan, expandedDay, setExpandedDay, state, onReset, repor
               <Trophy size={11} className="inline mr-1.5" />success: {plan.successProbability}
             </div>
           )}
-          <button onClick={onReset} className="font-mono text-sm uppercase tracking-[0.18em] text-zinc-300 hover:text-zinc-50 border border-white/10 rounded-md px-3 py-2">New plan</button>
+          <button onClick={onReset} className="text-sm uppercase tracking-[0.18em] text-zinc-300 hover:text-zinc-50 border border-white/10 rounded-md px-3 py-2">New plan</button>
         </div>
       </div>
 
@@ -1190,8 +1245,8 @@ const PlanCalendar = ({ plan, expandedDay, setExpandedDay, state, onReset, repor
               {!isExpanded && isMock && !isToday && <div className="absolute left-0 top-0 bottom-0 w-[2px]" style={{ background: '#3b82f6' }} />}
               <div className="font-mono text-[9px] text-zinc-500">d{d.day}</div>
               <div className="font-mono text-base font-semibold text-zinc-50">{d.day}</div>
-              {isMock && <div className="font-mono text-[8px] text-blue-400 mt-0.5">mock</div>}
-              <div className="mt-0.5 font-mono text-[8px] text-zinc-500 truncate">{d.focus?.split('·')[0]?.trim()}</div>
+              {isMock && <div className="text-[8px] text-blue-400 mt-0.5">mock</div>}
+              <div className="mt-0.5 text-[8px] text-zinc-500 truncate">{d.focus?.split('·')[0]?.trim()}</div>
             </button>
           );
         })}
@@ -1202,8 +1257,8 @@ const PlanCalendar = ({ plan, expandedDay, setExpandedDay, state, onReset, repor
           <div className="flex items-center gap-3 mb-5 flex-wrap">
             <span className="font-mono text-[12px] uppercase tracking-[0.18em] text-zinc-400">day {expandedData.day}</span>
             <span className="text-zinc-500">·</span>
-            <span className="font-mono text-base text-zinc-100 font-semibold">{expandedData.focus}</span>
-            {expandedData.theme && <span className="font-mono text-[12px] text-zinc-400 hidden sm:block">{expandedData.theme}</span>}
+            <span className="text-base text-zinc-100 font-semibold">{expandedData.focus}</span>
+            {expandedData.theme && <span className="text-[12px] text-zinc-400 hidden sm:block">{expandedData.theme}</span>}
             {expandedData.mockInterview && (
               <span className="font-mono text-[10px] px-2 py-0.5 rounded border border-blue-500/40 bg-blue-500/[0.08] text-blue-400">
                 {expandedData.mockInterview.type} · {expandedData.mockInterview.duration}
@@ -1275,8 +1330,8 @@ const PlanCalendar = ({ plan, expandedDay, setExpandedDay, state, onReset, repor
           {expandedData.mockInterview && (
             <div className="mt-5 rounded-md border border-blue-500/30 bg-blue-500/[0.05] p-4">
               <div className="font-mono text-[12px] uppercase tracking-[0.18em] text-blue-400 mb-1">Mock interview · {expandedData.mockInterview.type}</div>
-              <p className="font-mono text-sm text-zinc-200">Topics: {expandedData.mockInterview.topics?.join(', ')}</p>
-              <p className="font-mono text-sm text-zinc-400 mt-1">Duration: {expandedData.mockInterview.duration} · score honestly and note weaknesses</p>
+              <p className="text-sm text-zinc-200">Topics: {expandedData.mockInterview.topics?.join(', ')}</p>
+              <p className="text-sm text-zinc-400 mt-1">Duration: {expandedData.mockInterview.duration} · score honestly and note weaknesses</p>
             </div>
           )}
         </div>
@@ -1289,7 +1344,7 @@ const PlanCalendar = ({ plan, expandedDay, setExpandedDay, state, onReset, repor
             {plan.mockInterviews.map(m => (
               <div key={m.day} className="rounded-md border border-blue-500/30 bg-blue-500/[0.05] p-3">
                 <div className="font-mono text-[12px] text-blue-400 uppercase">Day {m.day}</div>
-                <div className="font-mono text-base text-zinc-100 mt-0.5 font-semibold">{m.type}</div>
+                <div className="text-base text-zinc-100 mt-0.5 font-semibold">{m.type}</div>
                 <div className="font-mono text-[12px] text-zinc-400 mt-0.5">{m.duration}</div>
               </div>
             ))}
@@ -1315,10 +1370,10 @@ const Stepper = ({ step }) => {
   const activeId = loadingMap[step] || step;
   const idx = steps.findIndex(s => s.id === activeId);
   return (
-    <div className="flex items-center gap-2 mt-6 font-mono text-xs flex-wrap">
+    <div className="flex items-center gap-2 mt-6 text-xs flex-wrap">
       {steps.map((s, i) => (
         <div key={s.id} className="flex items-center gap-2">
-          <div className={`w-5 h-5 rounded flex items-center justify-center text-[10px] transition-colors ${i < idx ? 'bg-emerald-500 text-zinc-950 font-semibold' : i === idx ? 'text-white font-semibold' : 'bg-zinc-900 text-zinc-600 border border-white/10'}`}
+          <div className={`font-mono w-5 h-5 rounded flex items-center justify-center text-[10px] transition-colors ${i < idx ? 'bg-emerald-500 text-zinc-950 font-semibold' : i === idx ? 'text-white font-semibold' : 'bg-zinc-900 text-zinc-600 border border-white/10'}`}
                style={i === idx ? { background: 'var(--accent)' } : {}}>
             {i < idx ? '✓' : i + 1}
           </div>
@@ -1348,19 +1403,19 @@ const Select = ({ label, value, onChange, options, placeholder = 'Type or select
       <div className="relative">
         <input value={open ? search : displayLabel} onChange={e => { setSearch(e.target.value); onChange(e.target.value); setOpen(true); }}
           onFocus={() => { setOpen(true); setSearch(''); }} placeholder={placeholder}
-          className="w-full bg-zinc-900 border border-white/10 rounded-md p-2.5 pr-8 text-sm font-mono text-zinc-100 focus:outline-none focus:border-white/30 placeholder:text-zinc-500" />
+          className="w-full bg-zinc-900 border border-white/10 rounded-md p-2.5 pr-8 text-sm text-zinc-100 focus:outline-none focus:border-white/30 placeholder:text-zinc-500" />
         <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 pointer-events-none" />
         {open && (
           <div className="absolute z-50 mt-1 w-full max-h-52 overflow-y-auto rounded-md border border-white/10 bg-zinc-900 shadow-xl">
             {filtered.map(o => (
               <button key={o.id} type="button" onMouseDown={() => { onChange(o.id); setSearch(''); setOpen(false); }}
-                className={`w-full text-left px-3 py-2 font-mono text-sm hover:bg-white/5 transition-colors ${value === o.id ? 'text-blue-400' : 'text-zinc-200'}`}>
+                className={`w-full text-left px-3 py-2 text-sm hover:bg-white/5 transition-colors ${value === o.id ? 'text-blue-400' : 'text-zinc-200'}`}>
                 {o.label}
               </button>
             ))}
             {search && !filtered.find(o => o.label.toLowerCase() === search.toLowerCase()) && (
               <button type="button" onMouseDown={() => { onChange(search); setSearch(''); setOpen(false); }}
-                className="w-full text-left px-3 py-2 font-mono text-sm text-emerald-400 hover:bg-white/5 border-t border-white/5">
+                className="w-full text-left px-3 py-2 text-sm text-emerald-400 hover:bg-white/5 border-t border-white/5">
                 Use "{search}"
               </button>
             )}
@@ -1373,8 +1428,7 @@ const Select = ({ label, value, onChange, options, placeholder = 'Type or select
 
 // ─── Breadcrumb ──────────────────────────────────────────────────────────────
 const Breadcrumb = ({ segments }) => (
-  <div className="font-mono text-sm mb-4" style={{ color: '#6B7280' }}>
-    <span style={{ color: 'var(--accent)' }}>~</span>
+  <div className="text-sm mb-4" style={{ color: '#6B7280' }}>
     {segments.map((s, i) => (
       <span key={i}><span className="mx-1.5">/</span><span style={{ color: i === segments.length - 1 ? '#D1D5DB' : '#6B7280' }}>{s}</span></span>
     ))}

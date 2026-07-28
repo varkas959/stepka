@@ -42,7 +42,7 @@ export default function AuthCallback() {
         {!err ? (
           <>
             <Loader2 size={28} className="animate-spin mx-auto text-zinc-400" />
-            <div className="font-mono text-sm text-zinc-400 mt-4">Completing sign-in…</div>
+            <div className="text-sm text-zinc-400 mt-4">Completing sign-in…</div>
           </>
         ) : (
           <>

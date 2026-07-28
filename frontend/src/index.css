@@ -14,7 +14,7 @@
     --border-2:  #343A4D;
     --text-1:    #F2F2F4;
     --text-2:    #8B8FA8;
-    --text-3:    #4B5270;
+    --text-3:    #828AA4;
     --accent:    #3B6FD4;
     --accent-12: rgba(59,111,212,0.12);
     --accent-20: rgba(59,111,212,0.20);
@@ -37,7 +37,7 @@ html.light {
     --border-2:  #CFD4DE;
     --text-1:    #1A1D26;
     --text-2:    #5B6273;
-    --text-3:    #8A90A0;
+    --text-3:    #63697A;
     --accent:    #2E5FC0;
     --accent-12: rgba(46,95,192,0.10);
     --accent-20: rgba(46,95,192,0.16);
@@ -98,6 +98,15 @@ html.light .border-white\/5, html.light .border-white\/10, html.light .border-wh
 html.light .border-white\/25 { border-color: var(--border-2) !important; }
 html.light .bg-white\/5, html.light .bg-white\/\[0\.04\], html.light .bg-white\/\[0\.08\] { background-color: rgba(15,23,42,0.04) !important; }
 html.light .hover\:bg-white\/5:hover, html.light .hover\:bg-white\/\[0\.04\]:hover { background-color: rgba(15,23,42,0.05) !important; }
+
+/* ── Dark-mode contrast fix for raw Tailwind zinc utilities ──
+   text-zinc-500/600/700 compile to Tailwind's fixed palette (#71717a/#52525b/#3f3f46),
+   which measures as low as ~2.6:1 against this app's zinc-950/900 dark surfaces —
+   well under the 4.5:1 WCAG AA floor for body text. text-zinc-400 and lighter
+   already clear AA comfortably and are left alone. */
+html:not(.light) .text-zinc-500 { color: #9AA0B8 !important; }
+html:not(.light) .text-zinc-600,
+html:not(.light) .text-zinc-700 { color: #7D84A0 !important; }
 html.light ::selection { background: #1A1D26; color: #fff; }
 
 @layer base {

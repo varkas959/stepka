@@ -49,11 +49,11 @@ export default function QuestionDetail() {
     return (
       <div className="px-4 md:px-10 py-10 max-w-3xl mx-auto">
         {loading ? (
-          <div className="font-mono text-sm" style={{ color: 'var(--text-3)' }}>Loading question…</div>
+          <div className="text-sm" style={{ color: 'var(--text-3)' }}>Loading question…</div>
         ) : (
           <div className="text-center py-20">
             <div className="text-lg font-semibold mb-2" style={{ color: 'var(--text-1)' }}>Question not found</div>
-            <Link to="/app/questions" className="font-mono text-sm" style={{ color: 'var(--accent)' }}>← Back to question bank</Link>
+            <Link to="/app/questions" className="text-sm" style={{ color: 'var(--accent)' }}>← Back to question bank</Link>
           </div>
         )}
       </div>
@@ -72,7 +72,7 @@ export default function QuestionDetail() {
         <meta name="description" content={q.body.slice(0, 155)} />
       </Helmet>
 
-      <Link to="/app/questions" className="inline-flex items-center gap-1.5 font-mono text-xs mb-6 hover:opacity-80"
+      <Link to="/app/questions" className="inline-flex items-center gap-1.5 text-xs mb-6 hover:opacity-80"
         style={{ color: 'var(--text-3)' }}>
         <ArrowLeft size={13} /> Question bank
       </Link>

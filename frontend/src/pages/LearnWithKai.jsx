@@ -334,7 +334,7 @@ export default function LearnWithKai() {
         </div>
         <ProgressRing done={completed.length} total={track.concepts.length} />
       </div>
-      <p className="font-mono text-sm mt-2" style={{ color: 'var(--text-2)' }}>
+      <p className="text-sm mt-2" style={{ color: 'var(--text-2)' }}>
         Every concept as an analogy a 5th grader would get — then the real code.
       </p>
 

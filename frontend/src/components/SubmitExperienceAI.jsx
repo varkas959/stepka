@@ -120,7 +120,7 @@ export const SubmitExperienceAI = ({ onClose }) => {
           const on = source === s.id || (s.id === 'text' && source === 'screenshot_ocr');
           return (
             <button key={s.id} onClick={() => setSource(s.id)}
-              className="font-mono text-xs px-2.5 py-1 rounded-md border transition-colors"
+              className="text-xs px-2.5 py-1 rounded-md border transition-colors"
               style={on ? { borderColor: 'var(--accent)', background: 'var(--accent-12)', color: 'var(--text-1)' }
                         : { borderColor: 'rgba(255,255,255,0.1)', color: 'var(--text-3)' }}>
               {s.label}
@@ -139,7 +139,7 @@ export const SubmitExperienceAI = ({ onClose }) => {
         <div className="flex items-center gap-3">
           <input ref={fileRef} type="file" accept="image/*" multiple hidden onChange={runOcr} />
           <button type="button" onClick={() => fileRef.current?.click()} disabled={ocrBusy || shots >= MAX_SHOTS}
-            className="inline-flex items-center gap-2 font-mono text-xs px-3 py-2 rounded-md border transition-colors hover:bg-white/[0.04] disabled:opacity-50"
+            className="inline-flex items-center gap-2 text-xs px-3 py-2 rounded-md border transition-colors hover:bg-white/[0.04] disabled:opacity-50"
             style={{ borderColor: 'var(--border-2)', color: 'var(--text-2)' }}>
             {ocrBusy ? <Loader2 size={13} className="animate-spin" /> : <Upload size={13} />}
             {ocrBusy ? `Reading… ${ocrProgress}%` : 'Screenshot'}

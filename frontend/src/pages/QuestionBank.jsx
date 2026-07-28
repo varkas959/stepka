@@ -1,7 +1,7 @@
 import { useMemo, useState, useEffect, useRef } from 'react';
 import {
   X, SlidersHorizontal, Search, Check, ArrowUp, Menu, Plus,
-  TrendingUp, Building2, Sparkles,
+  TrendingUp, Building2, Sparkles, Loader2,
   ChevronLeft, ChevronRight,
 } from 'lucide-react';
 import { toast } from 'sonner';
@@ -18,6 +18,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { PixelBar } from '../components/PixelBar';
 import { SearchableFilterChip } from '../components/SearchableFilterChip';
 import { SignInRequiredModal } from '../components/SignInRequiredModal';
+import { useIsMobile } from '../lib/useIsMobile';
 
 // ── constants ────────────────────────────────────────────────────────────────
 const ALL = '__all';
@@ -175,6 +176,24 @@ export default function QuestionBank({ isGuest = false, userId }) {
   const paginatedQ = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
   const hasActiveFilters = search || Object.values(filters).some(v => v !== ALL);
 
+  // ── Mobile: infinite scroll instead of pagination ──
+  const isMobile = useIsMobile();
+  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
+  useEffect(() => { setVisibleCount(PAGE_SIZE); }, [filters, search, activeTab]);
+  const sentinelRef = useRef(null);
+  useEffect(() => {
+    if (!isMobile) return;
+    const el = sentinelRef.current;
+    if (!el) return;
+    const io = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) setVisibleCount(c => Math.min(filtered.length, c + PAGE_SIZE));
+    }, { rootMargin: '600px 0px' });
+    io.observe(el);
+    return () => io.disconnect();
+  }, [isMobile, filtered.length]);
+  const displayedQ = isMobile ? filtered.slice(0, visibleCount) : paginatedQ;
+  const hasMoreMobile = isMobile && visibleCount < filtered.length;
+
   const setF    = (k, v) => { setFilters(s => ({ ...s, [k]: v })); setPage(1); };
   const clearOne = k => { setFilters(s => ({ ...s, [k]: ALL })); setPage(1); };
   const resetAll = () => { setSearch(''); setFilters(EMPTY_FILTERS); setPage(1); };
@@ -298,8 +317,10 @@ export default function QuestionBank({ isGuest = false, userId }) {
       {/* ── Feed ── */}
       <div className="mx-auto md:px-8 md:pt-4 pb-4">
 
-        {/* Tabs — on mobile appear right at top before count */}
-        <div className="flex items-center border-b px-4 md:px-0" style={{ borderColor: 'var(--border)' }}>
+        {/* Tabs — on mobile appear right at top before count, and stay pinned
+            under the header while scrolling so Trending/sort stays reachable. */}
+        <div className="sticky top-14 z-30 flex items-center border-b px-4 md:px-0 md:static"
+             style={{ borderColor: 'var(--border)', background: 'var(--surface)' }}>
           {TABS.map(tab => {
             const isActive = tab.type === 'sort' && activeTab === tab.id;
             const label = tab.id === 'latest' ? `Latest (${filtered.length})` : tab.label;
@@ -325,43 +346,43 @@ export default function QuestionBank({ isGuest = false, userId }) {
 
         {/* Question feed */}
         <div data-testid="question-feed">
-          {paginatedQ.length === 0 ? (
-            <div className="py-16 text-center font-mono text-sm px-4" data-testid="empty-state"
+          {displayedQ.length === 0 ? (
+            <div className="py-16 text-center text-sm px-4" data-testid="empty-state"
                  style={{ color: 'var(--text-3)' }}>
               No questions match your filters.{' '}
               <button onClick={resetAll} className="underline" style={{ color: 'var(--accent)' }}>Clear filters</button>
             </div>
           ) : (
             <>
-              {paginatedQ.slice(0, 6).map(q => (
+              {displayedQ.slice(0, 6).map(q => (
                 <QuestionCard key={q.id} q={q}
                   upvoted={!!upvoteMap[q.id]} newUpvote={!!upvoteMap[q.id] && !loadedUpvotes.current.has(q.id)}
                   asked={!!askedMap[q.id]} onUpvote={() => handleUpvote(q)}
                   onAsked={() => handleAsked(q)} onCompanyClick={() => setBlueprintCompany(q.company)} />
               ))}
 
-              {paginatedQ.length > 6 && intelligence.topTopics.length > 0 && (
+              {displayedQ.length > 6 && intelligence.topTopics.length > 0 && (
                 <IntelligenceStrip topics={intelligence.topTopics} onTopicClick={name => {
                   const t = TOPIC_LABELS.find(x => x.name === name);
                   navigate(`/questions/topic/${t ? t.id : slugify(name)}`);
                 }} />
               )}
 
-              {paginatedQ.length > 6 && paginatedQ.slice(6, 16).map(q => (
+              {displayedQ.length > 6 && displayedQ.slice(6, 16).map(q => (
                 <QuestionCard key={q.id} q={q}
                   upvoted={!!upvoteMap[q.id]} newUpvote={!!upvoteMap[q.id] && !loadedUpvotes.current.has(q.id)}
                   asked={!!askedMap[q.id]} onUpvote={() => handleUpvote(q)}
                   onAsked={() => handleAsked(q)} onCompanyClick={() => setBlueprintCompany(q.company)} />
               ))}
 
-              {paginatedQ.length > 6 && intelligence.topCompanies.length > 1 && (
+              {displayedQ.length > 6 && intelligence.topCompanies.length > 1 && (
                 <CompaniesStrip companies={intelligence.topCompanies} onCompanyClick={id => {
                   const co = COMPANIES.find(c => c.id === id);
                   navigate(`/questions/company/${slugify(co?.name || id)}`);
                 }} />
               )}
 
-              {paginatedQ.length > 16 && paginatedQ.slice(16).map(q => (
+              {displayedQ.length > 16 && displayedQ.slice(16).map(q => (
                 <QuestionCard key={q.id} q={q}
                   upvoted={!!upvoteMap[q.id]} newUpvote={!!upvoteMap[q.id] && !loadedUpvotes.current.has(q.id)}
                   asked={!!askedMap[q.id]} onUpvote={() => handleUpvote(q)}
@@ -371,8 +392,8 @@ export default function QuestionBank({ isGuest = false, userId }) {
           )}
         </div>
 
-        {/* Pagination */}
-        {totalPages > 1 && (
+        {/* Pagination — desktop only; mobile scrolls infinitely instead */}
+        {!isMobile && totalPages > 1 && (
           <div className="flex items-center justify-between mt-5 px-4 md:px-0">
             <Pagination
               page={page}
@@ -383,6 +404,19 @@ export default function QuestionBank({ isGuest = false, userId }) {
               {PAGE_SIZE} per page
             </span>
           </div>
+        )}
+
+        {/* Infinite scroll — mobile only */}
+        {isMobile && displayedQ.length > 0 && (
+          hasMoreMobile ? (
+            <div ref={sentinelRef} className="py-6 flex justify-center">
+              <Loader2 size={16} className="animate-spin" style={{ color: 'var(--text-3)' }} />
+            </div>
+          ) : filtered.length > PAGE_SIZE ? (
+            <div className="py-6 text-center text-xs" style={{ color: 'var(--text-3)' }}>
+              You've reached the end · {filtered.length} questions
+            </div>
+          ) : null
         )}
       </div>
 
@@ -665,8 +699,9 @@ function QuestionCard({ q, upvoted, newUpvote, asked, onUpvote, onAsked, onCompa
         <span style={{ color: diff.text }}>{q.difficulty}</span>
       </div>
 
-      {/* Actions row */}
-      <div className="flex items-center justify-between">
+      {/* Actions row — dropped on mobile, not enough width for asked/practice/verify;
+          all three are reachable from the question detail page one tap away. */}
+      <div className="hidden md:flex items-center justify-between">
         <div className="flex items-center gap-3">
           <button
             data-testid={`asked-${q.id}`}
@@ -782,13 +817,13 @@ const BlueprintModal = ({ companyId, onClose }) => {
                      style={{ background: 'var(--surface)', border: '1px solid var(--border)', color: 'var(--text-1)' }}>
         <DialogHeader>
           <div className="flex items-center gap-3 mb-2">
-            <div className="w-10 h-10 rounded-md flex items-center justify-center font-mono font-bold text-sm"
+            <div className="w-10 h-10 rounded-md flex items-center justify-center font-bold text-sm"
                  style={{ background: company.color + '22', color: company.color, border: `1px solid ${company.color}44` }}>
               {company.initials}
             </div>
             <div>
               <DialogTitle className="text-2xl font-semibold tracking-tight">{company.name} interview blueprint</DialogTitle>
-              <DialogDescription className="text-zinc-400 mt-1 font-mono text-xs">rounds · topic frequency · question types</DialogDescription>
+              <DialogDescription className="text-zinc-400 mt-1 text-xs">rounds · topic frequency · question types</DialogDescription>
             </div>
           </div>
         </DialogHeader>
@@ -809,7 +844,7 @@ const BlueprintModal = ({ companyId, onClose }) => {
             <div className="space-y-2">
               {bp.heatmap.map(h => (
                 <div key={h.topic} className="flex items-center gap-3 text-xs">
-                  <div className="w-32 text-zinc-300 font-mono truncate">{h.topic}</div>
+                  <div className="w-32 text-zinc-300 truncate">{h.topic}</div>
                   <PixelBar value={(h.count / maxCount) * 100} height={10} color={company.color} dotColor={company.color} />
                   <div className="w-8 text-right font-mono text-zinc-400">{h.count}</div>
                 </div>
@@ -820,7 +855,7 @@ const BlueprintModal = ({ companyId, onClose }) => {
             <div className="text-[10px] uppercase tracking-[0.22em] text-zinc-600 font-mono mb-3">Common question types</div>
             <div className="flex flex-wrap gap-1.5">
               {bp.questionTypes.map(t => (
-                <span key={t} className="font-mono text-xs px-2.5 py-1 rounded"
+                <span key={t} className="text-xs px-2.5 py-1 rounded"
                       style={{ border: '1px solid var(--border)', color: 'var(--text-2)' }}>{t}</span>
               ))}
             </div>

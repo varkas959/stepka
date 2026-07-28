@@ -22,17 +22,17 @@ export function CompaniesIndex() {
       <header className="border-b border-white/5 sticky top-0 z-30 bg-zinc-950/90 backdrop-blur">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2">
-            <div className="w-7 h-7 rounded flex items-center justify-center font-mono font-bold text-white text-xs" style={{ background: 'var(--accent)' }}>S</div>
-            <span className="font-mono font-semibold text-sm">Stepkai</span>
+            <div className="w-7 h-7 rounded flex items-center justify-center font-bold text-white text-xs" style={{ background: 'var(--accent)' }}>S</div>
+            <span className="font-semibold text-sm">Stepkai</span>
           </Link>
-          <Link to="/app/questions" className="inline-flex items-center gap-1.5 font-mono text-xs font-semibold uppercase tracking-[0.14em] px-3 py-1.5 rounded-md text-white hover:opacity-90 transition-opacity" style={{ background: 'var(--accent)' }}>
+          <Link to="/app/questions" className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-[0.14em] px-3 py-1.5 rounded-md text-white hover:opacity-90 transition-opacity" style={{ background: 'var(--accent)' }}>
             Browse all <ArrowRight size={11} strokeWidth={2.5} />
           </Link>
         </div>
       </header>
 
       <main className="max-w-4xl mx-auto px-4 sm:px-6 py-10">
-        <Link to="/app/questions" className="inline-flex items-center gap-1 font-mono text-xs text-zinc-500 hover:text-zinc-300 mb-6">
+        <Link to="/app/questions" className="inline-flex items-center gap-1 text-xs text-zinc-500 hover:text-zinc-300 mb-6">
           <ArrowLeft size={12} /> Back to all questions
         </Link>
         <h1 className="text-3xl sm:text-4xl font-semibold tracking-tight">Companies</h1>
@@ -83,17 +83,17 @@ export function RolesIndex() {
       <header className="border-b border-white/5 sticky top-0 z-30 bg-zinc-950/90 backdrop-blur">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2">
-            <div className="w-7 h-7 rounded flex items-center justify-center font-mono font-bold text-white text-xs" style={{ background: 'var(--accent)' }}>S</div>
-            <span className="font-mono font-semibold text-sm">Stepkai</span>
+            <div className="w-7 h-7 rounded flex items-center justify-center font-bold text-white text-xs" style={{ background: 'var(--accent)' }}>S</div>
+            <span className="font-semibold text-sm">Stepkai</span>
           </Link>
-          <Link to="/app/questions" className="inline-flex items-center gap-1.5 font-mono text-xs font-semibold uppercase tracking-[0.14em] px-3 py-1.5 rounded-md text-white hover:opacity-90 transition-opacity" style={{ background: 'var(--accent)' }}>
+          <Link to="/app/questions" className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-[0.14em] px-3 py-1.5 rounded-md text-white hover:opacity-90 transition-opacity" style={{ background: 'var(--accent)' }}>
             Browse all <ArrowRight size={11} strokeWidth={2.5} />
           </Link>
         </div>
       </header>
 
       <main className="max-w-4xl mx-auto px-4 sm:px-6 py-10">
-        <Link to="/app/questions" className="inline-flex items-center gap-1 font-mono text-xs text-zinc-500 hover:text-zinc-300 mb-6">
+        <Link to="/app/questions" className="inline-flex items-center gap-1 text-xs text-zinc-500 hover:text-zinc-300 mb-6">
           <ArrowLeft size={12} /> Back to all questions
         </Link>
         <h1 className="text-3xl sm:text-4xl font-semibold tracking-tight">Roles</h1>

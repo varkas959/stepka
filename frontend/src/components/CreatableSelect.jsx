@@ -41,7 +41,7 @@ export const CreatableSelect = ({
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <button type="button" data-testid={`creatable-${testid}`}
-            className="w-full inline-flex items-center justify-between gap-2 bg-zinc-900 border border-white/10 rounded-md px-3 py-2 text-left text-sm font-mono text-zinc-100 hover:border-white/20 focus:outline-none focus:border-white/30">
+            className="w-full inline-flex items-center justify-between gap-2 bg-zinc-900 border border-white/10 rounded-md px-3 py-2 text-left text-sm text-zinc-100 hover:border-white/20 focus:outline-none focus:border-white/30">
             <span className={display ? '' : 'text-zinc-600'}>{display || placeholder}</span>
             <ChevronDown size={13} className="text-zinc-500" />
           </button>
@@ -57,7 +57,7 @@ export const CreatableSelect = ({
                 if (e.key === 'Enter' && q.trim()) { e.preventDefault(); commit(q.trim()); }
               }}
               placeholder={`type ${label}…`}
-              className="flex-1 bg-transparent border-0 outline-none font-mono text-xs text-zinc-100 placeholder:text-zinc-600 px-1"
+              className="flex-1 bg-transparent border-0 outline-none text-xs text-zinc-100 placeholder:text-zinc-600 px-1"
             />
             {q && (
               <button type="button" onClick={() => setQ('')} className="text-zinc-500 hover:text-zinc-100 p-0.5"><X size={11} /></button>
@@ -67,7 +67,7 @@ export const CreatableSelect = ({
             {filtered.map(o => (
               <button key={o.id} type="button" data-testid={`creatable-option-${testid}-${o.id}`}
                 onClick={() => commit(o.id)}
-                className={`w-full flex items-center gap-2 px-3 py-1.5 font-mono text-sm text-left transition-colors ${
+                className={`w-full flex items-center gap-2 px-3 py-1.5 text-sm text-left transition-colors ${
                   value === o.id ? 'bg-emerald-500/[0.08] text-emerald-400' : 'text-zinc-300 hover:bg-white/5'
                 }`}>
                 <span className="flex-1">{o.label}</span>
@@ -77,12 +77,12 @@ export const CreatableSelect = ({
             {q.trim() && !exists && (
               <button type="button" data-testid={`creatable-add-${testid}`}
                 onClick={() => commit(q.trim())}
-                className="w-full flex items-center gap-2 px-3 py-2 font-mono text-sm text-left hover:bg-white/5 border-t border-white/5" style={{ color: 'var(--accent)' }}>
+                className="w-full flex items-center gap-2 px-3 py-2 text-sm text-left hover:bg-white/5 border-t border-white/5" style={{ color: 'var(--accent)' }}>
                 <Plus size={12} /> <span>add custom: "{q.trim()}"</span>
               </button>
             )}
             {filtered.length === 0 && !q.trim() && (
-              <div className="px-3 py-4 text-center font-mono text-xs text-zinc-600">type to search or create</div>
+              <div className="px-3 py-4 text-center text-xs text-zinc-600">type to search or create</div>
             )}
           </div>
         </PopoverContent>

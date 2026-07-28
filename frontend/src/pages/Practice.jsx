@@ -7,6 +7,7 @@ import { toast } from 'sonner';
 import { gradeAnswer } from '../lib/api';
 import { PixelBar } from '../components/PixelBar';
 import { DepthChallenge } from '../components/DepthChallenge';
+import { useIsMobile } from '../lib/useIsMobile';
 
 // Only DSA questions are genuinely "write a function" — System Design,
 // Behavioral, Security, and everything else in this bank are scenario or
@@ -26,7 +27,11 @@ export default function Practice({ isGuest = false }) {
 
   const q = pinnedQ ?? QUESTIONS[qIdx];
   const isBehavioral = deriveCategory(q) === 'Behavioral';
-  const [mode, setMode] = useState(isCodingQuestion(q) ? 'code' : 'text');
+  // Code editing on a phone keyboard is a bad experience, so mobile defaults
+  // to text even for coding questions — those get a "continue on desktop"
+  // nudge instead of a cramped editor.
+  const isMobile = useIsMobile();
+  const [mode, setMode] = useState((isCodingQuestion(q) && !isMobile) ? 'code' : 'text');
   const [answer, setAnswer] = useState('');
   const [seconds, setSeconds] = useState(0);
   const [submitting, setSubmitting] = useState(false);
@@ -39,9 +44,9 @@ export default function Practice({ isGuest = false }) {
   const navTo = (newIdx) => { setPinnedQ(null); setQIdx(newIdx); };
 
   useEffect(() => {
-    setMode(isCodingQuestion(q) ? 'code' : 'text');
+    setMode((isCodingQuestion(q) && !isMobile) ? 'code' : 'text');
     setAnswer(''); setSeconds(0); setFeedback(null);
-  }, [q]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [q, isMobile]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (feedback) return;
@@ -73,11 +78,11 @@ export default function Practice({ isGuest = false }) {
       <div className="flex items-start justify-between gap-4 flex-wrap mb-6">
         <div>
           <h1 className="text-3xl md:text-4xl font-semibold tracking-tight" style={{ color: 'var(--text-1)' }}>
-            <span style={{ color: 'var(--text-3)' }}>$</span> practice · ai graded
+            practice · ai graded
           </h1>
-          <p className="font-mono text-sm mt-2" style={{ color: 'var(--text-2)' }}>Submit → 1.5s grade → rubric. Honest, specific, no fluff.</p>
+          <p className="text-sm mt-2" style={{ color: 'var(--text-2)' }}>Submit → 1.5s grade → rubric. Honest, specific, no fluff.</p>
         </div>
-        <div className="flex items-center gap-2 font-mono text-xs">
+        <div className="flex items-center gap-2 text-xs">
           <button onClick={() => navTo((qIdx - 1 + QUESTIONS.length) % QUESTIONS.length)}
             className="border border-white/10 rounded-md px-2.5 py-1.5 text-zinc-300 hover:bg-white/5" data-testid="prev-question">← prev</button>
           {/* No absolute position shown — "526 / 1095" implies a sequence or
@@ -91,10 +96,10 @@ export default function Practice({ isGuest = false }) {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {/* Question */}
         <section className="rounded-lg border border-white/10 bg-zinc-950 overflow-hidden">
-          <div className="px-5 py-3 border-b border-white/5 flex items-center gap-3 font-mono text-xs">
-            <span className="font-mono text-[11px] px-2 py-0.5 rounded-[4px] border" style={{ borderColor: 'rgba(59,111,212,0.35)', background: 'rgba(59,111,212,0.07)', color: '#7AA9F7' }}>{company?.name}</span>
-            <span className="font-mono text-[11px] px-2 py-0.5 rounded-[4px] border border-white/10 bg-white/[0.03] text-zinc-300">{q.role}</span>
-            <span className="font-mono text-[11px] px-2 py-0.5 rounded-[4px] border border-white/10 bg-white/[0.03] text-zinc-300">{q.difficulty}</span>
+          <div className="px-5 py-3 border-b border-white/5 flex items-center gap-3 text-xs">
+            <span className="text-[11px] px-2 py-0.5 rounded-[4px] border" style={{ borderColor: 'rgba(59,111,212,0.35)', background: 'rgba(59,111,212,0.07)', color: '#7AA9F7' }}>{company?.name}</span>
+            <span className="text-[11px] px-2 py-0.5 rounded-[4px] border border-white/10 bg-white/[0.03] text-zinc-300">{q.role}</span>
+            <span className="text-[11px] px-2 py-0.5 rounded-[4px] border border-white/10 bg-white/[0.03] text-zinc-300">{q.difficulty}</span>
             <span className="ml-auto inline-flex items-center gap-1.5 text-zinc-400" title="Time spent — not scored, no limit">
               <Timer size={13} /> <span>{formatTime(seconds)}</span>
               <span className="text-zinc-600 hidden sm:inline">· not scored</span>
@@ -104,7 +109,7 @@ export default function Practice({ isGuest = false }) {
             <div className="text-zinc-100 text-base md:text-lg leading-relaxed" style={{ fontFamily: 'inherit' }}>
               {q.body}
             </div>
-            <div className="mt-4 font-mono text-xs text-zinc-500">{q.topicPath} · {q.round} round</div>
+            <div className="mt-4 text-xs text-zinc-500">{q.topicPath} · {q.round} round</div>
           </div>
         </section>
 
@@ -119,13 +124,20 @@ export default function Practice({ isGuest = false }) {
                 style={mode === 'text' ? { background: ACC, color: '#fff', fontWeight: 600 } : { color: 'var(--text-2)' }}>
                 <FileText size={11} /> text
               </button>
-              <button data-testid="mode-code" onClick={() => setMode('code')}
-                className="px-2 py-1 rounded-sm text-[11px] inline-flex items-center gap-1 transition-colors"
-                style={mode === 'code' ? { background: ACC, color: '#fff', fontWeight: 600 } : { color: 'var(--text-2)' }}>
-                <Code2 size={11} /> code
-              </button>
+              {!(isMobile && isCodingQuestion(q)) && (
+                <button data-testid="mode-code" onClick={() => setMode('code')}
+                  className="px-2 py-1 rounded-sm text-[11px] inline-flex items-center gap-1 transition-colors"
+                  style={mode === 'code' ? { background: ACC, color: '#fff', fontWeight: 600 } : { color: 'var(--text-2)' }}>
+                  <Code2 size={11} /> code
+                </button>
+              )}
             </div>
           </div>
+          {isMobile && isCodingQuestion(q) && (
+            <div className="px-5 pt-3 text-xs" style={{ color: 'var(--text-3)' }}>
+              Coding questions are easier with a real keyboard — continue on desktop for the code editor, or outline your approach in text here.
+            </div>
+          )}
           <textarea
             data-testid="answer-input"
             value={answer}
@@ -133,19 +145,19 @@ export default function Practice({ isGuest = false }) {
             placeholder={mode === 'code' ? CODE_HINT : '// type your answer. numbers and structure beat adjectives.'}
             rows={12}
             disabled={!!feedback}
-            className={`flex-1 w-full bg-transparent border-0 p-5 text-sm focus:outline-none resize-y ${mode === 'code' ? 'font-mono' : 'font-mono'} text-zinc-100 placeholder:text-zinc-700 disabled:opacity-60`}
+            className={`flex-1 w-full bg-transparent border-0 p-5 text-sm focus:outline-none resize-y ${mode === 'code' ? 'font-mono' : ''} text-zinc-100 placeholder:text-zinc-700 disabled:opacity-60`}
           />
           <div className="border-t border-white/5 p-4 flex items-center gap-3">
             {!feedback ? (
               <button data-testid="submit-answer" onClick={submit} disabled={submitting}
-                className="inline-flex items-center gap-2 font-mono text-sm font-semibold uppercase tracking-[0.14em] px-4 py-2 rounded-md text-white hover:opacity-90 transition-opacity disabled:opacity-50"
+                className="inline-flex items-center gap-2 text-sm font-semibold uppercase tracking-[0.14em] px-4 py-2 rounded-md text-white hover:opacity-90 transition-opacity disabled:opacity-50"
                 style={{ background: ACC }}>
                 {submitting && <Loader2 size={14} className="animate-spin" />}
                 {submitting ? 'Grading…' : <>Submit <ArrowRight size={14} strokeWidth={2.5} /></>}
               </button>
             ) : (
               <button data-testid="try-again" onClick={reset}
-                className="inline-flex items-center gap-2 font-mono text-sm px-3.5 py-2 rounded-md border border-white/10 bg-zinc-900 hover:bg-zinc-800 text-zinc-100">
+                className="inline-flex items-center gap-2 text-sm px-3.5 py-2 rounded-md border border-white/10 bg-zinc-900 hover:bg-zinc-800 text-zinc-100">
                 <RotateCw size={13} /> Try again
               </button>
             )}
@@ -164,11 +176,11 @@ export default function Practice({ isGuest = false }) {
           <ArrowDown size={18} className="shrink-0" style={{ color: 'var(--accent)' }} />
           <div className="flex-1">
             <div className="font-semibold text-sm" style={{ color: 'var(--text-1)' }}>The interviewer follows up</div>
-            <div className="font-mono text-xs mt-0.5" style={{ color: 'var(--text-2)' }}>
+            <div className="text-xs mt-0.5" style={{ color: 'var(--text-2)' }}>
               Defend <span style={{ color: 'var(--text-1)' }}>{probeSkill}</span> through escalating "why?" follow-ups — see how deep you really go.
             </div>
           </div>
-          <span className="font-mono text-xs font-semibold uppercase tracking-[0.14em] shrink-0" style={{ color: 'var(--accent)' }}>Go deeper →</span>
+          <span className="text-xs font-semibold uppercase tracking-[0.14em] shrink-0" style={{ color: 'var(--accent)' }}>Go deeper →</span>
         </button>
       )}
 
@@ -197,10 +209,10 @@ const FeedbackPanel = ({ feedback }) => {
             {feedback.dims.map(d => {
               const color = d.score >= 75 ? '#22c55e' : d.score >= 60 ? ACC : '#ef4444';
               return (
-                <div key={d.name} className="font-mono text-xs">
+                <div key={d.name} className="text-xs">
                   <div className="flex justify-between mb-1">
                     <span className="text-zinc-300">{d.name}</span>
-                    <span className="text-zinc-400">{d.score}</span>
+                    <span className="font-mono text-zinc-400">{d.score}</span>
                   </div>
                   <PixelBar value={d.score} height={9} color={color} dotColor={color} />
                 </div>
@@ -215,11 +227,11 @@ const FeedbackPanel = ({ feedback }) => {
 
           <div className="mt-5 rounded-md p-4 flex items-center gap-4"
                style={{ border: '1px solid rgba(59,111,212,0.3)', background: 'rgba(59,111,212,0.04)' }}>
-            <div className="font-mono text-xs" style={{ color: 'var(--text-1)' }}>
-              Suggested SRS rating: <span style={{ color: '#7AA9F7' }}>"{feedback.suggestedLabel} ({feedback.suggestedRating})"</span>
+            <div className="text-xs" style={{ color: 'var(--text-1)' }}>
+              Suggested SRS rating: <span className="font-mono" style={{ color: '#7AA9F7' }}>"{feedback.suggestedLabel} ({feedback.suggestedRating})"</span>
             </div>
             <button data-testid="apply-srs" onClick={applyToSrs}
-              className="ml-auto inline-flex items-center gap-1.5 font-mono text-xs font-semibold uppercase tracking-[0.14em] px-3 py-1.5 rounded-md text-white hover:opacity-90 transition-opacity"
+              className="ml-auto inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-[0.14em] px-3 py-1.5 rounded-md text-white hover:opacity-90 transition-opacity"
               style={{ background: ACC }}>
               Apply to SRS
             </button>
@@ -231,8 +243,7 @@ const FeedbackPanel = ({ feedback }) => {
 };
 
 const Breadcrumb = ({ segments }) => (
-  <div className="font-mono text-sm mb-4" style={{ color: 'var(--text-3)' }}>
-    <span style={{ color: ACC }}>~</span>
+  <div className="text-sm mb-4" style={{ color: 'var(--text-3)' }}>
     {segments.map((s, i) => (
       <span key={i}>
         <span className="mx-1.5">/</span>

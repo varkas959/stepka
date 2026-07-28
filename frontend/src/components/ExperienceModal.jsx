@@ -136,7 +136,7 @@ export const ExperienceModal = ({ open, onOpenChange, onSubmitted, userId, defau
           <div>
             <div className="flex items-center justify-between mb-2">
               <div className="font-mono text-[10px] uppercase tracking-[0.18em] text-zinc-500">rounds &amp; questions ({rounds.length})</div>
-              <button type="button" onClick={addRound} className="inline-flex items-center gap-1 font-mono text-xs text-blue-400 hover:text-blue-300">
+              <button type="button" onClick={addRound} className="inline-flex items-center gap-1 text-xs text-blue-400 hover:text-blue-300">
                 <Plus size={13} /> add round
               </button>
             </div>
@@ -144,7 +144,7 @@ export const ExperienceModal = ({ open, onOpenChange, onSubmitted, userId, defau
               {rounds.map((r, ri) => (
                 <div key={ri} className="rounded-md border border-white/8 p-3" style={{ background: 'var(--inset)' }}>
                   <div className="flex items-center gap-2 mb-2">
-                    <span className="font-mono text-[11px] text-zinc-500">Round {ri + 1}</span>
+                    <span className="text-[11px] text-zinc-500">Round {ri + 1}</span>
                     <div className="flex-1 max-w-[220px]">
                       <CreatableSelect label="" value={r.type} options={ROUNDTYPE_OPTS} onChange={v => setRound(ri, 'type', v)} testid={`exp-round-type-${ri}`} />
                     </div>
@@ -175,7 +175,7 @@ export const ExperienceModal = ({ open, onOpenChange, onSubmitted, userId, defau
                         )}
                       </div>
                     ))}
-                    <button type="button" onClick={() => addRoundQuestion(ri)} className="font-mono text-[11px] text-zinc-500 hover:text-zinc-300">+ add question</button>
+                    <button type="button" onClick={() => addRoundQuestion(ri)} className="text-[11px] text-zinc-500 hover:text-zinc-300">+ add question</button>
                   </div>
                   <input value={r.notes} onChange={e => setRound(ri, 'notes', e.target.value)}
                     placeholder="round notes (optional) — vibe, format, what they focused on"
@@ -219,13 +219,13 @@ export const ExperienceModal = ({ open, onOpenChange, onSubmitted, userId, defau
 
           <div className="flex items-center gap-2 pt-1">
             <button type="submit" data-testid="exp-submit" disabled={submitting}
-              className="inline-flex items-center gap-2 font-mono text-sm font-semibold uppercase tracking-[0.14em] px-4 py-2 rounded-md text-white hover:opacity-90 transition-opacity disabled:opacity-50"
+              className="inline-flex items-center gap-2 text-sm font-semibold uppercase tracking-[0.14em] px-4 py-2 rounded-md text-white hover:opacity-90 transition-opacity disabled:opacity-50"
               style={{ background: 'var(--accent)' }}>
               {submitting && <Loader2 size={14} className="animate-spin" />}
               {submitting ? 'Submitting…' : 'Submit experience'}
             </button>
             <button type="button" onClick={() => onOpenChange(false)}
-              className="font-mono text-sm px-3 py-2 rounded-md border border-white/10 bg-zinc-900 hover:bg-zinc-800 text-zinc-100">Cancel</button>
+              className="text-sm px-3 py-2 rounded-md border border-white/10 bg-zinc-900 hover:bg-zinc-800 text-zinc-100">Cancel</button>
           </div>
         </form>
   );

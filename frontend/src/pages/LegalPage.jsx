@@ -8,23 +8,22 @@ export default function LegalPage({ kind = 'privacy' }) {
       <header className="border-b border-white/5">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2.5" data-testid="legal-home-link">
-            <div className="w-7 h-7 rounded-md flex items-center justify-center font-mono font-bold text-white text-xs" style={{ background: 'var(--accent)' }}>S</div>
-            <span className="font-mono font-semibold tracking-tight text-sm">Stepkai</span>
+            <div className="w-7 h-7 rounded-md flex items-center justify-center font-bold text-white text-xs" style={{ background: 'var(--accent)' }}>S</div>
+            <span className="font-semibold tracking-tight text-sm">Stepkai</span>
           </Link>
-          <Link to="/" className="font-mono text-xs text-zinc-400 hover:text-zinc-50 inline-flex items-center gap-1.5">
+          <Link to="/" className="text-xs text-zinc-400 hover:text-zinc-50 inline-flex items-center gap-1.5">
             <ArrowLeft size={12} /> Back home
           </Link>
         </div>
       </header>
 
       <main className="max-w-3xl mx-auto px-4 sm:px-6 py-10 sm:py-14">
-        <div className="font-mono text-sm text-zinc-600 mb-4">
-          <span className="text-emerald-400">~</span>
+        <div className="text-sm text-zinc-600 mb-4">
           <span className="mx-1.5">/</span>
           <span className="text-zinc-200">{config.slug}</span>
         </div>
         <h1 className="text-3xl sm:text-4xl font-semibold tracking-tight">{config.title}</h1>
-        <p className="font-mono text-xs text-zinc-500 mt-2">Last updated: {config.updated}</p>
+        <p className="text-xs text-zinc-500 mt-2">Last updated: {config.updated}</p>
 
         <div className="mt-10 space-y-8">
           {config.sections.map((s, i) => (
@@ -34,7 +33,7 @@ export default function LegalPage({ kind = 'privacy' }) {
                 <p key={j} className="text-zinc-300 leading-relaxed mb-3 text-sm sm:text-base">{para}</p>
               ))}
               {s.list && (
-                <ul className="font-mono text-xs sm:text-sm text-zinc-300 mt-2 ml-4 list-disc space-y-1.5">
+                <ul className="text-xs sm:text-sm text-zinc-300 mt-2 ml-4 list-disc space-y-1.5">
                   {s.list.map((item, k) => <li key={k}>{item}</li>)}
                 </ul>
               )}
@@ -42,7 +41,7 @@ export default function LegalPage({ kind = 'privacy' }) {
           ))}
         </div>
 
-        <div className="mt-14 pt-8 border-t border-white/5 font-mono text-xs text-zinc-500">
+        <div className="mt-14 pt-8 border-t border-white/5 text-xs text-zinc-500">
           Questions? Email <a className="text-zinc-200 hover:underline" href="mailto:hi@stepkai.com">hi@stepkai.com</a>.
         </div>
       </main>

@@ -103,7 +103,7 @@ export const DepthChallenge = ({ open, onOpenChange, skill, company, role, onCom
               className="w-full bg-zinc-900 border border-white/10 rounded-md p-3 text-sm text-zinc-100 placeholder:text-zinc-600 focus:outline-none focus:border-white/30 resize-y"
             />
             <div className="flex items-center justify-between mt-2">
-              <span className="font-mono text-[11px]" style={{ color: 'var(--text-3)' }}>⌘/Ctrl + Enter to submit</span>
+              <span className="text-[11px]" style={{ color: 'var(--text-3)' }}>⌘/Ctrl + Enter to submit</span>
               <button onClick={submit} disabled={loading || !answer.trim()}
                 className="inline-flex items-center gap-2 text-sm font-semibold px-4 py-2 rounded-md text-white disabled:opacity-50"
                 style={{ background: 'var(--accent)' }}>

@@ -59,9 +59,9 @@ export const AuthGate = () => {
       <div className="w-full md:w-1/2 flex items-center justify-center p-6 md:p-12">
         <div className="w-full max-w-sm">
           <div className="flex items-center gap-2.5 mb-10">
-            <div className="w-9 h-9 rounded-md flex items-center justify-center font-mono font-bold text-white" style={{ background: 'var(--accent)' }}>S</div>
+            <div className="w-9 h-9 rounded-md flex items-center justify-center font-bold text-white" style={{ background: 'var(--accent)' }}>S</div>
             <div>
-              <div className="font-mono text-lg font-semibold tracking-tight">Stepkai</div>
+              <div className="text-lg font-semibold tracking-tight">Stepkai</div>
               <div className="text-[10px] uppercase tracking-[0.22em] text-zinc-500">interview prep</div>
             </div>
           </div>
@@ -107,7 +107,7 @@ export const AuthGate = () => {
             By signing in you agree to our <Link to="/terms" className="text-zinc-200 hover:underline">Terms of Service</Link> and <Link to="/privacy" className="text-zinc-200 hover:underline">Privacy Policy</Link>.
           </p>
 
-          <p className="text-xs text-zinc-600 mt-10 font-mono">
+          <p className="text-xs text-zinc-600 mt-10">
             stepkai.com · v1.0
           </p>
         </div>

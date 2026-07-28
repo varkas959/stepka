@@ -2,7 +2,7 @@ import { NavLink, Link, useLocation, useNavigate } from 'react-router-dom';
 import {
   BookOpen, RotateCcw, LayoutGrid, Terminal, BarChart2,
   Menu, X, MessageSquare, Sun, Moon, Plus,
-  Home, CircleUser, Zap, Search, SlidersHorizontal, Sparkles,
+  Search, SlidersHorizontal, Sparkles,
 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { useAppState } from '../lib/appState';
@@ -253,13 +253,13 @@ export const Sidebar = ({ user, isGuest, onSignOut }) => {
            style={{ background: 'var(--surface)', borderTop: `1px solid ${BDR}` }}
            data-testid="mobile-bottom-nav">
         {[
-          { to: '/app/plan',      label: 'Home',      Icon: Home,       end: true },
-          { to: '/app/questions', label: 'Questions', Icon: BookOpen,   end: true },
-          { to: '/app/practice',  label: 'Prepare',   Icon: Zap,        end: true },
-          { to: '/app/profile',   label: 'Profile',   Icon: CircleUser, end: true },
-        ].map(({ to, label, Icon, end }) => (
+          { to: '/app/plan',      label: 'Study Plan',    Icon: LayoutGrid, key: 'plan',     end: true },
+          { to: '/app/questions', label: 'Question Bank', Icon: BookOpen,   key: 'questions', end: true },
+          { to: '/app/review',    label: 'Daily Review',  Icon: RotateCcw,  key: 'review',   end: true, badge: true },
+          { to: '/app/progress',  label: 'Progress',      Icon: BarChart2,  key: 'progress', end: true },
+        ].map(({ to, label, Icon, key, end, badge }) => (
           <NavLink
-            key={to}
+            key={key}
             to={to}
             end={!!end}
             className="flex-1 flex flex-col items-center justify-center gap-0.5 transition-colors"
@@ -267,9 +267,13 @@ export const Sidebar = ({ user, isGuest, onSignOut }) => {
           >
             {({ isActive }) => (
               <>
-                <div className="flex items-center justify-center w-10 h-7 rounded-2xl transition-colors"
+                <div className="relative flex items-center justify-center w-10 h-7 rounded-2xl transition-colors"
                      style={{ background: isActive ? 'rgba(59,111,212,0.12)' : 'transparent' }}>
                   <Icon size={20} strokeWidth={isActive ? 2.2 : 1.6} />
+                  {badge && state.dueToday > 0 && (
+                    <span className="absolute -top-1 -right-1 w-3.5 h-3.5 rounded-full text-[8px] font-bold flex items-center justify-center text-white"
+                          style={{ background: ACC }}>{state.dueToday}</span>
+                  )}
                 </div>
                 <span className="text-[10px]" style={{ fontWeight: isActive ? 600 : 400 }}>{label}</span>
               </>

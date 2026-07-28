@@ -87,7 +87,7 @@ export default function InterviewIntelligence({ kind }) {
       </Helmet>
 
       <div className="max-w-4xl mx-auto px-4 sm:px-8 py-8">
-        <Link to="/app/questions" className="inline-flex items-center gap-1.5 font-mono text-xs text-zinc-500 hover:text-zinc-300 mb-6"><ArrowLeft size={13} /> Question Bank</Link>
+        <Link to="/app/questions" className="inline-flex items-center gap-1.5 text-xs text-zinc-500 hover:text-zinc-300 mb-6"><ArrowLeft size={13} /> Question Bank</Link>
 
         <div className="flex items-start justify-between gap-4 flex-wrap mb-6">
           <div>
@@ -96,7 +96,7 @@ export default function InterviewIntelligence({ kind }) {
             <p className="text-zinc-400 mt-2 text-sm">{desc}</p>
           </div>
           <button onClick={() => setModalOpen(true)}
-            className="inline-flex items-center gap-2 font-mono text-sm font-semibold px-4 py-2.5 rounded-md text-white hover:opacity-90 transition-opacity shrink-0"
+            className="inline-flex items-center gap-2 text-sm font-semibold px-4 py-2.5 rounded-md text-white hover:opacity-90 transition-opacity shrink-0"
             style={{ background: '#7C3AED' }}>
             <FileText size={14} /> Report your experience
           </button>
@@ -106,7 +106,7 @@ export default function InterviewIntelligence({ kind }) {
           <div className="rounded-lg border border-white/10 bg-zinc-950 p-10 text-center">
             <p className="text-zinc-300 text-lg font-medium">No reports yet for {scope.companyName || scope.role}.</p>
             <p className="text-zinc-500 text-sm mt-2">Be the first to report — your experience becomes the baseline others learn from.</p>
-            <button onClick={() => setModalOpen(true)} className="mt-5 inline-flex items-center gap-2 font-mono text-sm font-semibold px-4 py-2.5 rounded-md text-white" style={{ background: '#7C3AED' }}>
+            <button onClick={() => setModalOpen(true)} className="mt-5 inline-flex items-center gap-2 text-sm font-semibold px-4 py-2.5 rounded-md text-white" style={{ background: '#7C3AED' }}>
               <FileText size={14} /> Report the first experience
             </button>
           </div>
@@ -126,7 +126,7 @@ export default function InterviewIntelligence({ kind }) {
                 {intel.difficultyDist.map((count, i) => {
                   const pct = intel.total ? Math.round((count / intel.total) * 100) : 0;
                   return (
-                    <div key={i} className="flex items-center gap-3 font-mono text-xs">
+                    <div key={i} className="flex items-center gap-3 text-xs">
                       <span className="w-20 text-zinc-400 shrink-0">{DIFF_LABEL[i]}</span>
                       <div className="flex-1 h-2 rounded bg-white/5 overflow-hidden"><div className="h-full rounded" style={{ width: `${pct}%`, background: '#7C3AED' }} /></div>
                       <span className="w-8 text-right text-zinc-500">{count}</span>
@@ -141,8 +141,8 @@ export default function InterviewIntelligence({ kind }) {
               <Panel title="Most common rounds">
                 <div className="flex flex-wrap gap-2">
                   {intel.commonRounds.map(r => (
-                    <span key={r.name} className="font-mono text-xs px-2.5 py-1 rounded border border-white/10 text-zinc-300">
-                      {r.name} <span className="text-zinc-600">· {r.count}</span>
+                    <span key={r.name} className="text-xs px-2.5 py-1 rounded border border-white/10 text-zinc-300">
+                      {r.name} <span className="font-mono text-zinc-600">· {r.count}</span>
                     </span>
                   ))}
                 </div>
@@ -154,7 +154,7 @@ export default function InterviewIntelligence({ kind }) {
               <Panel title="Most asked topics">
                 <div className="space-y-2">
                   {intel.topTopics.map(t => (
-                    <div key={t.name} className="flex items-center gap-2 font-mono text-sm">
+                    <div key={t.name} className="flex items-center gap-2 text-sm">
                       <TrendingUp size={12} className="text-purple-400 shrink-0" />
                       <span className="text-zinc-200">{t.name}</span>
                     </div>
@@ -184,7 +184,7 @@ export default function InterviewIntelligence({ kind }) {
                   {related.map((r, i) => (
                     <Link key={i} to={`/app/questions`} className="block rounded-md border border-white/8 bg-zinc-950 p-3 hover:border-white/20 transition-colors">
                       <p className="text-zinc-200 text-sm leading-relaxed">{r.body}</p>
-                      {r.round && <div className="font-mono text-[10px] text-zinc-600 mt-1.5">{r.round}</div>}
+                      {r.round && <div className="text-[10px] text-zinc-600 mt-1.5">{r.round}</div>}
                     </Link>
                   ))}
                 </div>
@@ -197,7 +197,7 @@ export default function InterviewIntelligence({ kind }) {
               <p className="text-zinc-300 text-sm leading-relaxed mb-3">
                 Test yourself against {scope.companyName || scope.role} interview patterns and get a readiness score with a gap-driven study plan.
               </p>
-              <Link to="/app/plan" className="inline-flex items-center gap-2 font-mono text-sm font-semibold px-4 py-2.5 rounded-md text-white hover:opacity-90 transition-opacity" style={{ background: 'var(--accent)' }}>
+              <Link to="/app/plan" className="inline-flex items-center gap-2 text-sm font-semibold px-4 py-2.5 rounded-md text-white hover:opacity-90 transition-opacity" style={{ background: 'var(--accent)' }}>
                 Take the assessment →
               </Link>
             </div>
@@ -211,8 +211,8 @@ export default function InterviewIntelligence({ kind }) {
                   return (
                     <div key={exp.id} className="rounded-md border border-white/8 bg-zinc-950 p-4">
                       <div className="flex items-center gap-2 flex-wrap mb-1.5">
-                        {kind !== 'companyRole' && <span className="font-mono text-xs text-zinc-300">{exp.company} · {exp.role}</span>}
-                        {Icon && <span className="inline-flex items-center gap-1 font-mono text-[11px]" style={{ color: om.color }}><Icon size={11} /> {exp.outcome}</span>}
+                        {kind !== 'companyRole' && <span className="text-xs text-zinc-300">{exp.company} · {exp.role}</span>}
+                        {Icon && <span className="inline-flex items-center gap-1 text-[11px]" style={{ color: om.color }}><Icon size={11} /> {exp.outcome}</span>}
                         {exp.difficulty && <span className="font-mono text-[11px] text-zinc-500">difficulty {exp.difficulty}/5</span>}
                         {exp.experienceYears && <span className="font-mono text-[11px] text-zinc-500">{exp.experienceYears}</span>}
                         <span className="ml-auto font-mono text-[11px] text-zinc-600">{exp.daysAgo === 0 ? 'Today' : `${exp.daysAgo}d ago`}</span>
@@ -238,7 +238,7 @@ const Stat = ({ label, value, sub, color }) => (
   <div className="rounded-lg border border-white/10 bg-zinc-950 p-4">
     <div className="font-mono text-2xl font-semibold" style={{ color: color || '#fafafa' }}>{value}</div>
     <div className="font-mono text-[10px] uppercase tracking-[0.16em] text-zinc-500 mt-1">{label}</div>
-    {sub && <div className="font-mono text-[10px] text-zinc-600 mt-0.5">{sub}</div>}
+    {sub && <div className="text-[10px] text-zinc-600 mt-0.5">{sub}</div>}
   </div>
 );
 

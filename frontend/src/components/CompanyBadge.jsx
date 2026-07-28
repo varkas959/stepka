@@ -10,7 +10,7 @@ export const CompanyBadge = ({ companyId, size = 'md', testIdPrefix = 'company-b
   return (
     <div
       data-testid={`${testIdPrefix}-${companyId}`}
-      className={`${sizes[size]} rounded-md flex items-center justify-center font-mono font-bold tracking-tighter`}
+      className={`${sizes[size]} rounded-md flex items-center justify-center font-bold tracking-tighter`}
       style={{ backgroundColor: c.color + '22', color: c.color, border: `1px solid ${c.color}44` }}
     >
       {c.initials}

@@ -44,7 +44,7 @@ export default function ReportPage() {
   if (loading) {
     return (
       <div style={{ background: C.bg, minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <span className="font-mono text-sm" style={{ color: C.text3 }}>Loading report…</span>
+        <span className="text-sm" style={{ color: C.text3 }}>Loading report…</span>
       </div>
     );
   }
@@ -53,7 +53,7 @@ export default function ReportPage() {
     return (
       <div style={{ background: C.bg, minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <div className="text-center">
-          <div className="font-mono text-sm mb-4" style={{ color: C.text3 }}>Report not found.</div>
+          <div className="text-sm mb-4" style={{ color: C.text3 }}>Report not found.</div>
           <Link to="/" style={{ color: C.accent }} className="text-sm">? Home</Link>
         </div>
       </div>
@@ -82,11 +82,11 @@ export default function ReportPage() {
       <header className="sticky top-0 z-10 backdrop-blur-sm" style={{ borderBottom: `1px solid ${C.border}`, background: 'var(--surface-blur)' }}>
         <div className="max-w-2xl mx-auto px-6 h-14 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2.5">
-            <div className="w-6 h-6 rounded text-xs font-bold text-white flex items-center justify-center font-mono" style={{ background: C.accent }}>S</div>
+            <div className="w-6 h-6 rounded text-xs font-bold text-white flex items-center justify-center" style={{ background: C.accent }}>S</div>
             <span className="font-semibold text-sm" style={{ color: C.text1 }}>Stepkai</span>
           </Link>
           <div className="flex items-center gap-2">
-            <button onClick={copy} className="inline-flex items-center gap-1.5 font-mono text-xs px-3 py-1.5 rounded-md transition-opacity hover:opacity-80" style={{ border: `1px solid ${C.border}`, color: C.text2 }}>
+            <button onClick={copy} className="inline-flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-md transition-opacity hover:opacity-80" style={{ border: `1px solid ${C.border}`, color: C.text2 }}>
               <Copy size={11} /> {copied ? 'Copied!' : 'Copy link'}
             </button>
             <Link to="/app/plan" className="inline-flex items-center gap-1.5 text-sm font-medium px-3 py-1.5 rounded-md text-white hover:opacity-90 transition-opacity" style={{ background: C.accent }}>
@@ -110,7 +110,7 @@ export default function ReportPage() {
             <div className="flex items-start justify-between gap-4">
               <div>
                 <div className="text-lg font-semibold" style={{ color: C.text1 }}>{report.company}</div>
-                <div className="font-mono text-xs mt-0.5" style={{ color: C.text3 }}>{report.role} · Technical loop</div>
+                <div className="text-xs mt-0.5" style={{ color: C.text3 }}>{report.role} · Technical loop</div>
               </div>
               <div className="text-right">
                 <div className="font-mono font-semibold leading-none" style={{ fontSize: 44, color: scoreClr }}>
@@ -183,29 +183,29 @@ export default function ReportPage() {
           </div>
           <div className="flex items-center gap-2">
             <div className="flex-1 font-mono text-xs px-3 py-2 rounded-md truncate" style={{ background: C.bg3, color: C.text2, border: `1px solid ${C.border}` }}>{shareUrl}</div>
-            <button onClick={copy} className="shrink-0 font-mono text-xs px-3 py-2 rounded-md text-white hover:opacity-90 transition-opacity" style={{ background: C.accent }}>
+            <button onClick={copy} className="shrink-0 text-xs px-3 py-2 rounded-md text-white hover:opacity-90 transition-opacity" style={{ background: C.accent }}>
               {copied ? 'Copied' : 'Copy'}
             </button>
           </div>
           <div className="flex gap-2 mt-3">
             <a href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(shareUrl)}`}
                target="_blank" rel="noopener noreferrer"
-               className="flex-1 text-center font-mono text-xs py-2 rounded-md transition-opacity hover:opacity-80"
+               className="flex-1 text-center text-xs py-2 rounded-md transition-opacity hover:opacity-80"
                style={{ border: `1px solid ${C.border}`, color: C.text2 }}>LinkedIn</a>
             <a href={`https://twitter.com/intent/tweet?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(`My ${report.company} ${report.role} readiness: ${report.readiness}%. Here's the breakdown:`)}`}
                target="_blank" rel="noopener noreferrer"
-               className="flex-1 text-center font-mono text-xs py-2 rounded-md transition-opacity hover:opacity-80"
+               className="flex-1 text-center text-xs py-2 rounded-md transition-opacity hover:opacity-80"
                style={{ border: `1px solid ${C.border}`, color: C.text2 }}>Twitter / X</a>
             <a href={`https://api.whatsapp.com/send?text=${encodeURIComponent(`My ${report.company} ${report.role} interview readiness: ${report.readiness}%. See the full breakdown: ${shareUrl}`)}`}
                target="_blank" rel="noopener noreferrer"
-               className="flex-1 text-center font-mono text-xs py-2 rounded-md transition-opacity hover:opacity-80"
+               className="flex-1 text-center text-xs py-2 rounded-md transition-opacity hover:opacity-80"
                style={{ border: `1px solid ${C.border}`, color: C.text2 }}>WhatsApp</a>
           </div>
         </div>
 
         {/* CTA for visitors */}
         <div className="mt-6 text-center">
-          <div className="font-mono text-xs mb-4" style={{ color: C.text3 }}>Know your readiness before your next interview.</div>
+          <div className="text-xs mb-4" style={{ color: C.text3 }}>Know your readiness before your next interview.</div>
           <Link to="/app/plan"
             className="inline-flex items-center gap-2 font-medium px-5 py-2.5 rounded-lg text-white hover:opacity-90 transition-opacity"
             style={{ background: C.accent }}>
