@@ -158,7 +158,7 @@ export default function QuestionDetail() {
           <div className="flex flex-wrap gap-2.5">
             {alsoAskedIn.map(c => (
               <Link key={c.id} to={`/company/${slugify(c.name)}`}
-                className="inline-flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl transition-all hover:-translate-y-0.5"
+                className="inline-flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl transition-transform hover:-translate-y-0.5"
                 style={{ background: 'var(--surface)', border: '1px solid var(--border)' }}>
                 <span className="w-7 h-7 rounded-lg text-[11px] font-bold flex items-center justify-center"
                   style={{ background: c.color + '1f', color: c.color }}>{c.initials}</span>

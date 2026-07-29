@@ -378,7 +378,7 @@ const MobileHomeSummary = ({ activePlan, dueToday, readiness }) => (
     </div>
 
     <Link to={dueToday > 0 ? '/app/review' : '/app/questions'}
-      className="mt-5 flex items-center justify-center gap-2 text-sm font-semibold py-3 rounded-lg text-white hover:opacity-90 transition-opacity"
+      className="pressable mt-5 flex items-center justify-center gap-2 text-sm font-semibold py-3 rounded-lg text-white hover:opacity-90 transition-opacity"
       style={{ background: 'var(--accent)' }}>
       {dueToday > 0 ? `Start today's review · ${dueToday} cards` : 'Browse questions'}
     </Link>
@@ -560,7 +560,7 @@ const InputStep = ({ jd, setJd, company, setCompany, role, setRole, onStart, act
           </div>
           <div className="flex flex-col items-end gap-1">
             <button onClick={onStart} disabled={!jd.trim()}
-              className="inline-flex items-center gap-2 text-sm font-semibold px-5 py-2.5 rounded-lg text-white hover:opacity-90 transition-all disabled:cursor-not-allowed"
+              className="inline-flex items-center gap-2 text-sm font-semibold px-5 py-2.5 rounded-lg text-white hover:opacity-90 transition-[opacity,background-color,color] disabled:cursor-not-allowed"
               style={jd.trim() ? { background: 'var(--accent)' } : { background: 'rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.45)' }}>
               <Sparkles size={14} strokeWidth={2.5} /> Start assessment
             </button>
@@ -674,7 +674,7 @@ const MCQOptions = ({ options, selected, onSelect }) => (
       const isSelected = selected === letter;
       return (
         <button key={i} onClick={() => onSelect(letter)}
-          className={`w-full text-left p-3 rounded-md border text-sm transition-all leading-relaxed ${
+          className={`w-full text-left p-3 rounded-md border text-sm transition-colors leading-relaxed ${
             isSelected ? 'border-blue-500/60 bg-blue-500/[0.08] text-blue-100' : 'border-white/10 text-zinc-200 hover:border-white/25 hover:bg-white/[0.03]'
           }`}>
           <span className={`font-semibold mr-2 ${isSelected ? 'text-blue-400' : 'text-zinc-400'}`}>{letter}.</span>
@@ -1053,7 +1053,7 @@ const CovDepthBar = ({ label, sub, value, color }) => (
       <span className="font-mono text-sm font-semibold" style={{ color }}>{value}%</span>
     </div>
     <div className="h-1.5 rounded-full overflow-hidden mb-1.5" style={{ background: 'var(--surface-2)' }}>
-      <div className="h-full rounded-full transition-all" style={{ width: `${value}%`, background: color }} />
+      <div className="h-full rounded-full transition-[width] duration-500 ease-out" style={{ width: `${value}%`, background: color }} />
     </div>
     <div className="text-[10px] text-zinc-500">{sub}</div>
   </div>
@@ -1252,7 +1252,7 @@ const PlanCalendar = ({ plan, expandedDay, setExpandedDay, state, onReset, repor
           const isMock = mockDays.has(d.day);
           return (
             <button key={d.day} onClick={() => setExpandedDay(isExpanded ? null : d.day)}
-              className={`relative text-left p-2 rounded-md border transition-all overflow-hidden ${
+              className={`relative text-left p-2 rounded-md border transition-[border-color,background-color,box-shadow,opacity] overflow-hidden ${
                 isExpanded ? 'border-blue-500/60 bg-blue-500/[0.07] ring-1 ring-blue-500/20'
                 : isMock ? 'border-blue-500/40 bg-blue-500/[0.05] hover:border-blue-500/60'
                 : isToday ? 'border-emerald-500/40 bg-emerald-500/[0.04]'
@@ -1425,7 +1425,7 @@ const Select = ({ label, value, onChange, options, placeholder = 'Type or select
           className="w-full bg-zinc-900 border border-white/10 rounded-md p-2.5 pr-8 text-sm text-zinc-100 focus:outline-none focus:border-white/30 placeholder:text-zinc-500" />
         <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 pointer-events-none" />
         {open && (
-          <div className="absolute z-50 mt-1 w-full max-h-52 overflow-y-auto rounded-md border border-white/10 bg-zinc-900 shadow-xl">
+          <div className="absolute z-50 mt-1 w-full max-h-52 overflow-y-auto rounded-md border border-white/10 bg-zinc-900 shadow-xl animate-in fade-in-0 zoom-in-95 duration-150 origin-top">
             {filtered.map(o => (
               <button key={o.id} type="button" onMouseDown={() => { onChange(o.id); setSearch(''); setOpen(false); }}
                 className={`w-full text-left px-3 py-2 text-sm hover:bg-white/5 transition-colors ${value === o.id ? 'text-blue-400' : 'text-zinc-200'}`}>

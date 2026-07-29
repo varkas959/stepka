@@ -76,7 +76,7 @@ export default function Profile({ session, onSignOut }) {
 
       <div className="flex items-center gap-2 mt-6">
         <button data-testid="save-settings" onClick={save}
-          className="inline-flex items-center gap-2 text-sm font-semibold uppercase tracking-[0.14em] px-4 py-2.5 rounded-md text-zinc-950 hover:brightness-110 transition-all"
+          className="inline-flex items-center gap-2 text-sm font-semibold uppercase tracking-[0.14em] px-4 py-2.5 rounded-md text-zinc-950 hover:brightness-110 transition-[filter]"
           style={{ background: 'var(--accent)' }}>
           <Save size={14} strokeWidth={2.5} /> Save changes
         </button>

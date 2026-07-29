@@ -110,7 +110,7 @@ export const Sidebar = ({ user, isGuest, onSignOut }) => {
         {/* User */}
         {isGuest ? (
           <Link to="/signin" onClick={() => setMobileOpen(false)}
-            className="flex items-center justify-center gap-2 w-full py-2 mt-1 rounded-lg text-sm font-medium text-white"
+            className="pressable flex items-center justify-center gap-2 w-full py-2 mt-1 rounded-lg text-sm font-medium text-white"
             style={{ background: ACC }}>
             Sign in
           </Link>
@@ -194,7 +194,7 @@ export const Sidebar = ({ user, isGuest, onSignOut }) => {
           {/* User avatar */}
           {isGuest ? (
             <Link to="/signin"
-                  className="px-4 py-2 rounded-lg text-sm font-medium border transition-colors hover:bg-white/5"
+                  className="pressable px-4 py-2 rounded-lg text-sm font-medium border transition-colors hover:bg-white/5"
                   style={{ borderColor: BDR, color: T1 }}>
               Log in
             </Link>
@@ -228,25 +228,29 @@ export const Sidebar = ({ user, isGuest, onSignOut }) => {
         </div>
       )}
 
-      {/* ── Mobile drawer ── */}
-      {mobileOpen && (
-        <div className="md:hidden fixed inset-0 z-50">
-          <div className="absolute inset-0" style={{ background: 'rgba(6,8,12,0.92)' }} onClick={() => setMobileOpen(false)} />
-          <aside className="absolute inset-y-0 left-0 w-[82%] max-w-[300px] flex flex-col"
-                 style={{ background: 'var(--surface)', borderRight: `1px solid ${BDR}` }}>
-            {/* Drawer header */}
-            <div className="flex items-center justify-between px-4 py-4 border-b" style={{ borderColor: BDR }}>
-              <div className="flex items-center gap-2.5">
-                <div className="w-7 h-7 rounded-lg flex items-center justify-center text-xs font-bold text-white"
-                     style={{ background: ACC }}>S</div>
-                <span className="font-semibold text-sm" style={{ color: T1 }}>Stepkai</span>
-              </div>
-              <button onClick={() => setMobileOpen(false)} style={{ color: T2 }}><X size={18} /></button>
+      {/* ── Mobile drawer ──
+          Always mounted (mobile only) so open/close can transition instead
+          of cutting instantly — this is the app's most-used mobile nav
+          surface, and an instant appear/disappear read as unfinished.
+          pointer-events is toggled with the transition so the invisible,
+          fully-transparent backdrop can't eat clicks while closed. */}
+      <div className={`md:hidden fixed inset-0 z-50 transition-opacity duration-200 ${mobileOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}
+           aria-hidden={!mobileOpen}>
+        <div className="absolute inset-0" style={{ background: 'rgba(6,8,12,0.92)' }} onClick={() => setMobileOpen(false)} />
+        <aside className={`absolute inset-y-0 left-0 w-[82%] max-w-[300px] flex flex-col transition-transform duration-200 ${mobileOpen ? 'translate-x-0' : '-translate-x-full'}`}
+               style={{ background: 'var(--surface)', borderRight: `1px solid ${BDR}`, transitionTimingFunction: 'cubic-bezier(0.32, 0.72, 0, 1)' }}>
+          {/* Drawer header */}
+          <div className="flex items-center justify-between px-4 py-4 border-b" style={{ borderColor: BDR }}>
+            <div className="flex items-center gap-2.5">
+              <div className="w-7 h-7 rounded-lg flex items-center justify-center text-xs font-bold text-white"
+                   style={{ background: ACC }}>S</div>
+              <span className="font-semibold text-sm" style={{ color: T1 }}>Stepkai</span>
             </div>
-            {navContent}
-          </aside>
-        </div>
-      )}
+            <button onClick={() => setMobileOpen(false)} style={{ color: T2 }}><X size={18} /></button>
+          </div>
+          {navContent}
+        </aside>
+      </div>
 
       {/* ── Mobile bottom nav ── */}
       <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 flex items-stretch h-[60px]"

@@ -493,12 +493,12 @@ function FilterSheet({ open, filters, onApply, onClose }) {
   const setD = (k, v) => setDraft(d => ({ ...d, [k]: v === d[k] ? ALL : v }));
   const draftCount = Object.values(draft).filter(v => v !== ALL).length;
 
-  if (!open) return null;
   return (
-    <div className="md:hidden fixed inset-0 z-[60] flex flex-col justify-end">
+    <div className={`md:hidden fixed inset-0 z-[60] flex flex-col justify-end transition-opacity duration-200 ${open ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}
+         aria-hidden={!open}>
       <div className="absolute inset-0" style={{ background: 'rgba(0,0,0,0.5)' }} onClick={onClose} />
-      <div className="relative rounded-t-2xl flex flex-col max-h-[88vh]"
-           style={{ background: 'var(--surface)', boxShadow: '0 -8px 32px rgba(0,0,0,0.3)' }}>
+      <div className={`relative rounded-t-2xl flex flex-col max-h-[88vh] transition-transform duration-200 ${open ? 'translate-y-0' : 'translate-y-full'}`}
+           style={{ background: 'var(--surface)', boxShadow: '0 -8px 32px rgba(0,0,0,0.3)', transitionTimingFunction: 'cubic-bezier(0.32, 0.72, 0, 1)' }}>
         {/* handle */}
         <div className="flex justify-center pt-3 pb-1 shrink-0">
           <div className="w-10 h-1 rounded-full" style={{ background: 'var(--border-2)' }} />

@@ -267,7 +267,7 @@ const ReadinessReport = () => {
       <div className="flex items-center justify-center gap-1.5 py-3" style={{ background: C.bg }}>
         {PROFILES.map((_, i) => (
           <button key={i} onClick={() => { setVisible(false); setTimeout(() => { setIdx(i); setVisible(true); }, 320); }}
-            className="rounded-full transition-all"
+            className="rounded-full transition-[width,background-color] duration-200"
             style={{ width: i === idx ? 16 : 6, height: 6, background: i === idx ? C.accent : C.border2 }} />
         ))}
       </div>
@@ -310,7 +310,7 @@ const Hero = () => (
 
         <div className="flex items-center gap-4 mt-9 flex-wrap">
           <Link to="/app/plan" data-testid="hero-cta"
-            className="inline-flex items-center gap-2 font-semibold px-6 py-3.5 rounded-lg transition-transform hover:-translate-y-0.5 text-white"
+            className="pressable inline-flex items-center gap-2 font-semibold px-6 py-3.5 rounded-lg transition-transform hover:-translate-y-0.5 text-white"
             style={{ background: C.accent, fontSize: '15px', boxShadow: '0 8px 24px -10px var(--accent)' }}>
             Analyze my JD — free <ArrowRight size={15} strokeWidth={2.5} />
           </Link>
@@ -396,7 +396,7 @@ const CompanyCard = ({ c }) => {
   const [hover, setHover] = useState(false);
   return (
     <Link to={`/questions/company/${slugify(c.name)}`}
-         className="flex items-center gap-2.5 shrink-0 px-3.5 py-2.5 rounded-xl transition-all duration-200"
+         className="flex items-center gap-2.5 shrink-0 px-3.5 py-2.5 rounded-xl transition-[border-color,transform,box-shadow] duration-200"
          onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}
          style={{ background: C.bg2, border: `1px solid ${hover ? c.color + '66' : C.border}`,
                   transform: hover ? 'translateY(-2px)' : 'none',
@@ -502,7 +502,7 @@ const FinalCTA = () => (
           ))}
         </ul>
         <Link to="/app/plan" data-testid="final-cta"
-          className="inline-flex items-center gap-2 font-semibold px-7 py-3.5 rounded-lg transition-transform hover:-translate-y-0.5 text-white shadow-lg"
+          className="pressable inline-flex items-center gap-2 font-semibold px-7 py-3.5 rounded-lg transition-transform hover:-translate-y-0.5 text-white shadow-lg"
           style={{ background: C.accent, fontSize: '16px', boxShadow: '0 8px 24px -8px var(--accent)' }}>
           Analyze my JD — free <ArrowRight size={16} strokeWidth={2.5} />
         </Link>
