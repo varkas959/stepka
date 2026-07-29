@@ -6,6 +6,7 @@ import { ThemeProvider } from 'next-themes';
 import './App.css';
 
 import { AppStateProvider, useAppState } from './lib/appState';
+import { useIsMobile } from './lib/useIsMobile';
 import { getSession, onAuthStateChange } from './lib/auth';
 import { AuthGate } from './components/AuthGate';
 import { Sidebar } from './components/Sidebar';
@@ -84,11 +85,16 @@ function GuestBanner() {
   );
 }
 
-// Signed-in users land on Daily Review, not Study Plan — that's the daily-habit
-// surface. First-time signed-in users with no activity yet still go to Study
-// Plan, since there's nothing to review until a plan/questions exist.
-function SignedInLanding() {
+// Mobile-only: signed-in users land on Daily Review, not Study Plan — that's
+// the daily-habit surface there. First-time signed-in users with no activity
+// yet still go to Study Plan, since there's nothing to review until a
+// plan/questions exist. Desktop always keeps showing the normal page for
+// this route (marketing Home, or the sign-in form) — this redirect was only
+// ever a mobile IA decision, not a site-wide one.
+function SignedInLanding({ desktopFallback }) {
   const { state } = useAppState();
+  const isMobile = useIsMobile();
+  if (!isMobile) return desktopFallback;
   const isReturning = state.streak > 0 || state.xp > 0 || state.reviewedToday > 0 || !!state.activePlan;
   return <Navigate to={isReturning ? '/app/review' : '/app/plan'} replace />;
 }
@@ -120,9 +126,9 @@ function App() {
       <BrowserRouter>
         <Routes>
           {/* Public */}
-          <Route path="/" element={session ? <SignedInLanding /> : <Home />} />
+          <Route path="/" element={session ? <SignedInLanding desktopFallback={<Home />} /> : <Home />} />
           <Route path="/signin" element={
-            session ? <SignedInLanding /> : <AuthGate />
+            session ? <SignedInLanding desktopFallback={<Navigate to="/app/plan" replace />} /> : <AuthGate />
           } />
           <Route path="/auth/callback" element={<AuthCallback />} />
           <Route path="/privacy" element={<LegalPage kind="privacy" />} />

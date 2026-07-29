@@ -339,7 +339,7 @@ export default function LearnWithKai() {
       </p>
 
       {/* Track selector */}
-      <div className="flex items-center gap-2 mt-5">
+      <div className="flex items-center gap-2 mt-5 mb-6">
         {TECH_TRACKS.map(t => {
           const active = t.id === activeTrackId;
           const tProgress = state.conceptsLearn?.[t.id]?.completedConceptIds?.length || 0;
