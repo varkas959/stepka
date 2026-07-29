@@ -4,8 +4,16 @@ import { signInWithProvider } from '../lib/auth';
 import { track } from '../lib/analytics';
 import { Loader2, Sparkles } from 'lucide-react';
 import { toast } from 'sonner';
+import { QUESTIONS } from '../lib/mockData';
 
 const AUTH_BG = 'https://static.prod-images.emergentagent.com/jobs/6e0c1b0e-c9a7-49df-9644-8904e4e93206/images/4ff9432aa47a36bcc0feb0b76c6fa7b7cb9b21f93216690c53918b1c38062e86.png';
+
+// Stale leftover from an early build (60 questions / 20 companies), never
+// updated as the real seed grew to 1000+ questions across 40+ companies —
+// round down the same way Home.jsx's landing stats do, so this never goes
+// stale again and never visibly disagrees with the in-app counts.
+const ACTIVE_COMPANY_COUNT = new Set(QUESTIONS.map(q => q.company)).size;
+const QUESTION_COUNT_APPROX = `${Math.floor(QUESTIONS.length / 100) * 100}+`;
 
 export const AuthGate = () => {
   const [loading, setLoading] = useState(null);
@@ -44,11 +52,11 @@ export const AuthGate = () => {
           </p>
           <div className="mt-10 flex gap-8 font-mono text-xs">
             <div>
-              <div className="text-zinc-50 text-2xl font-semibold">60+</div>
+              <div className="text-zinc-50 text-2xl font-semibold">{QUESTION_COUNT_APPROX}</div>
               <div className="text-zinc-500 uppercase tracking-[0.18em] mt-1 text-[11px]">verified questions</div>
             </div>
             <div>
-              <div className="text-zinc-50 text-2xl font-semibold">20</div>
+              <div className="text-zinc-50 text-2xl font-semibold">{ACTIVE_COMPANY_COUNT}</div>
               <div className="text-zinc-500 uppercase tracking-[0.18em] mt-1 text-[11px]">companies tracked</div>
             </div>
           </div>
