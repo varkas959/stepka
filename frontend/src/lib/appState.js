@@ -2,30 +2,52 @@
 // falls back to localStorage for unauthenticated/preview use.
 import { createContext, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { loadProgress, saveProgress, recordReview, PROGRESS_DEFAULTS } from './progress';
-import { SRS_CARDS } from './mockData';
 
 const LS_KEY = 'asktaaza_state_v3'; // bumped to clear fake level/xp/streak defaults
 const AppStateContext = createContext(null);
 
 function todayISO() { return new Date().toISOString().slice(0, 10); }
 
+// ── Plan-driven review cards ──────────────────────────────────────────────
+// Daily Review used to run off a static, generic 8-card mock deck completely
+// unrelated to the user's actual plan — "0 due today" on Study Plan and "8
+// cards due today" on Daily Review could both be true because they counted
+// two unconnected things. Now there is exactly one deck: each plan day's own
+// `practiceQuestions` (already gap-targeted, already generated per-day by
+// generate-plan.js), materialized into review cards the first time that
+// day's review is opened.
+
+// Pure/read-only: returns a day's cards, materializing a fresh (unpersisted)
+// array from practiceQuestions if none exist yet. Safe to call on every
+// render (e.g. from effectiveDueToday) since it never mutates state itself.
+export function getDayCards(day) {
+  if (!day) return [];
+  if (day.cards) return day.cards;
+  return (day.practiceQuestions || []).map((q, i) => ({
+    id: `d${day.day}-q${i}`, question: q, status: 'pending',
+  }));
+}
+
+export function getCurrentDay(activePlan) {
+  const days = activePlan?.plan?.days;
+  if (!days) return null;
+  return days.find(d => d.day === activePlan.currentDay) || null;
+}
+
 // Single source of truth for "cards due today" everywhere it's shown (Sidebar
-// badge, Study Plan summary, Daily Review's own headline). The persisted
-// `dueToday` counter only decrements as reviews happen *today* — on a fresh
-// day (or a fresh session that's never reviewed) it's still 0 from init,
-// while Daily Review's actual deck is SRS_CARDS. Without this, one screen
-// read the stale persisted counter and the other read the deck size
-// directly, showing two different numbers for the same thing.
+// badge, Study Plan summary, Daily Review's own headline) — the pending-card
+// count on the plan's current day. Zero when there's no active plan, since
+// there's nothing to review until a plan exists.
 export function effectiveDueToday(state) {
-  const today = todayISO();
-  if (state.lastReviewDate !== today) return SRS_CARDS.length;
-  return state.dueToday;
+  const day = getCurrentDay(state.activePlan);
+  if (!day) return 0;
+  return getDayCards(day).filter(c => c.status === 'pending').length;
 }
 
 function applyReviewBookkeeping(s) {
   // Called whenever the user successfully completes a single card review.
   const today = todayISO();
-  let { streak, longestStreak, lastReviewDate, reviewedToday, dueToday } = s;
+  let { streak, longestStreak, lastReviewDate, reviewedToday } = s;
 
   if (lastReviewDate !== today) {
     // First review of a new day — streak logic
@@ -38,8 +60,19 @@ function applyReviewBookkeeping(s) {
     lastReviewDate = today;
   }
   reviewedToday = Math.min(s.goalToday, reviewedToday + 1);
-  dueToday = Math.max(0, dueToday - 1);
-  return { ...s, streak, longestStreak, reviewedToday, dueToday, lastReviewDate };
+  return { ...s, streak, longestStreak, reviewedToday, lastReviewDate };
+}
+
+// Marks a day's cards as materialized+persisted (idempotent — a no-op once
+// `cards` already exists). Called when Daily Review opens a day, so the
+// pending-card list survives reloads instead of being rebuilt in memory
+// each render (which would silently discard grading progress).
+function withMaterializedDay(activePlan, dayNumber) {
+  const days = activePlan.plan.days.map(d => {
+    if (d.day !== dayNumber || d.cards) return d;
+    return { ...d, cards: getDayCards(d) };
+  });
+  return { ...activePlan, plan: { ...activePlan.plan, days } };
 }
 
 export function AppStateProvider({ userId, children }) {
@@ -124,6 +157,61 @@ export function AppStateProvider({ userId, children }) {
     consumeFreeze: () => setState(s => ({ ...s, streakFreezes: Math.max(0, s.streakFreezes - 1) })),
     setActivePlan: (plan) => setState(s => ({ ...s, activePlan: plan })),
     setReadiness: (r) => setState(s => ({ ...s, readiness: r })),
+
+    // Materializes + persists a day's cards from its practiceQuestions the
+    // first time that day's review is opened. Idempotent.
+    startDayReview: (dayNumber) => setState(s => {
+      if (!s.activePlan?.plan) return s;
+      return { ...s, activePlan: withMaterializedDay(s.activePlan, dayNumber) };
+    }),
+
+    // Marks one card done with its grade, and — if it was graded poorly —
+    // carries it into tomorrow's queue as a fresh pending card. This is the
+    // "Day 2 = new gap cards + failed cards from before" mechanic: SRS as a
+    // modifier on the plan queue, not a separate inbox.
+    gradeReviewCard: (dayNumber, cardId, { overall, suggestedRating }) => setState(s => {
+      if (!s.activePlan?.plan) return s;
+      let activePlan = withMaterializedDay(s.activePlan, dayNumber);
+      const carryOver = overall < 3.0;
+      const nextDayNumber = dayNumber + 1;
+      if (carryOver && activePlan.plan.days.some(d => d.day === nextDayNumber)) {
+        activePlan = withMaterializedDay(activePlan, nextDayNumber);
+      }
+      const days = activePlan.plan.days.map(d => {
+        if (d.day === dayNumber) {
+          return { ...d, cards: d.cards.map(c => c.id === cardId ? { ...c, status: 'done', overall, suggestedRating } : c) };
+        }
+        if (carryOver && d.day === nextDayNumber) {
+          const carried = d.cards.find(c => c.id === cardId);
+          const card = { id: cardId, question: carried?.question, status: 'pending', carriedFrom: dayNumber };
+          return { ...d, cards: [...d.cards, card] };
+        }
+        return d;
+      });
+      return { ...s, activePlan: { ...activePlan, plan: { ...activePlan.plan, days } } };
+    }),
+
+    // Called once a day's whole queue is cleared: rolls the average grade
+    // into a readiness delta and advances the plan to the next day. There's
+    // no prior readiness-history formula in this app to match — this is a
+    // deliberately simple, transparent one: avg grade 5.0 -> +8, 3.0 -> 0,
+    // 1.0 -> -8, clamped to 0-100.
+    finishDayReview: (dayNumber) => setState(s => {
+      if (!s.activePlan?.plan) return s;
+      const day = s.activePlan.plan.days.find(d => d.day === dayNumber);
+      const doneCards = (day?.cards || []).filter(c => c.status === 'done' && typeof c.overall === 'number');
+      const avgOverall = doneCards.length ? doneCards.reduce((sum, c) => sum + c.overall, 0) / doneCards.length : 3;
+      const delta = Math.round((avgOverall - 3) * 4);
+      const newReadiness = Math.max(0, Math.min(100, s.readiness + delta));
+      const days = s.activePlan.plan.days.map(d => d.day === dayNumber ? { ...d, readinessAfter: newReadiness } : d);
+      const currentDay = s.activePlan.currentDay === dayNumber ? dayNumber + 1 : s.activePlan.currentDay;
+      return {
+        ...s,
+        readiness: newReadiness,
+        activePlan: { ...s.activePlan, currentDay, plan: { ...s.activePlan.plan, days } },
+      };
+    }),
+
     setConceptProgress: (trackId, conceptId) => setState(s => {
       const track = s.conceptsLearn?.[trackId] || { lastConceptId: null, completedConceptIds: [] };
       return {

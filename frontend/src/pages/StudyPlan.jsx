@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { Loader2, Sparkles, ChevronDown, ArrowRight, ArrowLeft, ArrowDown, CheckCircle2, AlertTriangle, XCircle, Trophy, Brain, Eye, Flame, Target, Send, Upload } from 'lucide-react';
 import { toast } from 'sonner';
 import { COMPANIES, QUESTIONS } from '../lib/mockData';
-import { useAppState } from '../lib/appState';
+import { useAppState, getDayCards } from '../lib/appState';
 import { extractSkills, generateAssessment, evaluateAssessment, generatePlan, saveReport, getGapIntelligence, challengeTurn } from '../lib/api';
 import { classifySkills, prioritizedGapSkills } from '../lib/gapIntelligence';
 import { loadAllQuestions } from '../lib/questionStore';
@@ -28,6 +28,7 @@ export default function StudyPlan({ isGuest = false }) {
   const [jd, setJd] = useState('');
   const [company, setCompany] = useState('');
   const [role, setRole] = useState('SDE2');
+  const [interviewDate, setInterviewDate] = useState('');
   const [competencies, setCompetencies] = useState([]);
   const [questions, setQuestions] = useState([]);
   const [currentQ, setCurrentQ] = useState(0);
@@ -224,6 +225,7 @@ export default function StudyPlan({ isGuest = false }) {
         company: companyName, role, heatmap, gaps, readiness,
         falseConfidenceSkills: gapIntel?.falseConfidence.map(s => s.skill) || [],
         highRiskSkills: gapIntel?.highRisk.map(s => s.skill) || [],
+        interviewDate: interviewDate || undefined,
       });
       setGeneratedPlan(plan);
       // Persist the actual plan content (days/mockInterviews/successProbability),
@@ -231,7 +233,9 @@ export default function StudyPlan({ isGuest = false }) {
       // so this needs no schema change. Without this, a returning user's
       // "Day 3 of 14" survives reload but the 14-day plan itself doesn't,
       // leaving Study Plan with nothing to show but empty summary stats.
-      setActivePlan({ company, role, currentDay: 1, totalDays: 14, plan });
+      // totalDays comes from the plan's actual day count, not a hardcoded 14 —
+      // an interview date paces the plan to however many days remain.
+      setActivePlan({ company, role, currentDay: 1, totalDays: plan.days?.length || 14, interviewDate: interviewDate || null, plan });
       setExpandedDay(1);
       setStep('plan');
       track('study_plan_generated', { company: companyName, role, readiness });
@@ -255,7 +259,9 @@ export default function StudyPlan({ isGuest = false }) {
   return (
     <div className="px-4 md:px-8 py-6 md:py-8 max-w-5xl mx-auto">
       {step === 'input' && (
-        <InputStep jd={jd} setJd={setJd} company={company} setCompany={setCompany} role={role} setRole={setRole} onStart={startAssessment} activePlan={state.activePlan} isGuest={isGuest} dueToday={dueToday} readiness={state.readiness} />
+        <InputStep jd={jd} setJd={setJd} company={company} setCompany={setCompany} role={role} setRole={setRole}
+          interviewDate={interviewDate} setInterviewDate={setInterviewDate}
+          onStart={startAssessment} activePlan={state.activePlan} isGuest={isGuest} dueToday={dueToday} readiness={state.readiness} streak={state.streak} />
       )}
       {step !== 'input' && (
         <>
@@ -380,36 +386,29 @@ const JdImport = ({ onExtract }) => {
 };
 
 // ─── Mobile signed-in status summary ──────────────────────────────────────────
-// Replaces the marketing/onboarding card on phones: cards due, plan day,
-// readiness, one primary action. Daily Review is the primary mobile habit,
-// so that's the CTA whenever there's something due.
-const MobileHomeSummary = ({ activePlan, dueToday, readiness }) => (
+// This only ever renders for a signed-in user who doesn't have a plan yet —
+// once a real plan exists, StudyPlan's hydration effect redirects straight
+// into PlanCalendar (which owns the real Day X/N · Start Day N experience
+// now). "Due today" doesn't mean anything without a plan (there's nothing to
+// review), so this shows readiness/streak and points at creating a plan
+// rather than a generic "browse questions" detour.
+const MobileHomeSummary = ({ readiness, streak }) => (
   <div className="rounded-xl border border-white/8 p-5" style={{ background: 'var(--inset)' }}>
-    <div className="grid grid-cols-3 gap-3 text-center">
-      <div>
-        <div className="font-mono text-2xl font-semibold" style={{ color: dueToday > 0 ? 'var(--accent)' : 'var(--text-1)' }}>{dueToday || 0}</div>
-        <div className="text-[11px] mt-1" style={{ color: 'var(--text-3)' }}>due today</div>
-      </div>
-      <div>
-        <div className="font-mono text-2xl font-semibold text-zinc-100">{activePlan ? `${activePlan.currentDay}/${activePlan.totalDays}` : '—'}</div>
-        <div className="text-[11px] mt-1" style={{ color: 'var(--text-3)' }}>plan day</div>
-      </div>
+    <div className="grid grid-cols-2 gap-3 text-center">
       <div>
         <div className="font-mono text-2xl font-semibold" style={{ color: readiness >= 70 ? '#22c55e' : readiness >= 40 ? '#f59e0b' : '#ef4444' }}>{readiness || 0}%</div>
         <div className="text-[11px] mt-1" style={{ color: 'var(--text-3)' }}>readiness</div>
       </div>
+      <div>
+        <div className="font-mono text-2xl font-semibold text-zinc-100">{streak || 0}</div>
+        <div className="text-[11px] mt-1" style={{ color: 'var(--text-3)' }}>day streak</div>
+      </div>
     </div>
-
-    <Link to={dueToday > 0 ? '/app/review' : '/app/questions'}
-      className="pressable mt-5 flex items-center justify-center gap-2 text-sm font-semibold py-3 rounded-lg text-white hover:opacity-90 transition-opacity"
-      style={{ background: 'var(--accent)' }}>
-      {dueToday > 0 ? `Start today's review · ${dueToday} cards` : 'Browse questions'}
-    </Link>
   </div>
 );
 
 // ─── Input step ──────────────────────────────────────────────────────────────
-const InputStep = ({ jd, setJd, company, setCompany, role, setRole, onStart, activePlan, isGuest, dueToday, readiness }) => {
+const InputStep = ({ jd, setJd, company, setCompany, role, setRole, interviewDate, setInterviewDate, onStart, activePlan, isGuest, dueToday, readiness, streak }) => {
   const selectedCompanyName = COMPANIES.find(c => c.id === company)?.name;
   // Mobile is a different job: nobody pastes a JD on a phone. Signed-in users on
   // mobile get a compact status summary instead of the marketing/onboarding copy,
@@ -427,7 +426,7 @@ const InputStep = ({ jd, setJd, company, setCompany, role, setRole, onStart, act
     {/* Mobile, signed-in: compact status summary — the whole screen, no marketing card */}
     {!isGuest && (
       <div className="md:hidden mb-6">
-        <MobileHomeSummary activePlan={activePlan} dueToday={dueToday} readiness={readiness} />
+        <MobileHomeSummary readiness={readiness} streak={streak} />
         {!showJdFormMobile && (
           <button onClick={() => setShowJdFormMobile(true)}
             className="mt-3 w-full text-center text-xs py-2 underline underline-offset-2 font-medium"
@@ -529,6 +528,17 @@ const InputStep = ({ jd, setJd, company, setCompany, role, setRole, onStart, act
           <div>
             <Select label="Target role" value={role} onChange={setRole}
               options={ACTIVE_ROLES.map(r => ({ id: r, label: r }))} placeholder="Search role…" />
+          </div>
+          <div className="sm:col-span-2">
+            <div className="font-mono text-[12px] uppercase tracking-[0.18em] text-zinc-400 mb-1.5">
+              Interview date <span className="normal-case tracking-normal text-zinc-600">(optional)</span>
+            </div>
+            <input type="date" value={interviewDate} onChange={e => setInterviewDate(e.target.value)}
+              min={new Date().toISOString().slice(0, 10)}
+              className="w-full bg-zinc-900 border border-white/10 rounded-md p-2.5 text-sm text-zinc-100 focus:outline-none focus:border-white/30" />
+            <p className="text-[11px] text-zinc-600 mt-1.5">
+              {interviewDate ? "We'll pace your plan to this date instead of a fixed 14 days." : 'No date? Your plan defaults to 14 days.'}
+            </p>
           </div>
         </div>
 
@@ -1265,14 +1275,18 @@ const SharePanel = ({ slug }) => {
 const PlanCalendar = ({ plan, expandedDay, setExpandedDay, state, onReset, reportSlug }) => {
   const company = COMPANIES.find(c => c.id === state.activePlan?.company) || COMPANIES[0];
   const days = plan?.days || [];
+  const totalDays = state.activePlan?.totalDays || days.length;
   const currentDay = state.activePlan?.currentDay || 1;
   const expandedData = days.find(d => d.day === expandedDay);
   const mockDays = new Set((plan?.mockInterviews || []).map(m => m.day));
+  const todayData = days.find(d => d.day === currentDay);
+  const todayCardCount = todayData ? getDayCards(todayData).length : 0;
+  const todayPendingCount = todayData ? getDayCards(todayData).filter(c => c.status === 'pending').length : 0;
 
   return (
     <div className="px-4 md:px-10 py-6 md:py-10 max-w-5xl mx-auto">
-      <Breadcrumb segments={['study-plan', `${company.id}-${state.activePlan?.role?.toLowerCase()}`, '14-day-plan']} />
-      <div className="flex items-start justify-between gap-4 mt-1 mb-4 flex-wrap">
+      <Breadcrumb segments={['study-plan', `${company.id}-${state.activePlan?.role?.toLowerCase()}`, `day-${currentDay}-of-${totalDays}`]} />
+      <div className="flex items-start justify-between gap-4 mt-1 mb-2 flex-wrap">
         <div>
           <h1 className="text-3xl md:text-5xl font-semibold tracking-tight text-zinc-50">{company.name} · {state.activePlan?.role}</h1>
           <p className="text-sm text-zinc-300 mt-2">Tap any day · mock interviews in blue · today in green</p>
@@ -1287,30 +1301,56 @@ const PlanCalendar = ({ plan, expandedDay, setExpandedDay, state, onReset, repor
         </div>
       </div>
 
+      {/* Day X/N · Readiness · Streak — same three numbers everywhere, no
+          separate "due today" concept to disagree with these. */}
+      <div className="flex items-center gap-4 mb-5 font-mono text-xs" style={{ color: 'var(--text-3)' }}>
+        <span>Day <span className="text-zinc-100 font-semibold">{currentDay}</span>/{totalDays}</span>
+        <span>·</span>
+        <span>Readiness <span className="text-zinc-100 font-semibold">{state.readiness || 0}%</span></span>
+        <span>·</span>
+        <span>Streak <span className="text-zinc-100 font-semibold">{state.streak || 0}</span></span>
+      </div>
+
+      {todayData && (
+        <Link to="/app/review"
+          className="pressable mb-5 inline-flex items-center gap-2 text-sm font-semibold px-5 py-2.5 rounded-lg text-white hover:opacity-90 transition-opacity"
+          style={{ background: 'var(--accent)' }}>
+          {todayPendingCount > 0
+            ? `Start Day ${currentDay} (${todayPendingCount} card${todayPendingCount === 1 ? '' : 's'}) →`
+            : `Day ${currentDay} complete — review again →`}
+        </Link>
+      )}
+
       <SharePanel slug={reportSlug} />
 
       <div className="grid grid-cols-7 gap-1 sm:gap-1.5">
         {days.map(d => {
           const isToday = d.day === currentDay;
           const isDone = d.day < currentDay;
+          const isFuture = d.day > currentDay;
           const isExpanded = expandedDay === d.day;
           const isMock = mockDays.has(d.day);
           return (
-            <button key={d.day} onClick={() => setExpandedDay(isExpanded ? null : d.day)}
-              className={`relative text-left p-2 rounded-md border transition-[border-color,background-color,box-shadow,opacity] overflow-hidden ${
+            <button key={d.day} disabled={isFuture}
+              onClick={() => !isFuture && setExpandedDay(isExpanded ? null : d.day)}
+              className={`relative text-left p-2 rounded-md border transition-[border-color,background-color,box-shadow,opacity] overflow-hidden ${isFuture ? 'cursor-not-allowed' : ''} ${
                 isExpanded ? 'border-blue-500/60 bg-blue-500/[0.07] ring-1 ring-blue-500/20'
                 : isMock ? 'border-blue-500/40 bg-blue-500/[0.05] hover:border-blue-500/60'
                 : isToday ? 'border-emerald-500/40 bg-emerald-500/[0.04]'
                 : isDone ? 'border-white/5 bg-zinc-950 opacity-60'
-                : 'border-white/10 bg-zinc-950 hover:border-white/20'
+                : 'border-white/5 bg-zinc-950 opacity-40'
               }`}>
               {isExpanded && <div className="absolute left-0 top-0 bottom-0 w-[2px]" style={{ background: 'var(--accent)' }} />}
               {!isExpanded && isToday && <div className="absolute left-0 top-0 bottom-0 w-[2px]" style={{ background: '#22c55e' }} />}
               {!isExpanded && isMock && !isToday && <div className="absolute left-0 top-0 bottom-0 w-[2px]" style={{ background: '#3b82f6' }} />}
-              <div className="font-mono text-[10px] text-zinc-500">d{d.day}</div>
+              <div className="font-mono text-[11px] text-zinc-500">d{d.day}</div>
               <div className="font-mono text-base font-semibold text-zinc-50">{d.day}</div>
-              {isMock && <div className="text-[9px] text-blue-400 mt-0.5">mock</div>}
-              <div className="mt-0.5 text-[9px] text-zinc-500 truncate">{d.focus?.split('·')[0]?.trim()}</div>
+              {isFuture && <div className="text-[9px] text-zinc-600 mt-0.5">locked</div>}
+              {isDone && typeof d.readinessAfter === 'number' && (
+                <div className="font-mono text-[9px] mt-0.5" style={{ color: d.readinessAfter >= 70 ? '#22c55e' : d.readinessAfter >= 40 ? '#f59e0b' : '#ef4444' }}>{d.readinessAfter}%</div>
+              )}
+              {isMock && !isFuture && <div className="text-[9px] text-blue-400 mt-0.5">mock</div>}
+              {!isFuture && <div className="mt-0.5 text-[9px] text-zinc-500 truncate">{d.focus?.split('·')[0]?.trim()}</div>}
             </button>
           );
         })}
@@ -1378,16 +1418,31 @@ const PlanCalendar = ({ plan, expandedDay, setExpandedDay, state, onReset, repor
               )}
             </div>
             <div>
-              <div className="font-mono text-[12px] uppercase tracking-[0.22em] text-zinc-400 mb-3">Practice questions</div>
+              <div className="flex items-center justify-between mb-3">
+                <div className="font-mono text-[12px] uppercase tracking-[0.22em] text-zinc-400">Review cards</div>
+                {expandedData.day === currentDay && (
+                  <Link to="/app/review" className="text-[12px] font-medium" style={{ color: 'var(--accent)' }}>
+                    {getDayCards(expandedData).some(c => c.status === 'pending') ? 'Continue →' : 'Review again →'}
+                  </Link>
+                )}
+              </div>
               <div className="space-y-2.5">
-                {(expandedData.practiceQuestions || []).map((q, i) => (
-                  <div key={i} className="p-3 rounded-md" style={{ border: '1px solid rgba(59,111,212,0.2)', background: 'rgba(59,111,212,0.03)' }}>
-                    <div className="flex items-start gap-2">
-                      <span className="font-mono text-[11px] shrink-0 mt-0.5" style={{ color: 'var(--accent)' }}>Q{i + 1}</span>
-                      <span className="text-zinc-100 text-base leading-loose" style={{ fontFamily: 'inherit' }}>{q}</span>
+                {getDayCards(expandedData).map((c, i) => {
+                  const done = c.status === 'done';
+                  return (
+                    <div key={c.id} className="p-3 rounded-md" style={{ border: `1px solid ${done ? 'rgba(34,197,94,0.25)' : 'rgba(59,111,212,0.2)'}`, background: done ? 'rgba(34,197,94,0.03)' : 'rgba(59,111,212,0.03)' }}>
+                      <div className="flex items-start gap-2">
+                        <span className="font-mono text-[11px] shrink-0 mt-0.5" style={{ color: done ? '#22c55e' : 'var(--accent)' }}>
+                          {done ? '✓' : `Q${i + 1}`}
+                        </span>
+                        <span className="text-zinc-100 text-base leading-loose flex-1" style={{ fontFamily: 'inherit' }}>{c.question}</span>
+                        {c.carriedFrom && (
+                          <span className="font-mono text-[10px] shrink-0 px-1.5 py-0.5 rounded border border-amber-500/30 text-amber-400">retry</span>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           </div>

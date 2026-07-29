@@ -40,8 +40,20 @@ export default async function handler(req, res) {
   const apiKey = process.env.OPENAI_API_KEY;
   if (!apiKey) return res.status(503).json({ error: 'OPENAI_API_KEY not configured.' });
 
-  const { company, role, heatmap, gaps, readiness, falseConfidenceSkills, highRiskSkills } = req.body || {};
+  const { company, role, heatmap, gaps, readiness, falseConfidenceSkills, highRiskSkills, interviewDate } = req.body || {};
   if (!company || !role || !heatmap?.length) return res.status(400).json({ error: 'company, role, heatmap required' });
+
+  // An interview date turns an arbitrary 14-day countdown into a real deadline.
+  // Clamped to a sane range so a same-day or year-out date doesn't produce a
+  // degenerate plan.
+  let dayCount = 14;
+  if (interviewDate) {
+    const target = new Date(interviewDate);
+    if (!Number.isNaN(target.getTime())) {
+      const daysUntil = Math.ceil((target.getTime() - Date.now()) / 86400000);
+      dayCount = Math.max(5, Math.min(30, daysUntil));
+    }
+  }
 
   // Sanitize array items to block prompt injection
   const safeHeatmap  = heatmap.map(sanitizeHeatmapItem).filter(Boolean).slice(0, 20);
@@ -53,7 +65,7 @@ export default async function handler(req, res) {
   const safeHighRisk  = Array.isArray(highRiskSkills) ? highRiskSkills.map(s => sanitize(String(s), 80)).filter(Boolean).slice(0, 10) : [];
   const safeReadiness = Math.max(0, Math.min(100, Math.round(Number(readiness) || 0)));
 
-  const prompt = `Build a 14-day interview prep roadmap for a ${sanitize(role, 60)} candidate at ${sanitize(company, 120)}.
+  const prompt = `Build a ${dayCount}-day interview prep roadmap for a ${sanitize(role, 60)} candidate at ${sanitize(company, 120)}.
 
 SKILLS HEATMAP (these are the ONLY topics allowed in the plan — every day's "focus" must be one of these exact names):
 ${safeHeatmap.map(h => `- ${h.skill}: ${h.score}% (${h.band})`).join('\n')}
@@ -65,7 +77,8 @@ Readiness: ${safeReadiness}%
 
 Return ONLY this JSON (no markdown):
 {"successProbability":"<e.g. 72%>","days":[{"day":1,"focus":"<skill>","theme":"<theme>","outcome":"<depth-framed capability>","task":"<one concrete depth-forcing task>","successCriteria":"<reach Depth Level N: ...>","avoid":"<depth trap>","depthTarget":4,"commonFailure":"<how candidates stall>","estimatedTime":"<e.g. 90 min>","practiceQuestions":["<q>"],"mockInterview":null}],"mockInterviews":[{"day":5,"type":"Coding Mock","topics":["<skill>"],"duration":"60 min"}]}
-- 14 days exactly. Every day must include outcome, task, successCriteria, avoid, depthTarget, commonFailure, estimatedTime.
+- ${dayCount} days exactly. Every day must include outcome, task, successCriteria, avoid, depthTarget, commonFailure, estimatedTime.
+- Every day's "practiceQuestions" must contain 3-5 genuinely distinct interview questions on that day's focus skill — these become that day's spaced-repetition review cards, so they need enough spread to be worth reviewing separately, not near-duplicates of each other.
 - CRITICAL: every "focus" and all content must come from the SKILLS HEATMAP above. Do NOT introduce system design, microservices, or any topic not in that list unless it literally appears there.`;
 
   try {

@@ -1,10 +1,11 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { SRS_CARDS } from '../lib/mockData';
-import { useAppState } from '../lib/appState';
+import { useAppState, getCurrentDay, getDayCards } from '../lib/appState';
+import { gradeAnswer } from '../lib/api';
 import { PixelBar } from '../components/PixelBar';
 import { KaiCompanion } from '../components/KaiCompanion';
-import { ChevronLeft, RotateCw, Trophy, Zap, ArrowRight } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { Loader2, ChevronLeft, Trophy, Zap, ArrowRight } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
 
 const C = {
   bg:     'var(--page)',
@@ -21,32 +22,10 @@ const C = {
   red:    '#EF4444',
 };
 
-const RATING_OPTIONS = [
-  { key: 1, label: 'forgot', shortcut: '1', nextDays: 1,  color: C.red,    tone: 'red'   },
-  { key: 2, label: 'hard',   shortcut: '2', nextDays: 3,  color: C.amber,  tone: 'amber' },
-  { key: 3, label: 'good',   shortcut: '3', nextDays: 7,  color: C.green,  tone: 'green' },
-  { key: 4, label: 'easy',   shortcut: '4', nextDays: 14, color: C.accent, tone: 'blue'  },
-];
-
-const toneStyle = (tone, active) => {
-  const map = {
-    red:   { border: '1px solid rgba(239,68,68,'  + (active ? '0.5)' : '0.3)'), background: active ? 'rgba(239,68,68,0.08)'  : 'transparent', color: active ? '#FCA5A5' : '#F87171' },
-    amber: { border: '1px solid rgba(245,158,11,' + (active ? '0.5)' : '0.3)'), background: active ? 'rgba(245,158,11,0.08)' : 'transparent', color: active ? '#FCD34D' : '#FBBF24' },
-    green: { border: '1px solid rgba(34,197,94,'  + (active ? '0.5)' : '0.3)'), background: active ? 'rgba(34,197,94,0.08)'  : 'transparent', color: active ? '#86EFAC' : '#4ADE80' },
-    blue:  { border: '1px solid rgba(59,111,212,' + (active ? '0.5)' : '0.3)'), background: active ? 'rgba(59,111,212,0.08)' : 'transparent', color: active ? '#93C5FD' : '#7AA9F7' },
-  };
-  return map[tone];
-};
-
-const shuffle = (a) => {
-  const x = [...a];
-  for (let i = x.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [x[i], x[j]] = [x[j], x[i]]; }
-  return x;
-};
-
-// Kai's reaction to each honest self-rating. A "forgot" is deliberately met
-// with encouragement rather than disappointment — rating honestly is the
-// behaviour the SRS algorithm actually needs, so it shouldn't feel punished.
+// Kai's reaction to each AI-graded rating (1-4, mapped from gradeAnswer's
+// suggestedRating). A "forgot"-equivalent grade is deliberately met with
+// encouragement rather than disappointment — the algorithm needs an honest
+// answer attempt, not a withheld one, so a rough answer shouldn't feel punished.
 const KAI_BY_RATING = {
   1: { mode: 'thinking',  text: "That one's tricky — it'll come back sooner so you can nail it." },
   2: { mode: 'thinking',  text: "Hard-won still counts. You'll see that one again soon." },
@@ -55,34 +34,31 @@ const KAI_BY_RATING = {
 };
 
 export default function DailyReview() {
-  const [phase, setPhase] = useState('queue');
-  const [idx, setIdx] = useState(0);
-  const [order, setOrder] = useState(() => SRS_CARDS.map((_, i) => i));
-  const [flipped, setFlipped] = useState(false);
-  const [ratings, setRatings] = useState([]);
-  const { state, bumpReview, addXp, recordRating, dueToday } = useAppState();
+  const { state, bumpReview, addXp, recordRating, startDayReview, gradeReviewCard, finishDayReview } = useAppState();
   const navigate = useNavigate();
 
+  const dayData = getCurrentDay(state.activePlan);
+  const [phase, setPhase] = useState('queue'); // 'queue' | 'session' | 'results'
+  const [sessionCards, setSessionCards] = useState([]);
+  const [cardIdx, setCardIdx] = useState(0);
+  const [answer, setAnswer] = useState('');
+  const [grading, setGrading] = useState(false);
+  const [feedback, setFeedback] = useState(null);
+  const [gradedThisSession, setGradedThisSession] = useState([]); // [{card, feedback}]
+  const [readinessBefore, setReadinessBefore] = useState(state.readiness);
+
   const [kaiMode, setKaiMode] = useState('idle');
-  // Null means "no reaction showing" — the greeting below is then derived
-  // fresh on every render. A lazy useState initialiser would have frozen the
-  // greeting at mount, before the async Supabase progress load lands, so a
-  // signed-in user's streak would never be mentioned.
   const [kaiReaction, setKaiReaction] = useState(null);
   const kaiResetTimer = useRef(null);
 
-  // Deliberately doesn't restate "N cards due today" — that's already the
+  // Deliberately doesn't restate "Day N · N cards" — that's already the
   // page's own H1, right above where this bubble renders. Kai should add
   // something the page doesn't already say, not echo it back.
   const kaiGreeting = state.streak > 0
     ? `You're on a ${state.streak}-day streak — let's keep it alive.`
-    : "Rate honestly, even when it's tempting to say you knew it — that's what actually improves tomorrow's queue.";
+    : 'Answer honestly, even a rough attempt — a real answer teaches the grader more than skipping ever could.';
   const kaiMessage = kaiReaction ?? kaiGreeting;
 
-  // Show a reaction, then drift back to idle so the ambient behaviour
-  // (glancing on scroll, eventually yawning) can resume. Mode and message are
-  // cleared together — resetting only the mode left the bubble showing stale
-  // reaction text under a neutral face.
   const kaiReact = useCallback((mode, text, holdMs = 3500) => {
     setKaiMode(mode);
     setKaiReaction(text);
@@ -94,207 +70,137 @@ export default function DailyReview() {
   }, []);
   useEffect(() => () => { if (kaiResetTimer.current) clearTimeout(kaiResetTimer.current); }, []);
 
-  const breakdown = SRS_CARDS.reduce((acc, c) => { acc[c.kind] = (acc[c.kind] || 0) + 1; return acc; }, {});
+  // No plan yet — Daily Review has nothing of its own to serve. It's the
+  // delivery mechanism for the plan's cards, not a standalone destination
+  // with a generic fallback deck.
+  if (!state.activePlan?.plan || !dayData) {
+    return <LockedView />;
+  }
+
+  const pendingCards = getDayCards(dayData).filter(c => c.status === 'pending');
+  const currentCard = sessionCards[cardIdx];
+
   const startSession = () => {
-    setOrder(shuffle(SRS_CARDS.map((_, i) => i)));
-    setPhase('session'); setIdx(0); setFlipped(false); setRatings([]);
-    kaiReact('happy', "Here we go — rate each one honestly, that's what makes this work.");
+    startDayReview(dayData.day); // materializes + persists this day's cards
+    setSessionCards(pendingCards);
+    setReadinessBefore(state.readiness);
+    setCardIdx(0); setAnswer(''); setFeedback(null); setGradedThisSession([]);
+    setPhase('session');
+    kaiReact('happy', "Let's go — answer honestly, that's what makes this work.");
   };
 
-  const handleRate = (r) => {
-    const card = SRS_CARDS[order[idx]];
-    const entry = { cardId: card.id, rating: r };
-    const nextRatings = [...ratings, entry];
-    // Functional update so a double-tap in a single batch can't drop an entry;
-    // `nextRatings` is only used for the local end-of-session check below.
-    setRatings(prev => [...prev, entry]);
-    bumpReview();
-    addXp(10 + r.key * 2);
-    recordRating(card.id, r.key);
-
-    if (idx + 1 >= SRS_CARDS.length) {
-      setPhase('done');
-      // Only a session with nothing forgotten earns the full celebration —
-      // otherwise the celebrate animation stops meaning anything. "hard" still
-      // counts as recalled, so the bar is `key > 1` (i.e. not "forgot").
-      const noneForgotten = nextRatings.every(x => x.rating.key > 1);
-      if (noneForgotten) {
-        kaiReact('celebrate', "Clean sweep — nothing forgotten. Streak's safe. 🎉", 6000);
-      } else {
-        kaiReact('graduate', "Session done, streak intact. The shaky ones come back sooner — that's the point.", 6000);
-      }
-    } else {
-      const reaction = KAI_BY_RATING[r.key];
+  const submitAnswer = async () => {
+    if (!answer.trim()) { toast.error('Write something before submitting.'); return; }
+    setGrading(true);
+    try {
+      const fb = await gradeAnswer({ question: currentCard.question, answer, mode: 'text', isBehavioral: false, topic: dayData.focus });
+      const overall = parseFloat(fb.overall);
+      setFeedback(fb);
+      gradeReviewCard(dayData.day, currentCard.id, { overall, suggestedRating: fb.suggestedRating });
+      bumpReview();
+      addXp(10 + fb.suggestedRating * 2);
+      recordRating(currentCard.id, fb.suggestedRating);
+      setGradedThisSession(prev => [...prev, { card: currentCard, feedback: fb }]);
+      const reaction = KAI_BY_RATING[fb.suggestedRating];
       if (reaction) kaiReact(reaction.mode, reaction.text);
-      setIdx(i => i + 1);
-      setFlipped(false);
+    } catch (e) {
+      toast.error(e?.response?.data?.error || e.message || 'Grading failed. Try again.');
+    } finally {
+      setGrading(false);
+    }
+  };
+
+  const continueNext = () => {
+    if (cardIdx + 1 >= sessionCards.length) {
+      finishDayReview(dayData.day);
+      setPhase('results');
+      kaiReact('celebrate', 'Day done — readiness just moved. Tomorrow picks up from here.', 6000);
+    } else {
+      setCardIdx(i => i + 1);
+      setAnswer('');
+      setFeedback(null);
     }
   };
 
   return (
     <>
-      {phase === 'queue' && <QueueView state={state} breakdown={breakdown} total={dueToday} onStart={startSession} />}
-      {phase === 'session' && <SessionView card={SRS_CARDS[order[idx]]} idx={idx} flipped={flipped} setFlipped={setFlipped} onRate={handleRate} onExit={() => setPhase('queue')} />}
-      {phase === 'done' && <DoneView ratings={ratings} state={state} onContinue={() => navigate('/app/progress')} onAgain={() => setPhase('queue')} />}
+      {phase === 'queue' && <QueueView state={state} day={dayData} pendingCount={pendingCards.length} onStart={startSession} />}
+      {phase === 'session' && (
+        <SessionView
+          day={dayData} card={currentCard} idx={cardIdx} total={sessionCards.length}
+          answer={answer} setAnswer={setAnswer} grading={grading} feedback={feedback}
+          onSubmit={submitAnswer} onContinue={continueNext} onExit={() => setPhase('queue')}
+        />
+      )}
+      {phase === 'results' && (
+        <ResultsView
+          state={state} dayNumber={dayData.day} readinessBefore={readinessBefore}
+          graded={gradedThisSession} onContinue={() => navigate('/app/progress')} onBackToPlan={() => navigate('/app/plan')}
+        />
+      )}
 
       {/* Kai is desktop-only here — on mobile the docked tab's off-screen-by-design
-          left offset clipped over the concept card instead of tucking away cleanly,
-          and this screen has no room to spare for a companion anyway. */}
+          left offset clipped over the card instead of tucking away cleanly, and
+          this screen has no room to spare for a companion anyway. */}
       <div className="hidden md:block">
         <KaiCompanion
           mode={kaiMode}
           message={kaiMessage}
           onModeChange={setKaiMode}
           onMessageChange={setKaiReaction}
-          // The end-of-session celebration is the one moment worth surfacing
-          // even to someone who tucked Kai away. It's scoped to the reaction
-          // window, so he slides back to his tab once it's over.
-          demandAttention={phase === 'done' && kaiReaction !== null}
+          demandAttention={phase === 'results' && kaiReaction !== null}
         />
       </div>
     </>
   );
 }
 
-const QueueView = ({ state, breakdown, total, onStart }) => {
-  const goalPct = Math.round((state.reviewedToday / state.goalToday) * 100);
-  // The daily goal target and "cards due" are two different numbers by
-  // design (goal is a personal target, due is today's actual queue size),
-  // but stating a goal larger than what's actually available today is a
-  // real contradiction, not just confusing copy — you can't hit a goal of
-  // 10 when only 8 cards exist to review. Cap what we tell the user to what
-  // they can actually achieve today.
-  const achievableGoal = Math.min(state.goalToday, total);
-  return (
-    <div className="px-4 md:px-10 py-6 md:py-10 max-w-3xl mx-auto">
-      <Breadcrumb segments={['daily-review', 'queue']} />
-      <h1 className="text-4xl md:text-5xl font-semibold tracking-tight mt-1" style={{ color: C.text1 }}>
-        {total} cards due
-        <span style={{ color: C.text3 }}> today</span>
-      </h1>
-      <p className="mt-3 text-base max-w-xl leading-relaxed" style={{ color: C.text2 }}>
-        Spaced repetition. Rate each card honestly — the algorithm rebuilds tomorrow's queue from your signal.
-      </p>
-
-      {/* One row of three even on mobile — three stacked full-width cards to
-          show three single digits pushed the Start Review button off-screen. */}
-      <div className="grid grid-cols-3 gap-2 sm:gap-3 mt-6 md:mt-8">
-        <KindCard kind="concept" value={breakdown.concept || 0} />
-        <KindCard kind="coding"  value={breakdown.coding  || 0} />
-        <KindCard kind="star"    value={breakdown.star    || 0} />
-      </div>
-
-      <div className="mt-6 rounded-lg p-5 sm:p-6" style={{ border: '1px solid ' + C.border, background: C.bg2 }}>
-        <div className="flex items-center justify-between mb-3 font-mono text-xs">
-          <span className="uppercase tracking-[0.18em]" style={{ color: C.text3 }}>Daily goal</span>
-          <span style={{ color: C.text2 }}>{state.reviewedToday}<span style={{ color: C.text3 }}> / {state.goalToday}</span></span>
-        </div>
-        <PixelBar value={goalPct} height={14} color={C.green} />
-        <div className="mt-5 flex items-center justify-between gap-3 flex-wrap">
-          <p className="text-sm" style={{ color: C.text2 }}>Hit <span className="font-mono" style={{ color: C.text1 }}>{achievableGoal}</span> cards to keep the streak alive.</p>
-          <button data-testid="start-review" onClick={onStart}
-            className="inline-flex items-center gap-2 text-sm font-semibold uppercase tracking-[0.14em] px-4 py-2.5 rounded-md text-white hover:opacity-90 transition-opacity"
-            style={{ background: C.accent }}>
-            Start review <ArrowRight size={14} strokeWidth={2.5} />
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-const KindLabels = { concept: 'concept', coding: 'coding', star: 'behavioral' };
-const KindCard = ({ kind, value }) => (
-  <div className="rounded-md px-3 py-3 min-w-0" style={{ border: '1px solid ' + C.border, background: C.bg2 }}>
-    <div className="font-mono text-[11px] uppercase tracking-[0.1em] truncate" style={{ color: C.text3 }}>{KindLabels[kind]}</div>
-    <div className="font-mono text-2xl font-semibold mt-1" style={{ color: C.text1 }}>{value}</div>
+const LockedView = () => (
+  <div className="px-4 md:px-10 py-6 md:py-10 max-w-2xl mx-auto">
+    <Breadcrumb segments={['daily-review']} />
+    <h1 className="text-3xl md:text-4xl font-semibold tracking-tight" style={{ color: C.text1 }}>
+      Nothing to review yet
+    </h1>
+    <p className="mt-3 text-base leading-relaxed max-w-md" style={{ color: C.text2 }}>
+      Daily Review runs off your study plan — start one from a job description and today's cards will show up here.
+    </p>
+    <Link to="/app/plan" data-testid="start-plan-cta"
+      className="pressable mt-6 inline-flex items-center gap-2 text-sm font-semibold px-5 py-2.5 rounded-lg text-white hover:opacity-90 transition-opacity"
+      style={{ background: C.accent }}>
+      Start a plan <ArrowRight size={14} strokeWidth={2.5} />
+    </Link>
   </div>
 );
 
-const SessionView = ({ card, idx, flipped, setFlipped, onRate, onExit }) => {
+const QueueView = ({ state, day, pendingCount, onStart }) => {
+  const goalPct = Math.round((state.reviewedToday / state.goalToday) * 100);
+  const achievableGoal = Math.min(state.goalToday, pendingCount);
   return (
-    // Mobile: one card, full screen, no sidebar/chrome — a fixed full-viewport
-    // overlay escapes the app shell's nav padding entirely, with rating buttons
-    // pinned to the bottom where a thumb can reach them. Desktop keeps the
-    // original centered-card layout inside the normal app shell.
-    <div className="fixed inset-0 z-50 flex flex-col md:static md:block md:px-10 md:py-10 md:max-w-3xl md:mx-auto"
-         style={{ background: C.bg }} data-testid="srs-session">
-      <div className="px-4 pt-4 md:px-0 md:pt-0 shrink-0">
-        <Breadcrumb segments={['daily-review', 'card-' + (idx + 1) + '-of-' + SRS_CARDS.length]} />
+    <div className="px-4 md:px-10 py-6 md:py-10 max-w-3xl mx-auto">
+      <Breadcrumb segments={['daily-review', `day-${day.day}`]} />
+      <h1 className="text-4xl md:text-5xl font-semibold tracking-tight mt-1" style={{ color: C.text1 }}>
+        Day {day.day} <span style={{ color: C.text3 }}>· {day.focus}</span>
+      </h1>
+      <p className="mt-3 text-base max-w-xl leading-relaxed" style={{ color: C.text2 }}>
+        {pendingCount > 0
+          ? `${pendingCount} card${pendingCount === 1 ? '' : 's'} today — answer each honestly, the grader rebuilds tomorrow's queue from your signal.`
+          : "Today's cards are done. Review again any time, or come back tomorrow for the next day."}
+      </p>
 
-        <div className="flex items-center justify-between mb-4 mt-2 text-xs">
-          <button data-testid="exit-session" onClick={onExit}
-                  className="inline-flex items-center gap-1.5 transition-opacity hover:opacity-80 py-1"
-                  style={{ color: C.text3 }}>
-            <ChevronLeft size={14} /> exit
-          </button>
-          <span className="font-mono" style={{ color: C.text3 }}><span className="font-semibold" style={{ color: C.text1 }}>{idx + 1}</span> / {SRS_CARDS.length}</span>
-        </div>
-
-        <PixelBar value={(idx / SRS_CARDS.length) * 100} height={10} color={C.green} />
-      </div>
-
-      <div className="flex-1 min-h-0 px-4 md:px-0 mt-6 md:mt-8 flex flex-col justify-center overflow-y-auto">
-        <div className="flip-card" style={{ height: '340px' }}>
-          <div className={'flip-card-inner' + (flipped ? ' is-flipped' : '')}>
-            <div className="flip-card-face">
-              <button onClick={() => setFlipped(true)} data-testid="flip-card"
-                className="relative w-full h-full p-8 text-left rounded-lg transition-colors flex flex-col overflow-hidden"
-                style={{ border: '1px solid ' + C.border, background: C.bg2 }}>
-                <div className="absolute left-0 top-0 bottom-0 w-[2px]" style={{ background: C.accent }} />
-                <div className="flex items-center gap-2 mb-4">
-                  <span className="font-mono text-[11px] uppercase tracking-[0.18em]" style={{ color: C.text3 }}>{card.topic}</span>
-                  <span style={{ color: C.border2 }}>.</span>
-                  <span className="font-mono text-[11px] uppercase tracking-[0.18em]" style={{ color: C.text3 }}>{card.kind}</span>
-                  <span style={{ color: C.border2 }}>.</span>
-                  <span className="font-mono text-[11px] uppercase tracking-[0.18em]" style={{ color: C.text3 }}>{card.company}</span>
-                </div>
-                <div className="flex-1 flex items-center">
-                  <div className="text-xl md:text-2xl leading-relaxed" style={{ color: C.text1 }}>
-                    {card.front}
-                  </div>
-                </div>
-                <div className="text-xs mt-4" style={{ color: C.text3 }}>click to reveal then rate your recall</div>
-              </button>
-            </div>
-            <div className="flip-card-face flip-card-back">
-              <div className="relative w-full h-full p-8 rounded-lg flex flex-col overflow-hidden"
-                   style={{ border: '1px solid rgba(34,197,94,0.3)', background: 'rgba(34,197,94,0.04)' }}>
-                <div className="absolute left-0 top-0 bottom-0 w-[2px]" style={{ background: C.green }} />
-                <div className="font-mono text-[11px] uppercase tracking-[0.22em] mb-3" style={{ color: '#4ADE80' }}>Answer hint</div>
-                <div className="text-base md:text-lg leading-relaxed flex-1" style={{ color: C.text1 }}>
-                  {card.back}
-                </div>
-                <button onClick={() => setFlipped(false)} data-testid="flip-back"
-                        className="text-xs inline-flex items-center gap-1 self-start mt-2 transition-opacity hover:opacity-80"
-                        style={{ color: C.text3 }}>
-                  <RotateCw size={12} /> flip back
-                </button>
-              </div>
-            </div>
+      {pendingCount > 0 && (
+        <div className="mt-6 rounded-lg p-5 sm:p-6" style={{ border: '1px solid ' + C.border, background: C.bg2 }}>
+          <div className="flex items-center justify-between mb-3 font-mono text-xs">
+            <span className="uppercase tracking-[0.18em]" style={{ color: C.text3 }}>Daily goal</span>
+            <span style={{ color: C.text2 }}>{state.reviewedToday}<span style={{ color: C.text3 }}> / {state.goalToday}</span></span>
           </div>
-        </div>
-      </div>
-
-      {flipped && (
-        <div className="shrink-0 border-t md:border-t-0 px-4 pt-3 md:px-0 md:pt-0 md:mt-8 animate-fade-up"
-             style={{ borderTopColor: C.border, paddingBottom: 'max(1rem, env(safe-area-inset-bottom))' }}>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mt-3 md:mt-0">
-            {RATING_OPTIONS.map(r => {
-              const s = toneStyle(r.tone, false);
-              return (
-                <button key={r.key} data-testid={'rate-' + r.label} onClick={() => onRate(r)}
-                  className="p-4 rounded-md text-left transition-opacity hover:opacity-80"
-                  style={s}>
-                  <div className="flex items-center gap-2">
-                    <span className="text-base font-medium">{r.label}</span>
-                    <span className="ml-auto font-mono text-[11px] rounded px-1.5 py-0.5"
-                          style={{ color: C.text3, border: '1px solid ' + C.border }}>{r.shortcut}</span>
-                  </div>
-                  <div className="text-[11px] mt-2" style={{ color: C.text3 }}>see again in {r.nextDays}d</div>
-                </button>
-              );
-            })}
+          <PixelBar value={goalPct} height={14} color={C.green} />
+          <div className="mt-5 flex items-center justify-between gap-3 flex-wrap">
+            <p className="text-sm" style={{ color: C.text2 }}>Hit <span className="font-mono" style={{ color: C.text1 }}>{achievableGoal}</span> cards to keep the streak alive.</p>
+            <button data-testid="start-review" onClick={onStart}
+              className="inline-flex items-center gap-2 text-sm font-semibold uppercase tracking-[0.14em] px-4 py-2.5 rounded-md text-white hover:opacity-90 transition-opacity"
+              style={{ background: C.accent }}>
+              Start Day {day.day} <ArrowRight size={14} strokeWidth={2.5} />
+            </button>
           </div>
         </div>
       )}
@@ -302,71 +208,162 @@ const SessionView = ({ card, idx, flipped, setFlipped, onRate, onExit }) => {
   );
 };
 
-const DoneView = ({ ratings, state, onContinue, onAgain }) => {
-  const xpEarned = ratings.reduce((acc, r) => acc + 10 + r.rating.key * 2, 0);
-  const breakdown = ratings.reduce((acc, r) => { acc[r.rating.label] = (acc[r.rating.label] || 0) + 1; return acc; }, {});
+const SessionView = ({ day, card, idx, total, answer, setAnswer, grading, feedback, onSubmit, onContinue, onExit }) => {
+  if (!card) return null;
+  const overall = feedback ? parseFloat(feedback.overall) : null;
+  const overallColor = overall == null ? C.accent : overall < 2.5 ? C.red : overall < 3.8 ? C.accent : C.green;
+  return (
+    // Mobile: one card, full screen, no sidebar/chrome — a fixed full-viewport
+    // overlay escapes the app shell's nav padding entirely, with the primary
+    // action pinned to the bottom where a thumb can reach it. Desktop keeps
+    // the original centered layout inside the normal app shell.
+    <div className="fixed inset-0 z-50 flex flex-col md:static md:block md:px-10 md:py-10 md:max-w-2xl md:mx-auto"
+         style={{ background: C.bg }} data-testid="srs-session">
+      <div className="px-4 pt-4 md:px-0 md:pt-0 shrink-0">
+        <Breadcrumb segments={['daily-review', `day-${day.day}`, `card-${idx + 1}-of-${total}`]} />
+
+        <div className="flex items-center justify-between mb-4 mt-2 text-xs">
+          <button data-testid="exit-session" onClick={onExit}
+                  className="inline-flex items-center gap-1.5 transition-opacity hover:opacity-80 py-1"
+                  style={{ color: C.text3 }}>
+            <ChevronLeft size={14} /> exit
+          </button>
+          <span className="font-mono" style={{ color: C.text3 }}><span className="font-semibold" style={{ color: C.text1 }}>{idx + 1}</span> / {total}</span>
+        </div>
+
+        <PixelBar value={(idx / total) * 100} height={10} color={C.green} />
+      </div>
+
+      <div className="flex-1 min-h-0 px-4 md:px-0 mt-6 md:mt-8 overflow-y-auto">
+        <div className="flex items-center gap-2 mb-3">
+          <span className="font-mono text-[11px] uppercase tracking-[0.18em]" style={{ color: C.text3 }}>{day.focus}</span>
+          {card.carriedFrom && (
+            <span className="font-mono text-[10px] px-1.5 py-0.5 rounded border border-amber-500/30 text-amber-400">retry from day {card.carriedFrom}</span>
+          )}
+        </div>
+        <div className="rounded-lg p-6" style={{ border: '1px solid ' + C.border, background: C.bg2 }}>
+          <div className="text-lg md:text-xl leading-relaxed" style={{ color: C.text1 }}>{card.question}</div>
+        </div>
+
+        {!feedback ? (
+          <textarea
+            data-testid="answer-input"
+            value={answer}
+            onChange={e => setAnswer(e.target.value)}
+            placeholder="Type your answer…"
+            rows={6}
+            disabled={grading}
+            className="w-full mt-4 rounded-lg p-4 text-sm resize-y outline-none disabled:opacity-60"
+            style={{ border: '1px solid ' + C.border, background: C.bg2, color: C.text1 }}
+          />
+        ) : (
+          <div className="mt-4 rounded-lg p-5 animate-fade-up" style={{ border: '1px solid ' + C.border, background: C.bg2 }} data-testid="feedback-panel">
+            <div className="flex items-center gap-3">
+              <div className="font-mono text-3xl font-semibold" style={{ color: overallColor }}>{feedback.overall}<span className="text-base" style={{ color: C.text3 }}>/5</span></div>
+              <div className="font-mono text-[11px] uppercase tracking-[0.14em] px-2 py-1 rounded border" style={{ borderColor: overallColor + '50', color: overallColor }}>{feedback.suggestedLabel}</div>
+            </div>
+            <div className="mt-3 space-y-2">
+              {feedback.dims?.map(d => {
+                const color = d.score >= 75 ? C.green : d.score >= 60 ? C.accent : C.red;
+                return (
+                  <div key={d.name} className="text-xs">
+                    <div className="flex justify-between mb-1"><span style={{ color: C.text2 }}>{d.name}</span><span className="font-mono" style={{ color: C.text3 }}>{d.score}</span></div>
+                    <PixelBar value={d.score} height={8} color={color} dotColor={color} />
+                  </div>
+                );
+              })}
+            </div>
+            <p className="mt-3 text-sm leading-relaxed" style={{ color: C.text1 }}>{feedback.text}</p>
+          </div>
+        )}
+      </div>
+
+      <div className="shrink-0 px-4 pb-4 md:px-0 md:pb-0 md:mt-6 pt-3" style={{ paddingBottom: 'max(1rem, env(safe-area-inset-bottom))' }}>
+        {!feedback ? (
+          <button data-testid="submit-answer" onClick={onSubmit} disabled={grading}
+            className="pressable w-full inline-flex items-center justify-center gap-2 text-sm font-semibold py-3.5 rounded-lg text-white hover:opacity-90 transition-opacity disabled:opacity-60"
+            style={{ background: C.accent }}>
+            {grading && <Loader2 size={14} className="animate-spin" />}
+            {grading ? 'Grading…' : 'Submit'}
+          </button>
+        ) : (
+          <button data-testid="continue-session" onClick={onContinue}
+            className="pressable w-full inline-flex items-center justify-center gap-2 text-sm font-semibold py-3.5 rounded-lg text-white hover:opacity-90 transition-opacity"
+            style={{ background: C.accent }}>
+            {idx + 1 >= total ? 'Finish day' : 'Continue'} <ArrowRight size={14} strokeWidth={2.5} />
+          </button>
+        )}
+      </div>
+    </div>
+  );
+};
+
+const ResultsView = ({ state, dayNumber, readinessBefore, graded, onContinue, onBackToPlan }) => {
+  const readinessAfter = state.readiness;
+  const delta = readinessAfter - readinessBefore;
+  const missed = graded.filter(g => parseFloat(g.feedback.overall) < 3.0);
+  const tomorrow = state.activePlan?.plan?.days?.find(d => d.day === dayNumber + 1);
+  const tomorrowPending = tomorrow ? getDayCards(tomorrow).filter(c => c.status === 'pending') : [];
   return (
     <div className="px-4 md:px-10 py-6 md:py-12 max-w-2xl mx-auto" data-testid="session-complete">
-      <Breadcrumb segments={['daily-review', 'session-complete']} />
+      <Breadcrumb segments={['daily-review', `day-${dayNumber}`, 'complete']} />
       <div className="text-center mt-2">
         <div className="inline-flex items-center justify-center w-14 h-14 rounded-md mb-5"
              style={{ background: 'rgba(34,197,94,0.08)', border: '1px solid rgba(34,197,94,0.3)' }}>
           <Trophy size={24} style={{ color: '#4ADE80' }} />
         </div>
         <h1 className="text-4xl md:text-5xl font-semibold tracking-tight" style={{ color: C.text1 }}>
-          Done. <span style={{ color: C.text3 }}>Streak intact.</span>
+          Day {dayNumber} <span style={{ color: C.text3 }}>done.</span>
         </h1>
+        <p className="mt-3 font-mono text-lg" style={{ color: C.text2 }}>
+          Readiness {readinessBefore}% <span style={{ color: C.text3 }}>→</span>{' '}
+          <span style={{ color: delta >= 0 ? C.green : C.red }}>{readinessAfter}%</span>
+          {delta !== 0 && <span className="text-sm ml-1" style={{ color: C.text3 }}>({delta > 0 ? '+' : ''}{delta})</span>}
+        </p>
       </div>
 
-      <div className="grid grid-cols-3 gap-3 mt-8">
-        <StatBox label="reviewed" value={ratings.length} />
-        <StatBox label="xp earned" value={'+' + xpEarned} accent />
-        <StatBox label="streak"   value={state.streak + 'd'} />
-      </div>
-
-      <div className="mt-6 rounded-lg p-6" style={{ border: '1px solid ' + C.border, background: C.bg2 }}>
-        <div className="font-mono text-[11px] uppercase tracking-[0.22em] mb-4" style={{ color: C.text3 }}>Rating breakdown</div>
-        <div className="space-y-3">
-          {RATING_OPTIONS.map(r => {
-            const count = breakdown[r.label] || 0;
-            const pct = ratings.length ? (count / ratings.length) * 100 : 0;
-            return (
-              <div key={r.key} className="flex items-center gap-3 text-xs">
-                <div className="w-16 shrink-0" style={{ color: C.text2 }}>{r.label}</div>
-                <div className="flex-1 min-w-0"><PixelBar value={pct} height={10} color={r.color} dotColor={r.color} /></div>
-                <div className="w-8 text-right shrink-0 font-mono" style={{ color: C.text2 }}>{count}</div>
-              </div>
-            );
-          })}
+      {missed.length > 0 && (
+        <div className="mt-6 rounded-lg p-5" style={{ border: '1px solid rgba(239,68,68,0.25)', background: 'rgba(239,68,68,0.03)' }}>
+          <div className="font-mono text-[11px] uppercase tracking-[0.22em] mb-3" style={{ color: '#F87171' }}>What you missed</div>
+          <div className="space-y-2">
+            {missed.map(({ card }) => (
+              <div key={card.id} className="text-sm leading-relaxed" style={{ color: C.text2 }}>· {card.question}</div>
+            ))}
+          </div>
+          <p className="text-xs mt-3" style={{ color: C.text3 }}>These come back tomorrow, mixed in with new cards.</p>
         </div>
+      )}
+
+      <div className="mt-6 rounded-lg p-5" style={{ border: '1px solid ' + C.border, background: C.bg2 }}>
+        <div className="font-mono text-[11px] uppercase tracking-[0.22em] mb-2" style={{ color: C.text3 }}>Queued for tomorrow</div>
+        {tomorrow ? (
+          <>
+            <div className="text-sm" style={{ color: C.text1 }}>Day {tomorrow.day} · {tomorrow.focus}</div>
+            <div className="text-xs mt-1" style={{ color: C.text3 }}>
+              {tomorrowPending.length} card{tomorrowPending.length === 1 ? '' : 's'}
+              {missed.length > 0 ? ` · ${missed.length} carried over from today` : ''}
+            </div>
+          </>
+        ) : (
+          <div className="text-sm" style={{ color: C.text2 }}>That was the last day of your plan — nice work seeing it through.</div>
+        )}
       </div>
 
       <div className="flex gap-2 mt-6">
         <button data-testid="back-to-dashboard" onClick={onContinue}
-          className="flex-1 inline-flex items-center justify-center gap-2 text-sm font-semibold uppercase tracking-[0.14em] px-4 py-2.5 rounded-md text-white hover:opacity-90 transition-opacity"
+          className="pressable flex-1 inline-flex items-center justify-center gap-2 text-sm font-semibold uppercase tracking-[0.14em] px-4 py-2.5 rounded-md text-white hover:opacity-90 transition-opacity"
           style={{ background: C.accent }}>
           <Zap size={14} strokeWidth={2.5} /> See progress
         </button>
-        <button onClick={onAgain}
-          className="flex-1 text-sm rounded-md py-2.5 transition-opacity hover:opacity-80"
+        <button onClick={onBackToPlan}
+          className="pressable flex-1 text-sm rounded-md py-2.5 transition-opacity hover:opacity-80"
           style={{ background: C.bg3, border: '1px solid ' + C.border, color: C.text2 }}>
-          review more
+          back to plan
         </button>
       </div>
     </div>
   );
 };
-
-const StatBox = ({ label, value, accent }) => (
-  <div className="rounded-md p-4"
-       style={{
-         border: accent ? '1px solid rgba(34,197,94,0.3)' : '1px solid ' + C.border,
-         background: accent ? 'rgba(34,197,94,0.04)' : C.bg2,
-       }}>
-    <div className="font-mono text-[11px] uppercase tracking-[0.22em]" style={{ color: C.text3 }}>{label}</div>
-    <div className="font-mono text-2xl font-semibold mt-1" style={{ color: accent ? '#4ADE80' : C.text1 }}>{value}</div>
-  </div>
-);
 
 const Breadcrumb = ({ segments }) => (
   <div className="text-sm mb-4" style={{ color: C.text3 }}>
