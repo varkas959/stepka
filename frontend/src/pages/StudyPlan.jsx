@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Loader2, Sparkles, ChevronDown, ArrowRight, ArrowLeft, ArrowDown, CheckCircle2, AlertTriangle, XCircle, Trophy, Brain, Eye, Flame, Target, Send, Upload } from 'lucide-react';
+import { Loader2, Sparkles, ChevronDown, ChevronRight, Check, ArrowRight, ArrowLeft, ArrowDown, CheckCircle2, AlertTriangle, XCircle, Trophy, Brain, Eye, Flame, Target, Send, Upload } from 'lucide-react';
 import { toast } from 'sonner';
 import { COMPANIES, QUESTIONS } from '../lib/mockData';
 import { useAppState, getDayCards } from '../lib/appState';
@@ -235,7 +235,16 @@ export default function StudyPlan({ isGuest = false }) {
       // leaving Study Plan with nothing to show but empty summary stats.
       // totalDays comes from the plan's actual day count, not a hardcoded 14 —
       // an interview date paces the plan to however many days remain.
-      setActivePlan({ company, role, currentDay: 1, totalDays: plan.days?.length || 14, interviewDate: interviewDate || null, plan });
+      // baselineReadiness + heatmap are captured once, at plan creation, so
+      // Study Plan can show real movement ("+3 since Day 0") and the weak-
+      // topics list the assessment actually produced — both were previously
+      // thrown away the moment the plan was built (heatmap only ever lived
+      // in this component's local state, gone on reload; nothing tracked
+      // what readiness even started at).
+      setActivePlan({
+        company, role, currentDay: 1, totalDays: plan.days?.length || 14,
+        interviewDate: interviewDate || null, baselineReadiness: readiness, heatmap, plan,
+      });
       setExpandedDay(1);
       setStep('plan');
       track('study_plan_generated', { company: companyName, role, readiness });
@@ -1272,204 +1281,226 @@ const SharePanel = ({ slug }) => {
 };
 
 // ─── Plan calendar ────────────────────────────────────────────────────────────
+const BAND_LEVEL = { 'Critical Gap': 1, 'Weak': 2, 'Needs Improvement': 3, 'Moderate': 3, 'Strong': 4, 'Interview Ready': 5 };
+const readinessColor = (r) => r < 40 ? '#ef4444' : r < 60 ? '#f97316' : r < 75 ? '#f59e0b' : '#22c55e';
+
 const PlanCalendar = ({ plan, expandedDay, setExpandedDay, state, onReset, reportSlug }) => {
-  const company = COMPANIES.find(c => c.id === state.activePlan?.company) || COMPANIES[0];
+  const activePlan = state.activePlan;
+  const company = COMPANIES.find(c => c.id === activePlan?.company) || COMPANIES[0];
   const days = plan?.days || [];
-  const totalDays = state.activePlan?.totalDays || days.length;
-  const currentDay = state.activePlan?.currentDay || 1;
-  const expandedData = days.find(d => d.day === expandedDay);
-  const mockDays = new Set((plan?.mockInterviews || []).map(m => m.day));
+  const totalDays = activePlan?.totalDays || days.length;
+  const currentDay = activePlan?.currentDay || 1;
   const todayData = days.find(d => d.day === currentDay);
-  const todayCardCount = todayData ? getDayCards(todayData).length : 0;
-  const todayPendingCount = todayData ? getDayCards(todayData).filter(c => c.status === 'pending').length : 0;
+  const todayCards = todayData ? getDayCards(todayData) : [];
+  const todayPending = todayCards.filter(c => c.status === 'pending').length;
+  const daysUntilInterview = activePlan?.interviewDate
+    ? Math.max(0, Math.ceil((new Date(activePlan.interviewDate).getTime() - Date.now()) / 86400000))
+    : null;
+  const baselineReadiness = typeof activePlan?.baselineReadiness === 'number' ? activePlan.baselineReadiness : state.readiness;
+  const readinessDelta = state.readiness - baselineReadiness;
+  const TARGET_READINESS = 85;
+  const heatmap = activePlan?.heatmap || [];
+  const weakest = [...heatmap].sort((a, b) => a.score - b.score).slice(0, 5);
+  // The plan schema carries mock-interview info two ways (a per-day
+  // `mockInterview` field and a top-level `mockInterviews` list) — check
+  // both since generation doesn't guarantee they stay in sync.
+  const mockDays = new Set((plan?.mockInterviews || []).map(m => m.day));
+
+  const jumpToSkillDay = (skill) => {
+    const day = days.find(d => d.focus === skill);
+    if (!day) return;
+    setExpandedDay(day.day);
+    setTimeout(() => document.getElementById(`plan-day-${day.day}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' }), 50);
+  };
 
   return (
-    <div className="px-4 md:px-10 py-6 md:py-10 max-w-5xl mx-auto">
-      <Breadcrumb segments={['study-plan', `${company.id}-${state.activePlan?.role?.toLowerCase()}`, `day-${currentDay}-of-${totalDays}`]} />
-      <div className="flex items-start justify-between gap-4 mt-1 mb-2 flex-wrap">
-        <div>
-          <h1 className="text-3xl md:text-5xl font-semibold tracking-tight text-zinc-50">{company.name} · {state.activePlan?.role}</h1>
-          <p className="text-sm text-zinc-300 mt-2">Tap any day · mock interviews in blue · today in green</p>
-        </div>
-        <div className="flex items-center gap-2 flex-wrap">
-          {plan?.successProbability && (
-            <div className="font-mono text-xs border border-emerald-500/30 bg-emerald-500/[0.06] text-emerald-400 px-3 py-1.5 rounded-md">
-              <Trophy size={11} className="inline mr-1.5" />success: {plan.successProbability}
-            </div>
-          )}
-          <button onClick={onReset} className="text-sm uppercase tracking-[0.18em] text-zinc-300 hover:text-zinc-50 border border-white/10 rounded-md px-3 py-2">New plan</button>
-        </div>
+    <div className="px-4 md:px-8 py-6 md:py-10 max-w-2xl mx-auto">
+      <Breadcrumb segments={['study-plan', `${company.id}-${activePlan?.role?.toLowerCase()}`, `day-${currentDay}-of-${totalDays}`]} />
+      <div className="flex items-start justify-between gap-4 mt-1 mb-5 flex-wrap">
+        <h1 className="text-2xl md:text-3xl font-semibold tracking-tight text-zinc-50">{company.name} · {activePlan?.role}</h1>
+        {plan?.successProbability && (
+          <div className="font-mono text-xs border border-emerald-500/30 bg-emerald-500/[0.06] text-emerald-400 px-3 py-1.5 rounded-md shrink-0">
+            <Trophy size={11} className="inline mr-1.5" />success: {plan.successProbability}
+          </div>
+        )}
       </div>
-
-      {/* Day X/N · Readiness · Streak — same three numbers everywhere, no
-          separate "due today" concept to disagree with these. */}
-      <div className="flex items-center gap-4 mb-5 font-mono text-xs" style={{ color: 'var(--text-3)' }}>
-        <span>Day <span className="text-zinc-100 font-semibold">{currentDay}</span>/{totalDays}</span>
-        <span>·</span>
-        <span>Readiness <span className="text-zinc-100 font-semibold">{state.readiness || 0}%</span></span>
-        <span>·</span>
-        <span>Streak <span className="text-zinc-100 font-semibold">{state.streak || 0}</span></span>
-      </div>
-
-      {todayData && (
-        <Link to="/app/review"
-          className="pressable mb-5 inline-flex items-center gap-2 text-sm font-semibold px-5 py-2.5 rounded-lg text-white hover:opacity-90 transition-opacity"
-          style={{ background: 'var(--accent)' }}>
-          {todayPendingCount > 0
-            ? `Start Day ${currentDay} (${todayPendingCount} card${todayPendingCount === 1 ? '' : 's'}) →`
-            : `Day ${currentDay} complete — review again →`}
-        </Link>
-      )}
 
       <SharePanel slug={reportSlug} />
 
-      <div className="grid grid-cols-7 gap-1 sm:gap-1.5">
-        {days.map(d => {
-          const isToday = d.day === currentDay;
-          const isDone = d.day < currentDay;
-          const isFuture = d.day > currentDay;
-          const isExpanded = expandedDay === d.day;
-          const isMock = mockDays.has(d.day);
-          return (
-            <button key={d.day} disabled={isFuture}
-              onClick={() => !isFuture && setExpandedDay(isExpanded ? null : d.day)}
-              className={`relative text-left p-2 rounded-md border transition-[border-color,background-color,box-shadow,opacity] overflow-hidden ${isFuture ? 'cursor-not-allowed' : ''} ${
-                isExpanded ? 'border-blue-500/60 bg-blue-500/[0.07] ring-1 ring-blue-500/20'
-                : isMock ? 'border-blue-500/40 bg-blue-500/[0.05] hover:border-blue-500/60'
-                : isToday ? 'border-emerald-500/40 bg-emerald-500/[0.04]'
-                : isDone ? 'border-white/5 bg-zinc-950 opacity-60'
-                : 'border-white/5 bg-zinc-950 opacity-40'
-              }`}>
-              {isExpanded && <div className="absolute left-0 top-0 bottom-0 w-[2px]" style={{ background: 'var(--accent)' }} />}
-              {!isExpanded && isToday && <div className="absolute left-0 top-0 bottom-0 w-[2px]" style={{ background: '#22c55e' }} />}
-              {!isExpanded && isMock && !isToday && <div className="absolute left-0 top-0 bottom-0 w-[2px]" style={{ background: '#3b82f6' }} />}
-              <div className="font-mono text-[11px] text-zinc-500">d{d.day}</div>
-              <div className="font-mono text-base font-semibold text-zinc-50">{d.day}</div>
-              {isFuture && <div className="text-[9px] text-zinc-600 mt-0.5">locked</div>}
-              {isDone && typeof d.readinessAfter === 'number' && (
-                <div className="font-mono text-[9px] mt-0.5" style={{ color: d.readinessAfter >= 70 ? '#22c55e' : d.readinessAfter >= 40 ? '#f59e0b' : '#ef4444' }}>{d.readinessAfter}%</div>
-              )}
-              {isMock && !isFuture && <div className="text-[9px] text-blue-400 mt-0.5">mock</div>}
-              {!isFuture && <div className="mt-0.5 text-[9px] text-zinc-500 truncate">{d.focus?.split('·')[0]?.trim()}</div>}
-            </button>
-          );
-        })}
-      </div>
+      {/* 1. Today — one primary action, not a detour to "browse questions" */}
+      {todayData && (
+        <div className="rounded-xl border border-white/10 bg-zinc-950 p-5 sm:p-6">
+          <div className="font-mono text-[11px] uppercase tracking-[0.18em] text-zinc-500">
+            Day {currentDay} of {totalDays}{daysUntilInterview != null && ` · ${daysUntilInterview} day${daysUntilInterview === 1 ? '' : 's'} to your interview`}
+          </div>
+          <div className="text-2xl font-semibold text-zinc-50 mt-2">{todayData.focus}</div>
+          <div className="text-sm text-zinc-400 mt-1">
+            {todayCards.length} question{todayCards.length === 1 ? '' : 's'}{todayData.estimatedTime ? ` · ~${todayData.estimatedTime}` : ''}
+          </div>
+          <Link to="/app/review"
+            className="pressable mt-4 inline-flex items-center gap-2 text-sm font-semibold px-5 py-2.5 rounded-lg text-white hover:opacity-90 transition-opacity"
+            style={{ background: 'var(--accent)' }}>
+            {todayPending > 0 ? `Start Day ${currentDay} →` : `Day ${currentDay} complete — review again →`}
+          </Link>
+        </div>
+      )}
 
-      {expandedData && (
-        <div className="mt-4 rounded-lg border border-white/10 bg-zinc-950 p-5 sm:p-6 animate-fade-up">
-          <div className="flex items-center gap-3 mb-5 flex-wrap">
-            <span className="font-mono text-[12px] uppercase tracking-[0.18em] text-zinc-400">day {expandedData.day}</span>
-            <span className="text-zinc-500">·</span>
-            <span className="text-base text-zinc-100 font-semibold">{expandedData.focus}</span>
-            {expandedData.theme && <span className="text-[12px] text-zinc-400 hidden sm:block">{expandedData.theme}</span>}
-            {expandedData.mockInterview && (
-              <span className="font-mono text-[11px] px-2 py-0.5 rounded border border-blue-500/40 bg-blue-500/[0.08] text-blue-400">
-                {expandedData.mockInterview.type} · {expandedData.mockInterview.duration}
-              </span>
-            )}
-          </div>
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div>
-              {/* New structured day model — outcome / task / success / avoid / time */}
-              {(expandedData.outcome || expandedData.task) ? (
-                <div className="space-y-3.5">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    {expandedData.estimatedTime && (
-                      <div className="inline-flex items-center gap-1.5 font-mono text-[11px] px-2 py-1 rounded border border-white/10 text-zinc-400">
-                        ⏱ {expandedData.estimatedTime}
-                      </div>
-                    )}
-                    {expandedData.depthTarget && (
-                      <div className="inline-flex items-center gap-1.5 font-mono text-[11px] px-2 py-1 rounded border"
-                        style={{ borderColor: 'var(--accent-35)', background: 'var(--accent-12)', color: 'var(--accent)' }}>
-                        ↓ Depth target: Level {expandedData.depthTarget}/5
-                      </div>
-                    )}
-                  </div>
-                  {expandedData.outcome && (
-                    <DayField color="#22c55e" label="Outcome" text={expandedData.outcome} />
-                  )}
-                  {expandedData.task && (
-                    <DayField color="#7AA9F7" label="Task" text={expandedData.task} />
-                  )}
-                  {expandedData.successCriteria && (
-                    <DayField color="#f59e0b" label="Success criteria" text={expandedData.successCriteria} />
-                  )}
-                  {expandedData.avoid && (
-                    <DayField color="#ef4444" label="Avoid" text={expandedData.avoid} />
-                  )}
-                  {expandedData.commonFailure && (
-                    <DayField color="#a855f7" label="Common failure" text={expandedData.commonFailure} />
-                  )}
-                </div>
-              ) : (
-                <>
-                  <div className="font-mono text-[12px] uppercase tracking-[0.22em] text-zinc-400 mb-3">Study tasks</div>
-                  <ol className="space-y-2.5">
-                    {(expandedData.tasks || []).map((task, i) => (
-                      <li key={i} className="flex items-start gap-3">
-                        <span className="font-mono text-[12px] text-zinc-500 mt-0.5 shrink-0 w-4">{i + 1}.</span>
-                        <span className="text-zinc-200 text-base leading-loose" style={{ fontFamily: 'inherit' }}>{task}</span>
-                      </li>
-                    ))}
-                  </ol>
-                </>
-              )}
-            </div>
-            <div>
-              <div className="flex items-center justify-between mb-3">
-                <div className="font-mono text-[12px] uppercase tracking-[0.22em] text-zinc-400">Review cards</div>
-                {expandedData.day === currentDay && (
-                  <Link to="/app/review" className="text-[12px] font-medium" style={{ color: 'var(--accent)' }}>
-                    {getDayCards(expandedData).some(c => c.status === 'pending') ? 'Continue →' : 'Review again →'}
-                  </Link>
-                )}
-              </div>
-              <div className="space-y-2.5">
-                {getDayCards(expandedData).map((c, i) => {
-                  const done = c.status === 'done';
-                  return (
-                    <div key={c.id} className="p-3 rounded-md" style={{ border: `1px solid ${done ? 'rgba(34,197,94,0.25)' : 'rgba(59,111,212,0.2)'}`, background: done ? 'rgba(34,197,94,0.03)' : 'rgba(59,111,212,0.03)' }}>
-                      <div className="flex items-start gap-2">
-                        <span className="font-mono text-[11px] shrink-0 mt-0.5" style={{ color: done ? '#22c55e' : 'var(--accent)' }}>
-                          {done ? '✓' : `Q${i + 1}`}
-                        </span>
-                        <span className="text-zinc-100 text-base leading-loose flex-1" style={{ fontFamily: 'inherit' }}>{c.question}</span>
-                        {c.carriedFrom && (
-                          <span className="font-mono text-[10px] shrink-0 px-1.5 py-0.5 rounded border border-amber-500/30 text-amber-400">retry</span>
-                        )}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          </div>
-          {expandedData.mockInterview && (
-            <div className="mt-5 rounded-md border border-blue-500/30 bg-blue-500/[0.05] p-4">
-              <div className="font-mono text-[12px] uppercase tracking-[0.18em] text-blue-400 mb-1">Mock interview · {expandedData.mockInterview.type}</div>
-              <p className="text-sm text-zinc-200">Topics: {expandedData.mockInterview.topics?.join(', ')}</p>
-              <p className="text-sm text-zinc-400 mt-1">Duration: {expandedData.mockInterview.duration} · score honestly and note weaknesses</p>
-            </div>
+      {/* 2. Readiness with movement — a static number means nothing; the
+          delta since Day 0 is what makes someone come back. */}
+      <div className="mt-4 rounded-xl border border-white/10 bg-zinc-950 p-5">
+        <div className="flex items-center justify-between">
+          <div className="font-mono text-[11px] uppercase tracking-[0.18em] text-zinc-500">Readiness</div>
+          <div className="font-mono text-[11px] text-zinc-600">target {TARGET_READINESS}%</div>
+        </div>
+        <div className="flex items-baseline gap-2 mt-2">
+          <div className="text-4xl font-semibold" style={{ color: readinessColor(state.readiness) }}>{state.readiness}%</div>
+          {readinessDelta !== 0 && (
+            <span className="font-mono text-sm" style={{ color: readinessDelta > 0 ? '#22c55e' : '#ef4444' }}>
+              {readinessDelta > 0 ? '+' : ''}{readinessDelta} since Day 0
+            </span>
           )}
         </div>
-      )}
+        <div className="mt-3">
+          <PixelBar value={state.readiness} height={10} color={readinessColor(state.readiness)} dotColor={readinessColor(state.readiness)} />
+        </div>
+      </div>
 
-      {plan?.mockInterviews?.length > 0 && (
-        <div className="mt-5 rounded-lg border border-white/10 bg-zinc-950 p-5">
-          <div className="font-mono text-[12px] uppercase tracking-[0.22em] text-zinc-400 mb-3">Mock interview schedule</div>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-            {plan.mockInterviews.map(m => (
-              <div key={m.day} className="rounded-md border border-blue-500/30 bg-blue-500/[0.05] p-3">
-                <div className="font-mono text-[12px] text-blue-400 uppercase">Day {m.day}</div>
-                <div className="text-base text-zinc-100 mt-0.5 font-semibold">{m.type}</div>
-                <div className="font-mono text-[12px] text-zinc-400 mt-0.5">{m.duration}</div>
+      {/* 3. The plan, listed — the single biggest addition: an abstract
+          "Day 1/14" becomes something a person can see themselves finishing. */}
+      <div className="mt-6">
+        <div className="font-mono text-[11px] uppercase tracking-[0.18em] text-zinc-500 mb-3">Your {totalDays}-day plan</div>
+        <div className="space-y-1">
+          {days.map(d => {
+            const isToday = d.day === currentDay;
+            const isDone = d.day < currentDay;
+            const isFuture = d.day > currentDay;
+            const isExpanded = expandedDay === d.day;
+            const isMock = !!d.mockInterview || mockDays.has(d.day);
+            const cards = getDayCards(d);
+            const doneCount = cards.filter(c => c.status === 'done').length;
+            return (
+              <div key={d.day} id={`plan-day-${d.day}`}>
+                <button disabled={isFuture} onClick={() => !isFuture && setExpandedDay(isExpanded ? null : d.day)}
+                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-left transition-colors ${isFuture ? 'cursor-not-allowed' : 'hover:bg-white/[0.03]'}`}
+                  style={{ background: isExpanded ? 'var(--accent-12)' : 'transparent' }}>
+                  <span className="w-4 shrink-0 flex items-center justify-center">
+                    {isDone ? <Check size={14} style={{ color: '#22c55e' }} /> : isToday ? <span className="w-2 h-2 rounded-full inline-block" style={{ background: '#22c55e' }} /> : null}
+                  </span>
+                  <span className="font-mono text-xs shrink-0" style={{ color: 'var(--text-3)' }}>Day {d.day}</span>
+                  <span className="flex-1 min-w-0 truncate text-sm" style={{ color: isFuture ? 'var(--text-3)' : 'var(--text-1)' }}>
+                    {d.focus}{isMock && <span className="text-blue-400"> · mock</span>}
+                  </span>
+                  {isFuture && <span className="font-mono text-[11px] shrink-0" style={{ color: 'var(--text-3)' }}>locked</span>}
+                  {isToday && <span className="font-mono text-[11px] shrink-0 text-emerald-400">today</span>}
+                  {isDone && <span className="font-mono text-[11px] shrink-0" style={{ color: 'var(--text-3)' }}>{doneCount}/{cards.length}</span>}
+                  {!isFuture && <ChevronRight size={14} className="shrink-0" style={{ color: 'var(--text-3)', transform: isExpanded ? 'rotate(90deg)' : 'none' }} />}
+                </button>
+
+                {isExpanded && !isFuture && (
+                  <div className="ml-4 mt-1 mb-3 pl-4 border-l" style={{ borderColor: 'var(--border)' }}>
+                    <div className="rounded-lg border border-white/10 bg-zinc-950 p-5 animate-fade-up">
+                      {(d.outcome || d.task) ? (
+                        <div className="space-y-3.5">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            {d.estimatedTime && (
+                              <div className="inline-flex items-center gap-1.5 font-mono text-[11px] px-2 py-1 rounded border border-white/10 text-zinc-400">⏱ {d.estimatedTime}</div>
+                            )}
+                            {d.depthTarget && (
+                              <div className="inline-flex items-center gap-1.5 font-mono text-[11px] px-2 py-1 rounded border"
+                                style={{ borderColor: 'var(--accent-35)', background: 'var(--accent-12)', color: 'var(--accent)' }}>
+                                ↓ Depth target: Level {d.depthTarget}/5
+                              </div>
+                            )}
+                          </div>
+                          {d.outcome && <DayField color="#22c55e" label="Outcome" text={d.outcome} />}
+                          {d.task && <DayField color="#7AA9F7" label="Task" text={d.task} />}
+                          {d.successCriteria && <DayField color="#f59e0b" label="Success criteria" text={d.successCriteria} />}
+                          {d.avoid && <DayField color="#ef4444" label="Avoid" text={d.avoid} />}
+                          {d.commonFailure && <DayField color="#a855f7" label="Common failure" text={d.commonFailure} />}
+                        </div>
+                      ) : (
+                        <ol className="space-y-2.5">
+                          {(d.tasks || []).map((task, i) => (
+                            <li key={i} className="flex items-start gap-3">
+                              <span className="font-mono text-[12px] text-zinc-500 mt-0.5 shrink-0 w-4">{i + 1}.</span>
+                              <span className="text-zinc-200 text-base leading-loose" style={{ fontFamily: 'inherit' }}>{task}</span>
+                            </li>
+                          ))}
+                        </ol>
+                      )}
+
+                      {d.mockInterview && (
+                        <div className="mt-4 rounded-md border border-blue-500/30 bg-blue-500/[0.05] p-4">
+                          <div className="font-mono text-[12px] uppercase tracking-[0.18em] text-blue-400 mb-1">Mock interview · {d.mockInterview.type}</div>
+                          <p className="text-sm text-zinc-200">Topics: {d.mockInterview.topics?.join(', ')}</p>
+                          <p className="text-sm text-zinc-400 mt-1">Duration: {d.mockInterview.duration}</p>
+                        </div>
+                      )}
+
+                      <div className="mt-4 pt-4 border-t border-white/6">
+                        <div className="flex items-center justify-between mb-3">
+                          <div className="font-mono text-[12px] uppercase tracking-[0.22em] text-zinc-400">Review cards</div>
+                          {d.day === currentDay && (
+                            <Link to="/app/review" className="text-[12px] font-medium" style={{ color: 'var(--accent)' }}>
+                              {cards.some(c => c.status === 'pending') ? 'Continue →' : 'Review again →'}
+                            </Link>
+                          )}
+                        </div>
+                        <div className="space-y-2.5">
+                          {cards.map((c, i) => {
+                            const done = c.status === 'done';
+                            return (
+                              <div key={c.id} className="p-3 rounded-md" style={{ border: `1px solid ${done ? 'rgba(34,197,94,0.25)' : 'rgba(59,111,212,0.2)'}`, background: done ? 'rgba(34,197,94,0.03)' : 'rgba(59,111,212,0.03)' }}>
+                                <div className="flex items-start gap-2">
+                                  <span className="font-mono text-[11px] shrink-0 mt-0.5" style={{ color: done ? '#22c55e' : 'var(--accent)' }}>{done ? '✓' : `Q${i + 1}`}</span>
+                                  <span className="text-zinc-100 text-sm leading-relaxed flex-1" style={{ fontFamily: 'inherit' }}>{c.question}</span>
+                                  {c.carriedFrom && <span className="font-mono text-[10px] shrink-0 px-1.5 py-0.5 rounded border border-amber-500/30 text-amber-400">retry</span>}
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
-            ))}
+            );
+          })}
+        </div>
+      </div>
+
+      {/* 4. Weakest topics — the reason anyone paid attention to the
+          assessment in the first place; previously only ever shown on
+          Progress and disconnected from this screen. */}
+      {weakest.length > 0 && (
+        <div className="mt-6">
+          <div className="font-mono text-[11px] uppercase tracking-[0.18em] text-zinc-500 mb-3">Where you're losing points</div>
+          <div className="space-y-2.5">
+            {weakest.map(h => {
+              const level = BAND_LEVEL[h.band] || Math.max(1, Math.round(h.score / 20));
+              const color = level <= 2 ? '#ef4444' : level === 3 ? '#f59e0b' : '#22c55e';
+              const clickable = days.some(d => d.focus === h.skill);
+              const Wrapper = clickable ? 'button' : 'div';
+              return (
+                <Wrapper key={h.skill} onClick={clickable ? () => jumpToSkillDay(h.skill) : undefined}
+                  className={`w-full flex items-center gap-3 text-left ${clickable ? 'hover:opacity-80 transition-opacity' : ''}`}>
+                  <span className="text-sm w-28 sm:w-36 truncate shrink-0" style={{ color: 'var(--text-1)' }}>{h.skill}</span>
+                  <div className="flex-1 min-w-0"><PixelBar value={h.score} height={10} color={color} dotColor={color} /></div>
+                  <span className="font-mono text-xs shrink-0 w-8 text-right" style={{ color }}>{level}/5</span>
+                </Wrapper>
+              );
+            })}
           </div>
         </div>
       )}
+
+      {/* 5. Secondary links — de-emphasized on purpose, this screen's job
+          is the plan, not more entry points competing with it. */}
+      <div className="mt-8 pt-5 border-t border-white/6 flex items-center gap-5 text-xs">
+        <button onClick={onReset} className="hover:text-zinc-200 transition-colors" style={{ color: 'var(--text-3)' }}>Re-run assessment with a new JD</button>
+        <Link to="/app/questions" className="hover:text-zinc-200 transition-colors" style={{ color: 'var(--text-3)' }}>Browse full question bank</Link>
+      </div>
     </div>
   );
 };
