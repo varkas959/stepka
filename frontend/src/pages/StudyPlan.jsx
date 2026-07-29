@@ -12,6 +12,9 @@ import { track } from '../lib/analytics';
 import { supabase } from '../lib/supabaseClient';
 import { PixelBar } from '../components/PixelBar';
 import { DepthChallenge } from '../components/DepthChallenge';
+import { KaiCompanion } from '../components/KaiCompanion';
+
+const PENDING_JD_KEY = 'stepkai_pending_jd';
 
 const ACTIVE_COMPANY_IDS = [...new Set(QUESTIONS.map(q => q.company))];
 const ACTIVE_COMPANIES = COMPANIES.filter(c => ACTIVE_COMPANY_IDS.includes(c.id));
@@ -46,6 +49,22 @@ export default function StudyPlan({ isGuest = false }) {
 
   useEffect(() => { loadAllQuestions().then(setCorpus).catch(() => {}); }, []);
 
+  // A guest could type/paste a full JD, then only hit the sign-in wall on
+  // Start — a full-page redirect to /signin threw all of that away. Restore
+  // it once, whether they're back from signing in or just reloaded.
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(PENDING_JD_KEY);
+      if (!raw) return;
+      localStorage.removeItem(PENDING_JD_KEY);
+      const saved = JSON.parse(raw);
+      if (saved.jd) setJd(saved.jd);
+      if (saved.company) setCompany(saved.company);
+      if (saved.role) setRole(saved.role);
+      if (!isGuest && saved.jd) toast('Your job description is right where you left it.');
+    } catch { /* ignore */ }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
   // Returning users: rehydrate the actual 14-day plan from persisted state
   // instead of showing the empty input/summary screen. Guarded on
   // `generatedPlan` being empty so it doesn't clobber a plan just generated
@@ -63,7 +82,11 @@ export default function StudyPlan({ isGuest = false }) {
 
   // ── Step 1: Extract competencies + generate screening questions ──
   const startAssessment = async () => {
-    if (isGuest) { window.location.href = '/signin'; return; }
+    if (isGuest) {
+      try { localStorage.setItem(PENDING_JD_KEY, JSON.stringify({ jd, company, role })); } catch { /* ignore */ }
+      window.location.href = '/signin';
+      return;
+    }
     if (!jd.trim()) { toast.error('Paste a job description first.'); return; }
     setStep('extracting');
     track('jd_upload_started', { company: companyName, role });
@@ -519,7 +542,7 @@ const InputStep = ({ jd, setJd, company, setCompany, role, setRole, onStart, act
           </div>
           <div className="px-4 py-4 grid grid-cols-2 sm:grid-cols-4 gap-4">
             <div>
-              <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-zinc-600 mb-2">Detected Skills</div>
+              <div className="font-mono text-[11px] uppercase tracking-[0.14em] text-zinc-600 mb-2">Detected Skills</div>
               <div className="space-y-1">
                 {['SQL', 'Stakeholder Mgmt', 'Requirements'].map(s => (
                   <div key={s} className="flex items-center gap-1.5">
@@ -530,12 +553,12 @@ const InputStep = ({ jd, setJd, company, setCompany, role, setRole, onStart, act
               </div>
             </div>
             <div>
-              <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-zinc-600 mb-2">Readiness Score</div>
+              <div className="font-mono text-[11px] uppercase tracking-[0.14em] text-zinc-600 mb-2">Readiness Score</div>
               <div className="font-mono text-3xl font-semibold" style={{ color: '#f59e0b' }}>61<span className="text-base text-zinc-600">%</span></div>
               <div className="text-[11px] text-zinc-500 mt-1">Needs improvement</div>
             </div>
             <div>
-              <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-zinc-600 mb-2">Top Gaps</div>
+              <div className="font-mono text-[11px] uppercase tracking-[0.14em] text-zinc-600 mb-2">Top Gaps</div>
               <div className="space-y-1">
                 {['Process Mapping', 'Data Analysis', 'Reporting'].map(g => (
                   <div key={g} className="flex items-center gap-1.5">
@@ -546,7 +569,7 @@ const InputStep = ({ jd, setJd, company, setCompany, role, setRole, onStart, act
               </div>
             </div>
             <div>
-              <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-zinc-600 mb-2">Estimated Plan</div>
+              <div className="font-mono text-[11px] uppercase tracking-[0.14em] text-zinc-600 mb-2">Estimated Plan</div>
               <div className="font-mono text-3xl font-semibold text-zinc-100">14<span className="text-base text-zinc-600"> days</span></div>
               <div className="text-[11px] text-zinc-500 mt-1">Personalised roadmap</div>
             </div>
@@ -562,10 +585,12 @@ const InputStep = ({ jd, setJd, company, setCompany, role, setRole, onStart, act
             <button onClick={onStart} disabled={!jd.trim()}
               className="inline-flex items-center gap-2 text-sm font-semibold px-5 py-2.5 rounded-lg text-white hover:opacity-90 transition-[opacity,background-color,color] disabled:cursor-not-allowed"
               style={jd.trim() ? { background: 'var(--accent)' } : { background: 'rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.45)' }}>
-              <Sparkles size={14} strokeWidth={2.5} /> Start assessment
+              <Sparkles size={14} strokeWidth={2.5} /> {isGuest ? 'Sign in to start' : 'Start assessment'}
             </button>
-            {!jd.trim() && (
+            {!jd.trim() ? (
               <span className="text-[11px]" style={{ color: 'var(--text-3)' }}>Paste a JD above to unlock</span>
+            ) : isGuest && (
+              <span className="text-[11px]" style={{ color: 'var(--text-3)' }}>We'll keep your JD — sign in to see the analysis</span>
             )}
           </div>
         </div>
@@ -622,7 +647,7 @@ const AssessmentQuiz = ({ questions, currentQ, onAnswer, label }) => {
     <div className="mt-7 animate-fade-up">
       <div className="flex items-center justify-between mb-2 font-mono text-sm text-zinc-400">
         <span>{label} · question <span className="text-zinc-100 font-semibold">{currentQ + 1}</span> of {total}</span>
-        <span className="text-[10px] px-2 py-0.5 rounded border shrink-0 ml-2 {TYPE_COLOR[q.type]}"
+        <span className="text-[11px] px-2 py-0.5 rounded border shrink-0 ml-2 {TYPE_COLOR[q.type]}"
           style={{ color: q.type === 'mcq' ? '#60a5fa' : q.type === 'scenario_selection' ? '#c084fc' : q.type === 'ranking' ? '#fbbf24' : '#34d399' }}>
           {TYPE_LABEL[q.type]}
         </span>
@@ -810,10 +835,30 @@ const ScreeningResults = ({ result, onSkip, onDeepDive }) => {
 };
 
 // ─── Final gap view ───────────────────────────────────────────────────────────
+// The readiness reveal is the product's highest-stakes moment — a stressed
+// job-seeker looking at a number that can read as "Critical Gap" in red.
+// Kai is the one component built to carry emotional tone, but he wasn't
+// present here at all. demandAttention brings him out even if a user
+// tucked him away earlier — this specific moment is worth the interruption.
+const KAI_READINESS_REACTION = (readiness) => {
+  if (readiness < 40) return { mode: 'thinking', text: "There's real work here — but that's exactly why you ran this. Now you know precisely what to fix instead of guessing." };
+  if (readiness < 60) return { mode: 'thinking', text: "Solid start. A few focused days on the gaps below and you'll be in good shape." };
+  if (readiness < 75) return { mode: 'look', text: "You're most of the way there — the plan below tightens up what's still soft." };
+  return { mode: 'celebrate', text: "Strong readiness — nice work. Let's lock in what's still loose." };
+};
+
 const GapView = ({ heatmap, gaps, readiness, summary, company, role, onContinue, onBack }) => {
   const rc = readiness < 40 ? '#ef4444' : readiness < 60 ? '#f97316' : readiness < 75 ? '#f59e0b' : '#22c55e';
+  const [kaiMode, setKaiMode] = useState('idle');
+  const [kaiMessage, setKaiMessage] = useState('');
+  useEffect(() => {
+    const reaction = KAI_READINESS_REACTION(readiness);
+    setKaiMode(reaction.mode);
+    setKaiMessage(reaction.text);
+  }, [readiness]);
   return (
     <div className="mt-7 animate-fade-up space-y-4">
+      <KaiCompanion mode={kaiMode} message={kaiMessage} onModeChange={setKaiMode} onMessageChange={setKaiMessage} demandAttention />
       <div className="rounded-lg border border-white/10 bg-zinc-950 p-6">
         <div className="flex items-start justify-between gap-4 flex-wrap">
           <div>
@@ -840,7 +885,7 @@ const GapView = ({ heatmap, gaps, readiness, summary, company, role, onContinue,
                   <span className="text-zinc-100 w-36 sm:w-48 truncate shrink-0">{h.skill}</span>
                   <div className="flex-1 min-w-0"><PixelBar value={h.score} height={10} color={color} dotColor={color} /></div>
                   <span className="font-mono w-10 text-right shrink-0 font-semibold" style={{ color }}>{h.score}%</span>
-                  <span className="hidden sm:block text-[10px] px-1.5 py-0.5 rounded border shrink-0" style={{ color, borderColor: color + '50', background: color + '10' }}>{h.band}</span>
+                  <span className="hidden sm:block text-[11px] px-1.5 py-0.5 rounded border shrink-0" style={{ color, borderColor: color + '50', background: color + '10' }}>{h.band}</span>
                 </div>
                 {h.feedback && <p className="text-[12px] text-zinc-400 ml-5 leading-loose">{h.feedback}</p>}
               </div>
@@ -952,9 +997,9 @@ const GapIntelligenceView = ({ intel, cards, company, role, onChallenge, onConti
                 : h.highRisk ? <Flame size={14} className="shrink-0" style={{ color: '#ef4444' }} />
                 : <AlertTriangle size={14} className="shrink-0" style={{ color: '#f97316' }} />}
               <span className="text-sm text-zinc-100 font-semibold">{h.skill}</span>
-              <span className="font-mono text-[10px] px-1.5 py-0.5 rounded border border-white/10 text-zinc-400">risk {h.riskScore}</span>
+              <span className="font-mono text-[11px] px-1.5 py-0.5 rounded border border-white/10 text-zinc-400">risk {h.riskScore}</span>
               {h.frequency?.questionCount > 0 && (
-                <span className="font-mono text-[10px] text-zinc-500 hidden sm:inline">asked ~{h.frequency.askCount}× · {h.frequency.questionCount} reported</span>
+                <span className="font-mono text-[11px] text-zinc-500 hidden sm:inline">asked ~{h.frequency.askCount}× · {h.frequency.questionCount} reported</span>
               )}
               <ChevronDown size={15} className={`ml-auto text-zinc-500 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
             </button>
@@ -994,7 +1039,7 @@ const GapIntelligenceView = ({ intel, cards, company, role, onChallenge, onConti
                               <div className="flex items-center gap-2 flex-wrap">
                                 <Target size={12} style={{ color: '#7AA9F7' }} />
                                 <span className="text-[13px] text-zinc-100 font-medium">{a.title}</span>
-                                {a.time && <span className="ml-auto font-mono text-[10px] text-zinc-500">{a.time}</span>}
+                                {a.time && <span className="ml-auto font-mono text-[11px] text-zinc-500">{a.time}</span>}
                               </div>
                               {a.outcome && <div className="text-[12px] text-zinc-400 mt-1 leading-relaxed">→ {a.outcome}</div>}
                             </div>
@@ -1055,7 +1100,7 @@ const CovDepthBar = ({ label, sub, value, color }) => (
     <div className="h-1.5 rounded-full overflow-hidden mb-1.5" style={{ background: 'var(--surface-2)' }}>
       <div className="h-full rounded-full transition-[width] duration-500 ease-out" style={{ width: `${value}%`, background: color }} />
     </div>
-    <div className="text-[10px] text-zinc-500">{sub}</div>
+    <div className="text-[11px] text-zinc-500">{sub}</div>
   </div>
 );
 
@@ -1118,11 +1163,11 @@ const ChallengeMode = ({ company, role, skill, onExit }) => {
       {transcript.map((t, i) => (
         <div key={i} className="space-y-2">
           <div className="rounded-md border border-white/8 bg-zinc-950 p-4">
-            <div className="font-mono text-[10px] uppercase tracking-[0.18em] text-zinc-500 mb-1">Interviewer · Q{i + 1}</div>
+            <div className="font-mono text-[11px] uppercase tracking-[0.18em] text-zinc-500 mb-1">Interviewer · Q{i + 1}</div>
             <p className="text-[14px] text-zinc-100 leading-relaxed">{t.q}</p>
           </div>
           <div className="rounded-md border border-white/5 bg-zinc-900/40 p-4 ml-4">
-            <div className="font-mono text-[10px] uppercase tracking-[0.18em] text-zinc-500 mb-1">You</div>
+            <div className="font-mono text-[11px] uppercase tracking-[0.18em] text-zinc-500 mb-1">You</div>
             <p className="text-[14px] text-zinc-300 leading-relaxed whitespace-pre-wrap">{t.a || <span className="text-zinc-600 italic">(skipped)</span>}</p>
           </div>
         </div>
@@ -1141,7 +1186,7 @@ const ChallengeMode = ({ company, role, skill, onExit }) => {
               <span className="text-[12px] text-zinc-300">{current.gapDetected}</span>
             </div>
           )}
-          <div className="font-mono text-[10px] uppercase tracking-[0.18em] text-zinc-500 mb-1">Interviewer · Q{transcript.length + 1}</div>
+          <div className="font-mono text-[11px] uppercase tracking-[0.18em] text-zinc-500 mb-1">Interviewer · Q{transcript.length + 1}</div>
           <p className="text-[15px] text-zinc-100 leading-relaxed mb-1">{current.nextQuestion}</p>
           {current.probeReason && <p className="text-[11px] text-zinc-500 italic mb-3">why this: {current.probeReason}</p>}
           <textarea value={answer} onChange={e => setAnswer(e.target.value)} rows={4}
@@ -1193,10 +1238,10 @@ const SharePanel = ({ slug }) => {
     <div className="mb-5 rounded-lg p-4" style={{ border: '1px solid rgba(59,111,212,0.25)', background: 'rgba(59,111,212,0.05)' }}>
       <div className="flex items-center gap-2 mb-3">
         <svg width="13" height="13" viewBox="0 0 14 14" fill="none"><circle cx="3" cy="7" r="1.5" stroke="var(--accent)" strokeWidth="1.5"/><circle cx="11" cy="2.5" r="1.5" stroke="var(--accent)" strokeWidth="1.5"/><circle cx="11" cy="11.5" r="1.5" stroke="var(--accent)" strokeWidth="1.5"/><path d="M4.4 6.35L9.6 3.15M4.4 7.65L9.6 10.85" stroke="var(--accent)" strokeWidth="1.5" strokeLinecap="round"/></svg>
-        <span className="font-mono text-[10px] uppercase tracking-[0.18em]" style={{ color: 'var(--accent)' }}>Share your readiness report</span>
+        <span className="font-mono text-[11px] uppercase tracking-[0.18em]" style={{ color: 'var(--accent)' }}>Share your readiness report</span>
       </div>
       <div className="flex items-center gap-2">
-        <div className="flex-1 font-mono text-xs px-3 py-2 rounded-md truncate" style={{ background: 'rgba(0,0,0,0.3)', color: '#D1D5DB', border: '1px solid var(--border)' }}>{url}</div>
+        <div className="flex-1 min-w-0 font-mono text-xs px-3 py-2 rounded-md truncate" style={{ background: 'rgba(0,0,0,0.3)', color: '#D1D5DB', border: '1px solid var(--border)' }}>{url}</div>
         <button onClick={copy} className="shrink-0 text-xs px-3 py-2 rounded-md text-white hover:opacity-90 transition-opacity" style={{ background: 'var(--accent)' }}>
           {copied ? 'Copied!' : 'Copy link'}
         </button>
@@ -1262,10 +1307,10 @@ const PlanCalendar = ({ plan, expandedDay, setExpandedDay, state, onReset, repor
               {isExpanded && <div className="absolute left-0 top-0 bottom-0 w-[2px]" style={{ background: 'var(--accent)' }} />}
               {!isExpanded && isToday && <div className="absolute left-0 top-0 bottom-0 w-[2px]" style={{ background: '#22c55e' }} />}
               {!isExpanded && isMock && !isToday && <div className="absolute left-0 top-0 bottom-0 w-[2px]" style={{ background: '#3b82f6' }} />}
-              <div className="font-mono text-[9px] text-zinc-500">d{d.day}</div>
+              <div className="font-mono text-[10px] text-zinc-500">d{d.day}</div>
               <div className="font-mono text-base font-semibold text-zinc-50">{d.day}</div>
-              {isMock && <div className="text-[8px] text-blue-400 mt-0.5">mock</div>}
-              <div className="mt-0.5 text-[8px] text-zinc-500 truncate">{d.focus?.split('·')[0]?.trim()}</div>
+              {isMock && <div className="text-[9px] text-blue-400 mt-0.5">mock</div>}
+              <div className="mt-0.5 text-[9px] text-zinc-500 truncate">{d.focus?.split('·')[0]?.trim()}</div>
             </button>
           );
         })}
@@ -1279,7 +1324,7 @@ const PlanCalendar = ({ plan, expandedDay, setExpandedDay, state, onReset, repor
             <span className="text-base text-zinc-100 font-semibold">{expandedData.focus}</span>
             {expandedData.theme && <span className="text-[12px] text-zinc-400 hidden sm:block">{expandedData.theme}</span>}
             {expandedData.mockInterview && (
-              <span className="font-mono text-[10px] px-2 py-0.5 rounded border border-blue-500/40 bg-blue-500/[0.08] text-blue-400">
+              <span className="font-mono text-[11px] px-2 py-0.5 rounded border border-blue-500/40 bg-blue-500/[0.08] text-blue-400">
                 {expandedData.mockInterview.type} · {expandedData.mockInterview.duration}
               </span>
             )}
@@ -1338,7 +1383,7 @@ const PlanCalendar = ({ plan, expandedDay, setExpandedDay, state, onReset, repor
                 {(expandedData.practiceQuestions || []).map((q, i) => (
                   <div key={i} className="p-3 rounded-md" style={{ border: '1px solid rgba(59,111,212,0.2)', background: 'rgba(59,111,212,0.03)' }}>
                     <div className="flex items-start gap-2">
-                      <span className="font-mono text-[10px] shrink-0 mt-0.5" style={{ color: 'var(--accent)' }}>Q{i + 1}</span>
+                      <span className="font-mono text-[11px] shrink-0 mt-0.5" style={{ color: 'var(--accent)' }}>Q{i + 1}</span>
                       <span className="text-zinc-100 text-base leading-loose" style={{ fontFamily: 'inherit' }}>{q}</span>
                     </div>
                   </div>
@@ -1392,7 +1437,7 @@ const Stepper = ({ step }) => {
     <div className="flex items-center gap-2 mt-6 text-xs flex-wrap">
       {steps.map((s, i) => (
         <div key={s.id} className="flex items-center gap-2">
-          <div className={`font-mono w-5 h-5 rounded flex items-center justify-center text-[10px] transition-colors ${i < idx ? 'bg-emerald-500 text-zinc-950 font-semibold' : i === idx ? 'text-white font-semibold' : 'bg-zinc-900 text-zinc-600 border border-white/10'}`}
+          <div className={`font-mono w-5 h-5 rounded flex items-center justify-center text-[11px] transition-colors ${i < idx ? 'bg-emerald-500 text-zinc-950 font-semibold' : i === idx ? 'text-white font-semibold' : 'bg-zinc-900 text-zinc-600 border border-white/10'}`}
                style={i === idx ? { background: 'var(--accent)' } : {}}>
             {i < idx ? '✓' : i + 1}
           </div>

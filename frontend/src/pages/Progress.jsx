@@ -67,21 +67,21 @@ export default function Progress() {
             <Flame size={26} className="text-amber-500" fill="currentColor" />
             <div>
               <div className="font-mono text-4xl font-semibold text-zinc-50">{state.streak}</div>
-              <div className="font-mono text-[10px] uppercase tracking-[0.18em] text-zinc-600">days</div>
+              <div className="font-mono text-[11px] uppercase tracking-[0.18em] text-zinc-600">days</div>
             </div>
           </div>
           <div className="text-xs text-zinc-400 mt-4 flex justify-between">
             <span>longest</span><span className="font-mono text-zinc-100">{state.longestStreak}d</span>
           </div>
           <div className="mt-4 pt-4 border-t border-white/5">
-            <div className="font-mono text-[10px] uppercase tracking-[0.18em] text-zinc-600 mb-2">Freezes</div>
+            <div className="font-mono text-[11px] uppercase tracking-[0.18em] text-zinc-600 mb-2">Freezes</div>
             <div className="flex items-center gap-1.5">
               {Array.from({ length: 3 }).map((_, i) => (
                 <Snowflake key={i} size={18} className={i < state.streakFreezes ? 'text-blue-400' : 'text-zinc-800'}
                   fill={i < state.streakFreezes ? 'currentColor' : 'none'} />
               ))}
               <button data-testid="use-freeze" onClick={useFreeze}
-                className="ml-auto text-[10px] uppercase tracking-[0.18em] text-zinc-300 hover:text-zinc-50 border border-white/10 rounded px-2 py-1">
+                className="ml-auto text-[11px] uppercase tracking-[0.18em] text-zinc-300 hover:text-zinc-50 border border-white/10 rounded px-2 py-1">
                 use freeze
               </button>
             </div>
@@ -105,7 +105,7 @@ export default function Progress() {
             <PixelBar value={xpPct} height={12} color="var(--accent)" />
           </div>
           <div className="mt-5">
-            <div className="font-mono text-[10px] uppercase tracking-[0.18em] text-zinc-600 mb-2">XP by source · last 30 days</div>
+            <div className="font-mono text-[11px] uppercase tracking-[0.18em] text-zinc-600 mb-2">XP by source · last 30 days</div>
             {!hasRealActivity ? (
               <EmptyState className="text-xs">Earn XP from reviews, practice, or contributions to see a breakdown.</EmptyState>
             ) : (
@@ -136,7 +136,7 @@ export default function Progress() {
               {state.readiness}<span className="text-2xl text-zinc-700">%</span>
             </div>
             <div className="text-xs text-zinc-400 mt-2">{company?.name} {state.activePlan?.role}</div>
-            <div className="font-mono text-[10px] uppercase tracking-[0.18em] text-zinc-600 mt-1">target loop</div>
+            <div className="font-mono text-[11px] uppercase tracking-[0.18em] text-zinc-600 mt-1">target loop</div>
           </div>
           <div className="mt-5">
             <PixelBar value={state.readiness} height={14} color={readinessColor} dotColor={readinessColor} />
@@ -178,7 +178,7 @@ export default function Progress() {
                         for color-blind readers. */}
                     <div className="relative flex-1 min-w-0">
                       <PixelBar value={pct} height={16} color={color} dotColor={color} />
-                      <span className="absolute inset-0 flex items-center justify-end pr-1.5 font-mono text-[9px] font-semibold text-white/90" style={{ textShadow: '0 1px 2px rgba(0,0,0,0.6)' }}>
+                      <span className="absolute inset-0 flex items-center justify-end pr-1.5 font-mono text-[10px] font-semibold text-white/90" style={{ textShadow: '0 1px 2px rgba(0,0,0,0.6)' }}>
                         {pct}%
                       </span>
                     </div>
@@ -206,7 +206,7 @@ export default function Progress() {
                   }`} />
                   <div className="flex-1 min-w-0">
                     <div className="text-zinc-100 truncate">{e.label}</div>
-                    <div className="font-mono text-[10px] uppercase tracking-[0.18em] text-zinc-600">{e.source} · {e.ago}</div>
+                    <div className="font-mono text-[11px] uppercase tracking-[0.18em] text-zinc-600">{e.source} · {e.ago}</div>
                   </div>
                   <div className="font-mono text-emerald-400">+{e.amount}</div>
                 </div>
@@ -229,7 +229,7 @@ const Card = ({ children, className = '', testid }) => (
 );
 
 const Eyebrow = ({ children }) => (
-  <div className="font-mono text-[10px] uppercase tracking-[0.22em] text-zinc-600">{children}</div>
+  <div className="font-mono text-[11px] uppercase tracking-[0.22em] text-zinc-600">{children}</div>
 );
 
 const EmptyState = ({ children, className = '' }) => (

@@ -67,7 +67,7 @@ export const DepthChallenge = ({ open, onOpenChange, skill, company, role, onCom
               <div key={l.level} className="flex-1 text-center">
                 <div className="h-1.5 rounded-full mb-1.5 transition-colors"
                   style={{ background: passed ? 'var(--diff-easy)' : active ? 'var(--accent)' : 'var(--border-2)' }} />
-                <div className="font-mono text-[9px] uppercase tracking-wider" style={{ color: passed ? 'var(--diff-easy)' : active ? 'var(--accent)' : 'var(--text-3)' }}>
+                <div className="font-mono text-[10px] uppercase tracking-wider" style={{ color: passed ? 'var(--diff-easy)' : active ? 'var(--accent)' : 'var(--text-3)' }}>
                   {l.name}
                 </div>
               </div>
@@ -89,7 +89,7 @@ export const DepthChallenge = ({ open, onOpenChange, skill, company, role, onCom
         {/* Active question */}
         {current && !result && (
           <div className="mt-4">
-            <div className="font-mono text-[10px] uppercase tracking-[0.18em] mb-2" style={{ color: 'var(--accent)' }}>
+            <div className="font-mono text-[11px] uppercase tracking-[0.18em] mb-2" style={{ color: 'var(--accent)' }}>
               Level {current.level} · {DEPTH_LEVELS.find(l => l.level === current.level)?.name}
             </div>
             <p className="text-[15px] font-medium leading-snug mb-3" style={{ color: 'var(--text-1)' }}>{current.question}</p>
@@ -125,7 +125,7 @@ export const DepthChallenge = ({ open, onOpenChange, skill, company, role, onCom
             <div className="flex items-center gap-4 rounded-xl p-4 mb-4" style={{ border: '1px solid var(--border)', background: 'var(--surface)' }}>
               <div className="text-center shrink-0">
                 <div className="font-mono text-4xl font-bold leading-none" style={{ color: depthColor(score) }}>{score}<span className="text-lg">%</span></div>
-                <div className="font-mono text-[10px] uppercase tracking-wider mt-1" style={{ color: 'var(--text-3)' }}>Depth</div>
+                <div className="font-mono text-[11px] uppercase tracking-wider mt-1" style={{ color: 'var(--text-3)' }}>Depth</div>
               </div>
               <div className="text-sm">
                 <div className="font-medium mb-1" style={{ color: 'var(--text-1)' }}>

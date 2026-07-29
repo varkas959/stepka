@@ -46,7 +46,7 @@ function QuestionList({ questions, title }) {
 function RelatedLinks({ currentKind, currentSlug }) {
   return (
     <div className="mt-12 pt-8 border-t border-white/5">
-      <h3 className="font-mono text-[10px] uppercase tracking-[0.22em] text-zinc-600 mb-4">Browse more</h3>
+      <h3 className="font-mono text-[11px] uppercase tracking-[0.22em] text-zinc-600 mb-4">Browse more</h3>
       <div className="flex flex-wrap gap-2">
         {ACTIVE_COMPANIES.slice(0, 8).map(c => (
           <Link key={c.id} to={`/questions/company/${slugify(c.name)}`}

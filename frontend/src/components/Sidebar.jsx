@@ -56,7 +56,7 @@ export const Sidebar = ({ user, isGuest, onSignOut }) => {
   const navContent = (
     <>
       <div className="px-3 pt-4 flex-1 overflow-y-auto">
-        <div className="font-mono text-[10px] uppercase tracking-[0.14em] px-2 mb-2" style={{ color: T3 }}>
+        <div className="font-mono text-[11px] uppercase tracking-[0.14em] px-2 mb-2" style={{ color: T3 }}>
           Workspace
         </div>
         <nav className="space-y-0.5" data-testid="sidebar-nav">
@@ -80,7 +80,7 @@ export const Sidebar = ({ user, isGuest, onSignOut }) => {
                   <Icon size={16} strokeWidth={isActive ? 2.2 : 1.7} style={{ color: isActive ? ACC : T3 }} />
                   <span className="flex-1">{label}</span>
                   {badge && dueToday > 0 && (
-                    <span className="text-[10px] px-1.5 py-0.5 rounded font-mono"
+                    <span className="text-[11px] px-1.5 py-0.5 rounded font-mono"
                           style={{ background: 'var(--accent-20)', color: ACC, border: '1px solid var(--accent-35)' }}>
                       {dueToday}
                     </span>
@@ -123,7 +123,7 @@ export const Sidebar = ({ user, isGuest, onSignOut }) => {
             </div>
             <div className="flex-1 min-w-0">
               <div className="text-sm font-medium truncate" style={{ color: T1 }}>{user?.name?.split(' ')[0] || 'User'}</div>
-              <div className="text-[10px]" style={{ color: T3 }}>Level {state.level} · {state.streak} streak</div>
+              <div className="text-[11px]" style={{ color: T3 }}>Level {state.level} · {state.streak} streak</div>
             </div>
           </Link>
         )}
@@ -178,7 +178,7 @@ export const Sidebar = ({ user, isGuest, onSignOut }) => {
                     style={{ borderColor: filterCount > 0 ? ACC : BDR, color: filterCount > 0 ? ACC : T3 }}>
               <SlidersHorizontal size={17} strokeWidth={1.7} />
               {filterCount > 0 && (
-                <span className="absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full text-[10px] font-bold flex items-center justify-center text-white"
+                <span className="absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full text-[11px] font-bold flex items-center justify-center text-white"
                       style={{ background: ACC }}>{filterCount}</span>
               )}
             </button>
@@ -275,11 +275,11 @@ export const Sidebar = ({ user, isGuest, onSignOut }) => {
                      style={{ background: isActive ? 'rgba(59,111,212,0.12)' : 'transparent' }}>
                   <Icon size={20} strokeWidth={isActive ? 2.2 : 1.6} />
                   {badge && dueToday > 0 && (
-                    <span className="absolute -top-1 -right-1 w-3.5 h-3.5 rounded-full text-[8px] font-bold flex items-center justify-center text-white"
+                    <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full text-[9px] font-bold flex items-center justify-center text-white"
                           style={{ background: ACC }}>{dueToday}</span>
                   )}
                 </div>
-                <span className="text-[10px]" style={{ fontWeight: isActive ? 600 : 400 }}>{label}</span>
+                <span className="text-[11px]" style={{ fontWeight: isActive ? 600 : 400 }}>{label}</span>
               </>
             )}
           </NavLink>

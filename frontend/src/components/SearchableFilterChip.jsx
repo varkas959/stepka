@@ -76,7 +76,7 @@ export const SearchableFilterChip = ({
           ))}
           {grouped && Object.entries(grouped).map(([g, items]) => (
             <div key={g}>
-              <div className="px-3 py-1 text-[10px] uppercase tracking-[0.14em] text-zinc-600 font-mono">{g}</div>
+              <div className="px-3 py-1 text-[11px] uppercase tracking-[0.14em] text-zinc-600 font-mono">{g}</div>
               {items.map(o => (
                 <Row key={o.id} option={o} selected={value === o.id}
                   onSelect={() => { onChange(o.id); setOpen(false); setQ(''); }}

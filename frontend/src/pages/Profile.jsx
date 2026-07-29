@@ -41,7 +41,7 @@ export default function Profile({ session, onSignOut }) {
           </div>
           <div>
             <div className="text-zinc-100 text-sm font-medium">{user.email || 'unknown'}</div>
-            <div className="font-mono text-[10px] uppercase tracking-[0.18em] text-zinc-600 mt-0.5">
+            <div className="font-mono text-[11px] uppercase tracking-[0.18em] text-zinc-600 mt-0.5">
               signed in via {user.provider || 'oauth'} · level {state.level}
             </div>
           </div>
@@ -90,7 +90,7 @@ export default function Profile({ session, onSignOut }) {
       <div className="mt-10 rounded-lg border border-red-500/30 bg-red-500/[0.04] p-5" data-testid="danger-zone">
         <div className="flex items-center gap-2 mb-3">
           <AlertTriangle size={15} className="text-red-400" />
-          <div className="font-mono text-[10px] uppercase tracking-[0.22em] text-red-400">Danger zone</div>
+          <div className="font-mono text-[11px] uppercase tracking-[0.22em] text-red-400">Danger zone</div>
         </div>
         <p className="text-sm text-zinc-300">Permanently delete your account and all associated progress.</p>
         <button data-testid="delete-account" onClick={dangerDelete}
@@ -106,7 +106,7 @@ const Section = ({ icon: Icon, title, children }) => (
   <div className="mt-7 rounded-lg border border-white/10 bg-zinc-950 p-5">
     <div className="flex items-center gap-2 mb-4">
       <Icon size={14} strokeWidth={1.75} style={{ color: 'var(--accent)' }} />
-      <div className="font-mono text-[10px] uppercase tracking-[0.22em] text-zinc-600">{title}</div>
+      <div className="font-mono text-[11px] uppercase tracking-[0.22em] text-zinc-600">{title}</div>
     </div>
     {children}
   </div>
@@ -114,7 +114,7 @@ const Section = ({ icon: Icon, title, children }) => (
 
 const Field = ({ label, hint, children }) => (
   <div className="mb-3">
-    <div className="font-mono text-[10px] uppercase tracking-[0.18em] text-zinc-500 mb-1.5">{label}</div>
+    <div className="font-mono text-[11px] uppercase tracking-[0.18em] text-zinc-500 mb-1.5">{label}</div>
     {children}
     {hint && <div className="text-[11px] text-zinc-600 mt-1.5">// {hint}</div>}
   </div>

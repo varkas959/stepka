@@ -26,11 +26,11 @@ export const ContributionHeatmap = () => {
         </div>
       ))}
       <div className="ml-3 flex flex-col justify-end gap-1.5">
-        <div className="text-[10px] uppercase tracking-[0.18em] text-zinc-500">Less</div>
+        <div className="text-[11px] uppercase tracking-[0.18em] text-zinc-500">Less</div>
         <div className="flex gap-1">
           {COLORS.map((c, i) => <div key={i} className="w-3 h-3 rounded-[3px]" style={{ background: c }} />)}
         </div>
-        <div className="text-[10px] uppercase tracking-[0.18em] text-zinc-500">More</div>
+        <div className="text-[11px] uppercase tracking-[0.18em] text-zinc-500">More</div>
       </div>
     </div>
   );

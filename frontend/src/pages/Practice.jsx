@@ -197,10 +197,10 @@ const FeedbackPanel = ({ feedback }) => {
   const overallColor = overall < 2.5 ? '#ef4444' : overall < 3.8 ? ACC : '#22c55e';
   return (
     <section className="mt-4 rounded-lg border border-white/10 bg-zinc-950 p-6 animate-fade-up" data-testid="feedback-panel">
-      <div className="font-mono text-[10px] uppercase tracking-[0.22em] text-zinc-600 mb-4">Ai feedback</div>
+      <div className="font-mono text-[11px] uppercase tracking-[0.22em] text-zinc-600 mb-4">Ai feedback</div>
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div>
-          <div className="font-mono text-[10px] uppercase tracking-[0.22em] text-zinc-600">Overall</div>
+          <div className="font-mono text-[11px] uppercase tracking-[0.22em] text-zinc-600">Overall</div>
           <div className="mt-2 flex items-baseline gap-2">
             <div className="font-mono text-5xl font-semibold" style={{ color: overallColor }}>{feedback.overall}</div>
             <div className="font-mono text-zinc-600">/ 5</div>
@@ -222,7 +222,7 @@ const FeedbackPanel = ({ feedback }) => {
         </div>
 
         <div className="lg:col-span-2">
-          <div className="font-mono text-[10px] uppercase tracking-[0.22em] text-zinc-600">Notes</div>
+          <div className="font-mono text-[11px] uppercase tracking-[0.22em] text-zinc-600">Notes</div>
           <p className="mt-2 text-zinc-100 leading-relaxed" style={{ fontFamily: 'inherit' }}>{feedback.text}</p>
 
           <div className="mt-5 rounded-md p-4 flex items-center gap-4"

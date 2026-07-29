@@ -31,7 +31,7 @@ export const AuthGate = () => {
         <div className="relative z-10 max-w-md">
           <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded border border-white/10 bg-black/40 mb-6">
             <Sparkles size={12} style={{ color: 'var(--accent)' }} />
-            <span className="text-[10px] uppercase tracking-[0.22em] text-zinc-300">Built for engineers in motion</span>
+            <span className="text-[11px] uppercase tracking-[0.22em] text-zinc-300">Built for engineers in motion</span>
           </div>
           <h1 className="text-5xl font-semibold leading-[0.95] tracking-tight text-zinc-50">
             Real questions.
@@ -45,11 +45,11 @@ export const AuthGate = () => {
           <div className="mt-10 flex gap-8 font-mono text-xs">
             <div>
               <div className="text-zinc-50 text-2xl font-semibold">60+</div>
-              <div className="text-zinc-500 uppercase tracking-[0.18em] mt-1 text-[10px]">verified questions</div>
+              <div className="text-zinc-500 uppercase tracking-[0.18em] mt-1 text-[11px]">verified questions</div>
             </div>
             <div>
               <div className="text-zinc-50 text-2xl font-semibold">20</div>
-              <div className="text-zinc-500 uppercase tracking-[0.18em] mt-1 text-[10px]">companies tracked</div>
+              <div className="text-zinc-500 uppercase tracking-[0.18em] mt-1 text-[11px]">companies tracked</div>
             </div>
           </div>
         </div>
@@ -62,7 +62,7 @@ export const AuthGate = () => {
             <div className="w-9 h-9 rounded-md flex items-center justify-center font-bold text-white" style={{ background: 'var(--accent)' }}>S</div>
             <div>
               <div className="text-lg font-semibold tracking-tight">Stepkai</div>
-              <div className="text-[10px] uppercase tracking-[0.22em] text-zinc-500">interview prep</div>
+              <div className="text-[11px] uppercase tracking-[0.22em] text-zinc-500">interview prep</div>
             </div>
           </div>
 
@@ -99,7 +99,7 @@ export const AuthGate = () => {
 
           <div className="my-7 flex items-center gap-3">
             <div className="flex-1 h-px bg-white/10" />
-            <span className="text-[10px] uppercase tracking-[0.22em] text-zinc-600">single sign-on</span>
+            <span className="text-[11px] uppercase tracking-[0.22em] text-zinc-600">single sign-on</span>
             <div className="flex-1 h-px bg-white/10" />
           </div>
 

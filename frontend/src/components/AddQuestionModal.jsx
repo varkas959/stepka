@@ -106,7 +106,7 @@ export const AddQuestionModal = ({ open, onOpenChange, onAdded, userId, embedded
 
           {/* Contributor profile */}
           <div className="rounded-md border border-white/8 p-4" style={{ background: 'var(--inset)' }}>
-            <div className="font-mono text-[10px] uppercase tracking-[0.18em] text-zinc-500 mb-3">Your profile on this question</div>
+            <div className="font-mono text-[11px] uppercase tracking-[0.18em] text-zinc-500 mb-3">Your profile on this question</div>
             <div className="space-y-2">
               {PROFILE_OPTIONS.map(opt => (
                 <label key={opt.id} className="flex items-start gap-3 cursor-pointer group">
@@ -129,7 +129,7 @@ export const AddQuestionModal = ({ open, onOpenChange, onAdded, userId, embedded
           </div>
 
           <div>
-            <div className="font-mono text-[10px] uppercase tracking-[0.18em] text-zinc-500 mb-1.5">question body</div>
+            <div className="font-mono text-[11px] uppercase tracking-[0.18em] text-zinc-500 mb-1.5">question body</div>
             <textarea
               data-testid="aq-body"
               value={form.body}
@@ -148,7 +148,7 @@ export const AddQuestionModal = ({ open, onOpenChange, onAdded, userId, embedded
             <div className="rounded-md border border-red-500/40 bg-red-500/[0.06] p-3 animate-fade-up" data-testid="moderation-warning">
               <div className="flex items-center gap-2 mb-1.5">
                 <AlertTriangle size={13} className="text-red-400" />
-                <div className="font-mono text-[10px] uppercase tracking-[0.18em] text-red-400">Submission blocked by moderation</div>
+                <div className="font-mono text-[11px] uppercase tracking-[0.18em] text-red-400">Submission blocked by moderation</div>
               </div>
               <ul className="text-xs text-red-300 list-disc ml-5 space-y-0.5">
                 {violations.map((v, i) => (

@@ -3,7 +3,7 @@ import { COMPANIES } from '../lib/mockData';
 export const CompanyBadge = ({ companyId, size = 'md', testIdPrefix = 'company-badge' }) => {
   const c = COMPANIES.find(x => x.id === companyId) || COMPANIES[0];
   const sizes = {
-    sm: 'w-6 h-6 text-[10px]',
+    sm: 'w-6 h-6 text-[11px]',
     md: 'w-8 h-8 text-xs',
     lg: 'w-10 h-10 text-sm',
   };

@@ -203,10 +203,10 @@ const QueueView = ({ state, breakdown, total, onStart }) => {
   );
 };
 
-const KindLabels = { concept: 'concept', coding: 'coding', star: 'star behavioral' };
+const KindLabels = { concept: 'concept', coding: 'coding', star: 'behavioral' };
 const KindCard = ({ kind, value }) => (
-  <div className="rounded-md px-4 py-3" style={{ border: '1px solid ' + C.border, background: C.bg2 }}>
-    <div className="font-mono text-[10px] uppercase tracking-[0.18em]" style={{ color: C.text3 }}>{KindLabels[kind]}</div>
+  <div className="rounded-md px-3 py-3 min-w-0" style={{ border: '1px solid ' + C.border, background: C.bg2 }}>
+    <div className="font-mono text-[11px] uppercase tracking-[0.1em] truncate" style={{ color: C.text3 }}>{KindLabels[kind]}</div>
     <div className="font-mono text-2xl font-semibold mt-1" style={{ color: C.text1 }}>{value}</div>
   </div>
 );
@@ -243,11 +243,11 @@ const SessionView = ({ card, idx, flipped, setFlipped, onRate, onExit }) => {
                 style={{ border: '1px solid ' + C.border, background: C.bg2 }}>
                 <div className="absolute left-0 top-0 bottom-0 w-[2px]" style={{ background: C.accent }} />
                 <div className="flex items-center gap-2 mb-4">
-                  <span className="font-mono text-[10px] uppercase tracking-[0.18em]" style={{ color: C.text3 }}>{card.topic}</span>
+                  <span className="font-mono text-[11px] uppercase tracking-[0.18em]" style={{ color: C.text3 }}>{card.topic}</span>
                   <span style={{ color: C.border2 }}>.</span>
-                  <span className="font-mono text-[10px] uppercase tracking-[0.18em]" style={{ color: C.text3 }}>{card.kind}</span>
+                  <span className="font-mono text-[11px] uppercase tracking-[0.18em]" style={{ color: C.text3 }}>{card.kind}</span>
                   <span style={{ color: C.border2 }}>.</span>
-                  <span className="font-mono text-[10px] uppercase tracking-[0.18em]" style={{ color: C.text3 }}>{card.company}</span>
+                  <span className="font-mono text-[11px] uppercase tracking-[0.18em]" style={{ color: C.text3 }}>{card.company}</span>
                 </div>
                 <div className="flex-1 flex items-center">
                   <div className="text-xl md:text-2xl leading-relaxed" style={{ color: C.text1 }}>
@@ -261,7 +261,7 @@ const SessionView = ({ card, idx, flipped, setFlipped, onRate, onExit }) => {
               <div className="relative w-full h-full p-8 rounded-lg flex flex-col overflow-hidden"
                    style={{ border: '1px solid rgba(34,197,94,0.3)', background: 'rgba(34,197,94,0.04)' }}>
                 <div className="absolute left-0 top-0 bottom-0 w-[2px]" style={{ background: C.green }} />
-                <div className="font-mono text-[10px] uppercase tracking-[0.22em] mb-3" style={{ color: '#4ADE80' }}>Answer hint</div>
+                <div className="font-mono text-[11px] uppercase tracking-[0.22em] mb-3" style={{ color: '#4ADE80' }}>Answer hint</div>
                 <div className="text-base md:text-lg leading-relaxed flex-1" style={{ color: C.text1 }}>
                   {card.back}
                 </div>
@@ -288,10 +288,10 @@ const SessionView = ({ card, idx, flipped, setFlipped, onRate, onExit }) => {
                   style={s}>
                   <div className="flex items-center gap-2">
                     <span className="text-base font-medium">{r.label}</span>
-                    <span className="ml-auto font-mono text-[10px] rounded px-1.5 py-0.5"
+                    <span className="ml-auto font-mono text-[11px] rounded px-1.5 py-0.5"
                           style={{ color: C.text3, border: '1px solid ' + C.border }}>{r.shortcut}</span>
                   </div>
-                  <div className="text-[10px] mt-2" style={{ color: C.text3 }}>see again in {r.nextDays}d</div>
+                  <div className="text-[11px] mt-2" style={{ color: C.text3 }}>see again in {r.nextDays}d</div>
                 </button>
               );
             })}
@@ -325,7 +325,7 @@ const DoneView = ({ ratings, state, onContinue, onAgain }) => {
       </div>
 
       <div className="mt-6 rounded-lg p-6" style={{ border: '1px solid ' + C.border, background: C.bg2 }}>
-        <div className="font-mono text-[10px] uppercase tracking-[0.22em] mb-4" style={{ color: C.text3 }}>Rating breakdown</div>
+        <div className="font-mono text-[11px] uppercase tracking-[0.22em] mb-4" style={{ color: C.text3 }}>Rating breakdown</div>
         <div className="space-y-3">
           {RATING_OPTIONS.map(r => {
             const count = breakdown[r.label] || 0;
@@ -363,7 +363,7 @@ const StatBox = ({ label, value, accent }) => (
          border: accent ? '1px solid rgba(34,197,94,0.3)' : '1px solid ' + C.border,
          background: accent ? 'rgba(34,197,94,0.04)' : C.bg2,
        }}>
-    <div className="font-mono text-[10px] uppercase tracking-[0.22em]" style={{ color: C.text3 }}>{label}</div>
+    <div className="font-mono text-[11px] uppercase tracking-[0.22em]" style={{ color: C.text3 }}>{label}</div>
     <div className="font-mono text-2xl font-semibold mt-1" style={{ color: accent ? '#4ADE80' : C.text1 }}>{value}</div>
   </div>
 );

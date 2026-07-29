@@ -19,7 +19,7 @@ export const ActivePlanBanner = () => {
         {/* Day x/y + pixel bar + pct */}
         <div className="flex items-center gap-2 sm:gap-3 shrink-0 min-w-0">
           <div className="font-mono text-xs sm:text-sm">
-            <span className="text-zinc-500 uppercase tracking-[0.18em] text-[10px] mr-2 hidden sm:inline">Day</span>
+            <span className="text-zinc-500 uppercase tracking-[0.18em] text-[11px] mr-2 hidden sm:inline">Day</span>
             <span className="text-zinc-50 font-semibold">{plan.currentDay}</span>
             <span className="text-zinc-700">/{plan.totalDays}</span>
           </div>
@@ -43,7 +43,7 @@ export const ActivePlanBanner = () => {
         <button
           data-testid="start-plan-day"
           onClick={() => navigate('/app/plan')}
-          className="ml-auto shrink-0 inline-flex items-center gap-2 text-[10px] sm:text-sm font-semibold uppercase tracking-[0.14em] px-3 sm:px-5 py-2 sm:py-2.5 rounded-md text-white hover:opacity-90 transition-opacity"
+          className="ml-auto shrink-0 inline-flex items-center gap-2 text-[11px] sm:text-sm font-semibold uppercase tracking-[0.14em] px-3 sm:px-5 py-2 sm:py-2.5 rounded-md text-white hover:opacity-90 transition-opacity"
           style={{ background: 'var(--accent)' }}
         >
           <span className="hidden sm:inline">Begin session</span><span className="sm:hidden">Begin</span> <ArrowRight size={14} strokeWidth={2.5} />

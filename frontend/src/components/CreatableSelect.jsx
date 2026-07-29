@@ -37,7 +37,7 @@ export const CreatableSelect = ({
 
   return (
     <label className="block">
-      <div className="font-mono text-[10px] uppercase tracking-[0.18em] text-zinc-500 mb-1.5">{label}</div>
+      <div className="font-mono text-[11px] uppercase tracking-[0.18em] text-zinc-500 mb-1.5">{label}</div>
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <button type="button" data-testid={`creatable-${testid}`}

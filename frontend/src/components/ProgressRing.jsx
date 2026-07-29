@@ -21,7 +21,7 @@ export const ProgressRing = ({ value, max = 100, size = 120, stroke = 8, label, 
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center">
         <div className="font-mono text-2xl font-semibold tracking-tight" style={{ color: ringColor }}>{label ?? value}</div>
-        {sublabel && <div className="text-[10px] uppercase tracking-[0.18em] text-zinc-500 mt-0.5">{sublabel}</div>}
+        {sublabel && <div className="text-[11px] uppercase tracking-[0.18em] text-zinc-500 mt-0.5">{sublabel}</div>}
       </div>
     </div>
   );

@@ -16,7 +16,6 @@ import { supabase } from '../lib/supabaseClient';
 import { ContributeModal } from '../components/ContributeModal';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '../components/ui/dialog';
 import { PixelBar } from '../components/PixelBar';
-import { SearchableFilterChip } from '../components/SearchableFilterChip';
 import { SignInRequiredModal } from '../components/SignInRequiredModal';
 import { useIsMobile } from '../lib/useIsMobile';
 
@@ -56,9 +55,6 @@ const FILTER_DEFS = [
 const PRIMARY_KEYS   = ['company', 'role', 'difficulty', 'experience', 'topic'];
 const PRIMARY_FILTERS   = PRIMARY_KEYS.map(k => FILTER_DEFS.find(d => d.key === k));
 const SECONDARY_FILTERS = FILTER_DEFS.filter(d => !PRIMARY_KEYS.includes(d.key));
-const MOBILE_FILTER_KEYS = ['company', 'role', 'difficulty', 'topic'];
-const MOBILE_FILTERS = MOBILE_FILTER_KEYS.map(k => FILTER_DEFS.find(d => d.key === k));
-
 const TABS = [
   { id: 'latest',    label: 'Latest',    type: 'sort' },
   { id: 'trending',  label: 'Trending',  type: 'sort' },
@@ -304,7 +300,7 @@ export default function QuestionBank({ isGuest = false, userId }) {
                 style={{ color: activeFilterCount > 0 ? 'var(--accent)' : 'var(--text-3)' }}>
           <SlidersHorizontal size={18} />
           {activeFilterCount > 0 && (
-            <span className="absolute -top-2 -right-2 w-4 h-4 rounded-full text-[10px] font-bold flex items-center justify-center text-white"
+            <span className="absolute -top-2 -right-2 w-4 h-4 rounded-full text-[11px] font-bold flex items-center justify-center text-white"
                   style={{ background: 'var(--accent)' }}>{activeFilterCount}</span>
           )}
         </button>
@@ -487,6 +483,100 @@ export default function QuestionBank({ isGuest = false, userId }) {
 }
 
 // ── Filter Sheet (mobile bottom sheet) ───────────────────────────────────────
+// A single filter category's chip list. Categories with more than 8 options
+// (company, topic) get an inline search — scrolling through 24+ unsearchable
+// chips is exactly the cognitive-load failure this whole panel used to be.
+function FilterGroup({ def, value, onSelect, dense }) {
+  const [q, setQ] = useState('');
+  const needsSearch = def.options.length > 8;
+  const filtered = needsSearch && q.trim()
+    ? def.options.filter(o => o.label.toLowerCase().includes(q.trim().toLowerCase()))
+    : def.options;
+  const visible = filtered.slice(0, 40);
+
+  if (def.key === 'difficulty') {
+    return (
+      <div className="flex gap-2">
+        {def.options.map(opt => (
+          <button key={opt.id} onClick={() => onSelect(opt.id)}
+            className={`flex-1 rounded-xl font-medium transition-colors ${dense ? 'py-2.5 text-sm' : 'py-2 rounded-lg text-xs'}`}
+            style={{
+              background: value === opt.id ? 'var(--accent)' : 'var(--inset)',
+              color: value === opt.id ? '#fff' : 'var(--text-2)',
+              border: `1px solid ${value === opt.id ? 'var(--accent)' : 'var(--border)'}`,
+            }}>
+            {opt.label}
+          </button>
+        ))}
+      </div>
+    );
+  }
+
+  return (
+    <div>
+      {needsSearch && (
+        <input value={q} onChange={e => setQ(e.target.value)} placeholder={`Search ${def.label.toLowerCase()}…`}
+          className="w-full mb-2 px-2.5 py-1.5 rounded-md text-xs outline-none"
+          style={{ background: 'var(--inset)', border: '1px solid var(--border)', color: 'var(--text-1)' }} />
+      )}
+      <div className={`flex flex-wrap ${dense ? 'gap-2' : 'gap-1.5'}`}>
+        {visible.map(opt => (
+          <button key={opt.id} onClick={() => onSelect(opt.id)}
+            className={`rounded-full text-xs transition-colors ${dense ? 'px-3 py-1.5' : 'px-2.5 py-1'}`}
+            style={{
+              background: value === opt.id ? 'var(--accent-20)' : 'var(--inset)',
+              color: value === opt.id ? 'var(--accent)' : 'var(--text-2)',
+              border: `1px solid ${value === opt.id ? 'var(--accent-35)' : 'var(--border)'}`,
+            }}>
+            {opt.label}
+          </button>
+        ))}
+        {needsSearch && filtered.length === 0 && (
+          <div className="text-xs py-1" style={{ color: 'var(--text-3)' }}>No matches</div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// Shared filter-panel body: the 5 primary filters always visible, the
+// remaining 3 (category/tech/round) behind "More filters" — showing all 8
+// flat, each with up to 24 unsearchable chips, was the single biggest
+// cognitive-load failure on the site's primary discovery surface.
+function FilterPanelBody({ draft, setD, dense, gridClassName }) {
+  const [showMore, setShowMore] = useState(SECONDARY_FILTERS.some(d => draft[d.key] !== ALL));
+  return (
+    <>
+      <div className={gridClassName}>
+        {PRIMARY_FILTERS.map(def => (
+          <div key={def.key}>
+            <div className={`font-semibold uppercase tracking-wider ${dense ? 'text-[11px] mb-2.5' : 'text-[11px] mb-2'}`} style={{ color: 'var(--text-3)' }}>
+              {def.label}
+            </div>
+            <FilterGroup def={def} value={draft[def.key]} onSelect={id => setD(def.key, id)} dense={dense} />
+          </div>
+        ))}
+      </div>
+      <button onClick={() => setShowMore(s => !s)}
+        className="mt-4 text-xs font-medium" style={{ color: 'var(--accent)' }}>
+        {showMore ? 'Hide more filters' : `More filters (${SECONDARY_FILTERS.length})`}
+      </button>
+      {showMore && (
+        <div className={`${gridClassName} mt-4`}>
+          {SECONDARY_FILTERS.map(def => (
+            <div key={def.key}>
+              <div className={`font-semibold uppercase tracking-wider ${dense ? 'text-[11px] mb-2.5' : 'text-[11px] mb-2'}`} style={{ color: 'var(--text-3)' }}>
+                {def.label}
+              </div>
+              <FilterGroup def={def} value={draft[def.key]} onSelect={id => setD(def.key, id)} dense={dense} />
+            </div>
+          ))}
+        </div>
+      )}
+    </>
+  );
+}
+
 function FilterSheet({ open, filters, onApply, onClose }) {
   const [draft, setDraft] = useState(filters);
   useEffect(() => { if (open) setDraft(filters); }, [open]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -510,42 +600,7 @@ function FilterSheet({ open, filters, onApply, onClose }) {
         </div>
         {/* scrollable body */}
         <div className="flex-1 overflow-y-auto px-5 py-4">
-          {FILTER_DEFS.map(def => (
-            <div key={def.key} className="mb-6">
-              <div className="text-[11px] font-semibold uppercase tracking-wider mb-2.5" style={{ color: 'var(--text-3)' }}>
-                {def.label}
-              </div>
-              {def.key === 'difficulty' ? (
-                <div className="flex gap-2">
-                  {def.options.map(opt => (
-                    <button key={opt.id} onClick={() => setD(def.key, opt.id)}
-                      className="flex-1 py-2.5 rounded-xl text-sm font-medium transition-colors"
-                      style={{
-                        background: draft[def.key] === opt.id ? 'var(--accent)' : 'var(--inset)',
-                        color: draft[def.key] === opt.id ? '#fff' : 'var(--text-2)',
-                        border: `1px solid ${draft[def.key] === opt.id ? 'var(--accent)' : 'var(--border)'}`,
-                      }}>
-                      {opt.label}
-                    </button>
-                  ))}
-                </div>
-              ) : (
-                <div className="flex flex-wrap gap-2">
-                  {def.options.slice(0, 24).map(opt => (
-                    <button key={opt.id} onClick={() => setD(def.key, opt.id)}
-                      className="px-3 py-1.5 rounded-full text-xs transition-colors"
-                      style={{
-                        background: draft[def.key] === opt.id ? 'var(--accent-20)' : 'var(--inset)',
-                        color: draft[def.key] === opt.id ? 'var(--accent)' : 'var(--text-2)',
-                        border: `1px solid ${draft[def.key] === opt.id ? 'var(--accent-35)' : 'var(--border)'}`,
-                      }}>
-                      {opt.label}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-          ))}
+          <FilterPanelBody draft={draft} setD={setD} dense gridClassName="space-y-5" />
         </div>
         {/* footer */}
         <div className="shrink-0 flex gap-3 px-5 py-4 border-t" style={{ borderColor: 'var(--border)', paddingBottom: 'calc(1rem + env(safe-area-inset-bottom))' }}>
@@ -580,43 +635,8 @@ function FilterModal({ open, filters, onApply, onClose }) {
           <DialogTitle className="text-lg font-semibold" style={{ color: 'var(--text-1)' }}>Filters</DialogTitle>
           <DialogDescription style={{ color: 'var(--text-3)' }}>Narrow down interview questions</DialogDescription>
         </DialogHeader>
-        <div className="grid grid-cols-2 gap-x-8 gap-y-5 mt-2">
-          {FILTER_DEFS.map(def => (
-            <div key={def.key}>
-              <div className="text-[11px] font-semibold uppercase tracking-wider mb-2" style={{ color: 'var(--text-3)' }}>
-                {def.label}
-              </div>
-              {def.key === 'difficulty' ? (
-                <div className="flex gap-2">
-                  {def.options.map(opt => (
-                    <button key={opt.id} onClick={() => setD(def.key, opt.id)}
-                      className="flex-1 py-2 rounded-lg text-xs font-medium transition-colors"
-                      style={{
-                        background: draft[def.key] === opt.id ? 'var(--accent)' : 'var(--inset)',
-                        color: draft[def.key] === opt.id ? '#fff' : 'var(--text-2)',
-                        border: `1px solid ${draft[def.key] === opt.id ? 'var(--accent)' : 'var(--border)'}`,
-                      }}>
-                      {opt.label}
-                    </button>
-                  ))}
-                </div>
-              ) : (
-                <div className="flex flex-wrap gap-1.5">
-                  {def.options.slice(0, 20).map(opt => (
-                    <button key={opt.id} onClick={() => setD(def.key, opt.id)}
-                      className="px-2.5 py-1 rounded-full text-xs transition-colors"
-                      style={{
-                        background: draft[def.key] === opt.id ? 'var(--accent-20)' : 'var(--inset)',
-                        color: draft[def.key] === opt.id ? 'var(--accent)' : 'var(--text-2)',
-                        border: `1px solid ${draft[def.key] === opt.id ? 'var(--accent-35)' : 'var(--border)'}`,
-                      }}>
-                      {opt.label}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-          ))}
+        <div className="mt-2">
+          <FilterPanelBody draft={draft} setD={setD} dense={false} gridClassName="grid grid-cols-2 gap-x-8 gap-y-5" />
         </div>
         <div className="flex gap-3 mt-6 pt-4 border-t" style={{ borderColor: 'var(--border)' }}>
           <button onClick={() => setDraft(EMPTY_FILTERS)}
@@ -652,7 +672,7 @@ function IntelligenceStrip({ topics, onTopicClick }) {
             style={{ borderColor: 'var(--border)', color: 'var(--text-2)', background: 'var(--surface)' }}
           >
             {name}
-            <span className="font-mono text-[10px]" style={{ color: 'var(--text-3)' }}>{count}</span>
+            <span className="font-mono text-[11px]" style={{ color: 'var(--text-3)' }}>{count}</span>
           </button>
         ))}
       </div>
@@ -678,7 +698,7 @@ function CompaniesStrip({ companies, onCompanyClick }) {
             style={{ borderColor: 'var(--border)', color: 'var(--text-2)', background: 'var(--surface)' }}
           >
             {name}
-            <span className="font-mono text-[10px]" style={{ color: 'var(--text-3)' }}>{count}</span>
+            <span className="font-mono text-[11px]" style={{ color: 'var(--text-3)' }}>{count}</span>
           </button>
         ))}
       </div>
@@ -856,7 +876,7 @@ const BlueprintModal = ({ companyId, onClose }) => {
         </DialogHeader>
         <div className="space-y-6 mt-2">
           <div>
-            <div className="text-[10px] uppercase tracking-[0.22em] text-zinc-600 font-mono mb-3">Interview rounds</div>
+            <div className="text-[11px] uppercase tracking-[0.22em] text-zinc-600 font-mono mb-3">Interview rounds</div>
             <div className="space-y-1.5">
               {bp.rounds.map((r, i) => (
                 <div key={i} className="flex items-center gap-3 text-sm">
@@ -867,7 +887,7 @@ const BlueprintModal = ({ companyId, onClose }) => {
             </div>
           </div>
           <div>
-            <div className="text-[10px] uppercase tracking-[0.22em] text-zinc-600 font-mono mb-3">Topic frequency</div>
+            <div className="text-[11px] uppercase tracking-[0.22em] text-zinc-600 font-mono mb-3">Topic frequency</div>
             <div className="space-y-2">
               {bp.heatmap.map(h => (
                 <div key={h.topic} className="flex items-center gap-3 text-xs">
@@ -879,7 +899,7 @@ const BlueprintModal = ({ companyId, onClose }) => {
             </div>
           </div>
           <div>
-            <div className="text-[10px] uppercase tracking-[0.22em] text-zinc-600 font-mono mb-3">Common question types</div>
+            <div className="text-[11px] uppercase tracking-[0.22em] text-zinc-600 font-mono mb-3">Common question types</div>
             <div className="flex flex-wrap gap-1.5">
               {bp.questionTypes.map(t => (
                 <span key={t} className="text-xs px-2.5 py-1 rounded"

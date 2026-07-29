@@ -112,7 +112,7 @@ export default function QuestionDetail() {
       {/* Answer */}
       {q.answer && (
         <div className="rounded-xl p-5 mb-6" style={{ border: '1px solid var(--border)', background: 'var(--surface)' }}>
-          <div className="font-mono text-[10px] uppercase tracking-[0.18em] mb-3" style={{ color: 'var(--text-3)' }}>Model answer</div>
+          <div className="font-mono text-[11px] uppercase tracking-[0.18em] mb-3" style={{ color: 'var(--text-3)' }}>Model answer</div>
           <p className="text-[15px] leading-relaxed whitespace-pre-line" style={{ color: 'var(--text-2)' }}>{q.answer}</p>
         </div>
       )}
@@ -120,7 +120,7 @@ export default function QuestionDetail() {
       {/* What interviewers look for */}
       {criteria.length > 0 && (
         <div className="rounded-xl p-5 mb-10" style={{ border: '1px solid var(--border)', background: 'var(--surface)' }}>
-          <div className="font-mono text-[10px] uppercase tracking-[0.18em] mb-3" style={{ color: 'var(--text-3)' }}>What interviewers look for</div>
+          <div className="font-mono text-[11px] uppercase tracking-[0.18em] mb-3" style={{ color: 'var(--text-3)' }}>What interviewers look for</div>
           <ul className="space-y-2.5">
             {criteria.map((c, i) => (
               <li key={i} className="flex items-start gap-2.5 text-sm" style={{ color: 'var(--text-2)' }}>

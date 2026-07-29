@@ -72,7 +72,7 @@ function RelatedQuestions({ trackId, trackName, concept }) {
   const matches = getRelatedQuestions(trackId, concept.id, QUESTIONS);
   return (
     <div className="pt-2 border-t" style={{ borderColor: 'var(--border)' }}>
-      <div className="font-mono text-[10px] uppercase tracking-[0.16em] mb-2 mt-3" style={{ color: 'var(--text-3)' }}>
+      <div className="font-mono text-[11px] uppercase tracking-[0.16em] mb-2 mt-3" style={{ color: 'var(--text-3)' }}>
         Seen in real interview questions
       </div>
       {matches.length > 0 ? (
@@ -103,7 +103,7 @@ function InterviewChallenge({ questions }) {
   if (!questions?.length) return null;
   return (
     <div className="rounded-lg p-4" style={{ background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.25)' }}>
-      <div className="font-mono text-[10px] uppercase tracking-[0.16em] mb-2.5" style={{ color: '#ef4444' }}>
+      <div className="font-mono text-[11px] uppercase tracking-[0.16em] mb-2.5" style={{ color: '#ef4444' }}>
         🔴 Can you answer this in an interview?
       </div>
       <ul className="space-y-2">
@@ -355,7 +355,7 @@ export default function LearnWithKai() {
               }}
             >
               <span>{t.icon}</span> {t.name}
-              <span className="font-mono text-[10px] opacity-80">{tProgress}/{t.concepts.length}</span>
+              <span className="font-mono text-[11px] opacity-80">{tProgress}/{t.concepts.length}</span>
             </button>
           );
         })}
@@ -393,7 +393,7 @@ export default function LearnWithKai() {
                   </div>
                   <p className="text-sm leading-relaxed" style={{ color: 'var(--text-2)' }}>{concept.explainer}</p>
                   <div>
-                    <div className="font-mono text-[10px] uppercase tracking-[0.16em] mb-2" style={{ color: 'var(--text-3)' }}>{concept.codeExample.label}</div>
+                    <div className="font-mono text-[11px] uppercase tracking-[0.16em] mb-2" style={{ color: 'var(--text-3)' }}>{concept.codeExample.label}</div>
                     <pre className="rounded-lg p-4 text-xs overflow-x-auto font-mono mb-3" style={{ background: 'var(--inset)', color: 'var(--text-1)', border: '1px solid var(--border)' }}>
                       {concept.codeExample.code}
                     </pre>

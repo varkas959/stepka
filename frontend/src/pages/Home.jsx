@@ -77,7 +77,7 @@ const Reveal = ({ children, delay = 0, className = '' }) => {
 const Eyebrow = ({ children }) => (
   <div className="flex items-center gap-2 mb-3">
     <StepMark size={16} />
-    <span className="font-mono text-[10px] uppercase tracking-[0.2em]" style={{ color: 'var(--text-3)' }}>{children}</span>
+    <span className="font-mono text-[11px] uppercase tracking-[0.2em]" style={{ color: 'var(--text-3)' }}>{children}</span>
   </div>
 );
 
@@ -190,8 +190,8 @@ const ReadinessReport = () => {
       {/* Header */}
       <div className="px-5 py-3 flex items-center justify-between"
            style={{ borderBottom: `1px solid ${C.border}`, background: C.bg }}>
-        <span className="font-mono text-[10px] uppercase tracking-[0.2em]" style={{ color: C.text3 }}>Example Report</span>
-        <span className="font-mono text-[10px]" style={{ color: C.text3 }}>
+        <span className="font-mono text-[11px] uppercase tracking-[0.2em]" style={{ color: C.text3 }}>Example Report</span>
+        <span className="font-mono text-[11px]" style={{ color: C.text3 }}>
           {new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
         </span>
       </div>
@@ -209,13 +209,13 @@ const ReadinessReport = () => {
               <div className="font-mono font-semibold leading-none" style={{ fontSize: 48, color: scoreClr }}>
                 {p.readiness}<span style={{ fontSize: 22 }}>%</span>
               </div>
-              <div className="font-mono text-[10px] mt-1.5 uppercase tracking-[0.15em]" style={{ color: scoreClr }}>{scoreLabel}</div>
+              <div className="font-mono text-[11px] mt-1.5 uppercase tracking-[0.15em]" style={{ color: scoreClr }}>{scoreLabel}</div>
             </div>
           </div>
           <div className="mt-4 h-1.5 rounded-full overflow-hidden" style={{ background: C.bg3 }}>
             <div className="h-full rounded-full" style={{ width: `${p.readiness}%`, background: scoreClr, transition: 'width 0.6s ease' }} />
           </div>
-          <div className="font-mono text-[10px] mt-2" style={{ color: C.text3 }}>
+          <div className="font-mono text-[11px] mt-2" style={{ color: C.text3 }}>
             {p.gaps.length} gaps to close before loop
           </div>
         </div>
@@ -223,24 +223,24 @@ const ReadinessReport = () => {
         {/* Strengths + Gaps */}
         <div className="grid grid-cols-2">
           <div className="px-5 py-4" style={{ borderRight: `1px solid ${C.border}`, borderBottom: `1px solid ${C.border}` }}>
-            <div className="font-mono text-[10px] uppercase tracking-[0.2em] mb-3" style={{ color: C.green }}>Strengths</div>
+            <div className="font-mono text-[11px] uppercase tracking-[0.2em] mb-3" style={{ color: C.green }}>Strengths</div>
             <div className="space-y-2.5">
               {p.strengths.map(s => (
                 <div key={s.name} className="flex items-center gap-2">
                   <Check size={11} strokeWidth={2.5} style={{ color: C.green, flexShrink: 0 }} />
-                  <span className="text-xs flex-1 truncate" style={{ color: C.text2 }}>{s.name}</span>
+                  <span className="text-xs flex-1 truncate min-w-0" style={{ color: C.text2 }}>{s.name}</span>
                   <span className="font-mono text-xs ml-auto" style={{ color: C.green }}>{s.score}%</span>
                 </div>
               ))}
             </div>
           </div>
           <div className="px-5 py-4" style={{ borderBottom: `1px solid ${C.border}` }}>
-            <div className="font-mono text-[10px] uppercase tracking-[0.2em] mb-3" style={{ color: C.red }}>Weak Areas</div>
+            <div className="font-mono text-[11px] uppercase tracking-[0.2em] mb-3" style={{ color: C.red }}>Weak Areas</div>
             <div className="space-y-2.5">
               {p.gaps.map(s => (
                 <div key={s.name} className="flex items-center gap-2">
                   <X size={11} strokeWidth={2.5} style={{ color: C.red, flexShrink: 0 }} />
-                  <span className="text-xs flex-1 truncate" style={{ color: C.text2 }}>{s.name}</span>
+                  <span className="text-xs flex-1 truncate min-w-0" style={{ color: C.text2 }}>{s.name}</span>
                   <span className="font-mono text-xs ml-auto" style={{ color: C.red }}>{s.score}%</span>
                 </div>
               ))}
@@ -253,7 +253,7 @@ const ReadinessReport = () => {
           <div className="flex items-center gap-2.5">
             <Clock size={12} style={{ color: C.text3 }} />
             <div>
-              <div className="font-mono text-[10px] uppercase tracking-[0.15em]" style={{ color: C.text3 }}>Estimated Preparation</div>
+              <div className="font-mono text-[11px] uppercase tracking-[0.15em]" style={{ color: C.text3 }}>Estimated Preparation</div>
               <div className="font-mono text-sm font-semibold mt-0.5" style={{ color: C.text1 }}>{p.weeks} weeks · 45 min/day</div>
             </div>
           </div>
@@ -292,7 +292,7 @@ const Hero = () => (
       <div>
         <div className="flex items-center gap-2 mb-6">
           <StepMark size={15} />
-          <span className="font-mono text-[10px] uppercase tracking-[0.2em]" style={{ color: C.text3 }}>
+          <span className="text-xs" style={{ color: C.text3 }}>
             Real interview questions, ranked by what your JD actually needs
           </span>
         </div>
@@ -325,7 +325,7 @@ const Hero = () => (
       {/* Right — example report (rotating illustration, not live user data) */}
       <div>
         <div className="flex items-center gap-1.5 mb-2.5 justify-center md:justify-start">
-          <span className="font-mono text-[10px] uppercase tracking-[0.18em]" style={{ color: C.text3 }}>Example readiness report</span>
+          <span className="font-mono text-[11px] uppercase tracking-[0.18em]" style={{ color: C.text3 }}>Example readiness report</span>
         </div>
         <ReadinessReport />
       </div>
@@ -433,7 +433,7 @@ const CompaniesStrip = () => (
       <Reveal>
         <div className="flex items-center justify-center gap-2 mb-10">
           <StepMark size={15} />
-          <span className="font-mono text-[10px] uppercase tracking-[0.2em]" style={{ color: C.text3 }}>
+          <span className="font-mono text-[11px] uppercase tracking-[0.2em]" style={{ color: C.text3 }}>
             Questions from engineers at
           </span>
         </div>
@@ -446,7 +446,7 @@ const CompaniesStrip = () => (
       <Reveal>
         <div className="mt-12 pt-10" style={{ borderTop: `1px solid ${C.border}` }}>
           <div className="flex items-center justify-center gap-2 mb-6">
-            <span className="font-mono text-[10px] uppercase tracking-[0.2em]" style={{ color: C.text3 }}>
+            <span className="font-mono text-[11px] uppercase tracking-[0.2em]" style={{ color: C.text3 }}>
               Browse by topic
             </span>
           </div>
@@ -541,7 +541,7 @@ const ShowcaseFrame = ({ tag, children }) => (
         <span className="w-2 h-2 rounded-full" style={{ background: C.border2 }} />
         <span className="w-2 h-2 rounded-full" style={{ background: C.border2 }} />
       </div>
-      <span className="font-mono text-[10px] uppercase tracking-[0.16em] ml-1" style={{ color: C.text3 }}>{tag}</span>
+      <span className="font-mono text-[11px] uppercase tracking-[0.16em] ml-1" style={{ color: C.text3 }}>{tag}</span>
     </div>
     <div className="p-4">{children}</div>
   </div>
@@ -557,7 +557,7 @@ const PlanPreview = () => {
     <div>
       <div className="flex items-center justify-between mb-3">
         <span className="text-sm font-semibold" style={{ color: C.text1 }}>3-week plan</span>
-        <span className="font-mono text-[10px]" style={{ color: C.accent }}>40% done</span>
+        <span className="font-mono text-[11px]" style={{ color: C.accent }}>40% done</span>
       </div>
       <div className="space-y-2">
         {days.map(x => (
@@ -566,7 +566,7 @@ const PlanPreview = () => {
               style={{ background: x.done ? C.green : 'transparent', border: x.done ? 'none' : `1px solid ${C.border2}` }}>
               {x.done && <Check size={11} strokeWidth={3} color="#fff" />}
             </span>
-            <span className="font-mono text-[10px] shrink-0" style={{ color: C.text3 }}>{x.d}</span>
+            <span className="font-mono text-[11px] shrink-0" style={{ color: C.text3 }}>{x.d}</span>
             <span className="text-xs truncate" style={{ color: x.done ? C.text3 : C.text1 }}>{x.t}</span>
           </div>
         ))}
@@ -665,7 +665,7 @@ const Footer = () => (
     <div className="max-w-6xl mx-auto">
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-6 mb-8">
         <div>
-          <div className="font-mono text-[10px] uppercase tracking-[0.18em] mb-3" style={{ color: C.text3 }}>Questions</div>
+          <div className="font-mono text-[11px] uppercase tracking-[0.18em] mb-3" style={{ color: C.text3 }}>Questions</div>
           <div className="flex flex-col gap-2">
             <a href="/questions/" className="hover:opacity-80 transition-opacity text-xs">All Questions</a>
             <a href="/questions/trending" className="hover:opacity-80 transition-opacity text-xs">Trending</a>
@@ -675,7 +675,7 @@ const Footer = () => (
           </div>
         </div>
         <div>
-          <div className="font-mono text-[10px] uppercase tracking-[0.18em] mb-3" style={{ color: C.text3 }}>Prepare</div>
+          <div className="font-mono text-[11px] uppercase tracking-[0.18em] mb-3" style={{ color: C.text3 }}>Prepare</div>
           <div className="flex flex-col gap-2">
             <a href="/interview-process/" className="hover:opacity-80 transition-opacity text-xs">Interview Process</a>
             <a href="/companies/" className="hover:opacity-80 transition-opacity text-xs">Companies</a>
@@ -685,7 +685,7 @@ const Footer = () => (
           </div>
         </div>
         <div>
-          <div className="font-mono text-[10px] uppercase tracking-[0.18em] mb-3" style={{ color: C.text3 }}>Topics</div>
+          <div className="font-mono text-[11px] uppercase tracking-[0.18em] mb-3" style={{ color: C.text3 }}>Topics</div>
           <div className="flex flex-col gap-2">
             <a href="/questions/topic/system-design" className="hover:opacity-80 transition-opacity text-xs">System Design</a>
             <a href="/questions/tech/java" className="hover:opacity-80 transition-opacity text-xs">Java</a>
@@ -694,7 +694,7 @@ const Footer = () => (
           </div>
         </div>
         <div>
-          <div className="font-mono text-[10px] uppercase tracking-[0.18em] mb-3" style={{ color: C.text3 }}>Stepkai</div>
+          <div className="font-mono text-[11px] uppercase tracking-[0.18em] mb-3" style={{ color: C.text3 }}>Stepkai</div>
           <div className="flex flex-col gap-2">
             <Link to="/feedback" className="hover:opacity-80 transition-opacity text-xs">Feedback</Link>
             <Link to="/privacy" className="hover:opacity-80 transition-opacity text-xs" data-testid="footer-privacy">Privacy</Link>
@@ -704,7 +704,7 @@ const Footer = () => (
         </div>
       </div>
       <div className="flex items-center gap-2 pt-6" style={{ borderTop: `1px solid ${C.border}` }}>
-        <div className="w-5 h-5 rounded text-[10px] font-bold flex items-center justify-center text-white" style={{ background: C.accent }}>S</div>
+        <div className="w-5 h-5 rounded text-[11px] font-bold flex items-center justify-center text-white" style={{ background: C.accent }}>S</div>
         <span className="text-xs">Stepkai · © 2026</span>
       </div>
     </div>

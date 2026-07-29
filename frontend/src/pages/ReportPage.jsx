@@ -101,8 +101,8 @@ export default function ReportPage() {
         <div className="rounded-xl overflow-hidden" style={{ border: `1px solid ${C.border}`, background: C.bg2 }}>
           {/* Header */}
           <div className="px-5 py-3 flex items-center justify-between" style={{ borderBottom: `1px solid ${C.border}`, background: C.bg }}>
-            <span className="font-mono text-[10px] uppercase tracking-[0.2em]" style={{ color: C.text3 }}>Readiness Report</span>
-            <span className="font-mono text-[10px]" style={{ color: C.text3 }}>{date}</span>
+            <span className="font-mono text-[11px] uppercase tracking-[0.2em]" style={{ color: C.text3 }}>Readiness Report</span>
+            <span className="font-mono text-[11px]" style={{ color: C.text3 }}>{date}</span>
           </div>
 
           {/* Candidate + score */}
@@ -116,7 +116,7 @@ export default function ReportPage() {
                 <div className="font-mono font-semibold leading-none" style={{ fontSize: 44, color: scoreClr }}>
                   {report.readiness}<span style={{ fontSize: 22 }}>%</span>
                 </div>
-                <div className="font-mono text-[10px] uppercase tracking-[0.14em] mt-1.5" style={{ color: scoreClr }}>
+                <div className="font-mono text-[11px] uppercase tracking-[0.14em] mt-1.5" style={{ color: scoreClr }}>
                   {scoreLabel(report.readiness)}
                 </div>
               </div>
@@ -125,7 +125,7 @@ export default function ReportPage() {
               <div className="h-full rounded-full" style={{ width: `${report.readiness}%`, background: scoreClr }} />
             </div>
             {gaps.length > 0 && (
-              <div className="font-mono text-[10px] mt-2" style={{ color: C.text3 }}>
+              <div className="font-mono text-[11px] mt-2" style={{ color: C.text3 }}>
                 {gaps.length} gap{gaps.length > 1 ? 's' : ''} to close before loop
               </div>
             )}
@@ -134,7 +134,7 @@ export default function ReportPage() {
           {/* Strengths + gaps */}
           <div className="grid grid-cols-1 sm:grid-cols-2">
             <div className="px-5 py-5" style={{ borderRight: `1px solid ${C.border}`, borderBottom: `1px solid ${C.border}` }}>
-              <div className="font-mono text-[10px] uppercase tracking-[0.18em] mb-4" style={{ color: C.green }}>Strengths</div>
+              <div className="font-mono text-[11px] uppercase tracking-[0.18em] mb-4" style={{ color: C.green }}>Strengths</div>
               <div className="space-y-3">
                 {strengths.length > 0 ? strengths.map(s => (
                   <div key={s.skill} className="flex items-center gap-2">
@@ -146,7 +146,7 @@ export default function ReportPage() {
               </div>
             </div>
             <div className="px-5 py-5" style={{ borderBottom: `1px solid ${C.border}` }}>
-              <div className="font-mono text-[10px] uppercase tracking-[0.18em] mb-4" style={{ color: C.red }}>Weak Areas</div>
+              <div className="font-mono text-[11px] uppercase tracking-[0.18em] mb-4" style={{ color: C.red }}>Weak Areas</div>
               <div className="space-y-3">
                 {gaps.length > 0 ? gaps.map(s => (
                   <div key={s.skill} className="flex items-center gap-2">
@@ -163,7 +163,7 @@ export default function ReportPage() {
           <div className="px-5 py-4 flex items-center gap-3" style={{ background: C.bg }}>
             <Clock size={13} style={{ color: C.text3 }} />
             <div>
-              <div className="font-mono text-[10px] uppercase tracking-[0.14em]" style={{ color: C.text3 }}>Estimated Preparation</div>
+              <div className="font-mono text-[11px] uppercase tracking-[0.14em]" style={{ color: C.text3 }}>Estimated Preparation</div>
               <div className="font-mono text-sm font-semibold mt-0.5" style={{ color: C.text1 }}>{prepLabel(report.prep_weeks)}</div>
             </div>
           </div>
@@ -179,10 +179,10 @@ export default function ReportPage() {
         <div className="mt-5 rounded-lg p-5" style={{ border: `1px solid ${C.border}`, background: C.bg2 }}>
           <div className="flex items-center gap-2 mb-3">
             <Share2 size={12} style={{ color: C.text3 }} />
-            <span className="font-mono text-[10px] uppercase tracking-[0.18em]" style={{ color: C.text3 }}>Share this report</span>
+            <span className="font-mono text-[11px] uppercase tracking-[0.18em]" style={{ color: C.text3 }}>Share this report</span>
           </div>
           <div className="flex items-center gap-2">
-            <div className="flex-1 font-mono text-xs px-3 py-2 rounded-md truncate" style={{ background: C.bg3, color: C.text2, border: `1px solid ${C.border}` }}>{shareUrl}</div>
+            <div className="flex-1 min-w-0 font-mono text-xs px-3 py-2 rounded-md truncate" style={{ background: C.bg3, color: C.text2, border: `1px solid ${C.border}` }}>{shareUrl}</div>
             <button onClick={copy} className="shrink-0 text-xs px-3 py-2 rounded-md text-white hover:opacity-90 transition-opacity" style={{ background: C.accent }}>
               {copied ? 'Copied' : 'Copy'}
             </button>

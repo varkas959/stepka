@@ -115,12 +115,12 @@ export const ExperienceModal = ({ open, onOpenChange, onSubmitted, userId, defau
             <CreatableSelect label="experience" value={form.experienceYears} options={YEAR_OPTS}      onChange={v => set('experienceYears', v)} testid="exp-years" />
             <CreatableSelect label="outcome"    value={form.outcome}         options={OUTCOME_OPTS}  onChange={v => set('outcome', v)} testid="exp-outcome" />
             <div>
-              <div className="font-mono text-[10px] uppercase tracking-[0.18em] text-zinc-500 mb-1.5">interview date</div>
+              <div className="font-mono text-[11px] uppercase tracking-[0.18em] text-zinc-500 mb-1.5">interview date</div>
               <input type="date" value={form.interviewDate} onChange={e => set('interviewDate', e.target.value)}
                 className="w-full bg-zinc-900 border border-white/10 rounded-md p-2.5 text-sm font-mono text-zinc-100 focus:outline-none focus:border-white/30" />
             </div>
             <div>
-              <div className="font-mono text-[10px] uppercase tracking-[0.18em] text-zinc-500 mb-1.5">difficulty (1–5)</div>
+              <div className="font-mono text-[11px] uppercase tracking-[0.18em] text-zinc-500 mb-1.5">difficulty (1–5)</div>
               <div className="flex items-center gap-2">
                 {[1, 2, 3, 4, 5].map(n => (
                   <button type="button" key={n} onClick={() => set('difficulty', n)}
@@ -135,7 +135,7 @@ export const ExperienceModal = ({ open, onOpenChange, onSubmitted, userId, defau
           {/* Rounds */}
           <div>
             <div className="flex items-center justify-between mb-2">
-              <div className="font-mono text-[10px] uppercase tracking-[0.18em] text-zinc-500">rounds &amp; questions ({rounds.length})</div>
+              <div className="font-mono text-[11px] uppercase tracking-[0.18em] text-zinc-500">rounds &amp; questions ({rounds.length})</div>
               <button type="button" onClick={addRound} className="inline-flex items-center gap-1 text-xs text-blue-400 hover:text-blue-300">
                 <Plus size={13} /> add round
               </button>
@@ -153,7 +153,7 @@ export const ExperienceModal = ({ open, onOpenChange, onSubmitted, userId, defau
                     )}
                   </div>
                   <div className="flex items-center gap-2 mb-2 flex-wrap">
-                    <span className="font-mono text-[10px] uppercase tracking-[0.16em] text-zinc-500">difficulty</span>
+                    <span className="font-mono text-[11px] uppercase tracking-[0.16em] text-zinc-500">difficulty</span>
                     {[1, 2, 3, 4, 5].map(n => (
                       <button type="button" key={n} onClick={() => setRound(ri, 'difficulty', n)}
                         className={`w-7 h-7 rounded border font-mono text-xs transition-colors ${
@@ -187,7 +187,7 @@ export const ExperienceModal = ({ open, onOpenChange, onSubmitted, userId, defau
 
           {/* Notes */}
           <div>
-            <div className="font-mono text-[10px] uppercase tracking-[0.18em] text-zinc-500 mb-1.5">additional notes</div>
+            <div className="font-mono text-[11px] uppercase tracking-[0.18em] text-zinc-500 mb-1.5">additional notes</div>
             <textarea value={form.notes} onChange={e => set('notes', e.target.value)} rows={3}
               placeholder="Overall experience, prep advice, timeline, anything that would help the next candidate…"
               className="w-full bg-zinc-900 border border-white/10 rounded-md p-3 text-sm text-zinc-100 placeholder:text-zinc-600 focus:outline-none focus:border-white/30 resize-y" />
@@ -195,7 +195,7 @@ export const ExperienceModal = ({ open, onOpenChange, onSubmitted, userId, defau
 
           {/* Attribution */}
           <div className="rounded-md border border-white/8 p-4" style={{ background: 'var(--inset)' }}>
-            <div className="font-mono text-[10px] uppercase tracking-[0.18em] text-zinc-500 mb-3">attribution</div>
+            <div className="font-mono text-[11px] uppercase tracking-[0.18em] text-zinc-500 mb-3">attribution</div>
             <div className="space-y-2">
               {PROFILE_OPTIONS.map(opt => (
                 <label key={opt.id} className="flex items-start gap-3 cursor-pointer">

@@ -184,7 +184,7 @@ export default function InterviewIntelligence({ kind }) {
                   {related.map((r, i) => (
                     <Link key={i} to={`/app/questions`} className="block rounded-md border border-white/8 bg-zinc-950 p-3 hover:border-white/20 transition-colors">
                       <p className="text-zinc-200 text-sm leading-relaxed">{r.body}</p>
-                      {r.round && <div className="text-[10px] text-zinc-600 mt-1.5">{r.round}</div>}
+                      {r.round && <div className="text-[11px] text-zinc-600 mt-1.5">{r.round}</div>}
                     </Link>
                   ))}
                 </div>
@@ -237,8 +237,8 @@ export default function InterviewIntelligence({ kind }) {
 const Stat = ({ label, value, sub, color }) => (
   <div className="rounded-lg border border-white/10 bg-zinc-950 p-4">
     <div className="font-mono text-2xl font-semibold" style={{ color: color || '#fafafa' }}>{value}</div>
-    <div className="font-mono text-[10px] uppercase tracking-[0.16em] text-zinc-500 mt-1">{label}</div>
-    {sub && <div className="text-[10px] text-zinc-600 mt-0.5">{sub}</div>}
+    <div className="font-mono text-[11px] uppercase tracking-[0.16em] text-zinc-500 mt-1">{label}</div>
+    {sub && <div className="text-[11px] text-zinc-600 mt-0.5">{sub}</div>}
   </div>
 );
 
