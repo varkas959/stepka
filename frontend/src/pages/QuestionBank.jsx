@@ -287,7 +287,7 @@ export default function QuestionBank({ isGuest = false, userId }) {
                 style={{ color: 'var(--text-2)', flexShrink: 0 }}>
           <Menu size={20} />
         </button>
-        <div className="flex items-center gap-2 rounded-full px-3 h-8 w-[52%]"
+        <div className="flex-1 flex items-center gap-2 rounded-full px-3 h-8 min-w-0"
              style={{ border: '1.5px solid var(--border-2)', background: 'var(--inset)' }}>
           <Search size={13} style={{ color: 'var(--text-3)', flexShrink: 0 }} />
           <input

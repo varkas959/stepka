@@ -407,8 +407,9 @@ const InputStep = ({ jd, setJd, company, setCompany, role, setRole, onStart, act
         <MobileHomeSummary activePlan={activePlan} dueToday={dueToday} readiness={readiness} />
         {!showJdFormMobile && (
           <button onClick={() => setShowJdFormMobile(true)}
-            className="mt-3 w-full text-center text-xs py-2" style={{ color: 'var(--text-3)' }}>
-            {activePlan ? 'Re-run assessment with a new JD' : 'Paste a job description to get a plan'}
+            className="mt-3 w-full text-center text-xs py-2 underline underline-offset-2 font-medium"
+            style={{ color: 'var(--accent)' }}>
+            {activePlan ? 'Re-run assessment with a new JD →' : 'Paste a job description to get a plan →'}
           </button>
         )}
       </div>

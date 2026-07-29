@@ -82,6 +82,18 @@ export function AppStateProvider({ userId, children }) {
     return () => { cancelled = true; };
   }, [userId]);
 
+  // A guest can never legitimately have an activePlan — generating one is
+  // gated behind sign-in (StudyPlan redirects to /signin first). So if one
+  // is present while unauthenticated, it's always stale data left over from
+  // a previous signed-in session on this browser (e.g. the session simply
+  // didn't survive a reload, rather than an explicit sign-out this app
+  // instance ever witnessed) — the in-session sign-out reset above only
+  // catches the latter. This runs on every render where it's relevant,
+  // catching the case a fresh page load starts out already "logged out."
+  useEffect(() => {
+    if (!userId && state.activePlan) setState(s => ({ ...s, activePlan: null }));
+  }, [userId, state.activePlan]);
+
   // Persist on every change: localStorage immediately + Supabase debounced
   useEffect(() => {
     try { localStorage.setItem(LS_KEY, JSON.stringify(state)); } catch { /* ignore */ }
