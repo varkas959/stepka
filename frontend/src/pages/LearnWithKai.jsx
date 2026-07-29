@@ -92,7 +92,7 @@ function RelatedQuestions({ trackId, trackName, concept }) {
       ) : (
         <p className="text-xs" style={{ color: 'var(--text-3)' }}>No exact match yet for this one —</p>
       )}
-      <Link to="/app/questions" className="inline-flex items-center gap-1 text-xs font-medium mt-2.5" style={{ color: ACC }}>
+      <Link to={`/app/questions?tech=${encodeURIComponent(trackName)}`} className="inline-flex items-center gap-1 text-xs font-medium mt-2.5" style={{ color: ACC }}>
         Browse all {trackName} interview questions <ArrowUpRight size={12} />
       </Link>
     </div>

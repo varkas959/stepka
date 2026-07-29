@@ -86,13 +86,21 @@ function timeAgo(daysAgo) {
 
 // ── Main component ────────────────────────────────────────────────────────────
 export default function QuestionBank({ isGuest = false, userId }) {
-  const [filters, setFilters]         = useState(EMPTY_FILTERS);
+  // Links into this page (e.g. "Browse all Java questions" on Learn with
+  // Kai) previously pointed at a bare /app/questions with no filter at all —
+  // landing on the unfiltered Trending tab regardless of what was clicked.
+  // ?tech=Java / ?company=tcs seed the real filter instead.
+  const [searchParams] = useSearchParams();
+  const [filters, setFilters]         = useState(() => ({
+    ...EMPTY_FILTERS,
+    tech: searchParams.get('tech') || ALL,
+    company: searchParams.get('company') || ALL,
+  }));
   // Default to Trending, not Latest: sorting by recency alone can surface a
   // long run of questions from a single recent contribution burst (e.g. one
   // company/topic dominating an entire page), which reads as "this site only
   // has questions about X" to a first-time visitor.
   const [activeTab, setActiveTab]     = useState('trending');
-  const [searchParams] = useSearchParams();
   const [search, setSearch]           = useState(() => searchParams.get('q') || '');
   const [page, setPage]               = useState(1);
   const [askedMap, setAskedMap]       = useState({});
@@ -155,14 +163,19 @@ export default function QuestionBank({ isGuest = false, userId }) {
       if (filters.round      !== ALL && q.round !== filters.round) return false;
       if (s) {
         // Searching "TCS" only ever matched question *body* text before —
-        // company/role/topic weren't checked, so searching a company name
-        // that never happens to appear inline in a question's wording
+        // company/role/topic/tech weren't checked, so searching a company
+        // name that never happens to appear inline in a question's wording
         // returned almost nothing even when that company has hundreds of
-        // questions.
+        // questions. Also tokenize on whitespace and require every word to
+        // match *somewhere* in the haystack rather than the whole query as
+        // one contiguous substring — "TCS Java" needs to match a question
+        // whose company is TCS and whose tech includes Java, which will
+        // never appear next to each other as the literal phrase "tcs java".
         const companyName = COMPANIES.find(c => c.id === q.company)?.name || q.company || '';
         const topicLabel = TOPIC_LABELS.find(t => t.id === q.topic)?.name || q.topic || '';
-        const haystack = `${q.body} ${companyName} ${q.role} ${topicLabel}`.toLowerCase();
-        if (!haystack.includes(s)) return false;
+        const haystack = `${q.body} ${companyName} ${q.role} ${topicLabel} ${(q.tech || []).join(' ')}`.toLowerCase();
+        const tokens = s.split(/\s+/).filter(Boolean);
+        if (!tokens.every(t => haystack.includes(t))) return false;
       }
       if (activeTab === 'recent' && (q.daysAgo || 0) > 7) return false;
       return true;
