@@ -124,6 +124,11 @@ html.light .border-white\/5, html.light .border-white\/10, html.light .border-wh
 html.light .border-white\/25 { border-color: var(--border-2) !important; }
 html.light .bg-white\/5, html.light .bg-white\/\[0\.04\], html.light .bg-white\/\[0\.08\] { background-color: rgba(15,23,42,0.04) !important; }
 html.light .hover\:bg-white\/5:hover, html.light .hover\:bg-white\/\[0\.04\]:hover { background-color: rgba(15,23,42,0.05) !important; }
+html.light .bg-black { background-color: var(--surface) !important; }
+html.light input:focus, html.light textarea:focus { border-color: var(--accent) !important; box-shadow: 0 0 0 2px var(--accent-12); }
+html.light ::-webkit-scrollbar-track { background: var(--page); }
+html.light ::-webkit-scrollbar-thumb { background: var(--border-2); }
+html.light ::-webkit-scrollbar-thumb:hover { background: var(--text-3); }
 
 /* ── Dark-mode contrast fix for raw Tailwind zinc utilities ──
    text-zinc-500/600/700 compile to Tailwind's fixed palette (#71717a/#52525b/#3f3f46),

@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { BrowserRouter, Routes, Route, Navigate, Link } from 'react-router-dom';
 import { Toaster } from 'sonner';
 import { HelmetProvider, Helmet } from 'react-helmet-async';
-import { ThemeProvider } from 'next-themes';
+import { ThemeProvider, useTheme } from 'next-themes';
 import './App.css';
 
 import { AppStateProvider, useAppState } from './lib/appState';
@@ -91,6 +91,23 @@ function GuestBanner() {
 // plan/questions exist. Desktop always keeps showing the normal page for
 // this route (marketing Home, or the sign-in form) — this redirect was only
 // ever a mobile IA decision, not a site-wide one.
+// Toaster was hardcoded to theme="dark" regardless of the site's actual
+// theme — light mode was compensating for that mismatch via App.css
+// overrides instead of the toaster just following the real theme.
+function ThemedToaster() {
+  const { theme } = useTheme();
+  return (
+    <Toaster theme={theme === 'light' ? 'light' : 'dark'} position="bottom-right" toastOptions={{
+      style: {
+        background: 'var(--surface)',
+        border: '1px solid var(--border)',
+        color: 'var(--text-1)',
+        fontFamily: 'IBM Plex Sans',
+      },
+    }} />
+  );
+}
+
 function SignedInLanding({ desktopFallback }) {
   const { state } = useAppState();
   const isMobile = useIsMobile();
@@ -120,9 +137,7 @@ function App() {
     <HelmetProvider>
     <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
     <AppStateProvider userId={session?.user?.id}>
-      <Toaster theme="dark" position="bottom-right" toastOptions={{
-        style: { background: '#09090b', border: '1px solid rgba(255,255,255,0.1)', color: '#fafafa', fontFamily: 'IBM Plex Sans' },
-      }} />
+      <ThemedToaster />
       <BrowserRouter>
         <Routes>
           {/* Public */}
