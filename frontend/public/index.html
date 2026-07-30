@@ -50,7 +50,12 @@
           window.dataLayer = window.dataLayer || [];
           function gtag(){dataLayer.push(arguments);}
           gtag('js', new Date());
-          gtag('config', 'G-MY36EXDRBM');
+          // send_page_view disabled: this is a client-routed SPA, so gtag's
+          // automatic page_view (fired once, on this initial script load
+          // only) never fires again on in-app navigation. React Router's
+          // route tracker (src/App.js) sends every page_view explicitly
+          // instead, including the first one, so nothing is double-counted.
+          gtag('config', 'G-MY36EXDRBM', { send_page_view: false });
         </script>
 
         <script>window.addEventListener("error",function(e){if(e.error instanceof DOMException&&e.error.name==="DataCloneError"&&e.message&&e.message.includes("PerformanceServerTiming")){e.stopImmediatePropagation();e.preventDefault()}},true);</script>

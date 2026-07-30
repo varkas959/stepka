@@ -6,6 +6,7 @@ import { KaiCompanion } from '../components/KaiCompanion';
 import { Loader2, ChevronLeft, Trophy, Zap, ArrowRight } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
+import { track } from '../lib/analytics';
 
 const C = {
   bg:     'var(--page)',
@@ -86,6 +87,7 @@ export default function DailyReview() {
     setReadinessBefore(state.readiness);
     setCardIdx(0); setAnswer(''); setFeedback(null); setGradedThisSession([]);
     setPhase('session');
+    track('review_started', { day: dayData.day, focus: dayData.focus, card_count: pendingCards.length });
     kaiReact('happy', "Let's go — answer honestly, that's what makes this work.");
   };
 
@@ -101,6 +103,7 @@ export default function DailyReview() {
       addXp(10 + fb.suggestedRating * 2);
       recordRating(currentCard.id, fb.suggestedRating);
       setGradedThisSession(prev => [...prev, { card: currentCard, feedback: fb }]);
+      track('answer_submitted', { surface: 'daily_review', day: dayData.day, focus: dayData.focus, overall, suggested_rating: fb.suggestedRating });
       const reaction = KAI_BY_RATING[fb.suggestedRating];
       if (reaction) kaiReact(reaction.mode, reaction.text);
     } catch (e) {

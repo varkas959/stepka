@@ -5,6 +5,7 @@ import { useAppState } from '../lib/appState';
 import { Loader2, Code2, FileText, Timer, RotateCw, ArrowRight, ArrowDown } from 'lucide-react';
 import { toast } from 'sonner';
 import { gradeAnswer } from '../lib/api';
+import { track } from '../lib/analytics';
 import { PixelBar } from '../components/PixelBar';
 import { DepthChallenge } from '../components/DepthChallenge';
 import { useIsMobile } from '../lib/useIsMobile';
@@ -65,6 +66,7 @@ export default function Practice({ isGuest = false }) {
         const fb = await gradeAnswer({ question: q.body, answer, mode, isBehavioral, topic: q.topicPath });
         setFeedback(fb);
         addXp(80);
+        track('answer_submitted', { surface: 'practice', topic: q.topicPath, mode, overall: parseFloat(fb.overall), suggested_rating: fb.suggestedRating });
       } catch (e) {
         toast.error(e?.response?.data?.detail || e.message || 'Grading failed. Try again.');
       } finally { setSubmitting(false); }

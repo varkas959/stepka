@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { BrowserRouter, Routes, Route, Navigate, Link } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, Link, useLocation } from 'react-router-dom';
 import { Toaster } from 'sonner';
 import { HelmetProvider, Helmet } from 'react-helmet-async';
 import { ThemeProvider, useTheme } from 'next-themes';
@@ -7,6 +7,7 @@ import './App.css';
 
 import { AppStateProvider, useAppState } from './lib/appState';
 import { useIsMobile } from './lib/useIsMobile';
+import { trackPageView } from './lib/analytics';
 import { getSession, onAuthStateChange } from './lib/auth';
 import { AuthGate } from './components/AuthGate';
 import { Sidebar } from './components/Sidebar';
@@ -85,6 +86,18 @@ function GuestBanner() {
   );
 }
 
+// Fires the replacement page_view (see index.html/analytics.js) on every
+// route change — including the first render, since gtag's own automatic
+// page_view is disabled. Renders nothing; must live inside <BrowserRouter>
+// to read the current location.
+function RouteTracker() {
+  const location = useLocation();
+  useEffect(() => {
+    trackPageView(location.pathname + location.search);
+  }, [location.pathname, location.search]);
+  return null;
+}
+
 // Mobile-only: signed-in users land on Daily Review, not Study Plan — that's
 // the daily-habit surface there. First-time signed-in users with no activity
 // yet still go to Study Plan, since there's nothing to review until a
@@ -139,6 +152,7 @@ function App() {
     <AppStateProvider userId={session?.user?.id}>
       <ThemedToaster />
       <BrowserRouter>
+        <RouteTracker />
         <Routes>
           {/* Public */}
           <Route path="/" element={session ? <SignedInLanding desktopFallback={<Home />} /> : <Home />} />
