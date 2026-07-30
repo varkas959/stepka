@@ -3162,9 +3162,21 @@ const REACT_CONCEPTS = [
 ];
 
 export const TECH_TRACKS = [
-  { id: 'java', name: 'Java', icon: '☕', topic: 'java', concepts: JAVA_CONCEPTS },
-  { id: 'python', name: 'Python', icon: '🐍', topic: 'python', concepts: PYTHON_CONCEPTS },
-  { id: 'react', name: 'React', icon: '⚛️', topic: 'react', concepts: REACT_CONCEPTS },
+  {
+    id: 'java', name: 'Java', icon: '☕', topic: 'java', concepts: JAVA_CONCEPTS,
+    description: 'Object-oriented fundamentals, collections, and the JVM internals interviewers actually probe for.',
+    highlights: ['OOP Basics', 'Collections', 'JVM Internals', 'Streams & Lambdas', 'Multithreading', 'Design Patterns'],
+  },
+  {
+    id: 'python', name: 'Python', icon: '🐍', topic: 'python', concepts: PYTHON_CONCEPTS,
+    description: 'Dynamic typing, core data structures, and the Pythonic patterns that come up in interviews.',
+    highlights: ['Dynamic Typing', 'Data Structures', 'List Comprehension', 'Decorators', 'Exception Handling'],
+  },
+  {
+    id: 'react', name: 'React', icon: '⚛️', topic: 'react', concepts: REACT_CONCEPTS,
+    description: 'Components, hooks, and the rendering model behind every "how does React actually work" question.',
+    highlights: ['Components', 'Hooks', 'Virtual DOM', 'Props vs State', 'Conditional Rendering'],
+  },
 ];
 
 export const getTrack = (trackId) => TECH_TRACKS.find(t => t.id === trackId);

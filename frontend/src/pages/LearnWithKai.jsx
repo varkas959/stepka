@@ -321,25 +321,15 @@ export default function LearnWithKai() {
         <link rel="canonical" href="https://www.stepkai.com/app/learn" />
         <script type="application/ld+json">{JSON.stringify(definedTermSetLd)}</script>
       </Helmet>
-      <div className="flex items-center justify-between gap-3 flex-wrap">
-        <div className="flex items-center gap-3 flex-wrap">
-          <h1 className="text-3xl md:text-4xl font-semibold tracking-tight" style={{ color: 'var(--text-1)' }}>
-            Learn with Kai
-          </h1>
-          {allDone && (
-            <span className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-full" style={{ background: 'var(--accent-12)', color: ACC, border: '1px solid var(--accent-35)' }}>
-              <Trophy size={13} /> {track.name} mastered
-            </span>
-          )}
-        </div>
-        <ProgressRing done={completed.length} total={track.concepts.length} />
-      </div>
-      <p className="text-sm mt-2" style={{ color: 'var(--text-2)' }}>
+      <h1 className="text-2xl md:text-3xl font-semibold tracking-tight" style={{ color: 'var(--text-1)' }}>
+        Learn with Kai
+      </h1>
+      <p className="text-sm mt-1.5" style={{ color: 'var(--text-2)' }}>
         Every concept as an analogy a 5th grader would get — then the real code.
       </p>
 
-      {/* Track selector */}
-      <div className="flex items-center gap-2 mt-5 mb-6">
+      {/* Track selector — jump between courses */}
+      <div className="flex items-center gap-2 mt-5 mb-5">
         {TECH_TRACKS.map(t => {
           const active = t.id === activeTrackId;
           const tProgress = state.conceptsLearn?.[t.id]?.completedConceptIds?.length || 0;
@@ -361,29 +351,88 @@ export default function LearnWithKai() {
         })}
       </div>
 
+      {/* Course hero card — mirrors a course-overview page: badge, title,
+          description, real progress, and the topics actually covered. */}
+      <div className="rounded-xl p-5 md:p-6" style={{ border: '1px solid var(--border)', background: 'var(--surface)' }}>
+        <div className="flex items-start justify-between gap-4 flex-wrap">
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 mb-2 flex-wrap">
+              <span className="inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full" style={{ background: 'var(--accent-12)', color: ACC, border: '1px solid var(--accent-35)' }}>
+                <span>{track.icon}</span> {track.name}
+              </span>
+              {allDone && (
+                <span className="inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full" style={{ background: 'var(--accent-12)', color: ACC, border: '1px solid var(--accent-35)' }}>
+                  <Trophy size={12} /> Mastered
+                </span>
+              )}
+            </div>
+            <h2 className="text-xl md:text-2xl font-semibold tracking-tight" style={{ color: 'var(--text-1)' }}>
+              {track.name} Concepts
+            </h2>
+            {track.description && (
+              <p className="text-sm mt-1.5 leading-relaxed max-w-xl" style={{ color: 'var(--text-2)' }}>{track.description}</p>
+            )}
+          </div>
+          <ProgressRing done={completed.length} total={track.concepts.length} />
+        </div>
+
+        {track.highlights?.length > 0 && (
+          <div className="mt-4">
+            <div className="font-mono text-[11px] uppercase tracking-[0.16em] mb-2" style={{ color: 'var(--text-3)' }}>What you'll learn</div>
+            <div className="flex flex-wrap gap-2">
+              {track.highlights.map(h => (
+                <span key={h} className="text-xs font-medium px-3 py-1.5 rounded-lg" style={{ border: '1px solid var(--border-2)', color: 'var(--text-2)' }}>{h}</span>
+              ))}
+            </div>
+          </div>
+        )}
+
+        <div className="mt-4 pt-4 border-t" style={{ borderColor: 'var(--border)' }}>
+          <div className="flex items-center justify-between text-xs mb-1.5" style={{ color: 'var(--text-3)' }}>
+            <span>Your progress</span>
+            <span className="font-mono">{completed.length}/{track.concepts.length} concepts</span>
+          </div>
+          <div className="h-2 rounded-full overflow-hidden" style={{ background: 'var(--inset)' }}>
+            <div
+              className="h-full rounded-full"
+              style={{ width: `${track.concepts.length > 0 ? Math.round((completed.length / track.concepts.length) * 100) : 0}%`, background: ACC, transition: 'width 0.4s ease' }}
+            />
+          </div>
+        </div>
+      </div>
+
+      <h3 className="font-mono text-[11px] uppercase tracking-[0.16em] mt-8 mb-1" style={{ color: 'var(--text-3)' }}>Course content</h3>
+
       {(() => {
         const tierGroups = getConceptsByTier(activeTrackId);
 
         const renderConcept = (concept) => {
           const isOpen = openId === concept.id;
           const isDone = completed.includes(concept.id);
+          const num = track.concepts.findIndex(c => c.id === concept.id) + 1;
+          const isCurrent = !isDone && concept.id === (lastConceptId || track.concepts[0]?.id);
           return (
             <div key={concept.id} className="rounded-xl overflow-hidden" style={{ border: '1px solid var(--border)', background: 'var(--surface)' }}>
               <button
                 onClick={() => openConcept(concept)}
                 className="w-full flex items-center gap-3 px-4 py-3.5 text-left"
               >
-                {isOpen ? <ChevronDown size={16} style={{ color: 'var(--text-3)' }} /> : <ChevronRight size={16} style={{ color: 'var(--text-3)' }} />}
-                <span className="text-xl">{concept.analogy.emoji}</span>
-                <div className="flex-1">
-                  <div className="font-semibold text-[15px]" style={{ color: 'var(--text-1)' }}>{concept.title}</div>
-                  <div className="text-xs" style={{ color: 'var(--text-3)' }}>{concept.tagline}</div>
+                <span
+                  className="w-7 h-7 rounded-full flex items-center justify-center shrink-0 font-mono text-xs font-semibold"
+                  style={isDone
+                    ? { background: 'var(--diff-easy)', color: '#fff' }
+                    : isCurrent
+                      ? { background: 'var(--accent-12)', color: ACC, border: `1px solid ${ACC}` }
+                      : { background: 'var(--inset)', color: 'var(--text-3)', border: '1px solid var(--border)' }}
+                >
+                  {isDone ? <Check size={13} strokeWidth={3} /> : num}
+                </span>
+                <div className="flex-1 min-w-0">
+                  <div className="font-semibold text-[15px] truncate" style={{ color: 'var(--text-1)' }}>{concept.analogy.emoji} {concept.title}</div>
+                  <div className="text-xs truncate" style={{ color: 'var(--text-3)' }}>{concept.tagline}</div>
                 </div>
-                {isDone && (
-                  <span className="w-6 h-6 rounded-full flex items-center justify-center shrink-0" style={{ background: 'var(--diff-easy)', opacity: 0.9 }}>
-                    <Check size={13} color="#fff" strokeWidth={3} />
-                  </span>
-                )}
+                <span className="font-mono text-[11px] shrink-0 px-2 py-1 rounded-full" style={{ background: 'var(--inset)', color: 'var(--text-3)' }}>+10 XP</span>
+                {isOpen ? <ChevronDown size={16} className="shrink-0" style={{ color: 'var(--text-3)' }} /> : <ChevronRight size={16} className="shrink-0" style={{ color: 'var(--text-3)' }} />}
               </button>
 
               {isOpen && (
