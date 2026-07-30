@@ -162,6 +162,23 @@ export default function LearnWithKai() {
   const openIdRef = useRef(openId);
   useEffect(() => { openIdRef.current = openId; }, [openId]);
 
+  // A resolved feedback message (quiz answered right, a "teach-back" claim
+  // settled) is a one-off reaction, not a permanent state — without this it
+  // sits there forever, so dismissing/re-opening Kai or scrolling just
+  // re-shows the same "Nice catch!" indefinitely. `mode === 'thinking'` means
+  // the wrong-answer state (retry/hint still pending), which should NOT
+  // auto-clear out from under the user.
+  useEffect(() => {
+    if (!feedback || mode === 'thinking') return undefined;
+    const id = setTimeout(() => {
+      setFeedback(null);
+      setClaim(null);
+      setMode('idle');
+      setMessage(`Whenever you're ready, pick another ${track.name} concept below.`);
+    }, 5000);
+    return () => clearTimeout(id);
+  }, [feedback, mode, track.name]);
+
   const switchTrack = (trackId) => {
     if (trackId === activeTrackId) return;
     const nextTrack = getTrack(trackId);
