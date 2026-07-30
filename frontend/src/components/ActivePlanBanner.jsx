@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
-import { useAppState } from '../lib/appState';
+import { useAppState, getCurrentDay, getDayCards } from '../lib/appState';
 import { COMPANIES } from '../lib/mockData';
 import { PixelBar } from './PixelBar';
 
@@ -8,10 +8,18 @@ export const ActivePlanBanner = () => {
   const { state } = useAppState();
   const navigate = useNavigate();
   const plan = state.activePlan;
-  if (!plan) return null;
+  // plan.plan (the real, generated day-by-day content) is what makes this a
+  // real plan — an outer activePlan wrapper without it is stale/legacy data
+  // (this banner used to also read a `plan.dueQuestions` field that hasn't
+  // existed since the Study Plan/Daily Review rework; both bugs let this
+  // banner show invented progress for an account with no real assessment
+  // behind it, while Daily Review correctly showed "nothing to review").
+  if (!plan?.plan) return null;
 
   const company = COMPANIES.find(c => c.id === plan.company);
   const dayPct = Math.round((plan.currentDay / plan.totalDays) * 100);
+  const today = getCurrentDay(plan);
+  const duePending = today ? getDayCards(today).filter(c => c.status === 'pending').length : 0;
 
   return (
     <div data-testid="active-plan-banner" className="border-b border-white/5 bg-zinc-950">
@@ -36,8 +44,8 @@ export const ActivePlanBanner = () => {
           <span className="text-zinc-600 mx-1.5">·</span>
           <span className="text-zinc-500">prep</span>
           <span className="text-zinc-600 mx-1.5">·</span>
-          <span className="text-zinc-50">{plan.dueQuestions}</span>
-          <span className="text-zinc-500 ml-1 truncate">question{plan.dueQuestions === 1 ? '' : 's'} due…</span>
+          <span className="text-zinc-50">{duePending}</span>
+          <span className="text-zinc-500 ml-1 truncate">card{duePending === 1 ? '' : 's'} due…</span>
         </div>
 
         <button

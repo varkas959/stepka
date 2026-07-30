@@ -1,23 +1,54 @@
-import { Flame, Snowflake, Zap, TrendingUp } from 'lucide-react';
+import { Flame, Snowflake, Zap, TrendingUp, ArrowRight } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { useAppState } from '../lib/appState';
 import { PixelBar } from '../components/PixelBar';
 import { ContributionHeatmap } from '../components/ContributionHeatmap';
 import { ActivePlanBanner } from '../components/ActivePlanBanner';
-import { XP_EVENTS, XP_BREAKDOWN, TOPIC_MASTERY, COMPANIES } from '../lib/mockData';
+import { XP_EVENTS, XP_BREAKDOWN, COMPANIES } from '../lib/mockData';
 import { toast } from 'sonner';
 import { ResponsiveContainer, BarChart, Bar, XAxis, Tooltip, Cell } from 'recharts';
 
+const BAND_LEVEL = { 'Critical Gap': 1, 'Weak': 2, 'Needs Improvement': 3, 'Moderate': 3, 'Strong': 4, 'Interview Ready': 5 };
+
 export default function Progress() {
   const { state, consumeFreeze } = useAppState();
+
+  // Everything on this page — streak, level, readiness, topic mastery — was
+  // previously gated on "any XP/streak/reviewedToday > 0", which has nothing
+  // to do with whether a real assessment ever happened. That let an account
+  // with no plan (Daily Review correctly shows "nothing to review yet")
+  // still show a 68% readiness and six topic-mastery bars pulled from a
+  // generic mock array, not that account's actual assessment. There is no
+  // "progress" to report on until a real plan exists — this page is the
+  // post-assessment view, full stop, same as Daily Review already is.
+  if (!state.activePlan?.plan) {
+    return (
+      <div className="px-4 md:px-10 py-6 md:py-10 max-w-2xl mx-auto" data-testid="progress-page">
+        <Breadcrumb segments={['progress']} />
+        <h1 className="text-3xl md:text-4xl font-semibold tracking-tight text-zinc-50">Nothing to show yet</h1>
+        <p className="mt-3 text-base leading-relaxed max-w-md" style={{ color: 'var(--text-2)' }}>
+          Progress tracks your actual plan — readiness, streak, and topic mastery all come from a real assessment. Start one from a job description.
+        </p>
+        <Link to="/app/plan" data-testid="start-plan-cta"
+          className="pressable mt-6 inline-flex items-center gap-2 text-sm font-semibold px-5 py-2.5 rounded-lg text-white hover:opacity-90 transition-opacity"
+          style={{ background: 'var(--accent)' }}>
+          Start a plan <ArrowRight size={14} strokeWidth={2.5} />
+        </Link>
+      </div>
+    );
+  }
+
   const company = COMPANIES.find(c => c.id === state.activePlan?.company);
   const xpPct = Math.round((state.xp / state.xpToNext) * 100);
   const readinessColor = state.readiness < 40 ? '#ef4444' : state.readiness < 70 ? '#f59e0b' : '#22c55e';
-  // XP_EVENTS / TOPIC_MASTERY / HEATMAP_DATA are fixed illustrative arrays,
-  // not derived from real per-user history (that history isn't tracked yet).
-  // Showing them unconditionally means a guest with zero real activity sees
-  // an invented 8-week streak of green squares next to a genuine "Streak: 0"
-  // — a direct, visible contradiction on the same screen. Only show this
-  // illustrative content once there's some real sign of activity.
+  // Real per-skill scores from this account's own assessment, persisted on
+  // the plan — not the generic TOPIC_MASTERY mock array, which was
+  // completely disconnected from any actual per-user result.
+  const topicMastery = state.activePlan.heatmap || [];
+  // XP_EVENTS / XP_BREAKDOWN are still illustrative (that history isn't
+  // tracked per-event yet) — real activity is real now that it's gated on
+  // an actual plan, but these two specific widgets remain a placeholder for
+  // future work, kept honest via their own gate below.
   const hasRealActivity = state.streak > 0 || state.xp > 0 || state.reviewedToday > 0;
 
   const useFreeze = () => {
@@ -162,33 +193,34 @@ export default function Progress() {
           )}
         </Card>
 
-        {/* Topic mastery */}
+        {/* Topic mastery — real per-skill scores from this account's own
+            assessment (state.activePlan.heatmap), not a generic mock array. */}
         <Card className="md:col-span-3 lg:col-span-2" testid="topic-mastery-card">
           <Eyebrow>Topic mastery · active plan</Eyebrow>
-          {hasRealActivity ? (
+          {topicMastery.length > 0 ? (
             <div className="mt-4 space-y-3">
-              {TOPIC_MASTERY.map(t => {
-                const color = t.level >= 4 ? '#22c55e' : t.level === 3 ? '#f59e0b' : '#ef4444';
-                const pct = Math.round((t.level / 5) * 100);
+              {topicMastery.map(t => {
+                const level = BAND_LEVEL[t.band] || Math.max(1, Math.round(t.score / 20));
+                const color = level >= 4 ? '#22c55e' : level === 3 ? '#f59e0b' : '#ef4444';
                 return (
-                  <div key={t.topic} className="flex items-center gap-3">
-                    <div className="w-24 sm:w-32 text-sm text-zinc-200 truncate shrink-0">{t.topic}</div>
+                  <div key={t.skill} className="flex items-center gap-3">
+                    <div className="w-24 sm:w-32 text-sm text-zinc-200 truncate shrink-0">{t.skill}</div>
                     {/* Numeric label sits on the bar itself, not just after it —
                         color alone (red/amber/green) isn't a reliable signal
                         for color-blind readers. */}
                     <div className="relative flex-1 min-w-0">
-                      <PixelBar value={pct} height={16} color={color} dotColor={color} />
+                      <PixelBar value={t.score} height={16} color={color} dotColor={color} />
                       <span className="absolute inset-0 flex items-center justify-end pr-1.5 font-mono text-[10px] font-semibold text-white/90" style={{ textShadow: '0 1px 2px rgba(0,0,0,0.6)' }}>
-                        {pct}%
+                        {t.score}%
                       </span>
                     </div>
-                    <div className="w-10 text-right font-mono text-xs shrink-0" style={{ color }}>{t.level}/5</div>
+                    <div className="w-10 text-right font-mono text-xs shrink-0" style={{ color }}>{level}/5</div>
                   </div>
                 );
               })}
             </div>
           ) : (
-            <EmptyState className="mt-4">Complete an assessment on Study Plan to see your topic mastery.</EmptyState>
+            <EmptyState className="mt-4">Your assessment didn't save a skill breakdown — re-run it from Study Plan to see topic mastery here.</EmptyState>
           )}
         </Card>
 

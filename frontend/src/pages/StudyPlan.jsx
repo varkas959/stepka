@@ -15,6 +15,9 @@ import { DepthChallenge } from '../components/DepthChallenge';
 import { KaiCompanion } from '../components/KaiCompanion';
 
 const PENDING_JD_KEY = 'stepkai_pending_jd';
+// Same rounding as Home.jsx/AuthGate.jsx — an approximation that can't drift
+// out of sync with the live, growing count the way a hardcoded number would.
+const QUESTION_COUNT_APPROX = `${Math.floor(QUESTIONS.length / 100) * 100}+`;
 
 const ACTIVE_COMPANY_IDS = [...new Set(QUESTIONS.map(q => q.company))];
 const ACTIVE_COMPANIES = COMPANIES.filter(c => ACTIVE_COMPANY_IDS.includes(c.id));
@@ -394,30 +397,38 @@ const JdImport = ({ onExtract }) => {
   );
 };
 
-// ─── Mobile signed-in status summary ──────────────────────────────────────────
-// This only ever renders for a signed-in user who doesn't have a plan yet —
-// once a real plan exists, StudyPlan's hydration effect redirects straight
-// into PlanCalendar (which owns the real Day X/N · Start Day N experience
-// now). "Due today" doesn't mean anything without a plan (there's nothing to
-// review), so this shows readiness/streak and points at creating a plan
-// rather than a generic "browse questions" detour.
-const MobileHomeSummary = ({ readiness, streak }) => (
-  <div className="rounded-xl border border-white/8 p-5" style={{ background: 'var(--inset)' }}>
-    <div className="grid grid-cols-2 gap-3 text-center">
-      <div>
-        <div className="font-mono text-2xl font-semibold" style={{ color: readiness >= 70 ? '#22c55e' : readiness >= 40 ? '#f59e0b' : '#ef4444' }}>{readiness || 0}%</div>
-        <div className="text-[11px] mt-1" style={{ color: 'var(--text-3)' }}>readiness</div>
-      </div>
-      <div>
-        <div className="font-mono text-2xl font-semibold text-zinc-100">{streak || 0}</div>
-        <div className="text-[11px] mt-1" style={{ color: 'var(--text-3)' }}>day streak</div>
-      </div>
+// ─── Mobile "no plan yet" prompt ──────────────────────────────────────────────
+// This only ever renders for a signed-in user who doesn't have a real plan
+// yet — once one exists, StudyPlan's hydration effect redirects straight into
+// PlanCalendar. It used to show state.readiness/state.streak here, which are
+// both global fields set independently of whether a plan actually exists (an
+// abandoned assessment, or plain stale state, could leave readiness at some
+// number with nothing behind it) — the same class of bug as Daily Review
+// once showing 8 fabricated cards. There is nothing to report yet, so this
+// says exactly that instead of a number that isn't backed by anything.
+const MobileNoPlanPrompt = ({ onStart }) => (
+  <div className="rounded-xl border border-white/8 p-6 text-center" style={{ background: 'var(--inset)' }}>
+    <div className="text-lg font-semibold text-zinc-50">No plan yet</div>
+    <p className="text-sm mt-2 leading-relaxed" style={{ color: 'var(--text-2)' }}>
+      Paste a job description and you'll get a 14-day plan built around your actual gaps.
+    </p>
+    <button onClick={onStart}
+      className="pressable mt-4 w-full inline-flex items-center justify-center gap-2 text-sm font-semibold py-3 rounded-lg text-white hover:opacity-90 transition-opacity"
+      style={{ background: 'var(--accent)' }}>
+      Paste a JD <ArrowRight size={14} strokeWidth={2.5} />
+    </button>
+    <p className="text-[11px] mt-2" style={{ color: 'var(--text-3)' }}>Takes ~3 min · 10 questions · free</p>
+
+    <div className="mt-5 pt-4 border-t border-white/6">
+      <Link to="/app/questions" className="text-xs" style={{ color: 'var(--text-3)' }}>
+        Not ready? Browse {QUESTION_COUNT_APPROX} real questions →
+      </Link>
     </div>
   </div>
 );
 
 // ─── Input step ──────────────────────────────────────────────────────────────
-const InputStep = ({ jd, setJd, company, setCompany, role, setRole, interviewDate, setInterviewDate, onStart, activePlan, isGuest, dueToday, readiness, streak }) => {
+const InputStep = ({ jd, setJd, company, setCompany, role, setRole, interviewDate, setInterviewDate, onStart, activePlan, isGuest }) => {
   const selectedCompanyName = COMPANIES.find(c => c.id === company)?.name;
   // Mobile is a different job: nobody pastes a JD on a phone. Signed-in users on
   // mobile get a compact status summary instead of the marketing/onboarding copy,
@@ -432,17 +443,11 @@ const InputStep = ({ jd, setJd, company, setCompany, role, setRole, interviewDat
       <p className="text-zinc-400 mt-1.5 text-sm">Upload a job description and get a personalised gap analysis in minutes.</p>
     </div>
 
-    {/* Mobile, signed-in: compact status summary — the whole screen, no marketing card */}
-    {!isGuest && (
+    {/* Mobile, signed-in, no real plan: the honest empty state — the whole
+        screen, no invented numbers standing in for a plan that doesn't exist. */}
+    {!isGuest && !showJdFormMobile && (
       <div className="md:hidden mb-6">
-        <MobileHomeSummary readiness={readiness} streak={streak} />
-        {!showJdFormMobile && (
-          <button onClick={() => setShowJdFormMobile(true)}
-            className="mt-3 w-full text-center text-xs py-2 underline underline-offset-2 font-medium"
-            style={{ color: 'var(--accent)' }}>
-            {activePlan ? 'Re-run assessment with a new JD →' : 'Paste a job description to get a plan →'}
-          </button>
-        )}
+        <MobileNoPlanPrompt onStart={() => setShowJdFormMobile(true)} />
       </div>
     )}
 
@@ -456,7 +461,7 @@ const InputStep = ({ jd, setJd, company, setCompany, role, setRole, interviewDat
     <div className={`grid grid-cols-1 lg:grid-cols-[1fr_1.6fr] gap-5 items-start ${!isGuest ? (mobileFormVisible ? '' : 'hidden md:grid') : ''}`}>
       {/* Left: returning user sees their current plan, not marketing copy;
           first-time visitors see the value proposition. */}
-      {activePlan ? (
+      {activePlan?.plan ? (
         <div className="rounded-xl border border-white/8 p-6" style={{ background: 'var(--inset)' }}>
           <div className="text-[11px] font-mono uppercase tracking-[0.16em] text-zinc-500 mb-4">Your active plan</div>
           <div className="text-lg font-semibold text-zinc-100">{activePlan.company} · {activePlan.role}</div>
