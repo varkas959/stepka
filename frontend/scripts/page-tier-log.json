@@ -1,0 +1,405 @@
+{
+  "lastEvaluated": "2026-07-31",
+  "companies": [
+    {
+      "id": "amazon",
+      "name": "Amazon",
+      "questionCount": 304,
+      "hasRoundInfo": true,
+      "tier": "full",
+      "override": null
+    },
+    {
+      "id": "google",
+      "name": "Google",
+      "questionCount": 30,
+      "hasRoundInfo": true,
+      "tier": "full",
+      "override": null
+    },
+    {
+      "id": "microsoft",
+      "name": "Microsoft",
+      "questionCount": 20,
+      "hasRoundInfo": true,
+      "tier": "full",
+      "override": null
+    },
+    {
+      "id": "flipkart",
+      "name": "Flipkart",
+      "questionCount": 13,
+      "hasRoundInfo": true,
+      "tier": "full",
+      "override": null
+    },
+    {
+      "id": "swiggy",
+      "name": "Swiggy",
+      "questionCount": 10,
+      "hasRoundInfo": true,
+      "tier": "full",
+      "override": null
+    },
+    {
+      "id": "meta",
+      "name": "Meta",
+      "questionCount": 21,
+      "hasRoundInfo": true,
+      "tier": "full",
+      "override": null
+    },
+    {
+      "id": "apple",
+      "name": "Apple",
+      "questionCount": 15,
+      "hasRoundInfo": false,
+      "tier": "lite",
+      "override": null
+    },
+    {
+      "id": "netflix",
+      "name": "Netflix",
+      "questionCount": 16,
+      "hasRoundInfo": false,
+      "tier": "lite",
+      "override": null
+    },
+    {
+      "id": "uber",
+      "name": "Uber",
+      "questionCount": 18,
+      "hasRoundInfo": true,
+      "tier": "full",
+      "override": null
+    },
+    {
+      "id": "airbnb",
+      "name": "Airbnb",
+      "questionCount": 13,
+      "hasRoundInfo": false,
+      "tier": "lite",
+      "override": null
+    },
+    {
+      "id": "stripe",
+      "name": "Stripe",
+      "questionCount": 14,
+      "hasRoundInfo": false,
+      "tier": "lite",
+      "override": null
+    },
+    {
+      "id": "razorpay",
+      "name": "Razorpay",
+      "questionCount": 18,
+      "hasRoundInfo": false,
+      "tier": "lite",
+      "override": null
+    },
+    {
+      "id": "phonepe",
+      "name": "PhonePe",
+      "questionCount": 8,
+      "hasRoundInfo": false,
+      "tier": "lite",
+      "override": null
+    },
+    {
+      "id": "paytm",
+      "name": "Paytm",
+      "questionCount": 6,
+      "hasRoundInfo": false,
+      "tier": "lite",
+      "override": null
+    },
+    {
+      "id": "zomato",
+      "name": "Zomato",
+      "questionCount": 9,
+      "hasRoundInfo": false,
+      "tier": "lite",
+      "override": null
+    },
+    {
+      "id": "salesforce",
+      "name": "Salesforce",
+      "questionCount": 12,
+      "hasRoundInfo": false,
+      "tier": "lite",
+      "override": null
+    },
+    {
+      "id": "oracle",
+      "name": "Oracle",
+      "questionCount": 11,
+      "hasRoundInfo": false,
+      "tier": "lite",
+      "override": null
+    },
+    {
+      "id": "adobe",
+      "name": "Adobe",
+      "questionCount": 10,
+      "hasRoundInfo": false,
+      "tier": "lite",
+      "override": null
+    },
+    {
+      "id": "linkedin",
+      "name": "LinkedIn",
+      "questionCount": 12,
+      "hasRoundInfo": false,
+      "tier": "lite",
+      "override": null
+    },
+    {
+      "id": "atlassian",
+      "name": "Atlassian",
+      "questionCount": 13,
+      "hasRoundInfo": false,
+      "tier": "lite",
+      "override": null
+    },
+    {
+      "id": "accenture",
+      "name": "Accenture",
+      "questionCount": 25,
+      "hasRoundInfo": true,
+      "tier": "full",
+      "override": null
+    },
+    {
+      "id": "deloitte",
+      "name": "Deloitte",
+      "questionCount": 30,
+      "hasRoundInfo": true,
+      "tier": "full",
+      "override": null
+    },
+    {
+      "id": "wipro",
+      "name": "Wipro",
+      "questionCount": 26,
+      "hasRoundInfo": true,
+      "tier": "full",
+      "override": null
+    },
+    {
+      "id": "infosys",
+      "name": "Infosys",
+      "questionCount": 14,
+      "hasRoundInfo": true,
+      "tier": "full",
+      "override": null
+    },
+    {
+      "id": "tcs",
+      "name": "TCS",
+      "questionCount": 167,
+      "hasRoundInfo": true,
+      "tier": "full",
+      "override": null
+    },
+    {
+      "id": "capgemini",
+      "name": "Capgemini",
+      "questionCount": 13,
+      "hasRoundInfo": true,
+      "tier": "full",
+      "override": null
+    },
+    {
+      "id": "payu",
+      "name": "PayU",
+      "questionCount": 21,
+      "hasRoundInfo": false,
+      "tier": "lite",
+      "override": null
+    },
+    {
+      "id": "general",
+      "name": "General",
+      "questionCount": 168,
+      "hasRoundInfo": false,
+      "tier": "lite",
+      "override": null
+    },
+    {
+      "id": "anthropic",
+      "name": "Anthropic",
+      "questionCount": 1,
+      "hasRoundInfo": false,
+      "tier": "noindex",
+      "override": null
+    },
+    {
+      "id": "openai",
+      "name": "OpenAI",
+      "questionCount": 1,
+      "hasRoundInfo": false,
+      "tier": "noindex",
+      "override": null
+    },
+    {
+      "id": "tiktok",
+      "name": "TikTok",
+      "questionCount": 1,
+      "hasRoundInfo": false,
+      "tier": "noindex",
+      "override": null
+    },
+    {
+      "id": "jpmorgan",
+      "name": "JPMorgan",
+      "questionCount": 2,
+      "hasRoundInfo": false,
+      "tier": "noindex",
+      "override": null
+    },
+    {
+      "id": "walmart",
+      "name": "Walmart",
+      "questionCount": 1,
+      "hasRoundInfo": false,
+      "tier": "noindex",
+      "override": null
+    },
+    {
+      "id": "spotify",
+      "name": "Spotify",
+      "questionCount": 1,
+      "hasRoundInfo": false,
+      "tier": "noindex",
+      "override": null
+    },
+    {
+      "id": "doordash",
+      "name": "DoorDash",
+      "questionCount": 1,
+      "hasRoundInfo": false,
+      "tier": "noindex",
+      "override": null
+    },
+    {
+      "id": "goldman",
+      "name": "Goldman Sachs",
+      "questionCount": 1,
+      "hasRoundInfo": false,
+      "tier": "noindex",
+      "override": null
+    },
+    {
+      "id": "revolut",
+      "name": "Revolut",
+      "questionCount": 1,
+      "hasRoundInfo": false,
+      "tier": "lite",
+      "override": "real CTR evidence (2 clicks/31 impr as of 2026-07-31) outweighs 1-question depth"
+    },
+    {
+      "id": "canva",
+      "name": "Canva",
+      "questionCount": 1,
+      "hasRoundInfo": false,
+      "tier": "noindex",
+      "override": null
+    },
+    {
+      "id": "capitalone",
+      "name": "Capital One",
+      "questionCount": 1,
+      "hasRoundInfo": false,
+      "tier": "noindex",
+      "override": null
+    },
+    {
+      "id": "lyft",
+      "name": "Lyft",
+      "questionCount": 1,
+      "hasRoundInfo": false,
+      "tier": "noindex",
+      "override": null
+    },
+    {
+      "id": "sap",
+      "name": "SAP",
+      "questionCount": 1,
+      "hasRoundInfo": false,
+      "tier": "noindex",
+      "override": null
+    },
+    {
+      "id": "siemens",
+      "name": "Siemens",
+      "questionCount": 1,
+      "hasRoundInfo": false,
+      "tier": "noindex",
+      "override": null
+    },
+    {
+      "id": "shopify",
+      "name": "Shopify",
+      "questionCount": 1,
+      "hasRoundInfo": false,
+      "tier": "noindex",
+      "override": null
+    },
+    {
+      "id": "grab",
+      "name": "Grab",
+      "questionCount": 10,
+      "hasRoundInfo": false,
+      "tier": "lite",
+      "override": null
+    },
+    {
+      "id": "cognizant",
+      "name": "Cognizant",
+      "questionCount": 6,
+      "hasRoundInfo": false,
+      "tier": "lite",
+      "override": null
+    },
+    {
+      "id": "ltimindtree",
+      "name": "LTIMindtree",
+      "questionCount": 18,
+      "hasRoundInfo": false,
+      "tier": "lite",
+      "override": null
+    },
+    {
+      "id": "myntra",
+      "name": "Myntra",
+      "questionCount": 1,
+      "hasRoundInfo": false,
+      "tier": "noindex",
+      "override": null
+    },
+    {
+      "id": "hotstar",
+      "name": "Hotstar",
+      "questionCount": 1,
+      "hasRoundInfo": false,
+      "tier": "noindex",
+      "override": null
+    },
+    {
+      "id": "twitter",
+      "name": "Twitter",
+      "questionCount": 1,
+      "hasRoundInfo": false,
+      "tier": "noindex",
+      "override": null
+    },
+    {
+      "id": "snowflake_co",
+      "name": "Snowflake",
+      "questionCount": 5,
+      "hasRoundInfo": false,
+      "tier": "lite",
+      "override": null
+    }
+  ]
+}

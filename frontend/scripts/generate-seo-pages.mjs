@@ -90,7 +90,7 @@ function write(relPath, html) {
 }
 
 // ── Base HTML shell ──────────────────────────────────────────────────────────
-function shell({ title, desc, canonical, h1, bodyHtml, faqItems = [], breadcrumb = [] }) {
+function shell({ title, desc, canonical, h1, bodyHtml, faqItems = [], breadcrumb = [], noindex = false }) {
   const faqSchema = faqItems.length ? `
 <script type="application/ld+json">
 {
@@ -151,7 +151,7 @@ function shell({ title, desc, canonical, h1, bodyHtml, faqItems = [], breadcrumb
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:title" content="${esc(title)} | Stepkai" />
 <meta name="twitter:description" content="${esc(trunc(desc, 155))}" />
-<meta name="robots" content="index, follow" />
+<meta name="robots" content="${noindex ? 'noindex, follow' : 'index, follow'}" />
 <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-MY36EXDRBM"></script>
 <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-MY36EXDRBM');</script>
@@ -581,15 +581,45 @@ const ROUND_INFO = {
 
 const ACTIVE_COMPANIES = COMPANIES.filter(c => QUESTIONS.some(q => q.company === c.id));
 
+// ── Content-depth tiering ────────────────────────────────────────────────────
+// A page should never present synthetic depth as if it were real (same
+// principle as the app's activePlan gating). "full" is the only tier allowed
+// to show the hand-authored rounds breakdown / insider tip / hiring-process
+// FAQ — those are the only companies where that content is actually true,
+// not templated filler with the name swapped in. Below that, a page shows
+// only what's real (the questions themselves) and nothing invented.
+//   full:     real ROUND_INFO *and* >=5 questions — rounds+tip+FAQ allowed
+//   lite:     >=3 questions, no ROUND_INFO — real questions only, indexed
+//   noindex:  <3 questions — real questions only, excluded from the index
+//             until there's enough here to be worth ranking
+// TIER_OVERRIDES exists for cases where real GSC performance contradicts the
+// question-count proxy — evidence of actual searcher interest outranks a
+// content-depth heuristic. Overridden entries are logged with a reason below.
+const isFullTierCompany = (co) => !!ROUND_INFO[co.id] && QUESTIONS.filter(q => q.company === co.id).length >= 5;
+const TIER_OVERRIDES = {
+  // Revolut: only 1 question, would be noindex by count — but as of the
+  // 2026-07-31 GSC pull it's the #2 non-homepage page site-wide (31
+  // impressions, 2 clicks across interview-process + prepare combined).
+  // Real click-through evidence beats the question-count proxy. Re-check
+  // this override whenever question coverage or performance changes.
+  revolut: { tier: 'lite', reason: 'real CTR evidence (2 clicks/31 impr as of 2026-07-31) outweighs 1-question depth' },
+};
+const tierLog = []; // written to page-tier-log.json below, for scheduled re-evaluation
+
 ACTIVE_COMPANIES.forEach(co => {
   const qs       = QUESTIONS.filter(q => q.company === co.id);
-  const info     = ROUND_INFO[co.id] || {
-    rounds: ['Online test / phone screen', 'Technical interview', 'Managerial / HR round'],
-    tips:   `Prepare well for the technical interview with questions from ${co.name}'s previous loops.`,
-  };
+  const isFull   = isFullTierCompany(co);
+  const override = TIER_OVERRIDES[co.id];
+  const tier     = override ? override.tier : (isFull ? 'full' : qs.length >= 3 ? 'lite' : 'noindex');
+  const info     = ROUND_INFO[co.id]; // only defined when isFull — never fall back to generic rounds text
+
+  tierLog.push({ id: co.id, name: co.name, questionCount: qs.length, hasRoundInfo: !!ROUND_INFO[co.id], tier, override: override?.reason || null });
+
   const compSlug  = slug(co.name);
   const title     = `${co.name} Interview Process ${YEAR} — Rounds, Tips & Questions`;
-  const desc      = `Everything about the ${co.name} interview process: rounds, what each round tests, difficulty level, and ${qs.length} real questions asked by engineers who cleared the loop.`;
+  const desc      = isFull
+    ? `Everything about the ${co.name} interview process: rounds, what each round tests, difficulty level, and ${qs.length} real questions asked by engineers who cleared the loop.`
+    : `${qs.length} real ${co.name} interview question${qs.length === 1 ? '' : 's'} reported by engineers, with difficulty and round context.`;
   const canonical = `/interview-process/${compSlug}/`;
 
   const techs  = [...new Set(qs.flatMap(q => q.tech||[]))].filter(t => isValidCombo(co.id, t)).slice(0, 8);
@@ -598,12 +628,12 @@ ACTIVE_COMPANIES.forEach(co => {
   const bodyHtml = `
 <p class="subtitle">${esc(desc)}</p>
 <div class="stat-row">
-  <div class="stat"><b>${info.rounds.length}</b> rounds</div>
-  <div class="stat"><b>${qs.length}</b> real questions</div>
+  ${isFull ? `<div class="stat"><b>${info.rounds.length}</b> rounds</div>` : ''}
+  <div class="stat"><b>${qs.length}</b> real question${qs.length === 1 ? '' : 's'}</div>
   <div class="stat"><b>${qs.reduce((s,q)=>s+q.asked,0)}</b> engineers asked</div>
 </div>
 
-<h2>Interview Rounds at ${esc(co.name)}</h2>
+${isFull ? `<h2>Interview Rounds at ${esc(co.name)}</h2>
 <ol style="padding-left:20px;margin-bottom:24px">
 ${info.rounds.map(r => `  <li style="padding:8px 0;color:#d4d4d8;font-size:15px">${esc(r)}</li>`).join('\n')}
 </ol>
@@ -611,7 +641,7 @@ ${info.rounds.map(r => `  <li style="padding:8px 0;color:#d4d4d8;font-size:15px"
 <div style="padding:18px 22px;border-radius:10px;border:1px solid rgba(245,158,11,.2);background:rgba(245,158,11,.04);margin-bottom:32px">
   <div style="font-family:monospace;font-size:10px;text-transform:uppercase;letter-spacing:.18em;color:#f59e0b;margin-bottom:8px">Insider tip</div>
   <p style="color:#d4d4d8;font-size:14px;line-height:1.7">${esc(info.tips)}</p>
-</div>
+</div>` : ''}
 
 <h2>Real Questions Asked at ${esc(co.name)}</h2>
 ${qs.sort((a,b)=>b.upvotes-a.upvotes).slice(0,10).map((q,i)=>qCard(q,i+1)).join('\n')}
@@ -630,16 +660,28 @@ ${relatedSection('Other company interview processes', ACTIVE_COMPANIES.filter(c=
 
   write(`interview-process/${compSlug}/index.html`, shell({
     title, desc, canonical, h1: title, bodyHtml,
-    faqItems: [
+    // FAQ content is only as good as what backs it — the rounds/hiring-process
+    // FAQ below is real for "full" tier (grounded in actual ROUND_INFO), and
+    // synthetic boilerplate for everyone else, so it simply isn't generated
+    // outside "full" rather than being watered down.
+    faqItems: isFull ? [
       { q: `What is the ${co.name} hiring process?`, a: `The ${co.name} hiring process has ${info.rounds.length} stages: ${info.rounds.join(', ')}. Most candidates report ${qs.length} distinct questions across these rounds.` },
       { q: `How many rounds does ${co.name} interview have?`, a: `${co.name} typically has ${info.rounds.length} rounds: ${info.rounds.join(', ')}.` },
       { q: `What happens in a ${co.name} technical interview?`, a: `The technical round at ${co.name} focuses on ${topics.slice(0,3).join(', ')}. ${info.tips}` },
       { q: `What topics does ${co.name} ask in technical rounds?`, a: topics.join(', ') + '. Based on ' + qs.length + ' questions reported by engineers.' },
       { q: `How hard is the ${co.name} interview?`, a: `Difficulty ranges from ${[...new Set(qs.map(q=>q.difficulty))].join(', ')}. ${info.tips}` },
-    ],
+    ] : [],
     breadcrumb: [{ label: 'Interview Process', href: '/interview-process/' }, { label: co.name, href: canonical }],
+    noindex: tier === 'noindex',
   }));
 });
+
+fs.writeFileSync(
+  path.join(__dirname, 'page-tier-log.json'),
+  JSON.stringify({ lastEvaluated: todayStr, companies: tierLog }, null, 2) + '\n',
+  'utf-8'
+);
+console.log(`[seo] Wrote page-tier-log.json — ${tierLog.filter(t=>t.tier==='full').length} full, ${tierLog.filter(t=>t.tier==='lite').length} lite, ${tierLog.filter(t=>t.tier==='noindex').length} noindex`);
 
 // Interview process index page
 {
@@ -663,9 +705,21 @@ console.log(`[seo] Generated interview-process pages`);
 // ═══════════════════════════════════════════════════════════════════════════
 // 8. HOW-TO-PREPARE PAGES  /prepare/[company]/
 //    Targets: "how to prepare for TCS interview", "Wipro interview preparation guide"
+//
+//    Only generated for "full" tier companies (see isFullTierCompany above).
+//    For everyone else this page's content — a stat row plus the same handful
+//    of real questions already shown on /interview-process/[company]/ — is a
+//    near-duplicate of that page with different wrapper copy, which is
+//    exactly the kind of split-signal, no-canonical-winner pair Search
+//    Console flagged. Below "full" tier there isn't enough distinct real
+//    content to justify two separate pages, so this one doesn't get built;
+//    vercel.json redirects /prepare/[company]/ -> /interview-process/[company]/
+//    for those companies instead of leaving a dangling/duplicate URL.
 // ═══════════════════════════════════════════════════════════════════════════
 
-ACTIVE_COMPANIES.forEach(co => {
+const PREPARE_COMPANIES = ACTIVE_COMPANIES.filter(isFullTierCompany);
+
+PREPARE_COMPANIES.forEach(co => {
   const qs      = QUESTIONS.filter(q => q.company === co.id);
   const compSlug = slug(co.name);
   const topics   = [...new Set(qs.map(q => q.topicPath))];
@@ -713,7 +767,7 @@ ${topQ.map((q,i)=>qCard(q,i+1)).join('\n')}
 ${relatedSection(`All ${esc(co.name)} questions by technology`, techs.map(t => ({
   label: `${co.name} ${t}`, href: `/questions/${compSlug}-${slug(t)}/`,
 })))}
-${relatedSection('Preparation guides for other companies', ACTIVE_COMPANIES.filter(c=>c.id!==co.id).slice(0,10).map(c=>({
+${relatedSection('Preparation guides for other companies', PREPARE_COMPANIES.filter(c=>c.id!==co.id).slice(0,10).map(c=>({
   label: `How to prepare for ${c.name}`, href: `/prepare/${slug(c.name)}/`,
 })))}`;
 
@@ -739,7 +793,7 @@ ${relatedSection('Preparation guides for other companies', ACTIVE_COMPANIES.filt
 <p class="subtitle">${esc(desc)}</p>
 <h2>Pick your target company</h2>
 <div class="pill-grid">
-${ACTIVE_COMPANIES.map(c => `<a href="/prepare/${slug(c.name)}/" class="pill">${esc(c.name)} Preparation Guide</a>`).join('\n')}
+${PREPARE_COMPANIES.map(c => `<a href="/prepare/${slug(c.name)}/" class="pill">${esc(c.name)} Preparation Guide</a>`).join('\n')}
 </div>
 ${practiceBlock('','')}`,
   }));
@@ -859,7 +913,10 @@ FEATURES.forEach(f => {
   const canonical = `/tools/${f.id}/`;
   const bodyHtml = `${f.body}
 ${relatedSection('Related tools', FEATURES.filter(f2=>f2.id!==f.id).map(f2=>({ label: f2.h1, href: `/tools/${f2.id}/` })))}
-${relatedSection('Company interview prep', ACTIVE_COMPANIES.slice(0,10).map(c=>({ label: `${c.name} preparation guide`, href: `/prepare/${slug(c.name)}/` })))}`;
+${relatedSection('Company interview prep', ACTIVE_COMPANIES.slice(0,10).map(c=>({
+  label: `${c.name} preparation guide`,
+  href: isFullTierCompany(c) ? `/prepare/${slug(c.name)}/` : `/interview-process/${slug(c.name)}/`,
+})))}`;
 
   write(`tools/${f.id}/index.html`, shell({
     title: f.title, desc: f.desc, canonical, h1: f.h1, bodyHtml, faqItems: f.faq,
@@ -1081,7 +1138,7 @@ ${sameRoleCompanies.length ? relatedSection(`Other companies hiring ${esc(role)}
 ${relatedSection(`More at ${esc(company.name)}`, [
   { label: `All ${esc(company.name)} questions`, href: `/questions/company/${compSlug}/` },
   { label: `${esc(company.name)} interview process`, href: `/interview-process/${compSlug}/` },
-  { label: `Prepare for ${esc(company.name)}`, href: `/prepare/${compSlug}/`, accent: true },
+  ...(isFullTierCompany(company) ? [{ label: `Prepare for ${esc(company.name)}`, href: `/prepare/${compSlug}/`, accent: true }] : []),
 ])}`;
 
   write(`companies/${compSlug}/${roleSlug}-interview-questions/index.html`, shell({
@@ -1289,7 +1346,7 @@ ${practiceBlock(company.name, '')}
 ${relatedSection(`More from ${esc(company.name)}`, [
   { label: `All ${esc(company.name)} questions`, href: `/questions/company/${compSlug}/` },
   { label: `${esc(company.name)} interview process`, href: `/interview-process/${compSlug}/` },
-  { label: `Prepare for ${esc(company.name)}`, href: `/prepare/${compSlug}/`, accent: true },
+  ...(isFullTierCompany(company) ? [{ label: `Prepare for ${esc(company.name)}`, href: `/prepare/${compSlug}/`, accent: true }] : []),
 ])}`;
 
   write(`interview-experience/${compSlug}/index.html`, shell({
